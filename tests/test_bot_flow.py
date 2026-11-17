@@ -6,8 +6,8 @@ from pathlib import Path
 from aiogram import Bot, Dispatcher
 from aiogram.client.session.base import BaseSession
 from aiogram.methods import (AnswerCallbackQuery, DeleteMessage, DeleteWebhook, EditMessageText,
-                             GetMe, SendMessage, SendPhoto)
-from aiogram.types import CallbackQuery, Chat, Message, MessageEntity, Update, User
+                             GetChatMember, GetMe, SendMessage, SendPhoto)
+from aiogram.types import ChatMemberLeft, ChatMemberMember, CallbackQuery, Chat, Message, MessageEntity, Update, User
 
 from otaku_bot.bot import build_router
 from otaku_bot.config import Settings
@@ -21,6 +21,7 @@ class FakeSession(BaseSession):
         super().__init__()
         self.calls = []
         self.n = 100
+        self.member = True
 
     async def close(self): ...
     async def stream_content(self, *a, **k): yield b""
@@ -31,6 +32,9 @@ class FakeSession(BaseSession):
             self.n += 1
             chat_id = getattr(method, "chat_id", 1)
             return Message(message_id=self.n, date=dt.datetime.now(), chat=Chat(id=chat_id, type="private"))
+        if isinstance(method, GetChatMember):
+            u = User(id=method.user_id, is_bot=False, first_name="x")
+            return ChatMemberMember(user=u) if self.member else ChatMemberLeft(user=u)
         if isinstance(method, GetMe):
             return User(id=999, is_bot=True, first_name="bot", username="otaku_test_bot")
         return True
@@ -122,5 +126,35 @@ def test_cannot_answer_twice_or_other_users_session():
         assert db.get_session(sid)["current_pos"] == 1
         await dp.feed_update(bot, cb(owner, f"a:{sid}:0:0", 5))        # زر قديم لسؤال سابق
         assert db.get_session(sid)["current_pos"] == 1
+
+    asyncio.run(go())
+
+
+def test_forced_subscription_gate():
+    from dataclasses import replace
+    db = DB(":memory:")
+    db.load_questions(QPATH)
+    s = replace(mk_settings(), required_channel="@Anime1Galaxy")
+    session = FakeSession()
+    session.member = False
+    bot = Bot("1:fake", session=session)
+    dp = Dispatcher()
+    dp.include_router(build_router(s, db))
+    user = User(id=1, is_bot=False, first_name="A")
+    m = Message(message_id=1, date=dt.datetime.now(), chat=Chat(id=1, type="private"), from_user=user)
+
+    def cb(data, i):
+        return Update(update_id=i, callback_query=CallbackQuery(
+            id=str(i), from_user=user, chat_instance="x", data=data, message=m))
+
+    async def go():
+        await dp.feed_update(bot, cb("go", 1))
+        assert db.active_session(1) is None                      # محجوب: غير مشترك
+        assert "اشترك" in session.calls[-1].text
+        await dp.feed_update(bot, cb("chk", 2))
+        assert db.active_session(1) is None                      # ضغط تحقق وهو غير مشترك
+        session.member = True
+        await dp.feed_update(bot, cb("chk", 3))
+        assert db.active_session(1) is not None                  # اشترك: يبدأ الاختبار
 
     asyncio.run(go())

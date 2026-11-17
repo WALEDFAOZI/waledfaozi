@@ -38,6 +38,7 @@ class Settings:
     timer_seconds: int       # 0 = بدون مؤقت
     cooldown_minutes: int    # الانتظار بين اختبارين مكتملين، 0 = بدون
     admin_ids: tuple[int, ...]
+    required_channel: str = ""   # مثل @Anime1Galaxy ، فارغ = بدون اشتراك إجباري
 
     @staticmethod
     def from_env() -> "Settings":
@@ -51,4 +52,5 @@ class Settings:
             timer_seconds=int(os.getenv("TIMER_SECONDS", "30")),
             cooldown_minutes=int(os.getenv("COOLDOWN_MINUTES", "30")),
             admin_ids=admins,
+            required_channel=os.getenv("REQUIRED_CHANNEL", "@Anime1Galaxy").strip(),
         )

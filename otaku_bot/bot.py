@@ -8,7 +8,7 @@ import time
 from urllib.parse import quote
 
 from aiogram import Bot, Dispatcher, F, Router
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 from aiogram.filters import Command, CommandObject
 from aiogram.types import (BufferedInputFile, CallbackQuery, InlineKeyboardButton,
                            InlineKeyboardMarkup, Message)
@@ -162,8 +162,35 @@ def build_router(settings: Settings, db: DB) -> Router:
             log.warning("card failed: %s", e)
             await bot.send_message(chat_id, caption, reply_markup=markup, parse_mode="HTML")
 
+    async def subscribed(bot: Bot, tg_id: int) -> bool:
+        """هل المستخدم مشترك بالقناة الإجبارية؟ (البوت لازم يكون أدمن بالقناة)"""
+        ch = settings.required_channel
+        if not ch:
+            return True
+        try:
+            member = await bot.get_chat_member(ch, tg_id)
+        except TelegramAPIError as e:
+            # لا نعطّل البوت لو نسيت تجعله أدمن؛ فقط نحذّر في السجل
+            log.warning("cannot verify subscription to %s (is the bot an admin there?): %s", ch, e)
+            return True
+        return member.status in ("creator", "administrator", "member") or (
+            member.status == "restricted" and getattr(member, "is_member", False))
+
+    async def ask_subscribe(bot: Bot, chat_id: int) -> None:
+        ch = settings.required_channel
+        await bot.send_message(
+            chat_id,
+            f"🔒 للمشاركة في التقييم لازم تشترك أولًا في قناتنا {esc(ch)}\n"
+            "اشترك ثم اضغط «تحققت».",
+            reply_markup=kb([btn("📢 اشترك في القناة", url=f"https://t.me/{ch.lstrip('@')}")],
+                            [btn("✅ تحققت", "chk")]),
+            parse_mode="HTML")
+
     async def begin_test(bot: Bot, chat_id: int, tg_id: int, name: str, force_new: bool = False) -> None:
         db.upsert_user(tg_id, name)
+        if not await subscribed(bot, tg_id):
+            await ask_subscribe(bot, chat_id)
+            return
         active = db.active_session(tg_id)
         if active and not force_new:
             await bot.send_message(
@@ -192,6 +219,9 @@ def build_router(settings: Settings, db: DB) -> Router:
         await send_question(bot, chat_id, sid, 0)
 
     async def resume(bot: Bot, chat_id: int, tg_id: int, name: str) -> None:
+        if not await subscribed(bot, tg_id):
+            await ask_subscribe(bot, chat_id)
+            return
         sess = db.active_session(tg_id)
         if not sess:
             await begin_test(bot, chat_id, tg_id, name)
@@ -280,6 +310,14 @@ def build_router(settings: Settings, db: DB) -> Router:
     @r.callback_query(F.data == "go")
     async def cb_go(c: CallbackQuery):
         await c.answer()
+        await begin_test(c.bot, c.message.chat.id, c.from_user.id, c.from_user.full_name)
+
+    @r.callback_query(F.data == "chk")
+    async def cb_check(c: CallbackQuery):
+        if not await subscribed(c.bot, c.from_user.id):
+            await c.answer("ما لقيتك مشترك بعد 🙁 اشترك ثم جرّب مرة ثانية", show_alert=True)
+            return
+        await c.answer("✅ تمام، أهلًا بك!")
         await begin_test(c.bot, c.message.chat.id, c.from_user.id, c.from_user.full_name)
 
     @r.callback_query(F.data == "new")
