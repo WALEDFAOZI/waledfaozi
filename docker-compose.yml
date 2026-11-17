@@ -1,0 +1,10 @@
+services:
+  bot:
+    build: .
+    restart: unless-stopped
+    env_file: .env          # فيه BOT_TOKEN (لا ترفعه إلى git)
+    volumes:
+      - otaku-data:/data    # قاعدة البيانات تبقى بعد إعادة التشغيل
+
+volumes:
+  otaku-data:

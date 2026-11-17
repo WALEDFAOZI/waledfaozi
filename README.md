@@ -15,6 +15,15 @@ cp .env.example .env             # ضع BOT_TOKEN من @BotFather
 python -m otaku_bot              # تشغيل البوت
 ```
 
+## النشر بـ Docker
+```bash
+echo "BOT_TOKEN=التوكن_هنا" > .env
+docker compose up -d --build     # يعيد التشغيل تلقائيًا، وقاعدة البيانات في volume دائم
+docker compose logs -f bot
+```
+أو بدون compose: `docker build -t otaku-bot . && docker run -d --restart unless-stopped --env-file .env -v otaku-data:/data otaku-bot`.
+التوكن لا يدخل الصورة أبدًا (يُمرَّر وقت التشغيل). على Railway/Fly.io ضع `BOT_TOKEN` في متغيرات البيئة وأضف volume على `/data`.
+
 ## كيف يعمل
 
 | الملف | الدور |
