@@ -79,6 +79,7 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
               [btn(t(L, "g_quote"), "g:quote")],
               [btn(t(L, "sec_more"), "noop")],
               [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_week"), "lb:week")],
+              [btn(t(L, "btn_country"), "cn:menu")],
               [btn(t(L, "btn_profile"), "pf"), btn(t(L, "btn_stats"), "st")],
               [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")])
 
@@ -361,6 +362,9 @@ def build_router(ctx: Ctx) -> Router:
         except Exception as e:  # noqa: BLE001  (الخط غير متوفر أو أي خطأ في الصورة → نص فقط)
             log.warning("card failed: %s", e)
             await bot.send_message(chat_id, caption, reply_markup=markup, parse_mode="HTML")
+        if mode == "full":                                   # بعد أول اختبار كامل نسأل عن الدولة (مرة واحدة)
+            from .countries import maybe_ask_country
+            await maybe_ask_country(bot, ctx, chat_id, tg_id)
 
     # ── بدء الاختبار ────────────────────────────────────────
     async def begin(bot: Bot, chat_id: int, tg_id: int, name: str, mode: str = "full",
@@ -539,6 +543,12 @@ def build_router(ctx: Ctx) -> Router:
             lines.append(t(L, "prof_acc", pct=round(100 * p["correct"] / p["answers"]), ok=p["correct"], n=p["answers"]))
         if p["sudden"]:
             lines.append(t(L, "prof_sudden", n=p["sudden"]))
+        from .countries import label as country_label
+        code = db.get_country(uid)
+        if code:
+            crk = db.country_rank(uid)
+            lines.append(t(L, "prof_country_rank", c=country_label(code, L), rank=crk) if crk
+                         else t(L, "prof_country", c=country_label(code, L)))
         if p["cats"]:
             lines.append(t(L, "prof_cat"))
             lines += [f"• {cat_label(L, cat)}: {acc * 100:.0f}%" for cat, acc, _ in p["cats"]]
@@ -673,6 +683,7 @@ def build_router(ctx: Ctx) -> Router:
         lines = [(medals[i] + l[l.index("."):][1:]) if i < 3 else l for i, l in enumerate(lines)]
         body = "\n".join(lines) if lines else t(L, "lb_empty")
         markup = kb([btn(t(L, "tab_all"), "lb:all"), btn(t(L, "tab_week"), "lb:week"), btn(t(L, "tab_sd"), "lb:sd")],
+                    [btn(t(L, "cn_btn_top"), "cn:top"), btn(t(L, "cn_btn_rank"), "cn:rank")],
                     [btn(t(L, "btn_menu"), "menu")])
         return f"{head}\n\n{body}{extra}", markup
 

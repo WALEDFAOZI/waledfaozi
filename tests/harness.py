@@ -9,7 +9,7 @@ from aiogram.client.session.base import BaseSession
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.methods import (EditMessageMedia, GetChatMember, GetChatMemberCount, GetMe, SendDocument, SendMessage,
                              SendPhoto, EditMessageText)
-from aiogram.types import (CallbackQuery, Chat, ChatMemberLeft, ChatMemberMember, Message,
+from aiogram.types import (CallbackQuery, Chat, ChatMemberLeft, ChatMemberMember, Location, Message,
                            MessageEntity, Update, User)
 
 from otaku_bot.app import build_dispatcher
@@ -82,7 +82,7 @@ class Harness:
     def user(self, i, name="U", lang="ar"):
         return User(id=i, is_bot=False, first_name=name, language_code=lang)
 
-    def _msg(self, user, text=None, photo=None, caption=None):
+    def _msg(self, user, text=None, photo=None, caption=None, location=None):
         ents = [MessageEntity(type="bot_command", offset=0, length=len(text.split()[0]))] \
             if text and text.startswith("/") else None
         return Message(message_id=1, date=dt.datetime.now(), chat=Chat(id=user.id, type="private"),
@@ -97,6 +97,11 @@ class Harness:
         self.uid += 1
         m = self._msg(user, None, photo=[PhotoSize(file_id=file_id, file_unique_id="u", width=1, height=1)],
                       caption=caption)
+        await self.dp.feed_update(self.bot, Update(update_id=self.uid, message=m))
+
+    async def location(self, user, lat, lon):
+        self.uid += 1
+        m = self._msg(user, location=Location(latitude=lat, longitude=lon))
         await self.dp.feed_update(self.bot, Update(update_id=self.uid, message=m))
 
     async def tap(self, user, data):

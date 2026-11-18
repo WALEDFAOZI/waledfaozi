@@ -244,3 +244,39 @@ T["en"].update({
  "sd_line_mid": ["Not bad! The hard ones are waiting for you 😈", "You held on, now climb higher"],
  "sd_line_high": ["Beast mode! Nobody can stop you 🔥", "Real shonen protagonist energy"],
 })
+
+
+# ═════════ الدول والموقع ═════════
+T["ar"].update({
+ "btn_country": "🏳️ بلدي والدول",
+ "cn_not_set": "🏳️ <b>من أي بلد أنت؟</b>\nاختر بلدك وشوف ترتيبك بين لاعبي دولتك وترتيب الدول 🌍",
+ "cn_pick": "اختر بلدك:",
+ "cn_ask_first": "🏳️ سؤال سريع: من أي بلد أنت؟\nنرتّب اللاعبين حسب الدولة ونعمل تنافس بين البلدان 🌍 (تقدر تتخطى)",
+ "cn_btn_skip": "لاحقًا",
+ "cn_btn_rank": "🌐 ترتيب الدول", "cn_btn_change": "✏️ غيّر بلدي",
+ "cn_current": "🏳️ بلدك: <b>{c}</b>", "cn_your_rank": "ترتيبك في بلدك: <b>#{rank}</b>",
+ "cn_saved": "تمام ✅ صرت من {c}", "cn_top_title": "🏆 <b>متصدرو {c}</b>",
+ "cn_no_players": "ما فيه لاعبين من بلدك بالقائمة بعد… كن أول واحد! 🏁",
+ "cn_rank_title": "🌐 <b>ترتيب الدول</b>\nمتوسط أفضل {top} لاعبين من كل بلد، وتظهر الدولة عند {min} لاعبين على الأقل.",
+ "cn_no_countries": "لسا ما فيه دولة وصلت للحد الأدنى من اللاعبين. ادعُ أصحابك من بلدك! 🚀",
+ "cn_country_pos": "ترتيب {c}: <b>#{pos}</b> بين الدول",
+ "prof_country": "🏳️ بلدك: {c}", "prof_country_rank": "🏳️ بلدك: {c} · ترتيبك فيه <b>#{rank}</b>",
+})
+T["en"].update({
+ "btn_country": "🏳️ My country & rankings",
+ "cn_not_set": "🏳️ <b>Which country are you from?</b>\nPick yours to see your rank among your countrymen and the countries ranking 🌍",
+ "cn_pick": "Pick your country:",
+ "cn_ask_first": "🏳️ Quick question: which country are you from?\nWe rank players by country and run a friendly rivalry between nations 🌍 (you can skip)",
+ "cn_btn_skip": "Later",
+ "cn_btn_rank": "🌐 Countries ranking", "cn_btn_change": "✏️ Change country",
+ "cn_current": "🏳️ Your country: <b>{c}</b>", "cn_your_rank": "Your rank in your country: <b>#{rank}</b>",
+ "cn_saved": "Done ✅ You're from {c}", "cn_top_title": "🏆 <b>Top players of {c}</b>",
+ "cn_no_players": "Nobody from your country on the board yet… be the first! 🏁",
+ "cn_rank_title": "🌐 <b>Countries ranking</b>\nAverage of each country's top {top} players; a country appears with at least {min} players.",
+ "cn_no_countries": "No country has enough players yet. Invite your friends from your country! 🚀",
+ "cn_country_pos": "{c} is ranked <b>#{pos}</b> among countries",
+ "prof_country": "🏳️ Your country: {c}", "prof_country_rank": "🏳️ Your country: {c} · your rank there <b>#{rank}</b>",
+})
+
+T["ar"]["cn_btn_top"] = "🏆 متصدرو بلدي"
+T["en"]["cn_btn_top"] = "🏆 My country's top"

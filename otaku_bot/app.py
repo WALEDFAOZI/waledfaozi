@@ -14,6 +14,7 @@ from .backup import backup_loop
 from .growth import growth_loop
 from .bot import build_router
 from .config import Settings
+from .countries import build_countries_router
 from .ctx import Ctx
 from .db import DB
 from .games import build_games_router
@@ -53,6 +54,7 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp.callback_query.outer_middleware(Guard())
     dp.include_router(build_admin_router(ctx))   # أولًا: محميّ بفلتر المشرفين
     dp.include_router(build_games_router(ctx))
+    dp.include_router(build_countries_router(ctx))
     dp.include_router(build_router(ctx))
     return dp
 

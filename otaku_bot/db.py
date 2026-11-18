@@ -89,6 +89,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_finished ON sessions(state, mode, finish
 CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at);
 CREATE INDEX IF NOT EXISTS idx_reports_q ON reports(question_id, status);
 CREATE INDEX IF NOT EXISTS idx_users_best ON users(best_score);
+CREATE INDEX IF NOT EXISTS idx_users_country ON users(country, best_score);
 CREATE INDEX IF NOT EXISTS idx_sugg_status ON suggestions(status);
 CREATE INDEX IF NOT EXISTS idx_events_user ON events(tg_id, kind);
 CREATE INDEX IF NOT EXISTS idx_games_user ON game_sessions(tg_id, finished_at);
@@ -101,7 +102,7 @@ MIGRATIONS = {
         "image": "TEXT", "q_en": "TEXT", "options_en": "TEXT", "img_fail": "INTEGER NOT NULL DEFAULT 0",
     },
     "users": {"lang": "TEXT NOT NULL DEFAULT 'ar'", "best_sudden": "INTEGER NOT NULL DEFAULT 0",
-              "blocked": "INTEGER NOT NULL DEFAULT 0"},
+              "blocked": "INTEGER NOT NULL DEFAULT 0", "country": "TEXT", "country_asked": "INTEGER NOT NULL DEFAULT 0"},
     "sessions": {
         "mode": "TEXT NOT NULL DEFAULT 'full'", "counted": "INTEGER NOT NULL DEFAULT 1",
         "challenge_of": "INTEGER", "msg_kind": "TEXT NOT NULL DEFAULT 'text'", "category": "TEXT",
@@ -526,6 +527,54 @@ class DB:
     def set_suggestion_status(self, sid: int, status: str, qid: int | None = None) -> None:
         with self.conn:
             self.conn.execute("UPDATE suggestions SET status=?, qid=? WHERE id=?", (status, qid, sid))
+
+    # ── الدول ────────────────────────────────────────────────
+    def get_country(self, tg_id: int) -> str | None:
+        r = self.conn.execute("SELECT country FROM users WHERE tg_id=?", (tg_id,)).fetchone()
+        return r["country"] if r else None
+
+    def set_country(self, tg_id: int, code: str) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE users SET country=?, country_asked=1 WHERE tg_id=?", (code, tg_id))
+
+    def country_asked(self, tg_id: int) -> bool:
+        r = self.conn.execute("SELECT country_asked FROM users WHERE tg_id=?", (tg_id,)).fetchone()
+        return bool(r and r["country_asked"])
+
+    def mark_country_asked(self, tg_id: int) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE users SET country_asked=1 WHERE tg_id=?", (tg_id,))
+
+    def country_players(self, code: str, limit: int = 10) -> list[sqlite3.Row]:
+        return self.conn.execute(
+            "SELECT tg_id, name, best_score FROM users WHERE country=? AND best_score>0 "
+            "ORDER BY best_score DESC, tests_taken ASC LIMIT ?", (code, limit)).fetchall()
+
+    def country_rank(self, tg_id: int) -> int | None:
+        u = self.get_user(tg_id)
+        if not u or not u["country"] or u["best_score"] <= 0:
+            return None
+        return self.conn.execute("SELECT COUNT(*)+1 rk FROM users WHERE country=? AND best_score>?",
+                                 (u["country"], u["best_score"])).fetchone()["rk"]
+
+    def countries_ranking(self, min_players: int = 3, top_n: int = 5) -> list[dict]:
+        """ترتيب الدول: متوسط أفضل top_n لاعبين في كل دولة، وتظهر الدولة عند min_players لاعبين على الأقل
+        (حتى لا تتصدر دولة بلاعب واحد محظوظ)."""
+        by: dict[str, list[float]] = {}
+        for r in self.conn.execute("SELECT country, best_score FROM users WHERE country IS NOT NULL AND best_score>0 "
+                                   "ORDER BY best_score DESC"):
+            by.setdefault(r["country"], []).append(r["best_score"])
+        out = []
+        for code, scores in by.items():
+            if len(scores) >= min_players:
+                top = scores[:top_n]
+                out.append({"code": code, "score": sum(top) / len(top), "players": len(scores)})
+        out.sort(key=lambda x: (-x["score"], -x["players"]))
+        return out
+
+    def country_counts(self, limit: int = 6) -> list[tuple[str, int]]:
+        return [(r["country"], r["n"]) for r in self.conn.execute(
+            "SELECT country, COUNT(*) n FROM users WHERE country IS NOT NULL GROUP BY country ORDER BY n DESC LIMIT ?", (limit,))]
 
     # ── الرسائل الجماعية ─────────────────────────────────────
     def broadcast_targets(self, lang: str | None = None) -> list[int]:
