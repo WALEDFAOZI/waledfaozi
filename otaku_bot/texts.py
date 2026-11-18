@@ -1,6 +1,8 @@
 """نصوص الواجهة بالعربية والإنجليزية."""
 from __future__ import annotations
 
+import random
+
 from .config import CATEGORY_LABELS, CATEGORY_LABELS_EN
 
 T: dict[str, dict[str, str]] = {
@@ -164,9 +166,81 @@ def t(lang: str, key: str, **kw) -> str:
     s = T.get(lang, T["ar"]).get(key)
     if s is None:
         s = T["ar"][key]
+    if isinstance(s, (list, tuple)):          # مجموعة جمل: نختار واحدة عشوائيًا فلا يتكرر الرد نفسه
+        s = random.choice(s)
     return s.format(**kw) if kw else s
 
 
 def cat_label(lang: str, cat: str) -> str:
     table = CATEGORY_LABELS_EN if lang == "en" else CATEGORY_LABELS
     return table.get(cat, cat)
+
+
+# ═════════ نبرة بشرية وروح أوتاكو ═════════
+# تتجاوز النصوص الجامدة أعلاه بجمل أدفأ وأقرب للكلام العادي، ومجموعات جمل (قوائم) تتبدّل عشوائيًا.
+# نحافظ على نفس المتغيرات {name} {ans} ... وعلى الكلمات المفتاحية التي تعتمد عليها الاختبارات.
+T["ar"].update({
+ "mode_quick": "اختبار سريع",
+ "welcome": "يا هلا والله بالأوتاكو! 🎌\n\nتحسب نفسك تعرف الأنمي؟ خلنا نشوف! أسئلة بأربع اختيارات تبدأ سهلة وتشتد معك، وفي الآخر تاخذ تقييم من 10 ولقب تفتخر فيه.\nوالسؤال الصعب يوزن أكثر، فلا تستخف فيه 😏\n\nوش تبي تلعب؟",
+ "challenge_banner": "\n\n⚔️ <b>{name}</b> يتحداك! جاب <b>{score}/10</b> ولقبه «{title}».\nتجرؤ تواجهه بنفس الأسئلة؟",
+ "toast_ok": ["✅ صح عليك!", "✅ كفو!", "✅ ناكاما! 💪", "✅ هذا هو!", "✅ ضربة معلم 🔥", "✅ ما شاء الله"],
+ "toast_bad": ["❌ لا… الجواب: {ans}", "❌ قربت! الجواب: {ans}", "❌ أوه لا، الجواب: {ans}", "❌ مو هذا، الجواب: {ans}"],
+ "toast_time": ["⏰ فات الوقت!", "⏰ الوقت خلص!"],
+ "timeout": "⏰ <b>انتهى الوقت!</b>\nكان الجواب: <b>{ans}</b>",
+ "fin_head": "🏁 خلصت يا {name}!",
+ "cooldown": "تعبت؟ 😄 ارتاح {m} دقيقة وارجع للاختبار الكامل.\nوفي الأثناء جرّب الوضع السريع ⚡ أو الألعاب 🎮",
+ "sub_required": "قبل ما نبدأ… اشترك في قناتنا {ch} 🙏\nاشترك ثم اضغط «تحققت».",
+ "sub_ok": "✅ تمام، حيّاك الله!",
+ "stopped": "طيب، وقفنا هنا. ارجع متى ما حبيت 🎌",
+ "stop_confirm": "🛑 <b>تبي تلغي الاختبار؟</b>\nنتيجة هالجولة ما راح تنحسب.",
+ "g_stopped": "وقفنا اللعبة. ارجع متى ما حبيت 🎮",
+ "no_tests": "ما أخذت أي اختبار كامل بعد 🙂 اكتب /start وجرّب أول واحد.",
+ "lb_empty": "ما فيه أحد بالقائمة بعد… كن أول واحد يكتب اسمه! 🏆",
+ "sg_ok": "وصل اقتراحك 🙏 بنراجعه، وإذا انقبل بتوصلك رسالة منا.",
+ "sg_limit": "وصلت الحد اليومي للاقتراحات ({n}). كمّل بكرة 🙏",
+ "sg_exists": "هالسؤال موجود عندنا من قبل 👍 جرّب غيره.",
+ "sg_accepted": "✅ تم قبول سؤالك وصار في البنك! ممتن لك 🙏\n«{q}»",
+ "vs_win": "🔥 فزت بالتحدي! الهوكاغي يبارك لك", "vs_lose": "😅 خسرت هالجولة… الثأر في المرة الجاية!",
+ "ch_gone": "هذا التحدي ما عاد موجود 😅", "ch_self": "هذا تحديك أنت 😄 أرسله لأصحابك!",
+ "res_line_king": ["ما شاء الله… حتى ريوك يطلب منك نصيحة 🍎", "هذا مو أوتاكو، هذا موسوعة تمشي على قدمين 👑", "اكتب اسمك في الدفتر… بس لا تقتل أحد 😂"],
+ "res_line_sensei": ["سينسي! طلابك يحتاجون دروسك 🥋", "مستوى يخلي الهوكاغي يفكر يتقاعد", "شوي وتلبس التاج… جرّب مرة ثانية 💪"],
+ "res_line_seasoned": ["أوتاكو متمرس! بس فيه أسئلة تكسر الظهر 😅", "قريب من القمة، لا توقف الحين!", "معلوماتك تمام، ناقصك لمسة بس"],
+ "res_line_otaku": ["أوتاكو صاعد! قدامك ماراثون أنمي طويل 📺", "مو بطّال أبدًا، كمّل!", "الأساس موجود، والباقي بالمشاهدة 😉"],
+ "res_line_casual": ["مشاهد لطيف، بس الأنمي أوسع من كذا 😄", "فيه مجال تتحسن، وأنت قدها", "ما عليك، حتى الأبطال يبدؤون من تحت"],
+ "res_line_noob": ["لا تزعل، حتى لوفي بدأ من الصفر 🍼", "شغّل Death Note وارجع لنا 😂", "الجولة الجاية أحسن، وعد!"],
+ "sd_line_low": ["سقطت بدري… الدفتر ما رحمك ☠️", "جرّب مرة ثانية، الشجاع ما يستسلم"],
+ "sd_line_mid": ["مو بطّال! بس الأسئلة الصعبة تنتظرك 😈", "قدرت تصمد، كمّل للأعلى"],
+ "sd_line_high": ["وحش! ما أحد يوقفك 🔥", "هذا مستوى أبطال الشونن حقيقي"],
+})
+T["en"].update({
+ "mode_quick": "Quick test",
+ "welcome": "Welcome, fellow otaku! 🎌\n\nThink you know your anime? Let's find out! Four-choice questions that start easy and get nasty, and at the end you get a score out of 10 and a title worth bragging about.\nHard questions are worth more, so don't skip the boss fights 😏\n\nWhat are we playing?",
+ "challenge_banner": "\n\n⚔️ <b>{name}</b> challenges you! They scored <b>{score}/10</b> and hold the title “{title}”.\nDare to face them on the same questions?",
+ "toast_ok": ["✅ Nice!", "✅ That's the one!", "✅ Nakama approved 💪", "✅ Boom!", "✅ Master move 🔥", "✅ Sugoi!"],
+ "toast_bad": ["❌ Nope… answer: {ans}", "❌ So close! Answer: {ans}", "❌ Oh no, answer: {ans}", "❌ Not that one, answer: {ans}"],
+ "toast_time": ["⏰ Too slow!", "⏰ Time's up!"],
+ "timeout": "⏰ <b>Time's up!</b>\nThe answer was: <b>{ans}</b>",
+ "fin_head": "🏁 All done, {name}!",
+ "cooldown": "Tired already? 😄 Rest for {m} min before another full test.\nTry ⚡ Quick mode or 🎮 games meanwhile.",
+ "sub_required": "Before we start… join our channel {ch} 🙏\nJoin, then tap “I joined”.",
+ "sub_ok": "✅ Perfect, welcome aboard!",
+ "stopped": "Alright, we stopped here. Come back anytime 🎌",
+ "stop_confirm": "🛑 <b>Cancel this test?</b>\nThis round's result won't count.",
+ "g_stopped": "Game stopped. Come back anytime 🎮",
+ "no_tests": "You haven't taken a full test yet 🙂 Send /start and try your first one.",
+ "lb_empty": "Nobody on the board yet… be the first to write your name! 🏆",
+ "sg_ok": "Got your suggestion 🙏 We'll review it, and you'll hear from us if it's accepted.",
+ "sg_exists": "We already have that one 👍 Try another!",
+ "sg_accepted": "✅ Your question was accepted and is now in the bank! Thank you 🙏\n“{q}”",
+ "vs_win": "🔥 You won the challenge! The Hokage approves", "vs_lose": "😅 You lost this round… revenge next time!",
+ "ch_gone": "That challenge isn't around anymore 😅", "ch_self": "That's your own challenge 😄 Send it to your friends!",
+ "res_line_king": ["Even Ryuk would ask you for advice 🍎", "That's not an otaku, that's a walking encyclopedia 👑", "Write your name in the notebook… but don't hurt anyone 😂"],
+ "res_line_sensei": ["Sensei! Your students need your lessons 🥋", "The Hokage is thinking about retiring", "A little more and you wear the crown… go again 💪"],
+ "res_line_seasoned": ["Seasoned otaku! A few questions still break backs 😅", "So close to the top, don't stop now!", "Solid knowledge, just a touch more"],
+ "res_line_otaku": ["Rising otaku! A long anime marathon ahead 📺", "Not bad at all, keep going!", "The foundation is there, the rest is watch time 😉"],
+ "res_line_casual": ["Nice casual viewer, but anime is bigger than this 😄", "Room to grow, and you've got it in you", "Don't worry, every hero starts at the bottom"],
+ "res_line_noob": ["Don't sulk, even Luffy started from zero 🍼", "Go watch Death Note and come back 😂", "Next round will be better, promise!"],
+ "sd_line_low": ["Fell early… the notebook showed no mercy ☠️", "Try again, the brave never give up"],
+ "sd_line_mid": ["Not bad! The hard ones are waiting for you 😈", "You held on, now climb higher"],
+ "sd_line_high": ["Beast mode! Nobody can stop you 🔥", "Real shonen protagonist energy"],
+})

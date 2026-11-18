@@ -15,6 +15,7 @@ RUN grep -v '^pytest' requirements.txt > /tmp/req.txt && pip install --no-cache-
 
 COPY otaku_bot ./otaku_bot
 COPY data ./data
+COPY assets ./assets
 
 RUN useradd -m bot && mkdir /data && chown bot /data
 USER bot

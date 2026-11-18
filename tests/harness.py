@@ -122,3 +122,8 @@ class Harness:
 
 def run(coro):
     return asyncio.run(coro)
+
+
+def last_menu_call(h):
+    """آخر رسالة أو صورة فيها أزرار (بعد /start يكون الترحيب صورة بانر + نص)."""
+    return [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto") and c.reply_markup is not None][-1]

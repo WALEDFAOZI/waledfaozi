@@ -1,7 +1,7 @@
 """إيقاف/إلغاء أي اختبار، التقييم العام، الملف الشخصي، قياس نمو القناة."""
 import time
 
-from harness import Harness, run
+from harness import Harness, run, last_menu_call
 from otaku_bot import growth
 
 
@@ -106,7 +106,7 @@ def test_game_stop_button_ends_without_score():
             await h.tap(u, f"gx:{gid}")
             g = h.db.get_game(gid)
             assert g["finished_at"] is not None and g["score"] is None
-            assert "تم إنهاء اللعبة" in h.session.texts()[-1]
+            assert "وقفنا اللعبة" in h.session.texts()[-1]
             await h.tap(u, f"gt:{gid}:1")                          # زر قديم
             await h.tap(u, f"gs:{gid}:0")
         assert h.db.conn.execute("SELECT COUNT(*) FROM game_scores").fetchone()[0] == 0
@@ -139,7 +139,7 @@ def test_general_rating_top10_is_separate_from_weekly():
         assert len(wk_lines) == 4 and "P4" in wk_lines[0]            # الأسبوعي لا يضم القدامى
         assert {"lb:all", "lb:week", "lb:sd"} <= cb_data(h)
         await h.say(u, "/start")
-        menu = [c for c in h.session.calls if type(c).__name__ == "SendMessage"][-1]
+        menu = last_menu_call(h)
         labels = [b.text for row in menu.reply_markup.inline_keyboard for b in row]
         assert any("التقييم العام" in x for x in labels) and any("تقييم الأسبوع" in x for x in labels)
         await h.tap(u, "lg:en")
@@ -186,7 +186,7 @@ def test_profile_card_renders_png_both_languages():
     p = {"name": "Test", "best": 9.7, "tests": 3, "sudden": 0, "rank": 1, "weekly_rank": None, "answers": 100, "correct": 90,
          "cats": [("anime", 0.9, 10)], "games": {}}
     for lg in ("ar", "en"):
-        assert card.make_profile_card(p, "King of Otaku 👑", lg)[:8] == b"\x89PNG\r\n\x1a\n"
+        assert card.make_profile_card(p, "King of Otaku 👑", lg)[:2] == b"\xff\xd8"
 
 
 # ── قياس نمو القناة ─────────────────────────────────────

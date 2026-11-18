@@ -137,10 +137,10 @@ def test_suspicious_result_does_not_raise_best():
     assert db.get_user(2)["best_score"] == 0
 
 
-def test_card_renders_png():
+def test_card_renders_jpeg():
     import pytest
     from otaku_bot import card
     if not card.find_font():
         pytest.skip("no font")
     png = card.make_card("اختبار", 9.7, "ملك الأوتاكو 👑", 99, {"anime": (4, 5)})
-    assert png[:8] == b"\x89PNG\r\n\x1a\n"
+    assert png[:2] == b"\xff\xd8"

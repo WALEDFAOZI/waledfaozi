@@ -12,11 +12,11 @@ from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 from aiogram.filters import Command, CommandObject
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import (BufferedInputFile, CallbackQuery, InlineKeyboardButton,
+from aiogram.types import (BufferedInputFile, CallbackQuery, FSInputFile, InlineKeyboardButton,
                            InlineKeyboardMarkup, InputMediaPhoto, Message)
 
 from . import card
-from .config import LEVELS
+from .config import LEVELS, ROOT
 from .ctx import Ctx
 from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
                    shuffle_options, title_for)
@@ -289,10 +289,17 @@ def build_router(ctx: Ctx) -> Router:
             db.finish_session(sid, tg_id, float(streak), "sudden", counted=False)
             best = db.set_best_sudden(tg_id, streak)
             text = t(L, "fin_head", name=esc(name)) + "\n\n" + t(L, "sudden_res", n=streak, lvl=lvl, best=best)
+            text += "\n<i>" + t(L, "sd_line_low" if streak < 5 else "sd_line_mid" if streak < 20 else "sd_line_high") + "</i>"
             if streak == len(answers) == db.session_len(sid):
                 text += "\n" + t(L, "sudden_perfect")
             await drop_quiz_message()
-            await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=kb(again))
+            try:
+                png = await asyncio.to_thread(card.make_sudden_card, name, streak, lvl, best, L, "@" + username)
+                await bot.send_photo(chat_id, BufferedInputFile(png, "sudden.jpg"), caption=text,
+                                     parse_mode="HTML", reply_markup=kb(again))
+            except Exception as e:  # noqa: BLE001
+                log.warning("sudden card failed: %s", e)
+                await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=kb(again))
             return
 
         score = compute_score(answers)
@@ -303,8 +310,10 @@ def build_router(ctx: Ctx) -> Router:
         pct = db.percentile(score) if mode == "full" else None
         correct = sum(a.correct for a in answers)
 
+        tier = card.tier_of(score)[0]
         parts = [t(L, "fin_head", name=esc(name)), "", t(L, "res_score", score=f"{score:.1f}"),
-                 t(L, "res_title", title=esc(title)), t(L, "res_correct", c=correct, t=len(answers))]
+                 t(L, "res_title", title=esc(title)), "<i>" + t(L, f"res_line_{tier}") + "</i>",
+                 t(L, "res_correct", c=correct, t=len(answers))]
         if pct is not None:
             parts.append(t(L, "res_pct", p=f"{pct:.0f}"))
         parts += ["", t(L, "res_cat")]
@@ -344,8 +353,10 @@ def build_router(ctx: Ctx) -> Router:
         caption = "\n".join(parts)
         await drop_quiz_message()
         try:
-            png = card.make_card(name, score, title, pct, brk, L)
-            await bot.send_photo(chat_id, BufferedInputFile(png, "result.png"), caption=caption,
+            mode_text = (t(L, "mode_quick") if mode == "quick"
+                         else cat_label(L, sess["category"]) if mode == "category" and sess["category"] else None)
+            png = await asyncio.to_thread(card.make_card, name, score, title, pct, brk, L, mode_text, "@" + username)
+            await bot.send_photo(chat_id, BufferedInputFile(png, "result.jpg"), caption=caption,
                                  reply_markup=markup, parse_mode="HTML")
         except Exception as e:  # noqa: BLE001  (الخط غير متوفر أو أي خطأ في الصورة → نص فقط)
             log.warning("card failed: %s", e)
@@ -413,6 +424,22 @@ def build_router(ctx: Ctx) -> Router:
             return
         await send_question(bot, chat_id, sid, pos)
 
+    async def send_welcome(m: Message, L: str, text: str, markup) -> None:
+        """بانر مرسوم (assets/banner*.png) + نص الترحيب في رسالة واحدة. معرّف الصورة يُخزَّن فلا تُرفع كل مرة."""
+        path = ROOT / "assets" / ("banner_en.jpg" if L == "en" else "banner.jpg")
+        key = f"banner_fid_{L}"
+        fid = db.get_setting(key, "") or None
+        if fid or path.is_file():
+            try:
+                sent = await m.answer_photo(fid or FSInputFile(path), caption=text, reply_markup=markup, parse_mode="HTML")
+                if not fid and getattr(sent, "photo", None):
+                    db.set_setting(key, sent.photo[-1].file_id)
+                return
+            except TelegramAPIError as e:
+                log.warning("banner failed: %s", e)
+                db.set_setting(key, "")
+        await m.answer(text, reply_markup=markup, parse_mode="HTML")
+
     # ── الأوامر ─────────────────────────────────────────────
     @r.message(Command("start"))
     async def cmd_start(m: Message, command: CommandObject):
@@ -428,7 +455,7 @@ def build_router(ctx: Ctx) -> Router:
                 extra = t(L, "challenge_banner", name=esc(friend["name"]), score=f"{s['score']:.1f}",
                           title=esc(title_for(s["score"], L)))
                 top = [[btn(t(L, "btn_accept"), f"cc:{s['id']}")]]
-        await m.answer(t(L, "welcome") + extra, reply_markup=menu(L, top), parse_mode="HTML")
+        await send_welcome(m, L, t(L, "welcome") + extra, menu(L, top))
 
     @r.message(Command("help"))
     async def cmd_help(m: Message):
@@ -521,8 +548,8 @@ def build_router(ctx: Ctx) -> Router:
                     [btn(t(L, "btn_menu"), "menu")])
         caption = "\n".join(lines)
         try:
-            png = card.make_profile_card(p, title, L)
-            await bot.send_photo(chat_id, BufferedInputFile(png, "profile.png"), caption=caption,
+            png = await asyncio.to_thread(card.make_profile_card, p, title, L, "@" + await bot_username(bot))
+            await bot.send_photo(chat_id, BufferedInputFile(png, "profile.jpg"), caption=caption,
                                  reply_markup=markup, parse_mode="HTML")
         except Exception as e:  # noqa: BLE001  (لا خط/أي خطأ → نص فقط)
             log.warning("profile card failed: %s", e)

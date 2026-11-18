@@ -1,0 +1,72 @@
+الخطوط المضمّنة وتراخيصها / Bundled fonts and their licenses
+
+=== DejaVu Sans Bold (assets/font.ttf) — Bitstream Vera/DejaVu license: free to use and redistribute ===
+
+=== Inter (assets/fonts/Inter-Black.otf) — SIL Open Font License 1.1 ===
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: fonts-inter
+Upstream-Contact: The Inter Project Authors <rasmus@notion.se>
+Source: https://github.com/rsms/inter
+Files-Excluded: docs/font-files/*.woff* docs/lab docs/samples
+
+Files: *
+Copyright: 2016-2023 The Inter Project Authors <rasmus@notion.se>
+License: OFL-1.1 and Apache-2.0
+
+License: OFL-1.1
+ PREAMBLE
+ The goals of the Open Font License (OFL) are to stimulate worldwide
+ development of collaborative font projects, to support the font
+ creation efforts of academic and linguistic communities, and to
+ provide a free and open framework in which fonts may be shared and
+ improved in partnership with others.
+ .
+ The OFL allows the licensed fonts to be used, studied, modified and
+ redistributed freely as long as they are not sold by themselves. The
+ fonts, including any derivative works, can be bundled, embedded,
+ redistributed and/or sold with any software provided that any
+ reserved names are not used by derivative works. The fonts and
+ derivatives, however, cannot be released under any other type of
+ license. The requirement for fonts to remain under this license
+ does not apply to any document created using the fonts or their
+ derivatives.
+ .
+ DEFINITIONS
+ Font Software refers to the set of files released by the
+ Copyright Holder(s) under this license and clearly marked as such.
+ This may include source files, build scripts and documentation.
+ .
+ Reserved Font Name refers to any names specified as such after
+ the copyright statement(s).
+ .
+ Original Version refers to the collection of Font Software
+ components as distributed by the Copyright Holder(s).
+ .
+ Modified Version refers to any derivative made by adding to,
+
+=== IPAexGothic/IPA Gothic (assets/fonts/ipagp.ttf, unmodified) — IPA Font License v1.0 ===
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: IPAfont
+Upstream-Contact: Information-technology Promotion Agency, Japan. <https://www.ipa.go.jp>
+Source: https://ipafont.ipa.go.jp/old/
+
+Files: *.ttf
+Copyright: 2007-2011 Information-technology Promotion Agency, Japan.
+License: IPA-1
+
+Files: debian/*
+Copyright: 2009-2019 Hideki Yamane <henrich@debian.org>
+License: GPL-3+
+
+License: IPA-1
+ IPAフォントライセンスv1.0
+ .
+ 許諾者は、この使用許諾（以下「本契約」といいます。）に定める条件の
+ 下で、許諾プログラム（1条に定義するところによります。）を提供します。
+ 受領者（1条に定義するところによります。）が、許諾プログラムを使用し、
+ 複製し、または頒布する行為、その他、本契約に定める権利の利用を行っ
+ た場合、受領者は本契約に同意したものと見なします。
+ .
+ 第1条  用語の定義
+ .
+ 本契約において、次の各号に掲げる用語は、当該各号に定めるところによ

@@ -5,7 +5,7 @@ import time
 import zipfile
 from pathlib import Path
 
-from harness import QPATH, Harness, run
+from harness import QPATH, Harness, run, last_menu_call
 from otaku_bot import backup
 from otaku_bot.games import load_games, order_correct
 
@@ -207,7 +207,7 @@ def test_new_games_char_and_quote_play_through():
         h = Harness()
         u = h.user(1, "G")
         await h.say(u, "/games")
-        kinds = {b.callback_data for row in [c for c in h.session.calls if type(c).__name__ == "SendMessage"][-1].reply_markup.inline_keyboard for b in row}
+        kinds = {b.callback_data for row in last_menu_call(h).reply_markup.inline_keyboard for b in row}
         assert {"g:char", "g:quote"} <= kinds
         for kind, key in (("char", "gs"), ("quote", "gs")):
             await h.tap(u, f"g:{kind}")
@@ -244,7 +244,7 @@ def test_main_menu_has_new_buttons_and_bank_doubled():
     async def go():
         h = Harness()
         await h.say(h.user(1), "/start")
-        m = [c for c in h.session.calls if type(c).__name__ == "SendMessage"][-1]
+        m = last_menu_call(h)
         data = {b.callback_data for row in m.reply_markup.inline_keyboard for b in row}
         assert {"g:char", "g:quote", "sg", "g:tf", "g:song", "g:ord"} <= data
     run(go())
