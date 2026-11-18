@@ -6,7 +6,7 @@ from pathlib import Path
 
 from aiogram import Bot
 from aiogram.client.session.base import BaseSession
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.methods import (EditMessageMedia, GetChatMember, GetMe, SendDocument, SendMessage,
                              SendPhoto, EditMessageText)
 from aiogram.types import (CallbackQuery, Chat, ChatMemberLeft, ChatMemberMember, Message,
@@ -27,6 +27,7 @@ class FakeSession(BaseSession):
         self.n = 100
         self.member = True          # True / False / None(خطأ)
         self.bad_photos = set()     # صور تُرفض كأن الرابط معطوب
+        self.blocked_chats = set()  # مستخدمون حظروا البوت
 
     async def close(self): ...
     async def stream_content(self, *a, **k): yield b""
@@ -34,6 +35,8 @@ class FakeSession(BaseSession):
     async def make_request(self, bot, method, timeout=None):
         self.calls.append(method)
         if isinstance(method, (SendMessage, EditMessageText, SendPhoto, EditMessageMedia, SendDocument)):
+            if getattr(method, "chat_id", None) in self.blocked_chats:
+                raise TelegramForbiddenError(method=method, message="Forbidden: bot was blocked by the user")
             bad = (isinstance(method, SendPhoto) and str(method.photo) in self.bad_photos) or \
                   (isinstance(method, EditMessageMedia) and str(method.media.media) in self.bad_photos)
             if bad:

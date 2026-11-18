@@ -7,9 +7,11 @@ import logging
 import time
 from urllib.parse import quote
 
-from aiogram import Bot, F, Router
+from aiogram import BaseMiddleware, Bot, F, Router
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 from aiogram.filters import Command, CommandObject
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (BufferedInputFile, CallbackQuery, InlineKeyboardButton,
                            InlineKeyboardMarkup, InputMediaPhoto, Message)
 
@@ -26,6 +28,24 @@ LETTERS = {"ar": ["أ", "ب", "ج", "د"], "en": ["A", "B", "C", "D"]}
 GRACE_SECONDS = 2          # سماح لتأخر الشبكة
 SUSPECT_FAST_RATIO = 0.7   # نسبة إجابات أسرع من ثانية تعتبر مشبوهة
 MODE_SIZE = {"full": LEVELS * 5, "quick": 10, "category": 10, "sudden": LEVELS * 5}
+
+
+class Suggest(StatesGroup):
+    wait = State()          # ننتظر اقتراح سؤال من اللاعب
+
+
+class ClearState(BaseMiddleware):
+    """أي زر يضغطه اللاعب يُلغي أي إدخال معلّق (كاقتراح سؤال) حتى لا يُفسَّر كلامه التالي بالغلط."""
+
+    async def __call__(self, handler, event, data):
+        st = data.get("state")
+        if st is not None:
+            await st.clear()
+        return await handler(event, data)
+
+
+SUGGEST_PER_DAY = 3
+SUGGEST_MAX_PENDING = 5
 
 
 def esc(s: str) -> str:
@@ -55,14 +75,18 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
               [btn(t(L, "g_tf"), "g:tf")],
               [btn(t(L, "g_song"), "g:song")],
               [btn(t(L, "g_ord"), "g:ord")],
+              [btn(t(L, "g_char"), "g:char")],
+              [btn(t(L, "g_quote"), "g:quote")],
               [btn(t(L, "sec_more"), "noop")],
               [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_week"), "lb:week")],
-              [btn(t(L, "btn_stats"), "st"), btn(t(L, "btn_lang"), "lg:toggle")])
+              [btn(t(L, "btn_stats"), "st"), btn(t(L, "btn_suggest"), "sg")],
+              [btn(t(L, "btn_lang"), "lg:toggle")])
 
 
 def build_router(ctx: Ctx) -> Router:
     r = Router()
     db, rng, settings = ctx.db, ctx.rng, ctx.settings
+    r.callback_query.outer_middleware(ClearState())
     timers: dict[tuple[int, int], asyncio.Task] = {}
     sub_ok: dict[int, float] = {}      # من ثبت اشتراكه: لا نسأل تليجرام عنه ثانية قبل 5 دقائق (أسرع)
     me_cache: dict[str, str] = {}
@@ -468,6 +492,53 @@ def build_router(ctx: Ctx) -> Router:
         except TelegramAPIError as e:
             lines.append(f"❌ تعذّر فحص حسابك: {e}")
         await m.answer("\n".join(lines))
+
+    # ── اقتراح أسئلة من اللاعبين ────────────────────────────
+    async def ask_suggestion(target: Message, state: FSMContext, uid: int):
+        L = lang(uid)
+        await state.set_state(Suggest.wait)
+        await target.answer(t(L, "sg_prompt"), parse_mode="HTML")
+
+    @r.message(Command("suggest"))
+    async def cmd_suggest(m: Message, state: FSMContext):
+        db.upsert_user(m.from_user.id, m.from_user.full_name)
+        await ask_suggestion(m, state, m.from_user.id)
+
+    @r.callback_query(F.data == "sg")
+    async def cb_suggest(c: CallbackQuery, state: FSMContext):
+        await c.answer()
+        db.upsert_user(c.from_user.id, c.from_user.full_name)
+        await ask_suggestion(c.message, state, c.from_user.id)
+
+    @r.message(Command("cancel"))
+    async def cmd_cancel(m: Message, state: FSMContext):
+        await state.clear()
+        await m.answer(t(lang(m.from_user.id), "sg_cancel"))
+
+    @r.message(Suggest.wait, F.text, ~F.text.startswith("/"))
+    async def on_suggestion(m: Message, state: FSMContext):
+        uid, L = m.from_user.id, lang(m.from_user.id)
+        lines = [x.strip() for x in m.text.splitlines() if x.strip()]
+        if len(lines) != 5:
+            await m.answer(t(L, "sg_format"))
+            return
+        q, options = lines[0], lines[1:]
+        if not 10 <= len(q) <= 200 or any(len(o) > 60 for o in options):
+            await m.answer(t(L, "sg_len"))
+            return
+        if len({o.lower() for o in options}) != 4:
+            await m.answer(t(L, "sg_dupopt"))
+            return
+        await state.clear()
+        if db.suggestions_today(uid) >= SUGGEST_PER_DAY:
+            await m.answer(t(L, "sg_limit", n=SUGGEST_PER_DAY))
+        elif db.pending_suggestions_of(uid) >= SUGGEST_MAX_PENDING:
+            await m.answer(t(L, "sg_pending", n=db.pending_suggestions_of(uid)))
+        elif db.text_exists(q):
+            await m.answer(t(L, "sg_exists"))
+        else:
+            db.add_suggestion(uid, q, options)       # options[0] هو الجواب الصحيح
+            await m.answer(t(L, "sg_ok"))
 
     @r.message(Command("claim"))
     async def cmd_claim(m: Message, command: CommandObject):

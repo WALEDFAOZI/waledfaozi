@@ -370,6 +370,7 @@ def build():
     rng = random.Random(2026)
     out = []
     seen_q = set()
+    n_old = len(Q)
     for i, ((cat, diff, q, right, *wrong), (q_en, en_opts)) in enumerate(zip(Q, EN), start=1):
         assert len(wrong) == 3, (i, q)
         ar_opts = [right, *wrong]
@@ -386,6 +387,34 @@ def build():
             "category": cat, "base_difficulty": diff,
             "q_en": q_en, "options_en": [en_opts[k] for k in idx],
         })
+    # الدفعة الثالثة: ثنائية اللغة مباشرة (tools/batch3.py)
+    from batch3 import B3
+    import re
+    arabic = re.compile(r"[\u0600-\u06ff]")
+    for j, row in enumerate(B3, start=1):
+        cat, diff, q, q_en, *o = row
+        assert len(o) in (4, 8), (q, len(o))
+        if len(o) == 8:     # مجموعتان: العربية والإنجليزية بأي ترتيب؛ نتعرف على العربية آليًا
+            g1, g2 = o[:4], o[4:]
+            has1, has2 = any(arabic.search(x) for x in g1), any(arabic.search(x) for x in g2)
+            assert has1 != has2, ("لا أعرف أي مجموعة عربية", q)
+            ar_opts, en_opts = (g1, g2) if has1 else (g2, g1)
+        else:
+            ar_opts = en_opts = o[:4]
+            assert not any(arabic.search(x) for x in ar_opts), ("خيارات عربية بلا ترجمة", q)
+        assert len(set(ar_opts)) == 4 and len(set(en_opts)) == 4, (q, ar_opts)
+        assert not any(arabic.search(x) for x in en_opts + [q_en]), ("حروف عربية في الإنجليزي", q_en)
+        assert q not in seen_q, ("dup", q)
+        seen_q.add(q)
+        assert 1 <= diff <= 10
+        idx = [0, 1, 2, 3]
+        rng.shuffle(idx)
+        out.append({
+            "id": n_old + j, "q": q, "options": [ar_opts[k] for k in idx], "answer": idx.index(0),
+            "category": cat, "base_difficulty": diff,
+            "q_en": q_en, "options_en": [en_opts[k] for k in idx],
+        })
+        LEVELS[diff] = LEVELS.get(diff, 0) + 1
     path = Path(__file__).resolve().parent.parent / "data" / "questions.json"
     lines = ",\n".join("  " + json.dumps(x, ensure_ascii=False) for x in out)
     path.write_text("[\n" + lines + "\n]\n", encoding="utf-8")

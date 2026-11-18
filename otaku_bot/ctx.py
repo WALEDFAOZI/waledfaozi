@@ -14,6 +14,7 @@ class Ctx:
     db: DB
     rng: random.Random = field(default_factory=random.Random)
     claim_code: str | None = None   # كود يظهر في سجل التشغيل لتفعيل المالك عبر /claim
+    tasks: list = field(default_factory=list)   # مهام الخلفية (رسائل جماعية، نسخ احتياطي)
 
     def timer(self) -> int:
         return int(self.db.get_setting("timer_seconds", str(self.settings.timer_seconds)))
@@ -38,3 +39,6 @@ class Ctx:
 
     def is_owner(self, tg_id: int) -> bool:
         return tg_id in self.settings.admin_ids or self.db.is_owner(tg_id)
+
+    def owner_ids(self) -> list[int]:
+        return sorted(set(self.settings.admin_ids) | {i for i in self.db.admin_ids() if self.db.is_owner(i)})

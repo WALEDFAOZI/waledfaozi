@@ -189,7 +189,7 @@ def test_stats_and_settings_values_flow():
     db.finish_session(sid, 1, 5.0)
     s = db.admin_stats()
     assert s["users"] == 1 and s["finished_total"] == 1 and s["avg_score"] == 5.0
-    assert s["bank_en"] == s["bank_active"] == 308
+    assert s["bank_en"] == s["bank_active"] == len(json.loads(Path(QPATH).read_text(encoding="utf-8")))
     assert db.get_setting("x", "d") == "d"
     db.set_setting("x", "1")
     assert db.get_setting("x") == "1"

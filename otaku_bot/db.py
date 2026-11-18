@@ -63,6 +63,11 @@ CREATE TABLE IF NOT EXISTS reports(
   created_at REAL NOT NULL, status TEXT NOT NULL DEFAULT 'open',
   UNIQUE(question_id, tg_id)
 );
+CREATE TABLE IF NOT EXISTS suggestions(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, q TEXT NOT NULL, options TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',     -- pending | approved | rejected
+  created_at REAL NOT NULL, qid INTEGER
+);
 CREATE TABLE IF NOT EXISTS game_sessions(
   id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, kind TEXT NOT NULL,
   state TEXT NOT NULL, score INTEGER, started_at REAL NOT NULL, finished_at REAL
@@ -88,7 +93,8 @@ MIGRATIONS = {
         "source": "TEXT NOT NULL DEFAULT 'file'", "edited": "INTEGER NOT NULL DEFAULT 0",
         "image": "TEXT", "q_en": "TEXT", "options_en": "TEXT", "img_fail": "INTEGER NOT NULL DEFAULT 0",
     },
-    "users": {"lang": "TEXT NOT NULL DEFAULT 'ar'", "best_sudden": "INTEGER NOT NULL DEFAULT 0"},
+    "users": {"lang": "TEXT NOT NULL DEFAULT 'ar'", "best_sudden": "INTEGER NOT NULL DEFAULT 0",
+              "blocked": "INTEGER NOT NULL DEFAULT 0"},
     "sessions": {
         "mode": "TEXT NOT NULL DEFAULT 'full'", "counted": "INTEGER NOT NULL DEFAULT 1",
         "challenge_of": "INTEGER", "msg_kind": "TEXT NOT NULL DEFAULT 'text'", "category": "TEXT",
@@ -282,7 +288,7 @@ class DB:
         with self.conn:
             self.conn.execute(
                 """INSERT INTO users(tg_id,name,created_at,lang) VALUES(?,?,?,?)
-                   ON CONFLICT(tg_id) DO UPDATE SET name=excluded.name""",
+                   ON CONFLICT(tg_id) DO UPDATE SET name=excluded.name, blocked=0""",
                 (tg_id, name, time.time(), lang_hint if lang_hint in ("ar", "en") else "ar"))
 
     def get_user(self, tg_id: int) -> sqlite3.Row | None:
@@ -473,6 +479,58 @@ class DB:
             """SELECT id, q, base_difficulty, asked, correct, ROUND(100.0*correct/asked,1) AS pct
                FROM questions WHERE asked>=? AND 1.0*correct/asked <= 0.27 ORDER BY pct""", (min_asked,)).fetchall()
 
+    # ── اقتراحات الأسئلة من اللاعبين ────────────────────────
+    def suggestions_today(self, tg_id: int) -> int:
+        return self.conn.execute("SELECT COUNT(*) n FROM suggestions WHERE tg_id=? AND created_at>=?",
+                                 (tg_id, day_start())).fetchone()["n"]
+
+    def pending_suggestions_of(self, tg_id: int) -> int:
+        return self.conn.execute("SELECT COUNT(*) n FROM suggestions WHERE tg_id=? AND status='pending'",
+                                 (tg_id,)).fetchone()["n"]
+
+    def pending_count(self) -> int:
+        return self.conn.execute("SELECT COUNT(*) n FROM suggestions WHERE status='pending'").fetchone()["n"]
+
+    def text_exists(self, text: str) -> bool:
+        """هل السؤال موجود في البنك أو في اقتراحات معلّقة؟ (مقارنة غير حساسة للحالة)"""
+        t = text.strip().lower()
+        if self.conn.execute("SELECT 1 FROM questions WHERE lower(q)=? OR lower(q_en)=?", (t, t)).fetchone():
+            return True
+        return self.conn.execute("SELECT 1 FROM suggestions WHERE status='pending' AND lower(q)=?", (t,)).fetchone() is not None
+
+    def add_suggestion(self, tg_id: int, q: str, options: list[str]) -> int:
+        """options[0] هو الجواب الصحيح."""
+        with self.conn:
+            cur = self.conn.execute("INSERT INTO suggestions(tg_id,q,options,created_at) VALUES(?,?,?,?)",
+                                    (tg_id, q, json.dumps(options, ensure_ascii=False), time.time()))
+        return cur.lastrowid
+
+    def pending_suggestions(self, limit: int = 10) -> list[sqlite3.Row]:
+        return self.conn.execute("SELECT * FROM suggestions WHERE status='pending' ORDER BY id LIMIT ?", (limit,)).fetchall()
+
+    def get_suggestion(self, sid: int) -> dict | None:
+        r = self.conn.execute("SELECT * FROM suggestions WHERE id=?", (sid,)).fetchone()
+        if not r:
+            return None
+        d = dict(r)
+        d["options"] = json.loads(r["options"])
+        return d
+
+    def set_suggestion_status(self, sid: int, status: str, qid: int | None = None) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE suggestions SET status=?, qid=? WHERE id=?", (status, qid, sid))
+
+    # ── الرسائل الجماعية ─────────────────────────────────────
+    def broadcast_targets(self, lang: str | None = None) -> list[int]:
+        sql, args = "SELECT tg_id FROM users WHERE blocked=0", ()
+        if lang in ("ar", "en"):
+            sql, args = sql + " AND lang=?", (lang,)
+        return [r["tg_id"] for r in self.conn.execute(sql, args)]
+
+    def mark_blocked(self, tg_id: int) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE users SET blocked=1 WHERE tg_id=?", (tg_id,))
+
     # ── البلاغات ─────────────────────────────────────────────
     def reports_today(self, tg_id: int) -> int:
         return self.conn.execute("SELECT COUNT(*) n FROM reports WHERE tg_id=? AND created_at>=?",
@@ -578,6 +636,8 @@ class DB:
             "bank_disabled": one("SELECT COUNT(*) FROM questions WHERE flagged=1"),
             "bank_en": one("SELECT COUNT(*) FROM questions WHERE flagged=0 AND q_en IS NOT NULL"),
             "bank_img": one("SELECT COUNT(*) FROM questions WHERE flagged=0 AND image IS NOT NULL"),
+            "pending_suggestions": one("SELECT COUNT(*) FROM suggestions WHERE status='pending'"),
+            "blocked_users": one("SELECT COUNT(*) FROM users WHERE blocked=1"),
         }
 
     def backup_to(self, dest: str) -> None:

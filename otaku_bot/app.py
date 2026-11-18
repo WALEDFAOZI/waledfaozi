@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import secrets
 import time
@@ -8,6 +9,7 @@ from aiogram import BaseMiddleware, Bot, Dispatcher
 from aiogram.types import BotCommand, CallbackQuery
 
 from .admin import build_admin_router
+from .backup import backup_loop
 from .bot import build_router
 from .config import Settings
 from .ctx import Ctx
@@ -76,5 +78,6 @@ async def run(settings: Settings) -> None:
             BotCommand(command="lang", description="Language 🌐")], language_code="en")
     except Exception as e:  # noqa: BLE001
         log.warning("set_my_commands failed: %s", e)
+    ctx.tasks.append(asyncio.create_task(backup_loop(bot, ctx)))   # نسخة احتياطية أسبوعية تلقائية
     dp = build_dispatcher(ctx)
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())

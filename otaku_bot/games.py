@@ -15,7 +15,8 @@ from .config import ROOT
 from .ctx import Ctx
 from .texts import t
 
-ROUNDS = {"tf": 10, "song": 10, "ord": 8}
+ROUNDS = {"tf": 10, "song": 10, "ord": 8, "char": 10, "quote": 10}
+MC_KINDS = ("song", "char", "quote")   # أسئلة اختيار من متعدد
 
 
 def load_games(path: str | Path | None = None) -> dict:
@@ -29,6 +30,8 @@ def tf_rounds(data: dict, rng: random.Random, n: int = 10) -> list[int]:
 
 def _clash(a: str, b: str) -> bool:
     a, b = a.lower(), b.lower()
+    if min(len(a), len(b)) < 3:        # أسماء قصيرة مثل «L»: نقارن بالتطابق فقط
+        return a == b
     return a in b or b in a
 
 
@@ -40,6 +43,28 @@ def song_rounds(data: dict, rng: random.Random, n: int = 10) -> list[dict]:
         options = [anime] + rng.sample(pool, 3)
         rng.shuffle(options)
         out.append({"song": song, "options": options, "answer": options.index(anime)})
+    return out
+
+
+def char_rounds(data: dict, rng: random.Random, n: int = 10) -> list[dict]:
+    names = sorted({c[2] for c in data["chars"]})
+    out = []
+    for ar, en, name in rng.sample(data["chars"], min(n, len(data["chars"]))):
+        pool = [x for x in names if not _clash(x, name)]
+        options = [name] + rng.sample(pool, 3)
+        rng.shuffle(options)
+        out.append({"text": {"ar": ar, "en": en}, "options": options, "answer": options.index(name)})
+    return out
+
+
+def quote_rounds(data: dict, rng: random.Random, n: int = 10) -> list[dict]:
+    animes = sorted({q[2] for q in data["quotes"]} | set(data.get("quote_extra", [])))
+    out = []
+    for en, ar, anime in rng.sample(data["quotes"], min(n, len(data["quotes"]))):
+        pool = [x for x in animes if not _clash(x, anime)]
+        options = [anime] + rng.sample(pool, 3)
+        rng.shuffle(options)
+        out.append({"text": {"ar": ar, "en": en}, "options": options, "answer": options.index(anime)})
     return out
 
 
@@ -66,7 +91,8 @@ def order_correct(round_: dict) -> list[int]:
 
 
 def new_state(kind: str, data: dict, rng: random.Random) -> dict:
-    rounds = {"tf": tf_rounds, "song": song_rounds, "ord": order_rounds}[kind](data, rng, ROUNDS[kind])
+    rounds = {"tf": tf_rounds, "song": song_rounds, "ord": order_rounds,
+              "char": char_rounds, "quote": quote_rounds}[kind](data, rng, ROUNDS[kind])
     return {"rounds": rounds, "pos": 0, "score": 0, "picked": []}
 
 
@@ -74,14 +100,15 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
     r = Router()
     db, rng = ctx.db, ctx.rng
     games = data or load_games()
-    titles = {"tf": "g_tf", "song": "g_song", "ord": "g_ord"}
+    titles = {"tf": "g_tf", "song": "g_song", "ord": "g_ord", "char": "g_char", "quote": "g_quote"}
 
     def lang(uid: int) -> str:
         return db.get_lang(uid)
 
     def menu(L: str):
         return t(L, "g_menu"), kb([btn(t(L, "g_tf"), "g:tf")], [btn(t(L, "g_song"), "g:song")],
-                                  [btn(t(L, "g_ord"), "g:ord")], [btn(t(L, "btn_menu"), "menu")])
+                                  [btn(t(L, "g_ord"), "g:ord")], [btn(t(L, "g_char"), "g:char")],
+                                  [btn(t(L, "g_quote"), "g:quote")], [btn(t(L, "btn_menu"), "menu")])
 
     def screen(L: str, gid: int, kind: str, st: dict):
         n, total = st["pos"] + 1, len(st["rounds"])
@@ -91,8 +118,9 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
             stmt = s[1] if L == "en" else s[0]
             return (t(L, "g_tf_q", n=n, t=total, s=esc(stmt)),
                     kb([btn(t(L, "g_true"), f"gt:{gid}:1"), btn(t(L, "g_false"), f"gt:{gid}:0")]))
-        if kind == "song":
-            return (t(L, "g_song_q", n=n, t=total, s=esc(rd["song"])),
+        if kind in MC_KINDS:
+            prompt = rd["song"] if kind == "song" else rd["text"].get(L) or rd["text"]["ar"]
+            return (t(L, f"g_{kind}_q", n=n, t=total, s=esc(prompt)),
                     kb(*[[btn(o, f"gs:{gid}:{i}")] for i, o in enumerate(rd["options"])]))
         items = rd["items"]
         picked = "\n".join(f"{k + 1}) {esc(items[i]['name'])}" for k, i in enumerate(st["picked"])) or "—"
@@ -132,7 +160,7 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
         text, markup = menu(lang(c.from_user.id))
         await c.message.answer(text, parse_mode="HTML", reply_markup=markup)
 
-    @r.callback_query(F.data.regexp(r"^g:(tf|song|ord)$"))
+    @r.callback_query(F.data.regexp(r"^g:(tf|song|ord|char|quote)$"))
     async def cb_start(c: CallbackQuery):
         await c.answer()
         db.upsert_user(c.from_user.id, c.from_user.full_name)
@@ -171,7 +199,7 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
         _, gid, idx = c.data.split(":")
         g = mine(c, int(gid))
         L = lang(c.from_user.id)
-        if not g or g["kind"] != "song" or g["state"]["pos"] >= len(g["state"]["rounds"]):
+        if not g or g["kind"] not in MC_KINDS or g["state"]["pos"] >= len(g["state"]["rounds"]):
             await c.answer(t(L, "g_stale"))
             return
         rd = g["state"]["rounds"][g["state"]["pos"]]

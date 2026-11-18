@@ -7,12 +7,15 @@
 """
 from __future__ import annotations
 
+import asyncio
 import json
+import logging
 import tempfile
+import time
 from pathlib import Path
 
 from aiogram import Bot, F, Router
-from aiogram.exceptions import TelegramAPIError
+from aiogram.exceptions import TelegramAPIError, TelegramForbiddenError, TelegramRetryAfter
 from aiogram import BaseMiddleware
 from aiogram.filters import BaseFilter, Command
 from aiogram.fsm.context import FSMContext
@@ -20,10 +23,14 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, FSInputFile, Message
 
 from . import anilist
+from .backup import enabled as backup_enabled, last_backup_text
 from .bot import btn, esc, kb
 from .config import CATEGORY_LABELS
 from .ctx import Ctx
 from .texts import t
+
+log = logging.getLogger(__name__)
+BROADCAST_GAP = 300          # أقل مدة بين رسالتين جماعيتين (ثواني) لتفادي الإرسال بالخطأ
 
 
 class Flow(StatesGroup):
@@ -51,7 +58,7 @@ async def nav(c: CallbackQuery, text: str, markup, parse_mode: str | None = "HTM
 
 class ClearPending(BaseMiddleware):
     """أي زر في اللوحة (عدا خطوات المعالج نفسه) يُلغي الإدخال المعلّق، حتى لا يُفسَّر كلامك العادي بالغلط."""
-    KEEP = ("ad:aa:", "ad:ad:", "ad:ac:", "ad:ae:")
+    KEEP = ("ad:aa:", "ad:ad:", "ad:ac:", "ad:ae:", "ad:bs:", "ad:bg:")
 
     async def __call__(self, handler, event, data):
         d = getattr(event, "data", None) or ""
@@ -61,12 +68,16 @@ class ClearPending(BaseMiddleware):
         return await handler(event, data)
 
 
-HOME = kb(
-    [btn("📊 الإحصائيات", "ad:stats"), btn("🚩 البلاغات", "ad:rep")],
-    [btn("➕ سؤال جديد", "ad:add"), btn("🔎 بحث/تعديل سؤال", "ad:find")],
-    [btn("⚙️ الإعدادات", "ad:set"), btn("👥 المشرفون", "ad:adm")],
-    [btn("🖼 جلب أسئلة صور", "ad:img"), btn("💾 نسخة احتياطية", "ad:bak")],
-)
+def home_kb(pending: int = 0):
+    return kb(
+        [btn("📊 الإحصائيات", "ad:stats"), btn("🚩 البلاغات", "ad:rep")],
+        [btn("➕ سؤال جديد", "ad:add"), btn("🔎 بحث/تعديل سؤال", "ad:find")],
+        [btn(f"💡 الاقتراحات ({pending})", "ad:sg"), btn("📣 رسالة جماعية", "ad:bc")],
+        [btn("⚙️ الإعدادات", "ad:set"), btn("👥 المشرفون", "ad:adm")],
+        [btn("🖼 جلب أسئلة صور", "ad:img"), btn("💾 نسخة احتياطية", "ad:bak")],
+    )
+
+
 BACK = [btn("🏠 لوحة التحكم", "ad:home")]
 
 
@@ -139,13 +150,13 @@ def build_admin_router(ctx: Ctx) -> Router:
     @r.message(Command("admin"))
     async def cmd_admin(m: Message, state: FSMContext):
         await state.clear()
-        await m.answer("🛠 <b>لوحة التحكم</b>", parse_mode="HTML", reply_markup=HOME)
+        await m.answer("🛠 <b>لوحة التحكم</b>", parse_mode="HTML", reply_markup=home_kb(db.pending_count()))
 
     @r.callback_query(F.data == "ad:home")
     async def cb_home(c: CallbackQuery, state: FSMContext):
         await state.clear()
         await c.answer()
-        await nav(c, "🛠 <b>لوحة التحكم</b>", HOME)
+        await nav(c, "🛠 <b>لوحة التحكم</b>", home_kb(db.pending_count()))
 
     @r.message(Command("flagged"))
     async def cmd_flagged(m: Message):
@@ -173,7 +184,8 @@ def build_admin_router(ctx: Ctx) -> Router:
             f"📉 نسبة الإكمال (7 أيام): {done}\n⭐ متوسط التقييم (الكامل): {avg}\n🎮 الأوضاع: {modes}\n\n"
             f"🎯 نسبة الصحة حسب التصنيف:\n{cats}\n\n🧗 أصعب الأسئلة:\n{hard}\n\n🌱 أسهل الأسئلة:\n{easy}\n\n"
             f"📚 البنك: {s['bank_active']} مفعّل ({s['bank_disabled']} معطّل) · 🇬🇧 {s['bank_en']} · 🖼 {s['bank_img']}\n"
-            f"🚩 أسئلة عليها بلاغات مفتوحة: {s['open_reports']}")
+            f"🚩 أسئلة عليها بلاغات مفتوحة: {s['open_reports']}\n"
+            f"💡 اقتراحات تنتظر المراجعة: {s['pending_suggestions']} · 🚫 حظروا البوت: {s['blocked_users']}")
         await nav(c, text, kb(BACK))
 
     # ── البلاغات ────────────────────────────────────────────
@@ -422,6 +434,21 @@ def build_admin_router(ctx: Ctx) -> Router:
             await m.answer("✅ تم الحفظ")
             await show_q(m, qid)
 
+        elif act == "bcast":
+            if not text and not photo:
+                await m.answer("أرسل نصًا أو صورة.")
+                return
+            if len(text) > 1000 and photo or len(text) > 4000:
+                await m.answer("النص طويل جدًا (الحد 4000 حرف، أو 1000 مع صورة).")
+                return
+            await state.update_data(act="bcast_ready", bc_text=text, bc_photo=(photo[3:] if photo else None))
+            await send_one(m.bot, m.chat.id, text, photo[3:] if photo else None)         # معاينة
+            n_all, n_ar, n_en = (len(audience(a)) for a in ("all", "ar", "en"))
+            await m.answer("👆 هذه معاينة رسالتك. اختر الجمهور:", reply_markup=kb(
+                [btn(f"👥 الكل ({n_all})", "ad:bs:all")],
+                [btn(f"🇸🇦 العربية ({n_ar})", "ad:bs:ar"), btn(f"🇬🇧 English ({n_en})", "ad:bs:en")],
+                [btn("📤 أرسلها لي فقط (تجربة)", "ad:bs:me")], [btn("❌ إلغاء", "ad:home")]))
+
         elif act == "channel":
             await state.clear()
             val = "" if text.lower() in ("off", "تعطيل") else text if text.startswith("@") else f"@{text}"
@@ -446,12 +473,15 @@ def build_admin_router(ctx: Ctx) -> Router:
                 f"⏳ الانتظار بين الاختبارات الكاملة: <b>{ctx.cooldown()}</b> دقيقة\n"
                 f"📢 قناة الاشتراك الإجباري: <b>{esc(ch)}</b>\n"
                 f"🚩 عتبة إشعار البلاغات: <b>{ctx.report_threshold()}</b> بلاغات مستقلة · "
-                f"حد المستخدم اليومي: <b>{ctx.reports_per_day()}</b>")
+                f"حد المستخدم اليومي: <b>{ctx.reports_per_day()}</b>\n"
+                f"💾 النسخة الأسبوعية التلقائية: <b>{'✅ مفعّلة' if backup_enabled(ctx) else '❌ متوقفة'}</b> "
+                f"(آخر نسخة: {last_backup_text(ctx)})")
         markup = kb(
             [btn("⏱ " + (str(v) if v else "بدون"), f"ad:st:{v}") for v in (0, 15, 20, 30, 45, 60)],
             [btn(f"⏳ {v}", f"ad:cd:{v}") for v in (0, 10, 30, 60, 120)],
             [btn(f"🚩 عتبة {v}", f"ad:rt:{v}") for v in (1, 2, 3, 5)],
             [btn(f"🚩 يوميًا {v}", f"ad:rd:{v}") for v in (1, 3, 5, 10)],
+            [btn("💾 تفعيل النسخ الأسبوعي", "ad:ab:1"), btn("💾 إيقافه", "ad:ab:0")],
             [btn("📢 تغيير/تعطيل القناة", "ad:ch")], BACK)
         return text, markup
 
@@ -472,6 +502,13 @@ def build_admin_router(ctx: Ctx) -> Router:
             await c.message.edit_text(text, parse_mode="HTML", reply_markup=markup)
         except TelegramAPIError:
             pass
+
+    @r.callback_query(F.data.regexp(r"^ad:ab:[01]$"))
+    async def cb_auto_backup(c: CallbackQuery):
+        db.set_setting("auto_backup", c.data.split(":")[2])
+        await c.answer("✅ تم الحفظ")
+        text, markup = settings_view()
+        await nav(c, text, markup)
 
     @r.callback_query(F.data == "ad:ch")
     async def cb_channel(c: CallbackQuery, state: FSMContext):
@@ -533,6 +570,151 @@ def build_admin_router(ctx: Ctx) -> Router:
         n = db.upsert_questions(qs)
         await note.edit_text(f"✅ أضفت/حدّثت {n} سؤال صورة من {src}.\nراجع عيّنة من «🔎 بحث» وعطّل أي سؤال تراه غلطًا.",
                              reply_markup=kb(BACK))
+
+    # ── اقتراحات اللاعبين ───────────────────────────────────
+    @r.callback_query(F.data == "ad:sg")
+    async def cb_suggestions(c: CallbackQuery):
+        await c.answer()
+        rows = db.pending_suggestions(10)
+        if not rows:
+            await nav(c, "لا توجد اقتراحات تنتظر المراجعة 🎉", kb(BACK), None)
+            return
+        btns = [[btn(f"#{x['id']} {x['q'][:40]}", f"ad:sv:{x['id']}")] for x in rows]
+        await nav(c, f"💡 اقتراحات تنتظر المراجعة ({db.pending_count()}):", kb(*btns, BACK), None)
+
+    def sg_card(sg: dict) -> str:
+        opts = "\n".join(f"{'✅' if i == 0 else '▫️'} {esc(o)}" for i, o in enumerate(sg["options"]))
+        return f"💡 <b>اقتراح #{sg['id']}</b> من {sg['tg_id']}\n\n<b>{esc(sg['q'])}</b>\n{opts}"
+
+    @r.callback_query(F.data.regexp(r"^ad:sv:\d+$"))
+    async def cb_sg_view(c: CallbackQuery):
+        await c.answer()
+        sg = db.get_suggestion(int(c.data.split(":")[2]))
+        if not sg or sg["status"] != "pending":
+            await c.message.answer("هذا الاقتراح تمّت مراجعته.", reply_markup=kb(BACK))
+            return
+        await c.message.answer(sg_card(sg), parse_mode="HTML", reply_markup=kb(
+            [btn("✅ قبول", f"ad:sga:{sg['id']}"), btn("❌ رفض", f"ad:sgr:{sg['id']}")], [btn("◀️ الاقتراحات", "ad:sg")]))
+
+    @r.callback_query(F.data.regexp(r"^ad:sga:\d+$"))
+    async def cb_sg_accept(c: CallbackQuery):
+        await c.answer()
+        sid = int(c.data.split(":")[2])
+        await c.message.answer("اختر التصنيف:", reply_markup=kb(
+            *[[btn(lbl, f"ad:sgc:{sid}:{k}")] for k, lbl in CATEGORY_LABELS.items()]))
+
+    @r.callback_query(F.data.regexp(r"^ad:sgc:\d+:\w+$"))
+    async def cb_sg_cat(c: CallbackQuery):
+        await c.answer()
+        _, _, sid, cat = c.data.split(":")
+        await c.message.answer("اختر الصعوبة (1 سهل … 10 صعب):", reply_markup=kb(
+            [btn(str(i), f"ad:sgd:{sid}:{cat}:{i}") for i in range(1, 6)],
+            [btn(str(i), f"ad:sgd:{sid}:{cat}:{i}") for i in range(6, 11)]))
+
+    @r.callback_query(F.data.regexp(r"^ad:sgd:\d+:\w+:\d+$"))
+    async def cb_sg_done(c: CallbackQuery):
+        _, _, sid, cat, diff = c.data.split(":")
+        sg = db.get_suggestion(int(sid))
+        if not sg or sg["status"] != "pending" or cat not in CATEGORY_LABELS:
+            await c.answer("تمّت مراجعته أو غير صالح", show_alert=True)
+            return
+        order = [0, 1, 2, 3]
+        ctx.rng.shuffle(order)
+        qid = db.add_question(sg["q"], [sg["options"][i] for i in order], order.index(0), cat, int(diff), source="user")
+        db.set_suggestion_status(sg["id"], "approved", qid)
+        await c.answer("✅ أُضيف للبنك")
+        try:
+            L = db.get_lang(sg["tg_id"])
+            await c.bot.send_message(sg["tg_id"], t(L, "sg_accepted", q=esc(sg["q"])), parse_mode="HTML")
+        except TelegramAPIError:
+            pass
+        await show_q(c.message, qid)
+
+    @r.callback_query(F.data.regexp(r"^ad:sgr:\d+$"))
+    async def cb_sg_reject(c: CallbackQuery):
+        db.set_suggestion_status(int(c.data.split(":")[2]), "rejected")
+        await c.answer("❌ رُفض", show_alert=True)
+
+    # ── رسالة جماعية ────────────────────────────────────────
+    async def send_one(bot: Bot, chat_id: int, text: str, photo: str | None) -> None:
+        if photo:
+            await bot.send_photo(chat_id, photo, caption=text or None)
+        else:
+            await bot.send_message(chat_id, text)
+
+    @r.callback_query(F.data == "ad:bc")
+    async def cb_broadcast(c: CallbackQuery, state: FSMContext):
+        await c.answer()
+        await state.set_state(Flow.wait)
+        await state.update_data(act="bcast")
+        await c.message.answer("📣 <b>رسالة جماعية</b>\nأرسل الرسالة (نصًا، أو صورة ومعها النص كتعليق).\n"
+                               "سأعرض لك معاينة، ثم تختار الجمهور وتؤكد قبل الإرسال.\nللإلغاء: /cancel", parse_mode="HTML")
+
+    def audience(aud: str):
+        return db.broadcast_targets(aud if aud in ("ar", "en") else None)
+
+    @r.callback_query(F.data.regexp(r"^ad:bs:(all|ar|en|me)$"))
+    async def cb_bc_audience(c: CallbackQuery, state: FSMContext):
+        await c.answer()
+        data = await state.get_data()
+        if data.get("act") != "bcast_ready":
+            await c.message.answer("انتهت الجلسة. ابدأ من «📣 رسالة جماعية».", reply_markup=kb(BACK))
+            return
+        aud = c.data.split(":")[2]
+        if aud == "me":
+            await send_one(c.bot, c.message.chat.id, data["bc_text"], data["bc_photo"])
+            await c.message.answer("📤 هذه تجربة وصلتك أنت فقط. اختر الجمهور للإرسال الفعلي.")
+            return
+        wait = float(db.get_setting("last_broadcast", "0") or 0) + BROADCAST_GAP - time.time()
+        if wait > 0:
+            await c.message.answer(f"⏳ انتظر {int(wait // 60) + 1} دقيقة قبل رسالة جماعية أخرى (حماية من الإرسال بالخطأ).")
+            return
+        n = len(audience(aud))
+        await c.message.answer(f"⚠️ سيُرسَل هذا إلى <b>{n}</b> مستخدم. متأكد؟", parse_mode="HTML", reply_markup=kb(
+            [btn("✅ نعم، أرسل", f"ad:bg:{aud}")], [btn("❌ إلغاء", "ad:home")]))
+
+    async def run_broadcast(bot: Bot, admin_chat: int, targets: list[int], text: str, photo: str | None) -> dict:
+        sent = blocked = failed = 0
+        note = await bot.send_message(admin_chat, f"📣 بدأ الإرسال إلى {len(targets)} مستخدم…")
+        for i, uid in enumerate(targets, 1):
+            try:
+                try:
+                    await send_one(bot, uid, text, photo)
+                except TelegramRetryAfter as e:           # تليجرام يطلب التمهّل
+                    await asyncio.sleep(e.retry_after)
+                    await send_one(bot, uid, text, photo)
+                sent += 1
+            except TelegramForbiddenError:                # حظر البوت: نتوقف عن مراسلته
+                db.mark_blocked(uid)
+                blocked += 1
+            except TelegramAPIError:
+                failed += 1
+            await asyncio.sleep(0.04)                     # ~25 رسالة/ثانية (حد تليجرام 30)
+            if i % 100 == 0:
+                try:
+                    await note.edit_text(f"📣 {i}/{len(targets)} …")
+                except TelegramAPIError:
+                    pass
+        result = {"sent": sent, "blocked": blocked, "failed": failed}
+        await bot.send_message(admin_chat, f"✅ انتهى الإرسال\n📬 وصلت: {sent}\n🚫 حظروا البوت: {blocked}\n⚠️ فشلت: {failed}")
+        return result
+
+    @r.callback_query(F.data.regexp(r"^ad:bg:(all|ar|en)$"))
+    async def cb_bc_go(c: CallbackQuery, state: FSMContext):
+        data = await state.get_data()
+        if data.get("act") != "bcast_ready":
+            await c.answer("انتهت الجلسة", show_alert=True)
+            return
+        wait = float(db.get_setting("last_broadcast", "0") or 0) + BROADCAST_GAP - time.time()
+        if wait > 0:
+            await c.answer("انتظر قليلًا قبل رسالة جماعية أخرى", show_alert=True)
+            return
+        targets = audience(c.data.split(":")[2])
+        db.set_setting("last_broadcast", str(time.time()))
+        await state.clear()
+        await c.answer("بدأ الإرسال في الخلفية ✅")
+        ctx.tasks.append(asyncio.create_task(
+            run_broadcast(c.bot, c.message.chat.id, targets, data["bc_text"], data["bc_photo"])))
 
     # ── النسخة الاحتياطية ───────────────────────────────────
     @r.callback_query(F.data == "ad:bak")
