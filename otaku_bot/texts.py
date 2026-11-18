@@ -348,3 +348,15 @@ T["en"].update({
     "iv_share": "Come try the Otaku Rating, see what you score out of 10 🔥",
     "iv_joined": "🎉 Your friend finished a first test and joined! Completed invites: {n}", "iv_badge_up": "🏅 New badge: {b}",
 })
+
+T["ar"]["btn_games_menu"] = "🎮 الألعاب"
+T["en"]["btn_games_menu"] = "🎮 Games"
+T["ar"]["btn_more"] = "⚙️ المزيد"
+T["en"]["btn_more"] = "⚙️ More"
+T["ar"]["more_menu"] = "⚙️ المزيد: إحصائياتي، الاقتراحات، اللغة."
+T["en"]["more_menu"] = "⚙️ More: my stats, suggestions, language."
+
+T["ar"]["pf_visit"] = "\n\n👤 شارك معك <b>{name}</b> ملفه: أفضل تقييم <b>{score}</b>/10 — {title}\nتقدر تتفوّق عليه؟ 😏"
+T["en"]["pf_visit"] = "\n\n👤 <b>{name}</b> shared their profile: best score <b>{score}</b>/10 — {title}\nThink you can beat it? 😏"
+T["ar"]["btn_try_too"] = "🎯 جرّب أنت"
+T["en"]["btn_try_too"] = "🎯 Try it too"

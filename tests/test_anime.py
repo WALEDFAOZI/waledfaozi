@@ -97,3 +97,80 @@ def test_channel_button_in_key_places():
                 for row in c.reply_markup.inline_keyboard for b in row if b.url]
         assert urls.count("https://t.me/Anime1Galaxy") >= 3
     run(go())
+
+
+def test_admin_adds_content_from_panel_and_it_shows_up():
+    from otaku_bot.content import parse_anime, parse_tf
+    row, err = parse_tf("عبارة\nStatement\nغلط\nتصحيح\nFix")
+    assert not err and row[2] is False
+    assert parse_tf("عبارة\nStatement\nغلط")[1]                   # الغلط يحتاج تصحيحًا
+    assert parse_tf("a\nb\nmaybe")[1]
+    good = ("ar: تجربة\nen: Test Show\ntype: series\nyear: 2020\nstudio: X\ngenres: comedy, slice\nrating: all\n"
+            "seasons: 1\nepisodes: 12\nsyn_ar: نبذة\nsyn_en: Synopsis")
+    a, err = parse_anime(good, set())
+    assert not err and a["len"] == "short" and a["rating"] == "all"
+    assert parse_anime(good.replace("comedy", "ecchi"), set())[1]
+    assert parse_anime(good.replace("all", "mature"), set())[1]      # يحتاج ملاحظة محتوى
+    assert parse_anime(good.replace("Synopsis", "sex scenes"), set())[1]
+
+    async def go():
+        h = Harness()
+        u = h.user(1)
+        h.db.add_admin(1, owner=True)
+        await h.tap(u, "ad:can")
+        await h.say(u, good)
+        assert h.db.extras("anime")
+        await h.say(u, "/start")
+        for _ in range(80):
+            await h.tap(u, "an:r:slice:x:x")
+        assert any("Test Show" in x or "تجربة" in x for x in h.session.texts())
+        await h.tap(u, "ad:ctf")
+        await h.say(u, "عبارة جديدة\nNew statement\nصح")
+        assert h.db.extras("tf")
+        await h.tap(u, "g:tf")
+        h.db.hide_game_item("0123456789ab")
+        await h.tap(u, "ad:hid")
+        await h.tap(u, "ad:uh:0123456789ab")
+        assert "0123456789ab" not in h.db.game_hidden()
+    run(go())
+
+
+def test_local_backup_rotates_and_restores(tmp_path):
+    import dataclasses
+    from otaku_bot import backup
+    from otaku_bot.ctx import Ctx
+    from otaku_bot.db import DB
+    path = tmp_path / "otaku.db"
+    real = DB(str(path))
+    real.load_questions(str(__import__("harness").QPATH))
+    ctx = Ctx(dataclasses.replace(Harness().ctx.settings, db_path=str(path)), real)
+    assert backup.local_backup(ctx) is None                  # قاعدة فارغة: لا نسخة
+    real.upsert_user(7, "Pl")
+    f = backup.local_backup(ctx, keep=2)
+    assert f and f.exists()
+    for n in range(3):
+        (f.parent / f"otaku-2000010{n}-0000.db").write_bytes(f.read_bytes())
+    backup.local_backup(ctx, keep=2)
+    assert len(list(f.parent.glob("otaku-*.db"))) == 2
+    real.conn.close()
+    path.unlink()
+    assert backup._restore_local(path) and backup.db_user_count(path) == 1
+
+
+def test_profile_share_link_shows_visitor_card_but_never_admin():
+    async def go():
+        h = Harness()
+        a, b = h.user(1, "Ali"), h.user(2, "Bob")
+        await h.say(a, "/start")
+        with h.db.conn:
+            h.db.conn.execute("UPDATE users SET best_score=7.5 WHERE tg_id=1")
+        await h.say(b, "/start pf_1")
+        assert any("Ali" in x for x in h.session.texts() + [getattr(c, "caption", "") or "" for c in h.session.calls])
+        h.db.add_admin(1)
+        h2 = Harness()
+        h2.db.upsert_user(1, "Owner"); h2.db.add_admin(1)
+        with h2.db.conn:
+            h2.db.conn.execute("UPDATE users SET best_score=9 WHERE tg_id=1")
+        await h2.say(h2.user(2), "/start pf_1")
+        assert not any("Owner" in (getattr(c, "caption", "") or "") + (getattr(c, "text", "") or "") for c in h2.session.calls)
+    run(go())

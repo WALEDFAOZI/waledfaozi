@@ -28,6 +28,9 @@ from .growth import growth_text, refresh_count
 from .bot import btn, esc, kb
 from .config import CATEGORY_LABELS
 from .ctx import Ctx
+from .content import ANIME_HELP, TF_HELP, parse_anime, parse_tf
+from .games import item_key, load_games
+from .recommend import hkey, load_anime
 from .texts import t
 
 log = logging.getLogger(__name__)
@@ -75,6 +78,7 @@ def home_kb(pending: int = 0):
         [btn("➕ سؤال جديد", "ad:add"), btn("🔎 بحث/تعديل سؤال", "ad:find")],
         [btn(f"💡 الاقتراحات ({pending})", "ad:sg"), btn("📣 رسالة جماعية", "ad:bc")],
         [btn("⚙️ الإعدادات", "ad:set"), btn("👥 المشرفون", "ad:adm")],
+        [btn("📚 المحتوى (صح/غلط، أنمي)", "ad:ct")],
         [btn("🖼 جلب أسئلة صور", "ad:img"), btn("💾 نسخة احتياطية", "ad:bak")],
     )
 
@@ -247,6 +251,46 @@ def build_admin_router(ctx: Ctx) -> Router:
         await c.answer("تم تجاهل البلاغات", show_alert=True)
 
     # ── عرض/تعديل سؤال ──────────────────────────────────────
+    # ── المحتوى: عبارات صح/غلط وأنمي من اللوحة (تُحفظ في القاعدة فتشملها النسخ الاحتياطية) ──
+    @r.callback_query(F.data == "ad:ct")
+    async def cb_content(c: CallbackQuery):
+        await c.answer()
+        await nav(c, "📚 <b>إدارة المحتوى</b>\nما تضيفه هنا يظهر فورًا في البوت ولا يحتاج إعادة رفع.",
+                  kb([btn("➕ عبارة صح/غلط", "ad:ctf"), btn("➕ أنمي", "ad:can")],
+                     [btn(f"🙈 المخفيّات ({len(db.game_hidden())})", "ad:hid")], BACK))
+
+    @r.callback_query(F.data.in_({"ad:ctf", "ad:can"}))
+    async def cb_content_add(c: CallbackQuery, state: FSMContext):
+        await c.answer()
+        act = "ctf" if c.data == "ad:ctf" else "can"
+        await state.set_state(Flow.wait)
+        await state.update_data(act=act)
+        await c.message.answer(TF_HELP if act == "ctf" else ANIME_HELP, parse_mode="HTML",
+                               reply_markup=kb([btn("إلغاء", "ad:ct")]))
+
+    def hidden_labels() -> dict[str, str]:
+        labels = {item_key(x[0]): "✅❌ " + x[0] for x in load_games()["tf"]}
+        labels.update({item_key(row[0]): "✅❌ " + row[0] for _, row in db.extras("tf")})
+        labels.update({hkey(a): "🎬 " + a["ar"] for a in load_anime() + [a for _, a in db.extras("anime")]})
+        return labels
+
+    @r.callback_query(F.data == "ad:hid")
+    async def cb_hidden(c: CallbackQuery):
+        await c.answer()
+        labels = hidden_labels()
+        hid = sorted(db.game_hidden())[:25]
+        if not hid:
+            await nav(c, "لا يوجد شيء مخفي ✅", kb([btn("⬅️ المحتوى", "ad:ct")]))
+            return
+        await nav(c, "🙈 المخفيّات (اضغط لإعادة الإظهار):",
+                  kb(*[[btn(("↩️ " + labels.get(k, "عنصر لعبة " + k))[:50], f"ad:uh:{k}")] for k in hid],
+                     [btn("⬅️ المحتوى", "ad:ct")]))
+
+    @r.callback_query(F.data.regexp(r"^ad:uh:[0-9a-f]{12}$"))
+    async def cb_unhide(c: CallbackQuery):
+        db.unhide_game_item(c.data.split(":")[2])
+        await c.answer("↩️ أُعيد", show_alert=True)
+
     @r.callback_query(F.data == "ad:find")
     async def cb_find(c: CallbackQuery, state: FSMContext):
         await c.answer()
@@ -388,6 +432,21 @@ def build_admin_router(ctx: Ctx) -> Router:
         act = data.get("act")
         text = (m.text or m.caption or "").strip()
         photo = f"tg:{m.photo[-1].file_id}" if m.photo else None
+
+        if act in ("ctf", "can"):
+            if act == "ctf":
+                row, err = parse_tf(text)
+            else:
+                known = {a["key"] for a in load_anime()} | {a["key"] for _, a in db.extras("anime")}
+                row, err = parse_anime(text, known)
+            if err:
+                await m.answer(f"❌ {err}\nصحّح وأرسل ثانية، أو اضغط إلغاء.", reply_markup=kb([btn("إلغاء", "ad:ct")]))
+                return
+            await state.clear()
+            db.add_extra("tf" if act == "ctf" else "anime", row)
+            await m.answer("✅ أُضيف ويظهر في البوت فورًا.", reply_markup=kb([btn("➕ إضافة أخرى", f"ad:{act}")],
+                                                                              [btn("⬅️ المحتوى", "ad:ct")]))
+            return
 
         if act == "find":
             await state.clear()

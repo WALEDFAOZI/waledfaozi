@@ -72,6 +72,15 @@ def build_recommend_router(ctx: Ctx) -> Router:
     items = load_anime()
     by_hash = {hkey(a): a for a in items}
     rng = random.Random()
+    extra_seen = [0]
+
+    def sync() -> None:
+        """أنمي أضافه الأدمن من اللوحة."""
+        for eid, a in db.extras("anime", extra_seen[0]):
+            extra_seen[0] = eid
+            if a["key"] not in {x["key"] for x in items}:
+                items.append(a)
+                by_hash[hkey(a)] = a
     seen: dict[int, set[str]] = {}
 
     def lang(uid: int) -> str:
@@ -99,6 +108,7 @@ def build_recommend_router(ctx: Ctx) -> Router:
     async def cb_genres(c: CallbackQuery):
         L = lang(c.from_user.id)
         await c.answer()
+        sync()
         used = sorted({g for a in items for g in a["genres"]})
         rows, row = [], []
         for g in used:
@@ -122,6 +132,7 @@ def build_recommend_router(ctx: Ctx) -> Router:
         uid = c.from_user.id
         L = lang(uid)
         await c.answer()
+        sync()
         a = pick(items, db.game_hidden(), g, ln, aud, seen.setdefault(uid, set()), rng)
         if not a:
             await c.message.answer(t(L, "an_empty"), reply_markup=menu_markup(L))
@@ -135,6 +146,7 @@ def build_recommend_router(ctx: Ctx) -> Router:
     async def cb_report(c: CallbackQuery):
         L = lang(c.from_user.id)
         h = c.data.split(":")[2]
+        sync()
         if h not in by_hash:
             await c.answer(t(L, "rp_closed"))
             return

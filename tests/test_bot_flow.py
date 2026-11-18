@@ -381,8 +381,14 @@ def test_start_menu_shows_all_player_buttons_and_each_works():
         await h.say(u, "/start")
         start_call = last_menu_call(h)
         data = {b.callback_data for row in start_call.reply_markup.inline_keyboard for b in row}
-        for must in ("go", "qk", "cats", "sd", "g:tf", "g:song", "g:ord", "lb:all", "lb:week", "st", "lg:toggle"):
+        for must in ("go", "qk", "cats", "m:games", "an:m", "lb:all", "lb:week", "pf", "iv", "m:more"):
             assert must in data, must
+        await h.tap(u, "m:games")
+        gd = {b.callback_data for row in last_menu_call(h).reply_markup.inline_keyboard for b in row}
+        assert {"sd", "g:tf", "g:song", "g:ord", "g:char", "g:quote"} <= gd
+        await h.tap(u, "m:more")
+        md = {b.callback_data for row in last_menu_call(h).reply_markup.inline_keyboard for b in row}
+        assert {"st", "sg", "lg:toggle"} <= md
         # كل زر يشتغل فعلًا
         for cb in ("noop", "st", "lb:all", "lb:week", "lb:sd", "cats", "g:tf", "g:song", "g:ord", "menu"):
             before = len(h.session.calls)
@@ -395,6 +401,7 @@ def test_start_menu_shows_all_player_buttons_and_each_works():
             h.db.add_question(f"من؟{i}", ["a", "b", "c", "d"], 0, "images", 1, image=f"https://x/{i}.png",
                               q_en="Who?", options_en=["a", "b", "c", "d"])
         await h.say(h.user(2, "B"), "/start")
+        await h.tap(h.user(2, "B"), "m:games")
         c2 = last_menu_call(h)
         assert "ct:images" in {b.callback_data for row in c2.reply_markup.inline_keyboard for b in row}
     run(go())

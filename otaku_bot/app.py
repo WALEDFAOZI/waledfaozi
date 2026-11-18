@@ -83,8 +83,8 @@ async def run(settings: Settings) -> None:
         banner = f"\n{'=' * 50}\n  كود تفعيل المالك (مرة واحدة):  /claim {ctx.claim_code}\n  أرسله للبوت من حسابك لتصير المالك.\n{'=' * 50}"
         log.warning(banner)
         print(banner, flush=True)
-    if restore == "restored":
-        ctx.tasks.append(asyncio.create_task(_tell_owners(bot, ctx, RESTORE_MESSAGES["restored"]
+    if restore in ("restored", "restored-local"):
+        ctx.tasks.append(asyncio.create_task(_tell_owners(bot, ctx, RESTORE_MESSAGES[restore]
                                                               + f"\n👥 اللاعبون الآن: {db_user_count(Path(settings.db_path))}")))
     elif restore in ("chat-unreachable", "download-failed", "bad-zip", "bad-db"):
         ctx.tasks.append(asyncio.create_task(_tell_owners(bot, ctx, RESTORE_MESSAGES[restore])))

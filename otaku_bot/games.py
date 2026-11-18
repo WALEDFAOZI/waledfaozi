@@ -192,11 +192,20 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
         text, markup = menu(lang(c.from_user.id))
         await c.message.answer(text, parse_mode="HTML", reply_markup=markup)
 
+    extra_seen = [0]
+
+    def sync_extras() -> None:
+        """عبارات صح/غلط أضافها الأدمن من اللوحة: تُلحَق (فقط) بنهاية القائمة فتبقى فهارس الجولات الجارية ثابتة."""
+        for eid, row in db.extras("tf", extra_seen[0]):
+            games["tf"].append(row)
+            extra_seen[0] = eid
+
     @r.callback_query(F.data.regexp(r"^g:(tf|song|ord|char|quote)$"))
     async def cb_start(c: CallbackQuery):
         await c.answer()
         db.upsert_user(c.from_user.id, c.from_user.full_name)
         kind = c.data.split(":")[1]
+        sync_extras()
         gid = db.new_game(c.from_user.id, kind, new_state(kind, games, rng, db.game_hidden()))
         g = db.get_game(gid)
         L = lang(c.from_user.id)

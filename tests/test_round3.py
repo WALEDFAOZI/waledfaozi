@@ -251,7 +251,10 @@ def test_menu_has_profile_button_and_help_mentions_stop():
     async def go():
         h = Harness()
         await h.say(h.user(1), "/start")
-        assert {"pf", "st", "sg", "lg:toggle"} <= cb_data(h)
+        assert {"pf", "m:more"} <= cb_data(h)
+        await h.tap(h.user(1), "m:more")
+        md = {b.callback_data for row in last_menu_call(h).reply_markup.inline_keyboard for b in row}
+        assert {"st", "sg", "lg:toggle"} <= md
         await h.say(h.user(1), "/help")
         assert "/stop" in h.session.texts()[-1] and "/profile" in h.session.texts()[-1]
     run(go())

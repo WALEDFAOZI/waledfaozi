@@ -77,6 +77,9 @@ CREATE TABLE IF NOT EXISTS game_reports(
   tg_id INTEGER NOT NULL, reason TEXT NOT NULL, created_at REAL NOT NULL, status TEXT NOT NULL DEFAULT 'open',
   UNIQUE(kind, key, tg_id)
 );
+CREATE TABLE IF NOT EXISTS extra_content(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, data TEXT NOT NULL, created_at REAL NOT NULL
+);
 CREATE TABLE IF NOT EXISTS game_sessions(
   id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, kind TEXT NOT NULL,
   state TEXT NOT NULL, score INTEGER, started_at REAL NOT NULL, finished_at REAL
@@ -677,6 +680,20 @@ class DB:
     def close_game_reports(self, kind: str, key: str, status: str) -> None:
         with self.conn:
             self.conn.execute("UPDATE game_reports SET status=? WHERE kind=? AND key=? AND status='open'", (status, kind, key))
+
+    # محتوى يضيفه الأدمن من اللوحة (عبارات صح/غلط، أنمي) ويبقى في القاعدة فتحميه النسخ الاحتياطية
+    def add_extra(self, kind: str, data: dict) -> int:
+        with self.conn:
+            cur = self.conn.execute("INSERT INTO extra_content(kind,data,created_at) VALUES(?,?,?)",
+                                    (kind, json.dumps(data, ensure_ascii=False), time.time()))
+        return cur.lastrowid
+
+    def extras(self, kind: str, after_id: int = 0) -> list[tuple[int, dict]]:
+        return [(r["id"], json.loads(r["data"])) for r in self.conn.execute(
+            "SELECT id, data FROM extra_content WHERE kind=? AND id>? ORDER BY id", (kind, after_id))]
+
+    def unhide_game_item(self, key: str) -> None:
+        self.set_setting("game_hidden", json.dumps(sorted(self.game_hidden() - {key})))
 
     def game_hidden(self) -> set[str]:
         try:

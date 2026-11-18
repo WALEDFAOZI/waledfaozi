@@ -78,7 +78,7 @@ def test_start_sends_banner_with_menu_caches_file_id_and_falls_back():
         m = last_menu_call(h)
         assert type(m).__name__ == "SendPhoto" and "يا هلا والله Waled!" in m.caption
         data = {b.callback_data for row in m.reply_markup.inline_keyboard for b in row}
-        assert {"go", "qk", "g:tf", "pf"} <= data
+        assert {"go", "qk", "m:games", "pf"} <= data
         # معرّف صورة مخزَّن: لا نرفع الملف ثانية
         h.db.set_setting("banner_fid_ar", "CACHED_FID")
         await h.say(h.user(2), "/start")

@@ -167,6 +167,51 @@ def db_user_count(path: Path) -> int:
         return -1
 
 
+# ── نسخ محلية دورية على نفس الجهاز (خارج تليجرام): تحمي من تلف القاعدة أو حذفها بالخطأ ──
+LOCAL_KEEP = 30
+
+
+def local_dir(db_path: str | Path) -> Path:
+    return Path(db_path).resolve().parent / "backups"
+
+
+def local_backup(ctx: Ctx, keep: int = LOCAL_KEEP) -> Path | None:
+    """نسخة otaku-YYYYmmdd-HHMM.db، وتبقى آخر `keep` نسخة. لا نكتب نسخة لقاعدة فارغة حتى لا نطرد نسخًا جيدة."""
+    if db_user_count_live(ctx) == 0:
+        return None
+    d = local_dir(ctx.settings.db_path)
+    d.mkdir(parents=True, exist_ok=True)
+    stamp = (datetime.now(timezone.utc) + timedelta(hours=TZ_HOURS)).strftime("%Y%m%d-%H%M")
+    out = d / f"otaku-{stamp}.db"
+    ctx.db.backup_to(str(out))
+    for old in sorted(d.glob("otaku-*.db"))[:-keep]:
+        old.unlink(missing_ok=True)
+    ctx.db.set_setting("last_local_backup", str(time.time()))
+    return out
+
+
+def db_user_count_live(ctx: Ctx) -> int:
+    return ctx.db.conn.execute("SELECT COUNT(*) n FROM users").fetchone()["n"]
+
+
+def local_due(ctx: Ctx, now: float | None = None) -> bool:
+    now = now if now is not None else time.time()
+    last = float(ctx.db.get_setting("last_local_backup", "0") or 0)
+    return now - last >= max(1, ctx.settings.backup_hours) * 3600
+
+
+def _restore_local(path: Path) -> bool:
+    for f in sorted(local_dir(path).glob("otaku-*.db"), reverse=True):
+        if _valid_db(f) and db_user_count(f) > 0:
+            for ext in ("", "-wal", "-shm"):
+                old = Path(str(path) + ext)
+                if old.exists():
+                    old.unlink()
+            shutil.copy2(f, path)
+            return True
+    return False
+
+
 async def restore_if_empty(bot: Bot, settings) -> str:
     """يُستدعى قبل فتح القاعدة. لا يلمس أي قاعدة فيها لاعبون أبدًا.
     الحالات: kept | restored | no-backup-chat | chat-unreachable | no-pinned-backup | download-failed | bad-zip | bad-db"""
@@ -176,6 +221,8 @@ async def restore_if_empty(bot: Bot, settings) -> str:
         return "kept"
     if n == -1:                                   # ملف تالف: نحفظه جانبًا ونحاول الاستعادة
         shutil.move(str(path), f"{path}.corrupt-{int(time.time())}")
+    if _restore_local(path):                      # أسرع وأبسط: آخر نسخة محلية سليمة
+        return "restored-local"
     chat = parse_chat(getattr(settings, "backup_chat", ""))
     if not chat:
         return "no-backup-chat"
@@ -215,6 +262,7 @@ async def restore_if_empty(bot: Bot, settings) -> str:
 
 
 RESTORE_MESSAGES = {
+    "restored-local": "✅ تمت استعادة التقدم من آخر نسخة محلية (مجلد backups).",
     "restored": "✅ تمت استعادة كل التقدم (اللاعبون والتقييمات والأسئلة المضافة) من آخر نسخة احتياطية.",
     "no-backup-chat": "ℹ️ بدأت بقاعدة جديدة. لحماية التقدم ضع BACKUP_CHAT_ID (قناة خاصة أضفتها للبوت أدمن) في .env.",
     "chat-unreachable": "⚠️ بدأت بقاعدة جديدة: لم أستطع الوصول إلى قناة النسخ (BACKUP_CHAT_ID). تأكد أن البوت أدمن فيها.",
@@ -228,6 +276,8 @@ RESTORE_MESSAGES = {
 async def backup_loop(bot: Bot, ctx: Ctx) -> None:
     while True:
         try:
+            if local_due(ctx):
+                await asyncio.to_thread(local_backup, ctx)
             if chat_due(ctx):
                 await send_chat_backup(bot, ctx)
             if due(ctx):

@@ -85,27 +85,30 @@ def chan_row(L: str) -> list[list[InlineKeyboardButton]]:
 
 def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
             images: bool = False) -> InlineKeyboardMarkup:
-    """القائمة الرئيسية: كل ما يهم اللاعب ظاهر مباشرة (الاختبارات، الألعاب، المتصدرون، إحصائياتي، اللغة)."""
-    quiz2 = [btn(t(L, "btn_sudden"), "sd")]
-    if images:
-        quiz2.append(btn(t(L, "btn_images"), "ct:images"))
+    """القائمة الرئيسية قصيرة: الاختبار أولًا، والألعاب والمزيد في قوائم فرعية."""
     return kb(*(top or []),
-              [btn(t(L, "sec_quiz"), "noop")],
               [btn(t(L, "btn_full"), "go")],
               [btn(t(L, "btn_quick"), "qk"), btn(t(L, "btn_cat"), "cats")],
-              quiz2,
-              [btn(t(L, "sec_games"), "noop")],
-              [btn(t(L, "g_tf"), "g:tf")],
-              [btn(t(L, "g_song"), "g:song")],
-              [btn(t(L, "g_ord"), "g:ord")],
-              [btn(t(L, "g_char"), "g:char")],
-              [btn(t(L, "g_quote"), "g:quote")],
-              [btn(t(L, "sec_more"), "noop")],
-              [btn(t(L, "btn_anime"), "an:m"), btn(t(L, "btn_invite"), "iv")],
+              [btn(t(L, "btn_games_menu"), "m:games"), btn(t(L, "btn_anime"), "an:m")],
               [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_week"), "lb:week")],
-              [btn(t(L, "btn_profile"), "pf"), btn(t(L, "btn_stats"), "st")],
-              [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")],
+              [btn(t(L, "btn_profile"), "pf"), btn(t(L, "btn_invite"), "iv")],
+              [btn(t(L, "btn_more"), "m:more")],
               *chan_row(L))
+
+
+def games_kb(L: str, images: bool = False) -> InlineKeyboardMarkup:
+    rows = [[btn(t(L, "btn_sudden"), "sd")]]
+    if images:
+        rows.append([btn(t(L, "btn_images"), "ct:images")])
+    rows += [[btn(t(L, "g_tf"), "g:tf")], [btn(t(L, "g_song"), "g:song")], [btn(t(L, "g_ord"), "g:ord")],
+             [btn(t(L, "g_char"), "g:char")], [btn(t(L, "g_quote"), "g:quote")], [btn(t(L, "btn_menu"), "menu")]]
+    return kb(*rows)
+
+
+def more_kb(L: str) -> InlineKeyboardMarkup:
+    return kb([btn(t(L, "btn_stats"), "st")],
+              [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")],
+              [btn(t(L, "btn_menu"), "menu")])
 
 
 def build_router(ctx: Ctx) -> Router:
@@ -533,6 +536,12 @@ def build_router(ctx: Ctx) -> Router:
                 extra = t(L, "challenge_banner", name=esc(pub(friend)), score=f"{s['score']:.1f}",
                           title=esc(title_for(s["score"], L)))
                 top = [[btn(t(L, "btn_accept"), f"cc:{s['id']}")]]
+        if arg.startswith("pf_") and arg[3:].isdigit() and int(arg[3:]) != m.from_user.id:
+            fr = db.get_user(int(arg[3:]))
+            if fr and fr["best_score"] > 0 and not db.is_admin(fr["tg_id"]):      # ملف الأدمن لا يُعرض لأحد
+                extra = t(L, "pf_visit", name=esc(fr["name"] or "?"), score=f"{fr['best_score']:.1f}",
+                          title=esc(title_for(fr["best_score"], L)))
+                top = [[btn(t(L, "btn_try_too"), "go")]]
         await send_welcome(m, L, welcome_for(L, m.from_user) + extra, menu(L, top))
 
     @r.message(Command("help"))
@@ -632,7 +641,7 @@ def build_router(ctx: Ctx) -> Router:
         if p["cats"]:
             lines.append(t(L, "prof_cat"))
             lines += [f"• {cat_label(L, cat)}: {acc * 100:.0f}%" for cat, acc, _ in p["cats"]]
-        link = f"https://t.me/{await bot_username(bot)}"
+        link = f"https://t.me/{await bot_username(bot)}?start=pf_{uid}"
         share = t(L, "prof_share", score=f"{p['best']:.1f}", title=title)
         markup = kb([btn(t(L, "btn_share_profile"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")],
                     *chan_row(L), [btn(t(L, "btn_menu"), "menu")])
@@ -776,6 +785,19 @@ def build_router(ctx: Ctx) -> Router:
             await c.message.answer(text, parse_mode="HTML", reply_markup=markup)
 
     # ── القوائم والأوضاع ────────────────────────────────────
+    @r.callback_query(F.data == "m:games")
+    async def cb_games_menu(c: CallbackQuery):
+        await c.answer()
+        L = lang(c.from_user.id)
+        await c.message.answer(t(L, "g_menu"), parse_mode="HTML",
+                               reply_markup=games_kb(L, db.category_counts(L).get("images", 0) >= 10))
+
+    @r.callback_query(F.data == "m:more")
+    async def cb_more_menu(c: CallbackQuery):
+        await c.answer()
+        L = lang(c.from_user.id)
+        await c.message.answer(t(L, "more_menu"), reply_markup=more_kb(L))
+
     @r.callback_query(F.data == "menu")
     async def cb_menu(c: CallbackQuery):
         await c.answer()
