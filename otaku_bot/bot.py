@@ -431,10 +431,11 @@ def build_router(ctx: Ctx) -> Router:
 
     @r.message(Command("myid"))
     async def cmd_myid(m: Message):
-        from . import VERSION
+        from . import INSTANCE, STARTED, VERSION
         adm = "✅ نعم" if ctx.is_admin(m.from_user.id) else "❌ لا"
-        await m.answer(f"ID: <code>{m.from_user.id}</code>\nمشرف: {adm}\nنسخة البوت: <code>{VERSION}</code>",
-                       parse_mode="HTML")
+        up = int((time.time() - STARTED) // 60)
+        await m.answer(f"ID: <code>{m.from_user.id}</code>\nمشرف: {adm}\nنسخة البوت: <code>{VERSION}</code>\n"
+                       f"الهوية: <code>{INSTANCE}</code>\nشغّال منذ: {up} دقيقة", parse_mode="HTML")
 
     @r.message(Command("lang"))
     async def cmd_lang(m: Message):
@@ -814,5 +815,11 @@ def build_router(ctx: Ctx) -> Router:
                             reply_markup=kb([btn("🔎 مراجعة", f"ad:rv:{qid}")]))
                     except TelegramAPIError:
                         pass
+
+    # شبكة أمان: أي زر لم يلتقطه معالج (زر قديم من رسالة سابقة) يُجاب فورًا بدل أن يبقى «يحمّل» بلا رد.
+    # يجب أن يبقى آخر معالج في آخر راوتر.
+    @r.callback_query()
+    async def cb_unknown(c: CallbackQuery):
+        await c.answer(t(lang(c.from_user.id), "btn_stale"), show_alert=False)
 
     return r

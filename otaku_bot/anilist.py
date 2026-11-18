@@ -22,6 +22,8 @@ query($page:Int){Page(page:$page, perPage:50){
   }}}
 """
 
+SOURCE_TIMEOUT = 25      # أقصى وقت لكل مصدر (ثواني) — فشل سريع بدل الانتظار الطويل
+
 Post = Callable[[str, dict], Awaitable[dict]]
 Get = Callable[[str], Awaitable[dict]]
 
@@ -36,7 +38,7 @@ class Char:
 
 async def default_post(url: str, payload: dict) -> dict:
     import aiohttp
-    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as s:
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=8)) as s:
         async with s.post(url, json=payload) as r:
             r.raise_for_status()
             return await r.json()
@@ -44,7 +46,7 @@ async def default_post(url: str, payload: dict) -> dict:
 
 async def default_get(url: str) -> dict:
     import aiohttp
-    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as s:
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=8)) as s:
         async with s.get(url) as r:
             r.raise_for_status()
             return await r.json()
@@ -142,19 +144,19 @@ async def fetch_image_questions(limit: int = 200, post: Post = default_post,
     """يجرّب AniList ثم Jikan. يرفع Exception برسالة واضحة إن فشل الاثنان."""
     errors = []
     try:
-        chars = await fetch_anilist(post)
+        chars = await asyncio.wait_for(fetch_anilist(post), SOURCE_TIMEOUT)
         qs = build_questions(chars, "anilist", limit)
         if len(qs) >= 20:
             return qs, "AniList"
         errors.append("AniList: عدد قليل من النتائج")
     except Exception as e:  # noqa: BLE001
-        errors.append(f"AniList: {type(e).__name__} {e}")
+        errors.append(f"AniList: {type(e).__name__} {e}".strip())
     try:
-        chars = await fetch_jikan(get)
+        chars = await asyncio.wait_for(fetch_jikan(get), SOURCE_TIMEOUT)
         qs = build_questions(chars, "jikan", limit)
         if len(qs) >= 20:
             return qs, "Jikan"
         errors.append("Jikan: عدد قليل من النتائج")
     except Exception as e:  # noqa: BLE001
-        errors.append(f"Jikan: {type(e).__name__} {e}")
+        errors.append(f"Jikan: {type(e).__name__} {e}".strip())
     raise RuntimeError(" | ".join(errors))

@@ -278,9 +278,51 @@ def test_myid_shows_admin_status_and_version():
         h = Harness(admin_ids=(5,))
         await h.say(h.user(5), "/myid")
         txt = h.session.texts()[-1]
-        assert "مشرف: ✅" in txt and "نسخة البوت" in txt
+        assert "مشرف: ✅" in txt and "نسخة البوت" in txt and "الهوية" in txt and "شغّال منذ" in txt
         await h.say(h.user(6), "/myid")
         assert "مشرف: ❌" in h.session.texts()[-1]
         await h.say(h.user(5), "/admin")
         assert "لوحة التحكم" in h.session.texts()[-1]
+    run(go())
+
+
+def test_stale_or_unknown_buttons_are_answered_immediately():
+    async def go():
+        h, o = mk()
+        for who in (h.user(1), o):
+            before = sum(1 for c in h.session.calls if type(c).__name__ == "AnswerCallbackQuery")
+            for cb in ("ad:zzz:old", "totally-unknown", "a:999:9:9x", "ad:e:1:zzz"):
+                await h.tap(who, cb)
+            after = sum(1 for c in h.session.calls if type(c).__name__ == "AnswerCallbackQuery")
+            assert after - before >= 4          # كل ضغطة حصلت على رد، لا شيء يبقى معلّقًا
+    run(go())
+
+
+def test_image_fetch_fails_fast_when_host_hangs(monkeypatch):
+    import time as _t
+    from otaku_bot import anilist
+    monkeypatch.setattr(anilist, "SOURCE_TIMEOUT", 0.2)
+
+    async def hang(*a, **k):
+        await asyncio.sleep(60)
+
+    async def go():
+        t0 = _t.monotonic()
+        try:
+            await anilist.fetch_image_questions(post=hang, get=hang)
+            raise AssertionError("should fail")
+        except RuntimeError as e:
+            assert "AniList" in str(e) and "Jikan" in str(e)
+        assert _t.monotonic() - t0 < 2                     # بدل دقيقة+ من الانتظار
+    run(go())
+
+
+def test_admin_stats_button_always_changes_text_and_backup_is_zipped():
+    async def go():
+        h, o = mk()
+        await h.tap(o, "ad:stats")
+        assert "🕒" in h.session.texts()[-1]
+        await h.tap(o, "ad:bak")
+        docs = [c for c in h.session.calls if type(c).__name__ == "SendDocument"]
+        assert docs and docs[-1].document.filename.endswith(".zip")
     run(go())

@@ -23,7 +23,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, FSInputFile, Message
 
 from . import anilist
-from .backup import enabled as backup_enabled, last_backup_text
+from .backup import enabled as backup_enabled, last_backup_text, make_zip
 from .bot import btn, esc, kb
 from .config import CATEGORY_LABELS
 from .ctx import Ctx
@@ -185,7 +185,8 @@ def build_admin_router(ctx: Ctx) -> Router:
             f"🎯 نسبة الصحة حسب التصنيف:\n{cats}\n\n🧗 أصعب الأسئلة:\n{hard}\n\n🌱 أسهل الأسئلة:\n{easy}\n\n"
             f"📚 البنك: {s['bank_active']} مفعّل ({s['bank_disabled']} معطّل) · 🇬🇧 {s['bank_en']} · 🖼 {s['bank_img']}\n"
             f"🚩 أسئلة عليها بلاغات مفتوحة: {s['open_reports']}\n"
-            f"💡 اقتراحات تنتظر المراجعة: {s['pending_suggestions']} · 🚫 حظروا البوت: {s['blocked_users']}")
+            f"💡 اقتراحات تنتظر المراجعة: {s['pending_suggestions']} · 🚫 حظروا البوت: {s['blocked_users']}\n"
+            f"🕒 {time.strftime('%H:%M:%S', time.gmtime(time.time() + 3 * 3600))} (توقيت مكة)")
         await nav(c, text, kb(BACK))
 
     # ── البلاغات ────────────────────────────────────────────
@@ -559,12 +560,12 @@ def build_admin_router(ctx: Ctx) -> Router:
 
     @r.callback_query(F.data == "ad:img:go")
     async def cb_img_go(c: CallbackQuery):
-        await c.answer("جارٍ الجلب… قد يأخذ دقيقة")
-        note = await c.message.answer("⏳ أجلب الشخصيات…")
+        await c.answer("بدأ الجلب… سأردّ عليك خلال دقيقة كحد أقصى")
+        note = await c.message.answer("⏳ أتصل بـ AniList ثم Jikan (لن أنتظر أكثر من ~50 ثانية)…")
         try:
             qs, src = await anilist.fetch_image_questions(post=fetch_post, get=fetch_get)
         except Exception as e:  # noqa: BLE001
-            await note.edit_text(f"❌ فشل الجلب: {e}\nغالبًا الاستضافة تحجب هذه المواقع. "
+            await note.edit_text(f"❌ فشل الجلب: {e or 'انتهت المهلة'}\nغالبًا الاستضافة تحجب هذه المواقع. "
                                  "استخدم «➕ سؤال جديد» وأرسل صورك بنفسك.", reply_markup=kb(BACK))
             return
         n = db.upsert_questions(qs)
@@ -719,12 +720,12 @@ def build_admin_router(ctx: Ctx) -> Router:
     # ── النسخة الاحتياطية ───────────────────────────────────
     @r.callback_query(F.data == "ad:bak")
     async def cb_backup(c: CallbackQuery):
-        await c.answer()
+        await c.answer("⏳ أجهّز النسخة…")
         with tempfile.TemporaryDirectory() as d:
-            p = Path(d) / "otaku-backup.db"
-            db.backup_to(str(p))
-            await c.message.answer_document(FSInputFile(p), caption="💾 نسخة كاملة من قاعدة البيانات (أسئلة، لاعبون، نتائج).")
-        await c.message.answer("احتفظ بها في مكان آمن. للاستعادة ضعها باسم otaku.db بدل القاعدة الحالية.", reply_markup=kb(BACK))
+            path = make_zip(ctx, Path(d))                       # مضغوطة فتُرفع أسرع
+            await c.message.answer_document(FSInputFile(path), caption="💾 نسخة كاملة من قاعدة البيانات (أسئلة، لاعبون، نتائج). "
+                                            "للاستعادة: فك الضغط وضع otaku.db مكان القاعدة ثم أعد التشغيل.")
+        await c.message.answer("تم ✅ احتفظ بها في مكان آمن.", reply_markup=kb(BACK))
 
     return r
 
