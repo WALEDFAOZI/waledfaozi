@@ -80,6 +80,14 @@ CREATE TABLE IF NOT EXISTS game_reports(
 CREATE TABLE IF NOT EXISTS extra_content(
   id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, data TEXT NOT NULL, created_at REAL NOT NULL
 );
+CREATE TABLE IF NOT EXISTS daily_results(
+  day INTEGER NOT NULL, mode TEXT NOT NULL, tg_id INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL,
+  secs REAL NOT NULL, PRIMARY KEY(day, mode, tg_id)
+);
+CREATE TABLE IF NOT EXISTS duels(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, creator INTEGER NOT NULL, opponent INTEGER, creator_sid INTEGER,
+  opponent_sid INTEGER, state TEXT NOT NULL DEFAULT 'open', created_at REAL NOT NULL
+);
 CREATE TABLE IF NOT EXISTS game_sessions(
   id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, kind TEXT NOT NULL,
   state TEXT NOT NULL, score INTEGER, started_at REAL NOT NULL, finished_at REAL
@@ -111,10 +119,13 @@ MIGRATIONS = {
     },
     "users": {"lang": "TEXT NOT NULL DEFAULT 'ar'", "best_sudden": "INTEGER NOT NULL DEFAULT 0",
               "blocked": "INTEGER NOT NULL DEFAULT 0", "country": "TEXT", "country_asked": "INTEGER NOT NULL DEFAULT 0",
-              "invited_by": "INTEGER", "invite_credited": "INTEGER NOT NULL DEFAULT 0"},
+              "invited_by": "INTEGER", "invite_credited": "INTEGER NOT NULL DEFAULT 0",
+              "streak": "INTEGER NOT NULL DEFAULT 0", "best_streak": "INTEGER NOT NULL DEFAULT 0",
+              "streak_day": "INTEGER NOT NULL DEFAULT 0", "remind": "INTEGER NOT NULL DEFAULT 0",
+              "last_remind_day": "INTEGER NOT NULL DEFAULT 0"},
     "sessions": {
         "mode": "TEXT NOT NULL DEFAULT 'full'", "counted": "INTEGER NOT NULL DEFAULT 1",
-        "challenge_of": "INTEGER", "msg_kind": "TEXT NOT NULL DEFAULT 'text'", "category": "TEXT",
+        "challenge_of": "INTEGER", "duel_id": "INTEGER", "msg_kind": "TEXT NOT NULL DEFAULT 'text'", "category": "TEXT",
     },
 }
 ADMIN_ID_BASE = 100000   # أسئلة الأدمن تبدأ من هنا حتى لا تتعارض مع أرقام ملف الأسئلة
@@ -334,6 +345,103 @@ class DB:
         return self.conn.execute("SELECT COUNT(*) n FROM users WHERE invited_by=? AND invite_credited=1",
                                  (inviter,)).fetchone()["n"]
 
+    # ── التحدي اليومي والسلسلة والتذكير ─────────────────────
+    @staticmethod
+    def today() -> int:
+        """رقم اليوم بتوقيت مكة."""
+        return int((time.time() + 3 * 3600) // 86400)
+
+    def played_today(self, tg_id: int, mode: str) -> bool:
+        """أي جلسة من هذا النوع بدأت اليوم (حتى لو تُركت) = المحاولة الوحيدة لليوم."""
+        return bool(self.conn.execute("SELECT 1 FROM sessions WHERE tg_id=? AND mode=? AND started_at>=?",
+                                      (tg_id, mode, day_start())).fetchone())
+
+    def session_time_ms(self, sid: int) -> int:
+        return self.conn.execute("SELECT COALESCE(SUM(time_ms),0) m FROM session_questions WHERE session_id=?",
+                                 (sid,)).fetchone()["m"]
+
+    def record_daily(self, day: int, mode: str, tg_id: int, correct: int, total: int, secs: float) -> None:
+        with self.conn:
+            self.conn.execute("INSERT OR IGNORE INTO daily_results(day,mode,tg_id,correct,total,secs) VALUES(?,?,?,?,?,?)",
+                              (day, mode, tg_id, correct, total, secs))
+
+    def daily_result(self, day: int, mode: str, tg_id: int):
+        return self.conn.execute("SELECT * FROM daily_results WHERE day=? AND mode=? AND tg_id=?",
+                                 (day, mode, tg_id)).fetchone()
+
+    def daily_board(self, day: int, mode: str = "daily", limit: int = 10) -> list[sqlite3.Row]:
+        return self.conn.execute(
+            """SELECT d.tg_id, u.name, d.correct, d.total, d.secs FROM daily_results d JOIN users u ON u.tg_id=d.tg_id
+               WHERE d.day=? AND d.mode=? AND d.tg_id NOT IN (SELECT tg_id FROM admins)
+               ORDER BY d.correct DESC, d.secs ASC LIMIT ?""", (day, mode, limit)).fetchall()
+
+    def daily_rank(self, day: int, mode: str, tg_id: int) -> int | None:
+        for i, r in enumerate(self.daily_board(day, mode, 100000), 1):
+            if r["tg_id"] == tg_id:
+                return i
+        return None
+
+    def daily_pct(self, day: int, mode: str) -> tuple[int, int]:
+        """(نسبة الصحيح %, عدد اللاعبين) لسؤال اليوم."""
+        r = self.conn.execute("SELECT COUNT(*) n, SUM(correct*1.0/total) ok FROM daily_results WHERE day=? AND mode=?",
+                              (day, mode)).fetchone()
+        n = r["n"] or 0
+        return (round(100 * (r["ok"] or 0) / n) if n else 0), n
+
+    def mark_streak(self, tg_id: int, day: int) -> tuple[int, bool]:
+        """يسجّل نشاط اليوم: متتالية الأيام. يرجع (السلسلة, هل زادت اليوم)."""
+        u = self.get_user(tg_id)
+        if u["streak_day"] == day:
+            return u["streak"], False
+        streak = u["streak"] + 1 if u["streak_day"] == day - 1 else 1
+        with self.conn:
+            self.conn.execute("UPDATE users SET streak=?, streak_day=?, best_streak=MAX(best_streak, ?) WHERE tg_id=?",
+                              (streak, day, streak, tg_id))
+        return streak, True
+
+    def current_streak(self, tg_id: int, day: int) -> int:
+        """السلسلة الفعّالة (إن فاتك أمس تُعدّ صفرًا)."""
+        u = self.get_user(tg_id)
+        return u["streak"] if u and u["streak_day"] >= day - 1 else 0
+
+    def set_remind(self, tg_id: int, on: bool) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE users SET remind=? WHERE tg_id=?", (int(on), tg_id))
+
+    def remind_targets(self, day: int) -> list[sqlite3.Row]:
+        return self.conn.execute(
+            """SELECT tg_id, streak, streak_day, lang FROM users WHERE remind=1 AND blocked=0 AND last_remind_day<?
+               AND streak_day<?""", (day, day)).fetchall()
+
+    def mark_reminded(self, tg_id: int, day: int) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE users SET last_remind_day=? WHERE tg_id=?", (day, tg_id))
+
+    # ── مواجهة مع صديق ──────────────────────────────────────
+    def create_duel(self, creator: int) -> int:
+        with self.conn:
+            return self.conn.execute("INSERT INTO duels(creator,created_at) VALUES(?,?)", (creator, time.time())).lastrowid
+
+    def get_duel(self, did: int):
+        return self.conn.execute("SELECT * FROM duels WHERE id=?", (did,)).fetchone()
+
+    def join_duel(self, did: int, tg_id: int) -> bool:
+        """أول من يقبل فقط، أو نفس اللاعب إن أعاد المحاولة قبل أن ينتهي."""
+        with self.conn:
+            cur = self.conn.execute(
+                "UPDATE duels SET opponent=? WHERE id=? AND state='open' AND creator!=? AND (opponent IS NULL OR opponent=?)",
+                (tg_id, did, tg_id, tg_id))
+        return cur.rowcount > 0
+
+    def duel_set_sid(self, did: int, role: str, sid: int) -> None:
+        col = "creator_sid" if role == "creator" else "opponent_sid"
+        with self.conn:
+            self.conn.execute(f"UPDATE duels SET {col}=? WHERE id=?", (sid, did))
+
+    def duel_done(self, did: int) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE duels SET state='done' WHERE id=?", (did,))
+
     def get_user(self, tg_id: int) -> sqlite3.Row | None:
         return self.conn.execute("SELECT * FROM users WHERE tg_id=?", (tg_id,)).fetchone()
 
@@ -370,12 +478,12 @@ class DB:
 
     def create_session(self, tg_id: int, picked: list[tuple[Question, list[int], int]],
                        mode: str = "full", challenge_of: int | None = None,
-                       category: str | None = None) -> int:
+                       category: str | None = None, duel_id: int | None = None) -> int:
         now = time.time()
         with self.conn:
             cur = self.conn.execute(
-                "INSERT INTO sessions(tg_id, started_at, mode, challenge_of, category) VALUES(?,?,?,?,?)",
-                (tg_id, now, mode, challenge_of, category))
+                "INSERT INTO sessions(tg_id, started_at, mode, challenge_of, category, duel_id) VALUES(?,?,?,?,?,?)",
+                (tg_id, now, mode, challenge_of, category, duel_id))
             sid = cur.lastrowid
             for pos, (q, order, cpos) in enumerate(picked):
                 self.conn.execute(

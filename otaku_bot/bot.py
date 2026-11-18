@@ -117,7 +117,7 @@ def build_router(ctx: Ctx) -> Router:
     _CHAN["get"] = ctx.channel
     r.callback_query.outer_middleware(ClearState())
     timers: dict[tuple[int, int], asyncio.Task] = {}
-    sub_ok: dict[int, float] = {}      # من ثبت اشتراكه: لا نسأل تليجرام عنه ثانية قبل 5 دقائق (أسرع)
+    sub_ok: dict[int, float] = {}      # من ثبت اشتراكه: لا نسأل تليجرام عنه ثانية قبل 30 ثانية (توازن بين السرعة وكشف من غادر القناة)
     me_cache: dict[str, str] = {}
 
     def pub(u) -> str:
@@ -148,7 +148,7 @@ def build_router(ctx: Ctx) -> Router:
             return True
         if ctx.is_admin(tg_id):
             return True
-        if time.time() - sub_ok.get(tg_id, 0) < 300:
+        if time.time() - sub_ok.get(tg_id, 0) < 30:
             return True
         try:
             member = await bot.get_chat_member(ch, tg_id)
@@ -184,6 +184,8 @@ def build_router(ctx: Ctx) -> Router:
                 reply_markup=kb([btn(t(L, "btn_subscribe"), url=f"https://t.me/{ch.lstrip('@')}")],
                                 [btn(t(L, "btn_checked"), "chk")]))
         return False
+
+    ctx.subscribed, ctx.gate = subscribed, gate            # يستعملها حارس الاشتراك على كل الأزرار (app.SubGate)
 
     # ── عرض الرسائل (نص/صورة) ──────────────────────────────
     async def render(bot: Bot, chat_id: int, sid: int, text: str, markup, photo: str | None = None) -> bool:

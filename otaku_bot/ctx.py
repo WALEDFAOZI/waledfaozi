@@ -15,6 +15,8 @@ class Ctx:
     rng: random.Random = field(default_factory=random.Random)
     claim_code: str | None = None   # كود يظهر في سجل التشغيل لتفعيل المالك عبر /claim
     tasks: list = field(default_factory=list)   # مهام الخلفية (رسائل جماعية، نسخ احتياطي)
+    subscribed: object = None   # دوال يضبطها bot.py: التحقق من الاشتراك وعرض شاشة الاشتراك
+    gate: object = None
 
     def timer(self) -> int:
         return int(self.db.get_setting("timer_seconds", str(self.settings.timer_seconds)))

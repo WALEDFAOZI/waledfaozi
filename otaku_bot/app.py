@@ -18,10 +18,38 @@ from .bot import build_router
 from .config import Settings
 from .ctx import Ctx
 from .db import DB
+from .texts import t
 from .recommend import build_recommend_router
 from .games import build_games_router
 
 log = logging.getLogger(__name__)
+
+
+class SubGate(BaseMiddleware):
+    """الاشتراك الإجباري على كل زر: من غادر القناة في منتصف الاختبار لا يضغط أي زر حتى يعود مشتركًا.
+    المستثنى: زر «تحققت» نفسه، والأدمن (يمرّون في subscribed)، ومن تعذّر التحقق منه (البوت ليس أدمن بالقناة)."""
+    EXEMPT = ("chk", "noop")
+
+    def __init__(self, ctx: Ctx):
+        self.ctx = ctx
+
+    async def __call__(self, handler, event, data):
+        if (isinstance(event, CallbackQuery) and self.ctx.subscribed and self.ctx.channel()
+                and (event.data or "") not in self.EXEMPT):
+            try:
+                ok = await self.ctx.subscribed(event.bot, event.from_user.id)
+            except Exception:  # noqa: BLE001
+                ok = None
+            if ok is False:
+                L = self.ctx.db.get_lang(event.from_user.id)
+                try:
+                    await event.answer(t(L, "sub_left"), show_alert=True)
+                except Exception:  # noqa: BLE001
+                    pass
+                if event.message:
+                    await self.ctx.gate(event.bot, event.message.chat.id, event.from_user.id)
+                return None
+        return await handler(event, data)
 
 
 class Guard(BaseMiddleware):
@@ -62,6 +90,7 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp = Dispatcher()
     dp.message.outer_middleware(Guard())
     dp.callback_query.outer_middleware(Guard())
+    dp.callback_query.outer_middleware(SubGate(ctx))
     dp.include_router(build_admin_router(ctx))   # أولًا: محميّ بفلتر المشرفين
     dp.include_router(build_games_router(ctx))
     dp.include_router(build_recommend_router(ctx))

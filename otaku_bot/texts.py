@@ -360,3 +360,6 @@ T["ar"]["pf_visit"] = "\n\n👤 شارك معك <b>{name}</b> ملفه: أفضل
 T["en"]["pf_visit"] = "\n\n👤 <b>{name}</b> shared their profile: best score <b>{score}</b>/10 — {title}\nThink you can beat it? 😏"
 T["ar"]["btn_try_too"] = "🎯 جرّب أنت"
 T["en"]["btn_try_too"] = "🎯 Try it too"
+
+T["ar"]["sub_left"] = "⚠️ لازم تكون مشتركًا في القناة عشان تكمل. اشترك ثم اضغط «تحققت»."
+T["en"]["sub_left"] = "⚠️ You must be subscribed to the channel to continue. Join, then tap “I joined”."
