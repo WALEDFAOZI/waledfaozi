@@ -648,6 +648,32 @@ class DB:
                 return i
         return None
 
+    def board(self, kind: str, since: float | None = None, limit: int = 100000) -> list[dict]:
+        """لوحة موحّدة: kind = q (الاختبار الكامل) | s (الموت المفاجئ) | tf/song/ord/char/quote؛
+        since=None → كل الأوقات (أفضل رقم لكل لاعب)، وإلا أفضل رقم داخل الفترة. الأدمن مستبعد."""
+        adm = "NOT IN (SELECT tg_id FROM admins)"
+        if since is None:
+            if kind == "q":
+                sql, args = (f"SELECT tg_id, name, best_score AS score FROM users WHERE best_score>0 AND tg_id {adm} "
+                             "ORDER BY best_score DESC, tests_taken ASC, tg_id ASC LIMIT ?"), (limit,)
+            elif kind == "s":
+                sql, args = (f"SELECT tg_id, name, best_sudden AS score FROM users WHERE best_sudden>0 AND tg_id {adm} "
+                             "ORDER BY best_sudden DESC, tg_id ASC LIMIT ?"), (limit,)
+            else:
+                sql, args = (f"SELECT u.tg_id, u.name, g.best AS score FROM game_scores g JOIN users u ON u.tg_id=g.tg_id "
+                             f"WHERE g.kind=? AND g.best>0 AND g.tg_id {adm} ORDER BY g.best DESC, u.tg_id ASC LIMIT ?"), (kind, limit)
+        elif kind in ("q", "s"):
+            mode = "full" if kind == "q" else "sudden"
+            extra = "AND s.counted=1" if kind == "q" else ""
+            sql, args = (f"SELECT u.tg_id, u.name, MAX(s.score) AS score FROM sessions s JOIN users u ON u.tg_id=s.tg_id "
+                         f"WHERE s.state='finished' AND s.mode=? {extra} AND s.finished_at>=? AND u.tg_id {adm} "
+                         "GROUP BY u.tg_id HAVING score>0 ORDER BY score DESC, MIN(s.finished_at) ASC LIMIT ?"), (mode, since, limit)
+        else:
+            sql, args = (f"SELECT u.tg_id, u.name, MAX(g.score) AS score FROM game_sessions g JOIN users u ON u.tg_id=g.tg_id "
+                         f"WHERE g.kind=? AND g.finished_at IS NOT NULL AND g.finished_at>=? AND u.tg_id {adm} "
+                         "GROUP BY u.tg_id HAVING score>0 ORDER BY score DESC, MIN(g.finished_at) ASC LIMIT ?"), (kind, since, limit)
+        return [dict(r) for r in self.conn.execute(sql, args).fetchall()]
+
     def sudden_rank(self, tg_id: int) -> int | None:
         u = self.get_user(tg_id)
         if not u or u["best_sudden"] <= 0:

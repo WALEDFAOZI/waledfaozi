@@ -490,3 +490,22 @@ T["en"].update({
     "gp_help": "🎌 <b>Otaku Rating</b>\nTo play with friends here use /play or: /quiz /sudden /tf /song /char /quote /order /images\n/gtop group leaderboard · /gstop stop the game · /glang switch language (admins)\nFor your personal test open the bot in private.",
     "gp_open_private": "💬 Open the bot in private",
 })
+
+T["ar"].update({
+    "lbm_text": "🏆 <b>الترتيب</b>\nاختر المدة:\n\n🌍 <b>العام</b> — أفضل نتيجة لكل لاعب على الإطلاق\n📅 <b>الأسبوعي</b> — يتصفّر كل أحد 00:00 (توقيت مكة)\n☀️ <b>اليوم</b> — يتصفّر كل منتصف ليل",
+    "lbp_a": "🌍 العام (كل الأوقات)", "lbp_w": "📅 الأسبوعي", "lbp_d": "☀️ اليوم",
+    "lbp_s_a": "🌍 العام", "lbp_s_w": "📅 الأسبوعي", "lbp_s_d": "☀️ اليوم",
+    "lbt_head_a": "🌍 <b>الترتيب العام</b>\nاختر النوع:", "lbt_head_w": "📅 <b>الترتيب الأسبوعي</b>\nاختر النوع:", "lbt_head_d": "☀️ <b>ترتيب اليوم</b>\nاختر النوع:",
+    "lbt_dc": "⚡ تحدي اليوم", "lbt_q": "🎯 الاختبار", "lbt_s": "☠️ الموت المفاجئ", "lbt_tf": "✅❌ صح أم غلط", "lbt_song": "🎵 الأغنية",
+    "lbt_ord": "📅 رتّب بالسنة", "lbt_char": "🕵️ الشخصية", "lbt_quote": "💬 الاقتباس",
+    "lb_title": "🏆 <b>{p} · {k}</b>", "lb_back_types": "⬅️ الأنواع", "lb_back_period": "🏆 المدة",
+})
+T["en"].update({
+    "lbm_text": "🏆 <b>Rankings</b>\nPick a period:\n\n🌍 <b>Overall</b> — each player's best ever\n📅 <b>Weekly</b> — resets every Sunday 00:00 (Mecca time)\n☀️ <b>Today</b> — resets every midnight",
+    "lbp_a": "🌍 Overall (all time)", "lbp_w": "📅 Weekly", "lbp_d": "☀️ Today",
+    "lbp_s_a": "🌍 Overall", "lbp_s_w": "📅 Weekly", "lbp_s_d": "☀️ Today",
+    "lbt_head_a": "🌍 <b>Overall ranking</b>\nPick a type:", "lbt_head_w": "📅 <b>Weekly ranking</b>\nPick a type:", "lbt_head_d": "☀️ <b>Today's ranking</b>\nPick a type:",
+    "lbt_dc": "⚡ Daily challenge", "lbt_q": "🎯 Test", "lbt_s": "☠️ Sudden death", "lbt_tf": "✅❌ True/False", "lbt_song": "🎵 Song",
+    "lbt_ord": "📅 Order by year", "lbt_char": "🕵️ Character", "lbt_quote": "💬 Quote",
+    "lb_title": "🏆 <b>{p} · {k}</b>", "lb_back_types": "⬅️ Types", "lb_back_period": "🏆 Period",
+})

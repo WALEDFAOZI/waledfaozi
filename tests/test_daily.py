@@ -1,5 +1,6 @@
 """التحدي اليومي، سؤال اليوم، السلسلة، التذكير الاختياري، والمواجهة مع صديق."""
 import asyncio
+import time
 
 from harness import Harness, run
 from otaku_bot import daily
@@ -127,26 +128,34 @@ def test_reminder_loop_sends_once_and_respects_block():
     run(go())
 
 
-def test_rankings_are_split_by_type_and_hide_admin():
+def test_rankings_choose_period_then_game_type_and_hide_admin():
     async def go():
         h = Harness()
         u = h.user(1, "Ali")
         h.db.upsert_user(1, "Ali"); h.db.upsert_user(2, "Bob"); h.db.upsert_user(9, "Owner"); h.db.add_admin(9)
         with h.db.conn:
             h.db.conn.execute("INSERT INTO game_scores(tg_id,kind,best) VALUES(1,'tf',8),(2,'tf',6),(9,'tf',10),(1,'song',5)")
+            h.db.conn.execute("INSERT INTO game_sessions(tg_id,kind,state,score,started_at,finished_at) VALUES(1,'tf','x',7,1,?),(9,'tf','x',9,1,?),(2,'tf','x',3,1,?)",
+                              (time.time(), time.time(), time.time()))
         d = h.db.today()
         h.db.record_daily(d, "daily", 1, 4, 5, 20); h.db.record_daily(d, "daily", 9, 5, 5, 10)
-        await h.tap(u, "lb:menu")
-        cbs = {b.callback_data for c in h.session.calls if getattr(c, "reply_markup", None) is not None
-               for row in c.reply_markup.inline_keyboard for b in row}
-        assert {"lb:all", "lb:sd", "lb:gm", "lb:dy"} <= cbs and "lb:week" not in cbs      # الشاشة الأولى: أقسام فقط
-        await h.tap(u, "lb:g:tf")
-        txt = h.session.texts()[-1] if h.session.texts() else ""
-        calls = [c for c in h.session.calls if type(c).__name__ in ("EditMessageText", "SendMessage")]
-        last = (getattr(calls[-1], "text", "") or "")
-        assert "Ali" in last and "Bob" in last and "Owner" not in last
-        assert {"lb:g:song", "lb:g:quote"} <= {b.callback_data for row in calls[-1].reply_markup.inline_keyboard for b in row}
-        await h.tap(u, "lb:dy")
-        last = [getattr(c, "text", "") or "" for c in h.session.calls if type(c).__name__ in ("EditMessageText", "SendMessage")][-1]
-        assert "Ali" in last and "Owner" not in last
+
+        def cbs():
+            return {b.callback_data for c in h.session.calls if getattr(c, "reply_markup", None) is not None
+                    for row in c.reply_markup.inline_keyboard for b in row}
+
+        def last_text():
+            return [getattr(c, "text", "") or "" for c in h.session.calls if type(c).__name__ in ("EditMessageText", "SendMessage")][-1]
+        await h.tap(u, "lb:menu")                                    # 1) اختيار المدة فقط
+        assert {"lb:P:a", "lb:P:w", "lb:P:d"} <= cbs() and "lb:B:a:tf" not in cbs()
+        await h.tap(u, "lb:P:a")                                     # 2) أنواع الألعاب داخل المدة
+        assert {"lb:B:a:q", "lb:B:a:s", "lb:B:a:tf", "lb:B:a:song", "lb:B:a:char"} <= cbs() and "lb:B:a:dc" not in cbs()
+        await h.tap(u, "lb:B:a:tf")                                  # 3) اللوحة
+        assert "Ali" in last_text() and "Bob" in last_text() and "Owner" not in last_text()
+        await h.tap(u, "lb:B:d:tf")                                  # اليوم: من لعب اليوم فقط
+        assert "Ali" in last_text() and "Owner" not in last_text()
+        await h.tap(u, "lb:P:d")
+        assert "lb:B:d:dc" in cbs()
+        await h.tap(u, "lb:B:d:dc")
+        assert "Ali" in last_text() and "Owner" not in last_text()
     run(go())

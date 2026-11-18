@@ -21,7 +21,7 @@ from .ctx import Ctx
 from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
                    shuffle_options, title_for)
 from .texts import cat_label, t
-from .timeutil import week_start
+from .timeutil import day_start, week_start
 
 log = logging.getLogger(__name__)
 LETTERS = {"ar": ["أ", "ب", "ج", "د"], "en": ["A", "B", "C", "D"]}
@@ -911,72 +911,74 @@ def build_router(ctx: Ctx) -> Router:
             await m.answer("❌")
 
     # ── المتصدرون ───────────────────────────────────────────
-    GAME_ICONS = {"tf": "✅❌", "song": "🎵", "ord": "📅", "char": "🕵️", "quote": "💬"}
+    BOARD_TYPES = ("q", "s", "tf", "song", "ord", "char", "quote")
+    LEGACY = {"all": "a:q", "week": "w:q", "sd": "a:s", "dy": "d:dc", "gm": "a:tf"}
+
+    def period_since(p: str):
+        return None if p == "a" else week_start() if p == "w" else day_start()
 
     def lb_menu_view(uid: int):
-        """شاشة اختيار واضحة: كل قسم بزر مستقل وشرح سطر واحد."""
+        """الخطوة 1: اختيار المدة (عام / أسبوعي / اليوم)."""
         L = lang(uid)
         return t(L, "lbm_text"), kb(
-            [btn(t(L, "lbm_quiz"), "lb:all")], [btn(t(L, "lbm_sd"), "lb:sd")],
-            [btn(t(L, "lbm_games"), "lb:gm")], [btn(t(L, "lbm_daily"), "lb:dy")],
+            [btn(t(L, "lbp_a"), "lb:P:a")], [btn(t(L, "lbp_w"), "lb:P:w")], [btn(t(L, "lbp_d"), "lb:P:d")],
             *chan_row(L), [btn(t(L, "btn_menu"), "menu")])
 
-    def lb_view(uid: int, kind: str):
-        """قسم واحد في كل مرة: عنوان + شرح + الأفضل 10 + ترتيبك + تبويبات داخلية فقط عند الحاجة."""
+    def lb_types_view(uid: int, p: str):
+        """الخطوة 2: داخل المدة المختارة، أنواع الألعاب."""
         L = lang(uid)
-        extra, sub_tabs = "", []
-        if kind == "week":
-            since = week_start()
-            rows = db.weekly_leaderboard(since)
-            head = t(L, "lb_week")
-            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['score']:.1f}</b>" for i, x in enumerate(rows)]
-            rank = db.weekly_rank(uid, since)
-            extra = t(L, "lb_you", rank=rank) if rank else ""
-        elif kind == "sd":
-            rows = db.sudden_leaderboard()
-            head = t(L, "lb_sudden")
-            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['best_sudden']}</b>" for i, x in enumerate(rows)]
-            rank = db.sudden_rank(uid)
-            extra = t(L, "lb_you", rank=rank) if rank else t(L, "lb_you_none")
-        elif kind == "dy":
-            rows = db.daily_board(db.today(), "daily", 10)
-            head = t(L, "lt_daily_head")
-            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['correct']}/{x['total']}</b> · {x['secs']:.0f}s"
-                     for i, x in enumerate(rows)]
-            rank = db.daily_rank(db.today(), "daily", uid)
-            extra = t(L, "lb_you", rank=rank) if rank else t(L, "lb_you_none")
-        elif kind == "gm" or kind.startswith("g:"):
-            gk = "tf" if kind == "gm" else kind.split(":")[1]
-            rows = db.game_board(gk, 10)
-            head = t(L, "lt_game_head", g=t(L, f"g_{gk}"))
-            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['best']}</b>" for i, x in enumerate(rows)]
-            rank = db.game_rank(uid, gk)
-            extra = t(L, "lb_you", rank=rank) if rank else t(L, "lb_you_none")
-            names = {"tf": "lg_tf", "song": "lg_song", "ord": "lg_ord", "char": "lg_char", "quote": "lg_quote"}
-            sub_tabs = [[btn(("✅ " if k == gk else "") + t(L, names[k]), f"lb:g:{k}")] for k in GAME_ICONS]
-            sub_tabs = [[row[0] for row in sub_tabs[:3]], [row[0] for row in sub_tabs[3:]]]
+        kinds = (("dc",) if p == "d" else ()) + BOARD_TYPES
+        btns = [btn(t(L, f"lbt_{k}"), f"lb:B:{p}:{k}") for k in kinds]
+        rows = [btns[i:i + 2] for i in range(0, len(btns), 2)]
+        return t(L, f"lbt_head_{p}"), kb(*rows, [btn(t(L, "lb_back_period"), "lb:menu"), btn(t(L, "btn_menu"), "menu")])
+
+    def lb_view(uid: int, view: str):
+        """الخطوة 3: اللوحة نفسها (مدة + نوع) مع أزرار للتنقل السريع."""
+        L = lang(uid)
+        view = LEGACY.get(view, view)
+        if view.startswith("g:"):
+            view = "a:" + view[2:]
+        p, kind = (view.split(":") + ["q"])[:2] if ":" in view else ("a", "q")
+        if p not in ("a", "w", "d") or kind not in BOARD_TYPES + ("dc",):
+            p, kind = "a", "q"
+        if kind == "dc" and p != "d":
+            kind = "q"
+        extra = ""
+        if kind == "dc":
+            today = db.today()
+            rows = db.daily_board(today, "daily", 10)
+            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['correct']}/{x['total']}</b> · {x['secs']:.0f}s" for i, x in enumerate(rows)]
+            rank = db.daily_rank(today, "daily", uid)
         else:
-            kind = "all"
-            rows = db.leaderboard(10)
-            head = t(L, "lb_all")
-            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['best_score']:.1f}</b> ({esc(title_for(x['best_score'], L))})"
-                     for i, x in enumerate(rows)]
-            rank = db.user_rank(uid)
-            extra = t(L, "lb_you", rank=rank) if rank else t(L, "lb_you_none")
-        if kind in ("all", "week"):
-            sub_tabs = [[btn(("✅ " if kind == "all" else "") + t(L, "tab_all"), "lb:all"),
-                         btn(("✅ " if kind == "week" else "") + t(L, "tab_week"), "lb:week")]]
+            allrows = db.board(kind, period_since(p))
+            rows = allrows[:10]
+            if kind == "q":
+                lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['score']:.1f}</b>"
+                         + (f" ({esc(title_for(x['score'], L))})" if p == "a" else "") for i, x in enumerate(rows)]
+            else:
+                lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{int(x['score'])}</b>" for i, x in enumerate(rows)]
+            rank = next((i for i, x in enumerate(allrows, 1) if x["tg_id"] == uid), None)
+        extra = t(L, "lb_you", rank=rank) if rank else t(L, "lb_you_none")
         medals = ["🥇", "🥈", "🥉"]
         lines = [(medals[i] + l[l.index("."):][1:]) if i < 3 else l for i, l in enumerate(lines)]
         body = "\n".join(lines) if lines else t(L, "lb_empty")
-        markup = kb(*sub_tabs, [btn(t(L, "lb_back"), "lb:menu"), btn(t(L, "btn_menu"), "menu")], *chan_row(L))
+        head = t(L, "lb_title", p=t(L, f"lbp_s_{p}"), k=t(L, f"lbt_{kind}"))
+        switch = [btn(("✅ " if q == p else "") + t(L, f"lbp_s_{q}"), f"lb:B:{q}:{kind if not (kind == 'dc' and q != 'd') else 'q'}")
+                  for q in ("a", "w", "d")]
+        markup = kb(switch, [btn(t(L, "lb_back_types"), f"lb:P:{p}"), btn(t(L, "lb_back_period"), "lb:menu")],
+                    [btn(t(L, "btn_menu"), "menu")], *chan_row(L))
         return f"{head}\n\n{body}{extra}", markup
 
-    @r.callback_query(F.data.regexp(r"^lb:(menu|all|week|sd|dy|gm|g:(tf|song|ord|char|quote))$"))
+    @r.callback_query(F.data.regexp(r"^lb:(menu|P:[awd]|B:[awd]:(q|s|tf|song|ord|char|quote|dc)|all|week|sd|dy|gm|g:(tf|song|ord|char|quote))$"))
     async def cb_lb(c: CallbackQuery):
         await c.answer()
         view = c.data[3:]
-        text, markup = lb_menu_view(c.from_user.id) if view == "menu" else lb_view(c.from_user.id, view)
+        if view == "menu":
+            text, markup = lb_menu_view(c.from_user.id)
+        elif view.startswith("P:"):
+            text, markup = lb_types_view(c.from_user.id, view[2:])
+        else:
+            text, markup = lb_view(c.from_user.id, view[2:] if view.startswith("B:") else view)
         try:
             await c.message.edit_text(text, parse_mode="HTML", reply_markup=markup)
         except TelegramBadRequest:

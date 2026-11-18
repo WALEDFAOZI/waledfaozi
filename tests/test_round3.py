@@ -129,15 +129,15 @@ def test_general_rating_top10_is_separate_from_weekly():
         u = h.user(99)
         await h.say(u, "/top")
         txt = h.session.texts()[-1]
-        assert "التقييم العام" in txt
+        assert "العام" in txt and "الاختبار" in txt
         lines = [l for l in txt.splitlines() if "P" in l and "—" in l]
         assert len(lines) == 10 and "P12" in lines[0] and "P3" in lines[-1] and "P2 " not in txt
         await h.say(u, "/weekly")
         wk = h.session.texts()[-1]
-        assert "تقييم الأسبوع" in wk or "الأسبوع" in wk
+        assert "الأسبوعي" in wk
         wk_lines = [l for l in wk.splitlines() if "P" in l and "—" in l]
         assert len(wk_lines) == 4 and "P4" in wk_lines[0]            # الأسبوعي لا يضم القدامى
-        assert {"lb:all", "lb:week", "lb:menu"} <= cb_data(h)
+        assert {"lb:B:a:q", "lb:B:w:q", "lb:B:d:q", "lb:menu", "lb:P:w"} <= cb_data(h)
         await h.say(u, "/start")
         menu = last_menu_call(h)
         labels = [b.text for row in menu.reply_markup.inline_keyboard for b in row]
@@ -149,7 +149,7 @@ def test_general_rating_top10_is_separate_from_weekly():
         assert any("العام" in x for x in tabs) and any("الأسبوع" in x for x in tabs)
         await h.tap(u, "lg:en")
         await h.say(u, "/top")
-        assert "Overall rating" in h.session.texts()[-1]
+        assert "Overall" in h.session.texts()[-1] and "Test" in h.session.texts()[-1]
     run(go())
 
 
