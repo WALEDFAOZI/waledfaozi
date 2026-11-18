@@ -6,6 +6,7 @@ import secrets
 import time
 
 from aiogram import BaseMiddleware, Bot, Dispatcher
+from aiogram.utils.backoff import BackoffConfig
 from aiogram.types import BotCommand, CallbackQuery
 
 from .admin import build_admin_router
@@ -19,43 +20,17 @@ from .games import build_games_router
 log = logging.getLogger(__name__)
 
 
-class ConflictWatcher(logging.Handler):
-    """يلتقط خطأ «Conflict» من aiogram (نسخة ثانية من البوت بنفس التوكن) ويُبلغ المالك في تليجرام مرة كل نصف ساعة."""
-
-    MESSAGE = ("⚠️ تنبيه مهم: نسخة أخرى من البوت تعمل الآن بنفس التوكن.\n"
-               "هذا هو سبب تعطل الأزرار ولوحة /admin بشكل متقطع (تليجرام يوزّع الرسائل بين النسختين).\n\n"
-               "الحل:\n1) أوقف أو احذف أي سيرفر/جهاز آخر يشغّل البوت.\n"
-               "2) الأضمن: من @BotFather اعمل /revoke للبوت وخذ توكنًا جديدًا، وضعه في سيرفر واحد فقط.")
-
-    def __init__(self, bot: Bot, ctx: Ctx, gap: float = 1800):
-        super().__init__(level=logging.ERROR)
-        self.bot, self.ctx, self.gap, self._last = bot, ctx, gap, 0.0
-
-    def emit(self, record: logging.LogRecord) -> None:
-        try:
-            if "ConflictError" not in record.getMessage():
-                return
-            now = time.time()
-            if now - self._last < self.gap:
-                return
-            self._last = now
-            asyncio.get_running_loop().create_task(self._notify())
-        except RuntimeError:        # لا توجد حلقة أحداث نشطة
-            pass
-
-    async def _notify(self) -> None:
-        for owner in self.ctx.owner_ids():
-            try:
-                await self.bot.send_message(owner, self.MESSAGE)
-            except Exception:  # noqa: BLE001
-                pass
-
-
 class Guard(BaseMiddleware):
     """يسجّل أي تحديث أبطأ من ثانية، وإن فشل المعالج يردّ على الزر حتى لا يبقى «يحمّل» بلا نهاية."""
 
     async def __call__(self, handler, event, data):
         t0 = time.monotonic()
+        sent_at = getattr(event, "date", None)          # وقت إرسال المستخدم للرسالة (للرسائل فقط)
+        if sent_at is not None:
+            age = time.time() - sent_at.timestamp()
+            if age > 4:
+                log.warning("late update: delivered %.1fs after it was sent (polling/network/Conflict delay, not handler speed): %s",
+                            age, getattr(event, "text", None))
         try:
             return await handler(event, data)
         except Exception:  # noqa: BLE001
@@ -110,7 +85,8 @@ async def run(settings: Settings) -> None:
             BotCommand(command="lang", description="Language 🌐")], language_code="en")
     except Exception as e:  # noqa: BLE001
         log.warning("set_my_commands failed: %s", e)
-    logging.getLogger("aiogram.dispatcher").addHandler(ConflictWatcher(bot, ctx))
     ctx.tasks.append(asyncio.create_task(backup_loop(bot, ctx)))   # نسخة احتياطية أسبوعية تلقائية
     dp = build_dispatcher(ctx)
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+    await dp.start_polling(
+        bot, allowed_updates=dp.resolve_used_update_types(),
+        backoff_config=BackoffConfig(min_delay=0.2, max_delay=1.5, factor=1.3, jitter=0.1))   # إعادة اتصال أسرع (الافتراضي حتى 5ث)

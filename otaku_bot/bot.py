@@ -437,6 +437,18 @@ def build_router(ctx: Ctx) -> Router:
         await m.answer(f"ID: <code>{m.from_user.id}</code>\nمشرف: {adm}\nنسخة البوت: <code>{VERSION}</code>\n"
                        f"الهوية: <code>{INSTANCE}</code>\nشغّال منذ: {up} دقيقة", parse_mode="HTML")
 
+    @r.message(Command("ping"))
+    async def cmd_ping(m: Message):
+        """يفرّق بين بطء الوصول من تليجرام وبطء البوت نفسه."""
+        age = max(0.0, time.time() - m.date.timestamp())
+        t0 = time.perf_counter()
+        sent = await m.answer("🏓 …")
+        rt = (time.perf_counter() - t0) * 1000
+        await sent.edit_text(
+            f"🏓 pong\n⏱ تأخر وصول رسالتك للبوت: {age:.0f} ث (±1)\n📤 زمن إرسال الرد إلى تليجرام: {rt:.0f} ms\n\n"
+            "• التأخر كبير (أكثر من 3 ث)؟ المشكلة في الوصول: نسخة ثانية/Conflict أو شبكة الاستضافة.\n"
+            "• التأخر صغير والرد بطيء؟ المشكلة في الاستضافة نفسها.")
+
     @r.message(Command("lang"))
     async def cmd_lang(m: Message):
         await m.answer("🌐", reply_markup=kb([btn("العربية", "lg:ar"), btn("English", "lg:en")]))

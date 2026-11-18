@@ -85,6 +85,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_finished ON sessions(state, mode, finish
 CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at);
 CREATE INDEX IF NOT EXISTS idx_reports_q ON reports(question_id, status);
 CREATE INDEX IF NOT EXISTS idx_users_best ON users(best_score);
+CREATE INDEX IF NOT EXISTS idx_sugg_status ON suggestions(status);
 """
 
 # أعمدة أُضيفت لاحقًا: تُضاف تلقائيًا لقواعد البيانات القديمة (ترقية آمنة بلا فقد بيانات)

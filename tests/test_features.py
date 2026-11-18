@@ -255,24 +255,6 @@ def test_main_menu_has_new_buttons_and_bank_doubled():
     assert min(per_level.values()) >= 39, per_level
 
 
-def test_conflict_watcher_notifies_owner_once():
-    import logging
-    from otaku_bot.app import ConflictWatcher
-
-    async def go():
-        h, o = mk()
-        w = ConflictWatcher(h.bot, h.ctx, gap=3600)
-        rec = logging.LogRecord("aiogram.dispatcher", logging.ERROR, __file__, 1,
-                                "Failed to fetch updates - TelegramConflictError: terminated by other getUpdates request", (), None)
-        w.emit(rec)
-        w.emit(rec)                                              # الثاني يُتجاهل (فاصل زمني)
-        w.emit(logging.LogRecord("aiogram.dispatcher", logging.ERROR, __file__, 1, "some other error", (), None))
-        await asyncio.sleep(0.05)
-        msgs = [c for c in h.session.sent_to(5) if "نسخة أخرى" in (c.text or "")]
-        assert len(msgs) == 1 and "/revoke" in msgs[0].text
-    run(go())
-
-
 def test_myid_shows_admin_status_and_version():
     async def go():
         h = Harness(admin_ids=(5,))
@@ -326,3 +308,30 @@ def test_admin_stats_button_always_changes_text_and_backup_is_zipped():
         docs = [c for c in h.session.calls if type(c).__name__ == "SendDocument"]
         assert docs and docs[-1].document.filename.endswith(".zip")
     run(go())
+
+
+def test_admin_path_is_fast_regression_guard():
+    """معالجة /admin وأزرار اللوحة لازم تبقى بالملّي ثانية (حد واسع 100ms للأجهزة البطيئة)."""
+    import time as _t
+
+    async def go():
+        h, o = mk()
+        for step in ("/admin", "ad:stats", "ad:set", "ad:rep", "ad:sg", "ad:home"):
+            t0 = _t.perf_counter()
+            if step.startswith("/"):
+                await h.say(o, step)
+            else:
+                await h.tap(o, step)
+            assert (_t.perf_counter() - t0) < 0.1, step
+    run(go())
+
+
+def test_ping_reports_delivery_delay_and_conflict_alert_removed():
+    async def go():
+        h, o = mk()
+        await h.say(o, "/ping")
+        txt = h.session.texts()[-1]
+        assert "pong" in txt and "تأخر وصول رسالتك" in txt
+    run(go())
+    import otaku_bot.app as app
+    assert not hasattr(app, "ConflictWatcher")
