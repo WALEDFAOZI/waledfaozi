@@ -25,7 +25,6 @@ from aiogram.types import CallbackQuery, FSInputFile, Message
 from . import anilist
 from .backup import chat_status_text, enabled as backup_enabled, last_backup_text, make_zip, send_chat_backup
 from .growth import growth_text, refresh_count
-from .countries import label as country_label
 from .bot import btn, esc, kb
 from .config import CATEGORY_LABELS
 from .ctx import Ctx
@@ -184,7 +183,6 @@ def build_admin_router(ctx: Ctx) -> Router:
             f"📚 البنك: {s['bank_active']} مفعّل ({s['bank_disabled']} معطّل) · 🇬🇧 {s['bank_en']} · 🖼 {s['bank_img']}\n"
             f"🚩 أسئلة عليها بلاغات مفتوحة: {s['open_reports']}\n"
             f"💡 اقتراحات تنتظر المراجعة: {s['pending_suggestions']} · 🚫 حظروا البوت: {s['blocked_users']}\n"
-            f"🏳️ أكثر الدول: {' · '.join(f'{country_label(c, 'ar')} {n}' for c, n in db.country_counts(6)) or '—'}\n"
             f"\n{growth_text(ctx)}\n"
             f"🕒 {time.strftime('%H:%M:%S', time.gmtime(time.time() + 3 * 3600))} (توقيت مكة)")
         await nav(c, text, kb(BACK))

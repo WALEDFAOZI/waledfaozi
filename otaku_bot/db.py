@@ -448,8 +448,8 @@ class DB:
 
     def leaderboard(self, limit: int = 10) -> list[sqlite3.Row]:
         return self.conn.execute(
-            "SELECT name, best_score FROM users WHERE best_score>0 ORDER BY best_score DESC, tests_taken ASC LIMIT ?",
-            (limit,)).fetchall()
+            "SELECT name, best_score FROM users WHERE best_score>0 AND tg_id NOT IN (SELECT tg_id FROM admins) "
+            "ORDER BY best_score DESC, tests_taken ASC LIMIT ?", (limit,)).fetchall()
 
     def user_rank(self, tg_id: int) -> int | None:
         u = self.get_user(tg_id)
@@ -462,6 +462,7 @@ class DB:
             """SELECT u.tg_id, u.name, MAX(s.score) AS score, MIN(s.finished_at) AS at
                FROM sessions s JOIN users u ON u.tg_id=s.tg_id
                WHERE s.state='finished' AND s.mode='full' AND s.counted=1 AND s.finished_at>=?
+               AND u.tg_id NOT IN (SELECT tg_id FROM admins)
                GROUP BY u.tg_id ORDER BY score DESC, at ASC LIMIT ?""", (since, limit)).fetchall()
 
     def weekly_rank(self, tg_id: int, since: float) -> int | None:
@@ -473,7 +474,7 @@ class DB:
 
     def sudden_leaderboard(self, limit: int = 10) -> list[sqlite3.Row]:
         return self.conn.execute(
-            "SELECT name, best_sudden FROM users WHERE best_sudden>0 ORDER BY best_sudden DESC LIMIT ?",
+            "SELECT name, best_sudden FROM users WHERE best_sudden>0 AND tg_id NOT IN (SELECT tg_id FROM admins) ORDER BY best_sudden DESC LIMIT ?",
             (limit,)).fetchall()
 
     def last_session_stats(self, tg_id: int):

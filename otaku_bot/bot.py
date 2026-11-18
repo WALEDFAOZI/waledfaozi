@@ -79,7 +79,6 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
               [btn(t(L, "g_quote"), "g:quote")],
               [btn(t(L, "sec_more"), "noop")],
               [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_week"), "lb:week")],
-              [btn(t(L, "btn_country"), "cn:menu")],
               [btn(t(L, "btn_profile"), "pf"), btn(t(L, "btn_stats"), "st")],
               [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")])
 
@@ -91,6 +90,10 @@ def build_router(ctx: Ctx) -> Router:
     timers: dict[tuple[int, int], asyncio.Task] = {}
     sub_ok: dict[int, float] = {}      # من ثبت اشتراكه: لا نسأل تليجرام عنه ثانية قبل 5 دقائق (أسرع)
     me_cache: dict[str, str] = {}
+
+    def pub(u) -> str:
+        """الاسم الذي يراه الآخرون: الأدمن/المالك لا يظهر اسمه أبدًا."""
+        return "مجهول 🎭" if db.is_admin(u["tg_id"]) else (u["name"] or "?")
 
     async def bot_username(bot: Bot) -> str:
         if "u" not in me_cache:
@@ -338,8 +341,8 @@ def build_router(ctx: Ctx) -> Router:
                 them_user = db.get_user(ch["tg_id"])
                 them, mine = ch["score"], score
                 verdict = "vs_win" if mine > them else "vs_lose" if mine < them else "vs_draw"
-                parts += ["", t(L, "vs_head", name=esc(them_user["name"])),
-                          t(L, "vs_line", me=f"{mine:.1f}", name=esc(them_user["name"]), them=f"{them:.1f}"),
+                parts += ["", t(L, "vs_head", name=esc(pub(them_user))),
+                          t(L, "vs_line", me=f"{mine:.1f}", name=esc(pub(them_user)), them=f"{them:.1f}"),
                           t(L, verdict)]
                 Lc = them_user["lang"]
                 dm_v = "vs_dm_win" if them > mine else "vs_dm_lose" if them < mine else "vs_dm_draw"
@@ -368,9 +371,6 @@ def build_router(ctx: Ctx) -> Router:
         except Exception as e:  # noqa: BLE001  (الخط غير متوفر أو أي خطأ في الصورة → نص فقط)
             log.warning("card failed: %s", e)
             await bot.send_message(chat_id, caption, reply_markup=markup, parse_mode="HTML")
-        if mode == "full":                                   # بعد أول اختبار كامل نسأل عن الدولة (مرة واحدة)
-            from .countries import maybe_ask_country
-            await maybe_ask_country(bot, ctx, chat_id, tg_id)
 
     # ── بدء الاختبار ────────────────────────────────────────
     async def begin(bot: Bot, chat_id: int, tg_id: int, name: str, mode: str = "full",
@@ -462,7 +462,7 @@ def build_router(ctx: Ctx) -> Router:
             s = db.get_session(int(arg[3:]))
             if s and s["state"] == "finished" and s["mode"] == "full" and s["tg_id"] != m.from_user.id:
                 friend = db.get_user(s["tg_id"])
-                extra = t(L, "challenge_banner", name=esc(friend["name"]), score=f"{s['score']:.1f}",
+                extra = t(L, "challenge_banner", name=esc(pub(friend)), score=f"{s['score']:.1f}",
                           title=esc(title_for(s["score"], L)))
                 top = [[btn(t(L, "btn_accept"), f"cc:{s['id']}")]]
         await send_welcome(m, L, welcome_for(L, m.from_user) + extra, menu(L, top))
@@ -558,12 +558,6 @@ def build_router(ctx: Ctx) -> Router:
             lines.append(t(L, "prof_acc", pct=round(100 * p["correct"] / p["answers"]), ok=p["correct"], n=p["answers"]))
         if p["sudden"]:
             lines.append(t(L, "prof_sudden", n=p["sudden"]))
-        from .countries import label as country_label
-        code = db.get_country(uid)
-        if code:
-            crk = db.country_rank(uid)
-            lines.append(t(L, "prof_country_rank", c=country_label(code, L), rank=crk) if crk
-                         else t(L, "prof_country", c=country_label(code, L)))
         if p["cats"]:
             lines.append(t(L, "prof_cat"))
             lines += [f"• {cat_label(L, cat)}: {acc * 100:.0f}%" for cat, acc, _ in p["cats"]]
@@ -698,7 +692,6 @@ def build_router(ctx: Ctx) -> Router:
         lines = [(medals[i] + l[l.index("."):][1:]) if i < 3 else l for i, l in enumerate(lines)]
         body = "\n".join(lines) if lines else t(L, "lb_empty")
         markup = kb([btn(t(L, "tab_all"), "lb:all"), btn(t(L, "tab_week"), "lb:week"), btn(t(L, "tab_sd"), "lb:sd")],
-                    [btn(t(L, "cn_btn_top"), "cn:top"), btn(t(L, "cn_btn_rank"), "cn:rank")],
                     [btn(t(L, "btn_menu"), "menu")])
         return f"{head}\n\n{body}{extra}", markup
 
