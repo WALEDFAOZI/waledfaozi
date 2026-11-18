@@ -853,6 +853,12 @@ class DB:
             self.conn.execute("UPDATE game_sessions SET state=? WHERE id=?",
                               (json.dumps(state, ensure_ascii=False), gid))
 
+    def game_board(self, kind: str, limit: int = 10) -> list[sqlite3.Row]:
+        return self.conn.execute(
+            """SELECT u.name, g.best FROM game_scores g JOIN users u ON u.tg_id=g.tg_id
+               WHERE g.kind=? AND g.best>0 AND g.tg_id NOT IN (SELECT tg_id FROM admins)
+               ORDER BY g.best DESC, u.tg_id ASC LIMIT ?""", (kind, limit)).fetchall()
+
     def finish_game(self, gid: int, tg_id: int, kind: str, score: int) -> int:
         with self.conn:
             self.conn.execute("UPDATE game_sessions SET score=?, finished_at=? WHERE id=?", (score, time.time(), gid))

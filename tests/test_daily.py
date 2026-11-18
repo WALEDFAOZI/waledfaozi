@@ -125,3 +125,28 @@ def test_reminder_loop_sends_once_and_respects_block():
         sent = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id in (1, 2)]
         assert len(sent) == 2 and h.db.remind_targets(h.db.today()) == []
     run(go())
+
+
+def test_rankings_are_split_by_type_and_hide_admin():
+    async def go():
+        h = Harness()
+        u = h.user(1, "Ali")
+        h.db.upsert_user(1, "Ali"); h.db.upsert_user(2, "Bob"); h.db.upsert_user(9, "Owner"); h.db.add_admin(9)
+        with h.db.conn:
+            h.db.conn.execute("INSERT INTO game_scores(tg_id,kind,best) VALUES(1,'tf',8),(2,'tf',6),(9,'tf',10),(1,'song',5)")
+        d = h.db.today()
+        h.db.record_daily(d, "daily", 1, 4, 5, 20); h.db.record_daily(d, "daily", 9, 5, 5, 10)
+        await h.tap(u, "lb:all")
+        cbs = {b.callback_data for c in h.session.calls if getattr(c, "reply_markup", None) is not None
+               for row in c.reply_markup.inline_keyboard for b in row}
+        assert {"lb:all", "lb:week", "lb:sd", "lb:gm", "lb:dy"} <= cbs
+        await h.tap(u, "lb:g:tf")
+        txt = h.session.texts()[-1] if h.session.texts() else ""
+        calls = [c for c in h.session.calls if type(c).__name__ in ("EditMessageText", "SendMessage")]
+        last = (getattr(calls[-1], "text", "") or "")
+        assert "Ali" in last and "Bob" in last and "Owner" not in last
+        assert {"lb:g:song", "lb:g:quote"} <= {b.callback_data for row in calls[-1].reply_markup.inline_keyboard for b in row}
+        await h.tap(u, "lb:dy")
+        last = [getattr(c, "text", "") or "" for c in h.session.calls if type(c).__name__ in ("EditMessageText", "SendMessage")][-1]
+        assert "Ali" in last and "Owner" not in last
+    run(go())

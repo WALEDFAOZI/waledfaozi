@@ -415,3 +415,8 @@ T["en"].update({
 
 T["ar"]["btn_rank"] = "🏆 الترتيب"
 T["en"]["btn_rank"] = "🏆 Rankings"
+
+T["ar"].update({"lt_quiz": "🎯 الاختبار", "lt_sd": "☠️ الموت", "lt_games": "🎮 الألعاب", "lt_daily": "📅 اليومي",
+                "lt_daily_head": "📅 <b>متصدرو تحدي اليوم</b>", "lt_game_head": "🎮 <b>متصدرو لعبة: {g}</b>"})
+T["en"].update({"lt_quiz": "🎯 Test", "lt_sd": "☠️ Sudden", "lt_games": "🎮 Games", "lt_daily": "📅 Daily",
+                "lt_daily_head": "📅 <b>Today's daily challenge top</b>", "lt_game_head": "🎮 <b>Top players: {g}</b>"})

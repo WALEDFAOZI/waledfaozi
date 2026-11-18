@@ -909,9 +909,13 @@ def build_router(ctx: Ctx) -> Router:
             await m.answer("❌")
 
     # ── المتصدرون ───────────────────────────────────────────
+    GAME_ICONS = {"tf": "✅❌", "song": "🎵", "ord": "📅", "char": "🕵️", "quote": "💬"}
+
     def lb_view(uid: int, kind: str):
+        """الترتيب مقسّم حسب النوع: الاختبار (عام/أسبوعي) ← الموت المفاجئ ← الألعاب ← التحدي اليومي."""
         L = lang(uid)
         extra = ""
+        group, sub = "quiz", kind
         if kind == "week":
             since = week_start()
             rows = db.weekly_leaderboard(since)
@@ -921,9 +925,23 @@ def build_router(ctx: Ctx) -> Router:
             if rank:
                 extra = t(L, "lb_you", rank=rank)
         elif kind == "sd":
+            group = "sd"
             rows = db.sudden_leaderboard()
             head = t(L, "lb_sudden")
             lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['best_sudden']}</b>" for i, x in enumerate(rows)]
+        elif kind == "dy":
+            group = "dy"
+            rows = db.daily_board(db.today(), "daily", 10)
+            head = t(L, "lt_daily_head")
+            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['correct']}/{x['total']}</b> · {x['secs']:.0f}s"
+                     for i, x in enumerate(rows)]
+        elif kind == "gm" or kind.startswith("g:"):
+            group = "games"
+            gk = "tf" if kind == "gm" else kind.split(":")[1]
+            sub = gk
+            rows = db.game_board(gk, 10)
+            head = t(L, "lt_game_head", g=t(L, f"g_{gk}"))
+            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['best']}</b>" for i, x in enumerate(rows)]
         else:
             rows = db.leaderboard(10)
             head = t(L, "lb_all")
@@ -935,14 +953,22 @@ def build_router(ctx: Ctx) -> Router:
         medals = ["🥇", "🥈", "🥉"]
         lines = [(medals[i] + l[l.index("."):][1:]) if i < 3 else l for i, l in enumerate(lines)]
         body = "\n".join(lines) if lines else t(L, "lb_empty")
-        markup = kb([btn(t(L, "tab_all"), "lb:all"), btn(t(L, "tab_week"), "lb:week"), btn(t(L, "tab_sd"), "lb:sd")],
-                    *chan_row(L), [btn(t(L, "btn_menu"), "menu")])
+
+        def tab(label, data, on):
+            return btn(("• " if on else "") + label, data)
+        rows_kb = [[tab(t(L, "lt_quiz"), "lb:all", group == "quiz"), tab(t(L, "lt_sd"), "lb:sd", group == "sd")],
+                   [tab(t(L, "lt_games"), "lb:gm", group == "games"), tab(t(L, "lt_daily"), "lb:dy", group == "dy")]]
+        if group == "quiz":
+            rows_kb.append([tab(t(L, "tab_all"), "lb:all", sub != "week"), tab(t(L, "tab_week"), "lb:week", sub == "week")])
+        elif group == "games":
+            rows_kb.append([tab(ic, f"lb:g:{k}", sub == k) for k, ic in GAME_ICONS.items()])
+        markup = kb(*rows_kb, *chan_row(L), [btn(t(L, "btn_menu"), "menu")])
         return f"{head}\n\n{body}{extra}", markup
 
-    @r.callback_query(F.data.startswith("lb:"))
+    @r.callback_query(F.data.regexp(r"^lb:(all|week|sd|dy|gm|g:(tf|song|ord|char|quote))$"))
     async def cb_lb(c: CallbackQuery):
         await c.answer()
-        text, markup = lb_view(c.from_user.id, c.data.split(":")[1])
+        text, markup = lb_view(c.from_user.id, c.data[3:])
         try:
             await c.message.edit_text(text, parse_mode="HTML", reply_markup=markup)
         except TelegramBadRequest:
