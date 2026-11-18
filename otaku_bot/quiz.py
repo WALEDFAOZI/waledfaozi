@@ -23,10 +23,12 @@ class Question:
     active: bool = True
 
     def text(self, lang: str = "ar") -> str:
-        return self.q_en if lang == "en" and self.q_en else self.q
+        from .names import loc
+        return self.q_en if lang == "en" and self.q_en else loc(self.q, "ar")
 
     def opts(self, lang: str = "ar") -> list[str]:
-        return self.options_en if lang == "en" and self.options_en else self.options
+        from .names import loc_opt
+        return self.options_en if lang == "en" and self.options_en else [loc_opt(o, "ar") for o in self.options]
 
     @property
     def difficulty(self) -> float:

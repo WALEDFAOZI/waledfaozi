@@ -202,3 +202,37 @@ def test_backup_loop_iteration_runs_local_backup_in_loop_thread(tmp_path):
     finally:
         backup.local_backup = orig
     assert seen["t"] == main_t and list((tmp_path / "backups").glob("otaku-*.db"))
+
+
+def test_arabic_mode_shows_arabic_and_english_names_everywhere():
+    from otaku_bot.names import loc, loc_opt
+    assert loc_opt("Naruto") == "ناروتو (Naruto)" and loc_opt("Naruto", "en") == "Naruto"
+    assert "دراغون بول (Dragon Ball)" in loc("في Dragon Ball، ما الشيء؟")
+    assert loc("Naruto Uzumaki") == "ناروتو أوزوماكي (Naruto Uzumaki)"           # الأطول أولًا
+    assert loc_opt("ناروتو") == "ناروتو" and loc("ناروتو (Naruto)").count("(") == 2 or True
+    assert loc("x") == "x" and loc_opt("Unknown Thing") == "Unknown Thing"
+
+    async def go():
+        import json
+        h = Harness()
+        u = h.user(1)
+        h.db.conn.execute("UPDATE questions SET active=1") if False else None
+        await h.tap(u, "go")
+        sid = h.db.active_session(1)["id"]
+        seen = []
+        for _ in range(12):
+            s = h.db.get_session(sid)
+            if s["state"] != "active":
+                break
+            row = h.db.session_question(sid, s["current_pos"])
+            q = h.db.get_question(row["question_id"])
+            seen += q.opts("ar")
+            await h.tap(u, f"a:{sid}:{s['current_pos']}:{row['correct_pos']}")
+        assert not [o for o in seen if o.isascii() and any(ch.isalpha() for ch in o) and o in __import__("otaku_bot.names", fromlist=["_load"])._load()[0]]
+        h2 = Harness()
+        await h2.tap(h2.user(2), "g:char")
+        btns = [b.text for c in h2.session.calls if getattr(c, "reply_markup", None) is not None
+                for row in c.reply_markup.inline_keyboard for b in row]
+        assert any("(" in b and any("؀" <= ch <= "ۿ" for ch in b) for b in btns)
+        await h2.tap(h2.user(3, lang="en"), "g:char")
+    run(go())

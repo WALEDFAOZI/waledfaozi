@@ -14,6 +14,7 @@ from aiogram.types import CallbackQuery, Message
 from .bot import btn, esc, kb
 from .config import ROOT
 from .ctx import Ctx
+from .names import loc, loc_opt
 from .texts import t
 
 ROUNDS = {"tf": 10, "song": 10, "ord": 8, "char": 10, "quote": 10}
@@ -147,16 +148,16 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
         rd = st["rounds"][st["pos"]]
         if kind == "tf":
             s = games["tf"][rd]
-            stmt = s[1] if L == "en" else s[0]
+            stmt = s[1] if L == "en" else loc(s[0], L)
             return (t(L, "g_tf_q", n=n, t=total, s=esc(stmt)),
                     kb([btn(t(L, "g_true"), f"gt:{gid}:1"), btn(t(L, "g_false"), f"gt:{gid}:0")]))
         if kind in MC_KINDS:
-            prompt = rd["song"] if kind == "song" else rd["text"].get(L) or rd["text"]["ar"]
+            prompt = rd["song"] if kind == "song" else loc(rd["text"].get(L) or rd["text"]["ar"], L)
             return (t(L, f"g_{kind}_q", n=n, t=total, s=esc(prompt)),
-                    kb(*[[btn(o, f"gs:{gid}:{i}")] for i, o in enumerate(rd["options"])]))
+                    kb(*[[btn(loc_opt(o, L), f"gs:{gid}:{i}")] for i, o in enumerate(rd["options"])]))
         items = rd["items"]
-        picked = "\n".join(f"{k + 1}) {esc(items[i]['name'])}" for k, i in enumerate(st["picked"])) or "—"
-        left = [[btn(items[i]["name"], f"go:{gid}:{i}")] for i in range(len(items)) if i not in st["picked"]]
+        picked = "\n".join(f"{k + 1}) {esc(loc_opt(items[i]['name'], L))}" for k, i in enumerate(st["picked"])) or "—"
+        left = [[btn(loc_opt(items[i]["name"], L), f"go:{gid}:{i}")] for i in range(len(items)) if i not in st["picked"]]
         return (t(L, "g_ord_q", n=n, t=total, picked=picked),
                 kb(*left, [btn(t(L, "g_reset"), f"gr:{gid}")]))
 
@@ -233,7 +234,7 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
         s = games["tf"][g["state"]["rounds"][g["state"]["pos"]]]
         ok = bool(int(ans)) == s[2]
         expl = s[4] if L == "en" else s[3]
-        await step(c, int(gid), ok, t(L, "g_ok" if ok else "g_bad") + (f"\n{expl}" if expl and not ok else ""))
+        await step(c, int(gid), ok, t(L, "g_ok" if ok else "g_bad") + (f"\n{loc(expl, L)}" if expl and not ok else ""))
 
     @r.callback_query(F.data.startswith("gs:"))
     async def cb_song(c: CallbackQuery):
