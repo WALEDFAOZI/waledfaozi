@@ -174,3 +174,31 @@ def test_profile_share_link_shows_visitor_card_but_never_admin():
         await h2.say(h2.user(2), "/start pf_1")
         assert not any("Owner" in (getattr(c, "caption", "") or "") + (getattr(c, "text", "") or "") for c in h2.session.calls)
     run(go())
+
+
+def test_backup_loop_iteration_runs_local_backup_in_loop_thread(tmp_path):
+    """انحدار: النسخ المحلي كان يُشغَّل في خيط آخر فيفشل اتصال SQLite."""
+    import dataclasses
+    import threading
+    from otaku_bot import backup
+    from otaku_bot.ctx import Ctx
+    from otaku_bot.db import DB
+    path = tmp_path / "otaku.db"
+    real = DB(str(path))
+    real.upsert_user(1, "P")
+    ctx = Ctx(dataclasses.replace(Harness().ctx.settings, db_path=str(path)), real)
+    seen = {}
+    orig = backup.local_backup
+    backup.local_backup = lambda c, *a, **k: seen.setdefault("t", threading.get_ident()) and orig(c, *a, **k)
+
+    async def go():
+        import asyncio
+        task = asyncio.create_task(backup.backup_loop(None, ctx))
+        await asyncio.sleep(0.3)
+        task.cancel()
+        return threading.get_ident()
+    try:
+        main_t = run(go())
+    finally:
+        backup.local_backup = orig
+    assert seen["t"] == main_t and list((tmp_path / "backups").glob("otaku-*.db"))

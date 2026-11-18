@@ -277,7 +277,7 @@ async def backup_loop(bot: Bot, ctx: Ctx) -> None:
     while True:
         try:
             if local_due(ctx):
-                await asyncio.to_thread(local_backup, ctx)
+                local_backup(ctx)          # في خيط البوت نفسه (اتصال SQLite لا يعمل من خيط آخر)؛ النسخ سريع
             if chat_due(ctx):
                 await send_chat_backup(bot, ctx)
             if due(ctx):
