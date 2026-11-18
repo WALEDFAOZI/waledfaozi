@@ -253,3 +253,21 @@ def test_main_menu_has_new_buttons_and_bank_doubled():
     from collections import Counter
     per_level = Counter(round(q["base_difficulty"]) for q in qs)
     assert min(per_level.values()) >= 39, per_level
+
+
+def test_conflict_watcher_notifies_owner_once():
+    import logging
+    from otaku_bot.app import ConflictWatcher
+
+    async def go():
+        h, o = mk()
+        w = ConflictWatcher(h.bot, h.ctx, gap=3600)
+        rec = logging.LogRecord("aiogram.dispatcher", logging.ERROR, __file__, 1,
+                                "Failed to fetch updates - TelegramConflictError: terminated by other getUpdates request", (), None)
+        w.emit(rec)
+        w.emit(rec)                                              # الثاني يُتجاهل (فاصل زمني)
+        w.emit(logging.LogRecord("aiogram.dispatcher", logging.ERROR, __file__, 1, "some other error", (), None))
+        await asyncio.sleep(0.05)
+        msgs = [c for c in h.session.sent_to(5) if "نسخة أخرى" in (c.text or "")]
+        assert len(msgs) == 1 and "/revoke" in msgs[0].text
+    run(go())
