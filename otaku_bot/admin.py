@@ -13,6 +13,7 @@ from pathlib import Path
 
 from aiogram import Bot, F, Router
 from aiogram.exceptions import TelegramAPIError
+from aiogram import BaseMiddleware
 from aiogram.filters import BaseFilter, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -36,6 +37,18 @@ class IsAdmin(BaseFilter):
     async def __call__(self, event) -> bool:
         u = getattr(event, "from_user", None)
         return bool(u and self.ctx.is_admin(u.id))
+
+
+class ClearPending(BaseMiddleware):
+    """أي زر في اللوحة (عدا خطوات المعالج نفسه) يُلغي الإدخال المعلّق، حتى لا يُفسَّر كلامك العادي بالغلط."""
+    KEEP = ("ad:aa:", "ad:ad:", "ad:ac:", "ad:ae:")
+
+    async def __call__(self, handler, event, data):
+        d = getattr(event, "data", None) or ""
+        state = data.get("state")
+        if state is not None and d.startswith("ad:") and not d.startswith(self.KEEP):
+            await state.clear()
+        return await handler(event, data)
 
 
 HOME = kb(
@@ -83,6 +96,12 @@ def build_admin_router(ctx: Ctx) -> Router:
     db = ctx.db
     r.message.filter(IsAdmin(ctx))
     r.callback_query.filter(IsAdmin(ctx))
+    r.callback_query.outer_middleware(ClearPending())
+
+    @r.message(Command("cancel"))
+    async def cmd_cancel(m: Message, state: FSMContext):
+        await state.clear()
+        await m.answer("تم الإلغاء ✅", reply_markup=kb(BACK))
 
     async def show_q(target: Message, qid: int, edit: bool = False):
         q = db.get_question(qid)
@@ -333,12 +352,13 @@ def build_admin_router(ctx: Ctx) -> Router:
         elif act == "add":
             draft, step = data["draft"], data["step"]
             if step == "text":
-                if not text:
-                    await m.answer("أرسل نصًا للسؤال.")
-                    return
-                draft["text"] = text
                 if photo:
                     draft["image"] = photo
+                if not text:
+                    await state.update_data(draft=draft)
+                    await m.answer("✅ استلمت الصورة. الآن أرسل نص السؤال:" if photo else "أرسل نصًا للسؤال.")
+                    return
+                draft["text"] = text
                 await add_next(m, state, "options", draft)
             elif step == "options":
                 opts = [x.strip() for x in text.splitlines() if x.strip()]
