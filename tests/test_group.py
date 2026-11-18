@@ -241,3 +241,13 @@ def test_main_menu_group_button_and_start_play_in_group_and_group_ranking_button
         await gtap(h, b, "gp:t", reply_to=cmd)                    # ضغط سريع ثانٍ: نافذة منبثقة بلا رسالة جديدة
         assert len(sent(h)) == n + 1
     run(go())
+
+
+def test_group_button_is_second_row_and_full_width():
+    async def go():
+        h = Harness()
+        await h.say(h.user(1), "/start")
+        from harness import last_menu_call
+        rows = last_menu_call(h).reply_markup.inline_keyboard
+        assert [b.callback_data for b in rows[0]] == ["go"] and [b.callback_data for b in rows[1]] == ["gpm"]
+    run(go())
