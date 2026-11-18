@@ -68,6 +68,8 @@ def render(a: dict, L: str) -> str:
 
 def build_recommend_router(ctx: Ctx) -> Router:
     r = Router(name="recommend")
+    r.message.filter(F.chat.type == "private")
+    r.callback_query.filter(F.message.chat.type == "private")
     db = ctx.db
     items = load_anime()
     by_hash = {hkey(a): a for a in items}

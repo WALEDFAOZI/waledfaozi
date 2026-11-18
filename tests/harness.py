@@ -35,6 +35,7 @@ class FakeSession(BaseSession):
         self.pin_error = False
         self.chat_error = False
         self.count_error = False
+        self.admins = set()         # مستخدمون يُعدّون أدمن في المجموعة
 
     async def close(self): ...
     async def stream_content(self, url, *a, **k):
@@ -82,6 +83,9 @@ class FakeSession(BaseSession):
             if self.member is None:
                 raise TelegramBadRequest(method=method, message="Bad Request: chat not found")
             u = User(id=method.user_id, is_bot=False, first_name="x")
+            if method.user_id in self.admins:
+                from aiogram.types import ChatMemberOwner
+                return ChatMemberOwner(user=u, is_anonymous=False)
             return ChatMemberMember(user=u) if self.member else ChatMemberLeft(user=u)
         if isinstance(method, GetChatMemberCount):
             if self.count_error:

@@ -115,6 +115,8 @@ def build_router(ctx: Ctx) -> Router:
     r = Router()
     db, rng, settings = ctx.db, ctx.rng, ctx.settings
     _CHAN["get"] = ctx.channel
+    r.message.filter(F.chat.type == "private")                    # الخاص فقط؛ المجموعات لها router مستقل (group.py)
+    r.callback_query.filter(F.message.chat.type == "private")
     r.callback_query.outer_middleware(ClearState())
     timers: dict[tuple[int, int], asyncio.Task] = {}
     sub_ok: dict[int, float] = {}      # من ثبت اشتراكه: لا نسأل تليجرام عنه ثانية قبل 30 ثانية (توازن بين السرعة وكشف من غادر القناة)

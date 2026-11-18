@@ -120,6 +120,8 @@ def parse_en(text: str):
 def build_admin_router(ctx: Ctx) -> Router:
     r = Router()
     db = ctx.db
+    r.message.filter(F.chat.type == "private")                    # لوحة الأدمن في الخاص فقط
+    r.callback_query.filter(F.message.chat.type == "private")
     r.message.filter(IsAdmin(ctx))
     r.callback_query.filter(IsAdmin(ctx))
     r.callback_query.outer_middleware(ClearPending())
@@ -187,6 +189,7 @@ def build_admin_router(ctx: Ctx) -> Router:
             f"📚 البنك: {s['bank_active']} مفعّل ({s['bank_disabled']} معطّل) · 🇬🇧 {s['bank_en']} · 🖼 {s['bank_img']}\n"
             f"🚩 أسئلة عليها بلاغات مفتوحة: {s['open_reports']}\n"
             f"💡 اقتراحات تنتظر المراجعة: {s['pending_suggestions']} · 🚫 حظروا البوت: {s['blocked_users']}\n"
+            f"👥 مجموعات جرّبت الألعاب الجماعية: {db.group_count()}\n"
             f"\n{growth_text(ctx)}\n"
             f"🕒 {time.strftime('%H:%M:%S', time.gmtime(time.time() + 3 * 3600))} (توقيت مكة)")
         await nav(c, text, kb(BACK))
@@ -572,8 +575,17 @@ def build_admin_router(ctx: Ctx) -> Router:
             [btn(f"🚩 يوميًا {v}", f"ad:rd:{v}") for v in (1, 3, 5, 10)],
             [btn("💾 تفعيل النسخ الأسبوعي", "ad:ab:1"), btn("💾 إيقافه", "ad:ab:0")],
             [btn("🛟 أرسل نسخة لقناة النسخ الآن", "ad:cb")],
+            [btn("👥 ألعاب المجموعات: " + ("✅ تعمل (اضغط للإيقاف)" if db.get_setting("grp_enabled", "1") == "1" else "❌ متوقفة (اضغط للتشغيل)"), "ad:grp")],
             [btn("📢 تغيير/تعطيل القناة", "ad:ch")], BACK)
         return text, markup
+
+    @r.callback_query(F.data == "ad:grp")
+    async def cb_groups_toggle(c: CallbackQuery):
+        on = db.get_setting("grp_enabled", "1") == "1"
+        db.set_setting("grp_enabled", "0" if on else "1")
+        await c.answer("👥 أُوقفت ألعاب المجموعات" if on else "👥 عادت ألعاب المجموعات", show_alert=True)
+        text, markup = settings_view()
+        await nav(c, text, markup)
 
     @r.callback_query(F.data == "ad:set")
     async def cb_settings(c: CallbackQuery):

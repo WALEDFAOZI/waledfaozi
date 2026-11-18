@@ -22,6 +22,7 @@ from .db import DB
 from .texts import t
 from .recommend import build_recommend_router
 from .games import build_games_router
+from .group import build_group_router
 
 log = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ class SubGate(BaseMiddleware):
                     await event.answer(t(L, "sub_left"), show_alert=True)
                 except Exception:  # noqa: BLE001
                     pass
-                if event.message:
+                if event.message and event.message.chat.type == "private":     # في المجموعات: تنبيه فقط (بلا رسائل)
                     await self.ctx.gate(event.bot, event.message.chat.id, event.from_user.id)
                 return None
         return await handler(event, data)
@@ -93,6 +94,7 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp.callback_query.outer_middleware(Guard())
     dp.callback_query.outer_middleware(SubGate(ctx))
     dp.include_router(build_admin_router(ctx))   # أولًا: محميّ بفلتر المشرفين
+    dp.include_router(build_group_router(ctx))    # المجموعات: قبل الباقي، والباقي مقيّد بالخاص
     dp.include_router(build_games_router(ctx))
     dp.include_router(build_recommend_router(ctx))
     dp.include_router(build_router(ctx))
@@ -145,6 +147,18 @@ async def run(settings: Settings) -> None:
             BotCommand(command="lang", description="Language 🌐")], language_code="en")
     except Exception as e:  # noqa: BLE001
         log.warning("set_my_commands failed: %s", e)
+    try:   # أوامر المجموعات تظهر في قائمة «/» داخل المجموعات فقط
+        from aiogram.types import BotCommandScopeAllGroupChats
+        await bot.set_my_commands([
+            BotCommand(command="play", description="ابدأ لعبة جماعية 🎮"), BotCommand(command="quiz", description="أسئلة عامة 🎯"),
+            BotCommand(command="sudden", description="الموت المفاجئ ☠️"), BotCommand(command="gtop", description="متصدرو المجموعة 🏆"),
+            BotCommand(command="gstop", description="إيقاف اللعبة ⛔")], scope=BotCommandScopeAllGroupChats())
+        await bot.set_my_commands([
+            BotCommand(command="play", description="Start a group game 🎮"), BotCommand(command="quiz", description="General quiz 🎯"),
+            BotCommand(command="sudden", description="Sudden death ☠️"), BotCommand(command="gtop", description="Group leaderboard 🏆"),
+            BotCommand(command="gstop", description="Stop the game ⛔")], scope=BotCommandScopeAllGroupChats(), language_code="en")
+    except Exception as e:  # noqa: BLE001
+        log.warning("group commands failed: %s", e)
     ctx.tasks.append(asyncio.create_task(growth_loop(bot, ctx)))   # لقطة يومية لعدد مشتركي القناة
     ctx.tasks.append(asyncio.create_task(reminder_loop(bot, ctx)))   # تذكير يومي اختياري
     ctx.tasks.append(asyncio.create_task(backup_loop(bot, ctx)))   # نسخة احتياطية أسبوعية تلقائية

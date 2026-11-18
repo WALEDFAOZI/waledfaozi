@@ -125,6 +125,8 @@ def new_state(kind: str, data: dict, rng: random.Random, hidden=frozenset()) -> 
 
 def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
     r = Router()
+    r.message.filter(F.chat.type == "private")
+    r.callback_query.filter(F.message.chat.type == "private")
     db, rng = ctx.db, ctx.rng
     games = data or load_games()
     titles = {"tf": "g_tf", "song": "g_song", "ord": "g_ord", "char": "g_char", "quote": "g_quote"}
