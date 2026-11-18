@@ -111,6 +111,11 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
                                   [btn(t(L, "g_quote"), "g:quote")], [btn(t(L, "btn_menu"), "menu")])
 
     def screen(L: str, gid: int, kind: str, st: dict):
+        text, markup = _screen(L, gid, kind, st)
+        rows = list(markup.inline_keyboard) + [[btn(t(L, "g_stop"), f"gx:{gid}")]]   # إنهاء اللعبة في أي وقت
+        return text, kb(*rows)
+
+    def _screen(L: str, gid: int, kind: str, st: dict):
         n, total = st["pos"] + 1, len(st["rounds"])
         rd = st["rounds"][st["pos"]]
         if kind == "tf":
@@ -205,6 +210,21 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
         rd = g["state"]["rounds"][g["state"]["pos"]]
         ok = int(idx) == rd["answer"]
         await step(c, int(gid), ok, t(L, "g_ok") if ok else f"{t(L, 'g_bad')} — {rd['options'][rd['answer']]}")
+
+    @r.callback_query(F.data.startswith("gx:"))
+    async def cb_game_stop(c: CallbackQuery):
+        gid = int(c.data.split(":")[1])
+        L = lang(c.from_user.id)
+        g = mine(c, gid)
+        if not g:
+            await c.answer(t(L, "g_stale"))
+            return
+        db.abort_game(gid)                           # بلا تسجيل نتيجة
+        await c.answer()
+        try:
+            await c.message.edit_text(t(L, "g_stopped"), reply_markup=kb([btn(t(L, "btn_menu"), "menu")]))
+        except TelegramBadRequest:
+            await c.message.answer(t(L, "g_stopped"), reply_markup=kb([btn(t(L, "btn_menu"), "menu")]))
 
     @r.callback_query(F.data.startswith("gr:"))
     async def cb_reset(c: CallbackQuery):

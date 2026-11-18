@@ -68,6 +68,10 @@ CREATE TABLE IF NOT EXISTS suggestions(
   status TEXT NOT NULL DEFAULT 'pending',     -- pending | approved | rejected
   created_at REAL NOT NULL, qid INTEGER
 );
+CREATE TABLE IF NOT EXISTS events(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, kind TEXT NOT NULL, ts REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS channel_snapshots(day TEXT PRIMARY KEY, count INTEGER NOT NULL, ts REAL NOT NULL);
 CREATE TABLE IF NOT EXISTS game_sessions(
   id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, kind TEXT NOT NULL,
   state TEXT NOT NULL, score INTEGER, started_at REAL NOT NULL, finished_at REAL
@@ -86,6 +90,8 @@ CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at);
 CREATE INDEX IF NOT EXISTS idx_reports_q ON reports(question_id, status);
 CREATE INDEX IF NOT EXISTS idx_users_best ON users(best_score);
 CREATE INDEX IF NOT EXISTS idx_sugg_status ON suggestions(status);
+CREATE INDEX IF NOT EXISTS idx_events_user ON events(tg_id, kind);
+CREATE INDEX IF NOT EXISTS idx_games_user ON game_sessions(tg_id, finished_at);
 """
 
 # أعمدة أُضيفت لاحقًا: تُضاف تلقائيًا لقواعد البيانات القديمة (ترقية آمنة بلا فقد بيانات)
@@ -596,6 +602,82 @@ class DB:
                 "INSERT INTO game_scores(tg_id,kind,best) VALUES(?,?,?) "
                 "ON CONFLICT(tg_id,kind) DO UPDATE SET best=MAX(best, excluded.best)", (tg_id, kind, score))
         return self.conn.execute("SELECT best FROM game_scores WHERE tg_id=? AND kind=?", (tg_id, kind)).fetchone()["best"]
+
+    def abort_game(self, gid: int) -> None:
+        """إنهاء لعبة بلا تسجيل نتيجة."""
+        with self.conn:
+            self.conn.execute("UPDATE game_sessions SET finished_at=? WHERE id=? AND finished_at IS NULL", (time.time(), gid))
+
+    def abort_active_games(self, tg_id: int) -> int:
+        with self.conn:
+            cur = self.conn.execute("UPDATE game_sessions SET finished_at=? WHERE tg_id=? AND finished_at IS NULL",
+                                    (time.time(), tg_id))
+        return cur.rowcount
+
+    # ── الملف الشخصي ─────────────────────────────────────────
+    def user_profile(self, tg_id: int) -> dict | None:
+        u = self.get_user(tg_id)
+        if not u:
+            return None
+        tot = self.conn.execute(
+            """SELECT COUNT(*) n, COALESCE(SUM(sq.is_correct),0) ok FROM session_questions sq
+               JOIN sessions s ON s.id=sq.session_id WHERE s.tg_id=? AND sq.is_correct IS NOT NULL""", (tg_id,)).fetchone()
+        cats = [(r["category"], r["acc"], r["n"]) for r in self.conn.execute(
+            """SELECT q.category, 1.0*SUM(sq.is_correct)/COUNT(*) acc, COUNT(*) n FROM session_questions sq
+               JOIN sessions s ON s.id=sq.session_id JOIN questions q ON q.id=sq.question_id
+               WHERE s.tg_id=? AND sq.is_correct IS NOT NULL GROUP BY q.category HAVING COUNT(*)>=5
+               ORDER BY acc DESC, n DESC LIMIT 3""", (tg_id,))]
+        games = {r["kind"]: r["best"] for r in self.conn.execute(
+            "SELECT kind, best FROM game_scores WHERE tg_id=?", (tg_id,))}
+        from .timeutil import week_start
+        return {"name": u["name"], "best": u["best_score"], "tests": u["tests_taken"], "sudden": u["best_sudden"],
+                "rank": self.user_rank(tg_id), "weekly_rank": self.weekly_rank(tg_id, week_start()),
+                "answers": tot["n"], "correct": tot["ok"], "cats": cats, "games": games}
+
+    # ── مسار اللاعبين ونمو القناة ───────────────────────────
+    def log_event(self, tg_id: int, kind: str) -> None:
+        with self.conn:
+            self.conn.execute("INSERT INTO events(tg_id,kind,ts) VALUES(?,?,?)", (tg_id, kind, time.time()))
+
+    def has_event(self, tg_id: int, kind: str) -> bool:
+        return self.conn.execute("SELECT 1 FROM events WHERE tg_id=? AND kind=? LIMIT 1", (tg_id, kind)).fetchone() is not None
+
+    def save_channel_count(self, count: int, now: float | None = None) -> None:
+        now = now if now is not None else time.time()
+        day = time.strftime("%Y-%m-%d", time.gmtime(now + 3 * 3600))
+        with self.conn:
+            self.conn.execute(
+                "INSERT INTO channel_snapshots(day,count,ts) VALUES(?,?,?) "
+                "ON CONFLICT(day) DO UPDATE SET count=excluded.count, ts=excluded.ts", (day, count, now))
+
+    def channel_growth(self, now: float | None = None) -> dict | None:
+        """آخر عدد مشتركين + الفرق مقابل قياس عمره ≥7 و≥30 يومًا (أو أقدم قياس متاح)."""
+        now = now if now is not None else time.time()
+        last = self.conn.execute("SELECT count, ts FROM channel_snapshots ORDER BY ts DESC LIMIT 1").fetchone()
+        if not last:
+            return None
+        out = {"count": last["count"], "ts": last["ts"]}
+        for label, days in (("d7", 7), ("d30", 30)):
+            ref = self.conn.execute("SELECT count, ts FROM channel_snapshots WHERE ts<=? ORDER BY ts DESC LIMIT 1",
+                                    (now - days * 86400,)).fetchone()
+            if not ref:
+                ref = self.conn.execute("SELECT count, ts FROM channel_snapshots ORDER BY ts ASC LIMIT 1").fetchone()
+            span = max(1, round((last["ts"] - ref["ts"]) / 86400)) if ref["ts"] < last["ts"] else 0
+            out[label] = (last["count"] - ref["count"], span)
+        return out
+
+    def funnel_stats(self) -> dict:
+        one = lambda sql, *a: self.conn.execute(sql, a).fetchone()[0]   # noqa: E731
+        week = time.time() - 7 * 86400
+        return {
+            "started": one("SELECT COUNT(*) FROM users"),
+            "with_test": one("SELECT COUNT(*) FROM users WHERE tests_taken>=1"),
+            "returning": one("SELECT COUNT(*) FROM users WHERE tests_taken>=2"),
+            "prompted": one("SELECT COUNT(DISTINCT tg_id) FROM events WHERE kind='gate_prompt'"),
+            "joined": one("SELECT COUNT(DISTINCT tg_id) FROM events WHERE kind='gate_joined'"),
+            "prompted_7d": one("SELECT COUNT(DISTINCT tg_id) FROM events WHERE kind='gate_prompt' AND ts>=?", week),
+            "joined_7d": one("SELECT COUNT(DISTINCT tg_id) FROM events WHERE kind='gate_joined' AND ts>=?", week),
+        }
 
     # ── إحصائيات الأدمن ─────────────────────────────────────
     def admin_stats(self, max_age: float = 30) -> dict:

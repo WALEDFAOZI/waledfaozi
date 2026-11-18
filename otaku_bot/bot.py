@@ -79,8 +79,8 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
               [btn(t(L, "g_quote"), "g:quote")],
               [btn(t(L, "sec_more"), "noop")],
               [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_week"), "lb:week")],
-              [btn(t(L, "btn_stats"), "st"), btn(t(L, "btn_suggest"), "sg")],
-              [btn(t(L, "btn_lang"), "lg:toggle")])
+              [btn(t(L, "btn_profile"), "pf"), btn(t(L, "btn_stats"), "st")],
+              [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")])
 
 
 def build_router(ctx: Ctx) -> Router:
@@ -123,14 +123,23 @@ def build_router(ctx: Ctx) -> Router:
             sub_ok[tg_id] = time.time()
         return ok
 
+    def note_join(tg_id: int) -> None:
+        """من طُلب منه الاشتراك ثم صار مشتركًا = «اشترك عبر البوت» (يُحسب مرة واحدة)."""
+        if ctx.channel() and not ctx.is_admin(tg_id) and db.has_event(tg_id, "gate_prompt") \
+                and not db.has_event(tg_id, "gate_joined"):
+            db.log_event(tg_id, "gate_joined")
+
     async def gate(bot: Bot, chat_id: int, tg_id: int) -> bool:
         ok = await subscribed(bot, tg_id)
         if ok:
+            note_join(tg_id)
             return True
         L = lang(tg_id)
         if ok is None:
             await bot.send_message(chat_id, t(L, "sub_unverifiable"))
         else:
+            if not db.has_event(tg_id, "gate_prompt"):
+                db.log_event(tg_id, "gate_prompt")
             ch = ctx.channel()
             await bot.send_message(
                 chat_id, t(L, "sub_required", ch=esc(ch)), parse_mode="HTML",
@@ -485,6 +494,50 @@ def build_router(ctx: Ctx) -> Router:
     async def cb_noop(c: CallbackQuery):
         await c.answer()
 
+    async def send_profile(bot: Bot, chat_id: int, uid: int, fallback_name: str) -> None:
+        L = lang(uid)
+        p = db.user_profile(uid)
+        if not p or not p["tests"]:
+            await bot.send_message(chat_id, t(L, "no_tests"))
+            return
+        title = title_for(p["best"], L)
+        lines = [t(L, "prof_head", name=esc(p["name"] or fallback_name)),
+                 t(L, "prof_best", best=f"{p['best']:.1f}", title=esc(title))]
+        if p["rank"]:
+            lines.append(t(L, "prof_rank", rank=p["rank"]))
+        if p["weekly_rank"]:
+            lines.append(t(L, "prof_week", rank=p["weekly_rank"]))
+        lines.append(t(L, "prof_tests", n=p["tests"]))
+        if p["answers"]:
+            lines.append(t(L, "prof_acc", pct=round(100 * p["correct"] / p["answers"]), ok=p["correct"], n=p["answers"]))
+        if p["sudden"]:
+            lines.append(t(L, "prof_sudden", n=p["sudden"]))
+        if p["cats"]:
+            lines.append(t(L, "prof_cat"))
+            lines += [f"• {cat_label(L, cat)}: {acc * 100:.0f}%" for cat, acc, _ in p["cats"]]
+        link = f"https://t.me/{await bot_username(bot)}"
+        share = t(L, "prof_share", score=f"{p['best']:.1f}", title=title)
+        markup = kb([btn(t(L, "btn_share_profile"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")],
+                    [btn(t(L, "btn_menu"), "menu")])
+        caption = "\n".join(lines)
+        try:
+            png = card.make_profile_card(p, title, L)
+            await bot.send_photo(chat_id, BufferedInputFile(png, "profile.png"), caption=caption,
+                                 reply_markup=markup, parse_mode="HTML")
+        except Exception as e:  # noqa: BLE001  (لا خط/أي خطأ → نص فقط)
+            log.warning("profile card failed: %s", e)
+            await bot.send_message(chat_id, caption, reply_markup=markup, parse_mode="HTML")
+
+    @r.message(Command("profile"))
+    async def cmd_profile(m: Message):
+        db.upsert_user(m.from_user.id, m.from_user.full_name)
+        await send_profile(m.bot, m.chat.id, m.from_user.id, m.from_user.full_name)
+
+    @r.callback_query(F.data == "pf")
+    async def cb_profile(c: CallbackQuery):
+        await c.answer()
+        await send_profile(c.bot, c.message.chat.id, c.from_user.id, c.from_user.full_name)
+
     @r.message(Command("diag"))
     async def cmd_diag(m: Message):
         """تشخيص الاشتراك الإجباري: يوضح لماذا لا يظهر طلب الاشتراك."""
@@ -528,8 +581,7 @@ def build_router(ctx: Ctx) -> Router:
 
     @r.message(Command("cancel"))
     async def cmd_cancel(m: Message, state: FSMContext):
-        await state.clear()
-        await m.answer(t(lang(m.from_user.id), "sg_cancel"))
+        await stop_everything(m.bot, m.chat.id, m.from_user.id, state)
 
     @r.message(Suggest.wait, F.text, ~F.text.startswith("/"))
     async def on_suggestion(m: Message, state: FSMContext):
@@ -682,6 +734,7 @@ def build_router(ctx: Ctx) -> Router:
         if not ok:
             await c.answer(t(L, "sub_no") if ok is False else t(L, "sub_err"), show_alert=True)
             return
+        note_join(c.from_user.id)
         await c.answer(t(L, "sub_ok"))
         await c.message.answer(t(L, "welcome"), reply_markup=menu(L), parse_mode="HTML")
 
@@ -749,6 +802,18 @@ def build_router(ctx: Ctx) -> Router:
 
     @r.callback_query(F.data.startswith("stop:"))
     async def cb_stop(c: CallbackQuery):
+        """زر «إنهاء»: يطلب تأكيدًا أولًا حتى لا يُلغى الاختبار بضغطة خاطئة."""
+        sid = int(c.data.split(":")[1])
+        sess = own_active(c, sid)
+        await c.answer()
+        if not sess:
+            return
+        L = lang(c.from_user.id)
+        await render(c.bot, c.message.chat.id, sid, t(L, "stop_confirm"),
+                     kb([btn(t(L, "stop_yes"), f"sty:{sid}")], [btn(t(L, "stop_no"), f"stn:{sid}")]))
+
+    @r.callback_query(F.data.startswith("sty:"))
+    async def cb_stop_yes(c: CallbackQuery):
         sid = int(c.data.split(":")[1])
         sess = own_active(c, sid)
         await c.answer()
@@ -758,6 +823,37 @@ def build_router(ctx: Ctx) -> Router:
         cancel_timer(sid, sess["current_pos"])
         db.abandon_active(c.from_user.id)
         await render(c.bot, c.message.chat.id, sid, t(L, "stopped"), menu(L))
+
+    @r.callback_query(F.data.startswith("stn:"))
+    async def cb_stop_no(c: CallbackQuery):
+        await c.answer()
+        if own_active(c, int(c.data.split(":")[1])):
+            await resume(c.bot, c.message.chat.id, c.from_user.id, name_of(c))
+
+    async def stop_everything(bot: Bot, chat_id: int, uid: int, state: FSMContext) -> None:
+        """/stop و/cancel: يلغي أي اختبار أو لعبة أو إدخال معلّق، مهما كان نوعه."""
+        L = lang(uid)
+        done: list[str] = []
+        if await state.get_state():
+            await state.clear()
+            done.append(t(L, "w_input"))
+        sess = db.active_session(uid)
+        if sess:
+            cancel_timer(sess["id"], sess["current_pos"])
+            if sess["message_id"]:
+                await render(bot, chat_id, sess["id"], t(L, "stopped"), None)   # تتعطّل أزرار السؤال القديم
+            db.abandon_active(uid)
+            done.append(t(L, "w_quiz"))
+        if db.abort_active_games(uid):
+            done.append(t(L, "w_game"))
+        if done:
+            await bot.send_message(chat_id, t(L, "cancel_done", what="، ".join(done)), reply_markup=menu(L), parse_mode="HTML")
+        else:
+            await bot.send_message(chat_id, t(L, "cancel_nothing"))
+
+    @r.message(Command("stop"))
+    async def cmd_stop(m: Message, state: FSMContext):
+        await stop_everything(m.bot, m.chat.id, m.from_user.id, state)
 
     # ── الإبلاغ عن الأسئلة (مقيَّد حتى لا يُساء استخدامه) ──
     # • يظهر زر الإبلاغ فقط بعد انتهاء الاختبار، وللأسئلة التي أخطأ فيها اللاعب نفسه.

@@ -7,7 +7,7 @@ from pathlib import Path
 from aiogram import Bot
 from aiogram.client.session.base import BaseSession
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
-from aiogram.methods import (EditMessageMedia, GetChatMember, GetMe, SendDocument, SendMessage,
+from aiogram.methods import (EditMessageMedia, GetChatMember, GetChatMemberCount, GetMe, SendDocument, SendMessage,
                              SendPhoto, EditMessageText)
 from aiogram.types import (CallbackQuery, Chat, ChatMemberLeft, ChatMemberMember, Message,
                            MessageEntity, Update, User)
@@ -28,6 +28,8 @@ class FakeSession(BaseSession):
         self.member = True          # True / False / None(خطأ)
         self.bad_photos = set()     # صور تُرفض كأن الرابط معطوب
         self.blocked_chats = set()  # مستخدمون حظروا البوت
+        self.channel_count = 1000   # عدد مشتركي القناة الذي يرجعه تليجرام
+        self.count_error = False
 
     async def close(self): ...
     async def stream_content(self, *a, **k): yield b""
@@ -50,6 +52,10 @@ class FakeSession(BaseSession):
                 raise TelegramBadRequest(method=method, message="Bad Request: chat not found")
             u = User(id=method.user_id, is_bot=False, first_name="x")
             return ChatMemberMember(user=u) if self.member else ChatMemberLeft(user=u)
+        if isinstance(method, GetChatMemberCount):
+            if self.count_error:
+                raise TelegramBadRequest(method=method, message="Bad Request: chat not found")
+            return self.channel_count
         if isinstance(method, GetMe):
             return User(id=999, is_bot=True, first_name="bot", username="otaku_test_bot")
         return True

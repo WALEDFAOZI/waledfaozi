@@ -24,6 +24,7 @@ from aiogram.types import CallbackQuery, FSInputFile, Message
 
 from . import anilist
 from .backup import enabled as backup_enabled, last_backup_text, make_zip
+from .growth import growth_text, refresh_count
 from .bot import btn, esc, kb
 from .config import CATEGORY_LABELS
 from .ctx import Ctx
@@ -119,11 +120,6 @@ def build_admin_router(ctx: Ctx) -> Router:
     r.callback_query.filter(IsAdmin(ctx))
     r.callback_query.outer_middleware(ClearPending())
 
-    @r.message(Command("cancel"))
-    async def cmd_cancel(m: Message, state: FSMContext):
-        await state.clear()
-        await m.answer("تم الإلغاء ✅", reply_markup=kb(BACK))
-
     async def show_q(target: Message, qid: int, edit: bool = False):
         q = db.get_question(qid)
         if not q:
@@ -168,6 +164,7 @@ def build_admin_router(ctx: Ctx) -> Router:
     @r.callback_query(F.data == "ad:stats")
     async def cb_stats(c: CallbackQuery):
         await c.answer()
+        await refresh_count(c.bot, ctx, max_age=3600)          # قياس عدد مشتركي القناة (مرة كل ساعة كحد أقصى)
         s = db.admin_stats()
         done = f"{100 * s['finished_7d'] / s['started_7d']:.0f}%" if s["started_7d"] else "—"
         avg = f"{s['avg_score']:.1f}" if s["avg_score"] is not None else "—"
@@ -186,6 +183,7 @@ def build_admin_router(ctx: Ctx) -> Router:
             f"📚 البنك: {s['bank_active']} مفعّل ({s['bank_disabled']} معطّل) · 🇬🇧 {s['bank_en']} · 🖼 {s['bank_img']}\n"
             f"🚩 أسئلة عليها بلاغات مفتوحة: {s['open_reports']}\n"
             f"💡 اقتراحات تنتظر المراجعة: {s['pending_suggestions']} · 🚫 حظروا البوت: {s['blocked_users']}\n"
+            f"\n{growth_text(ctx)}\n"
             f"🕒 {time.strftime('%H:%M:%S', time.gmtime(time.time() + 3 * 3600))} (توقيت مكة)")
         await nav(c, text, kb(BACK))
 
