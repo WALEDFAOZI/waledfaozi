@@ -162,19 +162,31 @@ def build_router(settings: Settings, db: DB) -> Router:
             log.warning("card failed: %s", e)
             await bot.send_message(chat_id, caption, reply_markup=markup, parse_mode="HTML")
 
-    async def subscribed(bot: Bot, tg_id: int) -> bool:
-        """هل المستخدم مشترك بالقناة الإجبارية؟ (البوت لازم يكون أدمن بالقناة)"""
+    async def subscribed(bot: Bot, tg_id: int) -> bool | None:
+        """True مشترك، False غير مشترك، None تعذّر التحقق (غالبًا البوت ليس أدمن بالقناة)."""
         ch = settings.required_channel
         if not ch:
             return True
         try:
             member = await bot.get_chat_member(ch, tg_id)
         except TelegramAPIError as e:
-            # لا نعطّل البوت لو نسيت تجعله أدمن؛ فقط نحذّر في السجل
             log.warning("cannot verify subscription to %s (is the bot an admin there?): %s", ch, e)
-            return True
+            return None
         return member.status in ("creator", "administrator", "member") or (
             member.status == "restricted" and getattr(member, "is_member", False))
+
+    async def gate(bot: Bot, chat_id: int, tg_id: int) -> bool:
+        """True = مسموح له بالمتابعة."""
+        ok = await subscribed(bot, tg_id)
+        if ok:
+            return True
+        if ok is None:
+            await bot.send_message(
+                chat_id, "⚠️ تعذّر التحقق من الاشتراك حاليًا. نبّه صاحب البوت: "
+                         "لازم يكون البوت مشرفًا (أدمن) في القناة. جرّب /diag")
+        else:
+            await ask_subscribe(bot, chat_id)
+        return False
 
     async def ask_subscribe(bot: Bot, chat_id: int) -> None:
         ch = settings.required_channel
@@ -188,8 +200,7 @@ def build_router(settings: Settings, db: DB) -> Router:
 
     async def begin_test(bot: Bot, chat_id: int, tg_id: int, name: str, force_new: bool = False) -> None:
         db.upsert_user(tg_id, name)
-        if not await subscribed(bot, tg_id):
-            await ask_subscribe(bot, chat_id)
+        if not await gate(bot, chat_id, tg_id):
             return
         active = db.active_session(tg_id)
         if active and not force_new:
@@ -219,8 +230,7 @@ def build_router(settings: Settings, db: DB) -> Router:
         await send_question(bot, chat_id, sid, 0)
 
     async def resume(bot: Bot, chat_id: int, tg_id: int, name: str) -> None:
-        if not await subscribed(bot, tg_id):
-            await ask_subscribe(bot, chat_id)
+        if not await gate(bot, chat_id, tg_id):
             return
         sess = db.active_session(tg_id)
         if not sess:
@@ -295,6 +305,30 @@ def build_router(settings: Settings, db: DB) -> Router:
             f"الترتيب: #{db.user_rank(m.from_user.id)}\nعدد الاختبارات: {u['tests_taken']}\n"
             f"آخر النتائج: {recent}", parse_mode="HTML")
 
+    @r.message(Command("diag"))
+    async def cmd_diag(m: Message):
+        """تشخيص الاشتراك الإجباري: يوضح لماذا لا يظهر طلب الاشتراك."""
+        ch = settings.required_channel
+        if not ch:
+            await m.answer("الاشتراك الإجباري معطّل (REQUIRED_CHANNEL فارغ).")
+            return
+        lines = [f"القناة المطلوبة: {ch}"]
+        me = await m.bot.get_me()
+        try:
+            b = await m.bot.get_chat_member(ch, me.id)
+            lines.append(f"حالة البوت في القناة: {b.status}"
+                         + ("" if b.status == "administrator" else "  ← لازم يكون administrator ❗"))
+        except TelegramAPIError as e:
+            lines.append(f"❌ البوت لا يرى القناة: {e}")
+        try:
+            u = await m.bot.get_chat_member(ch, m.from_user.id)
+            lines.append(f"حالتك أنت في القناة: {u.status}")
+            if u.status in ("creator", "administrator"):
+                lines.append("ℹ️ أنت مالك/مشرف القناة، لذلك لن يطلب منك الاشتراك. جرّب بحساب آخر.")
+        except TelegramAPIError as e:
+            lines.append(f"❌ تعذّر فحص حسابك: {e}")
+        await m.answer("\n".join(lines))
+
     @r.message(Command("flagged"))
     async def cmd_flagged(m: Message):
         if m.from_user.id not in settings.admin_ids:
@@ -314,8 +348,10 @@ def build_router(settings: Settings, db: DB) -> Router:
 
     @r.callback_query(F.data == "chk")
     async def cb_check(c: CallbackQuery):
-        if not await subscribed(c.bot, c.from_user.id):
-            await c.answer("ما لقيتك مشترك بعد 🙁 اشترك ثم جرّب مرة ثانية", show_alert=True)
+        ok = await subscribed(c.bot, c.from_user.id)
+        if not ok:
+            await c.answer("ما لقيتك مشترك بعد 🙁 اشترك ثم جرّب مرة ثانية" if ok is False
+                           else "تعذّر التحقق: البوت ليس أدمن في القناة", show_alert=True)
             return
         await c.answer("✅ تمام، أهلًا بك!")
         await begin_test(c.bot, c.message.chat.id, c.from_user.id, c.from_user.full_name)

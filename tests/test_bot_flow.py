@@ -33,6 +33,9 @@ class FakeSession(BaseSession):
             chat_id = getattr(method, "chat_id", 1)
             return Message(message_id=self.n, date=dt.datetime.now(), chat=Chat(id=chat_id, type="private"))
         if isinstance(method, GetChatMember):
+            if self.member is None:
+                from aiogram.exceptions import TelegramBadRequest
+                raise TelegramBadRequest(method=method, message="Bad Request: chat not found")
             u = User(id=method.user_id, is_bot=False, first_name="x")
             return ChatMemberMember(user=u) if self.member else ChatMemberLeft(user=u)
         if isinstance(method, GetMe):
@@ -156,5 +159,32 @@ def test_forced_subscription_gate():
         session.member = True
         await dp.feed_update(bot, cb("chk", 3))
         assert db.active_session(1) is not None                  # اشترك: يبدأ الاختبار
+
+    asyncio.run(go())
+
+
+def test_unverifiable_channel_blocks_instead_of_opening():
+    from dataclasses import replace
+    db = DB(":memory:")
+    db.load_questions(QPATH)
+    s = replace(mk_settings(), required_channel="@Anime1Galaxy")
+    session = FakeSession()
+    session.member = None          # البوت ليس أدمن → get_chat_member يفشل
+    bot = Bot("1:fake", session=session)
+    dp = Dispatcher()
+    dp.include_router(build_router(s, db))
+    user = User(id=1, is_bot=False, first_name="A")
+    m = Message(message_id=1, date=dt.datetime.now(), chat=Chat(id=1, type="private"), from_user=user)
+
+    async def go():
+        await dp.feed_update(bot, Update(update_id=1, callback_query=CallbackQuery(
+            id="1", from_user=user, chat_instance="x", data="go", message=m)))
+        assert db.active_session(1) is None
+        assert "تعذّر التحقق" in session.calls[-1].text
+        diag = Message(message_id=2, date=dt.datetime.now(), chat=Chat(id=1, type="private"),
+                       from_user=user, text="/diag",
+                       entities=[MessageEntity(type="bot_command", offset=0, length=5)])
+        await dp.feed_update(bot, Update(update_id=2, message=diag))
+        assert "لا يرى القناة" in session.calls[-1].text
 
     asyncio.run(go())
