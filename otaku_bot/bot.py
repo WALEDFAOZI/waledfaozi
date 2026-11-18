@@ -40,21 +40,43 @@ def btn(text: str, data: str | None = None, url: str | None = None) -> InlineKey
     return InlineKeyboardButton(text=text, callback_data=data, url=url)
 
 
-def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None) -> InlineKeyboardMarkup:
+def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
+            images: bool = False) -> InlineKeyboardMarkup:
+    """القائمة الرئيسية: كل ما يهم اللاعب ظاهر مباشرة (الاختبارات، الألعاب، المتصدرون، إحصائياتي، اللغة)."""
+    quiz2 = [btn(t(L, "btn_sudden"), "sd")]
+    if images:
+        quiz2.append(btn(t(L, "btn_images"), "ct:images"))
     return kb(*(top or []),
+              [btn(t(L, "sec_quiz"), "noop")],
               [btn(t(L, "btn_full"), "go")],
               [btn(t(L, "btn_quick"), "qk"), btn(t(L, "btn_cat"), "cats")],
-              [btn(t(L, "btn_sudden"), "sd"), btn(t(L, "btn_games"), "g:menu")],
-              [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_lang"), "lg:toggle")])
+              quiz2,
+              [btn(t(L, "sec_games"), "noop")],
+              [btn(t(L, "g_tf"), "g:tf")],
+              [btn(t(L, "g_song"), "g:song")],
+              [btn(t(L, "g_ord"), "g:ord")],
+              [btn(t(L, "sec_more"), "noop")],
+              [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_week"), "lb:week")],
+              [btn(t(L, "btn_stats"), "st"), btn(t(L, "btn_lang"), "lg:toggle")])
 
 
 def build_router(ctx: Ctx) -> Router:
     r = Router()
     db, rng, settings = ctx.db, ctx.rng, ctx.settings
     timers: dict[tuple[int, int], asyncio.Task] = {}
+    sub_ok: dict[int, float] = {}      # من ثبت اشتراكه: لا نسأل تليجرام عنه ثانية قبل 5 دقائق (أسرع)
+    me_cache: dict[str, str] = {}
+
+    async def bot_username(bot: Bot) -> str:
+        if "u" not in me_cache:
+            me_cache["u"] = (await bot.get_me()).username
+        return me_cache["u"]
 
     def lang(uid: int) -> str:
         return db.get_lang(uid)
+
+    def menu(L: str, top=None) -> InlineKeyboardMarkup:
+        return menu_kb(L, top, images=db.category_counts(L).get("images", 0) >= 10)
 
     # ── الاشتراك الإجباري ───────────────────────────────────
     async def subscribed(bot: Bot, tg_id: int) -> bool | None:
@@ -64,13 +86,18 @@ def build_router(ctx: Ctx) -> Router:
             return True
         if ctx.is_admin(tg_id):
             return True
+        if time.time() - sub_ok.get(tg_id, 0) < 300:
+            return True
         try:
             member = await bot.get_chat_member(ch, tg_id)
         except TelegramAPIError as e:
             log.warning("cannot verify subscription to %s (is the bot an admin there?): %s", ch, e)
             return None
-        return member.status in ("creator", "administrator", "member") or (
+        ok = member.status in ("creator", "administrator", "member") or (
             member.status == "restricted" and getattr(member, "is_member", False))
+        if ok:
+            sub_ok[tg_id] = time.time()
+        return ok
 
     async def gate(bot: Bot, chat_id: int, tg_id: int) -> bool:
         ok = await subscribed(bot, tg_id)
@@ -211,7 +238,7 @@ def build_router(ctx: Ctx) -> Router:
         user = db.get_user(tg_id)
         name, L = user["name"] or "?", user["lang"]
         answers = db.session_answers(sid)
-        me = await bot.get_me()
+        username = await bot_username(bot)
 
         async def drop_quiz_message():
             if sess["message_id"]:
@@ -275,7 +302,7 @@ def build_router(ctx: Ctx) -> Router:
 
         rows = [again]
         if mode == "full":
-            link = f"https://t.me/{me.username}?start=ch_{sid}"
+            link = f"https://t.me/{username}?start=ch_{sid}"
             share = t(L, "share_text", score=f"{score:.1f}", title=title)
             rows.append([btn(t(L, "btn_share"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")])
         if db.session_wrong(sid):
@@ -368,7 +395,7 @@ def build_router(ctx: Ctx) -> Router:
                 extra = t(L, "challenge_banner", name=esc(friend["name"]), score=f"{s['score']:.1f}",
                           title=esc(title_for(s["score"], L)))
                 top = [[btn(t(L, "btn_accept"), f"cc:{s['id']}")]]
-        await m.answer(t(L, "welcome") + extra, reply_markup=menu_kb(L, top), parse_mode="HTML")
+        await m.answer(t(L, "welcome") + extra, reply_markup=menu(L, top), parse_mode="HTML")
 
     @r.message(Command("help"))
     async def cmd_help(m: Message):
@@ -396,17 +423,27 @@ def build_router(ctx: Ctx) -> Router:
         text, markup = lb_view(m.from_user.id, "week")
         await m.answer(text, parse_mode="HTML", reply_markup=markup)
 
+    def stats_text(uid: int) -> str:
+        L = lang(uid)
+        u = db.get_user(uid)
+        if not u or not u["tests_taken"]:
+            return t(L, "no_tests")
+        recent = ", ".join(f"{s['score']:.1f}" for s in db.last_session_stats(uid))
+        return t(L, "stats", best=f"{u['best_score']:.1f}", title=esc(title_for(u["best_score"], L)),
+                 rank=db.user_rank(uid) or "-", n=u["tests_taken"], sd=u["best_sudden"], recent=recent)
+
     @r.message(Command("stats"))
     async def cmd_stats(m: Message):
-        L = lang(m.from_user.id)
-        u = db.get_user(m.from_user.id)
-        if not u or not u["tests_taken"]:
-            await m.answer(t(L, "no_tests"))
-            return
-        recent = ", ".join(f"{s['score']:.1f}" for s in db.last_session_stats(m.from_user.id))
-        await m.answer(t(L, "stats", best=f"{u['best_score']:.1f}", title=esc(title_for(u["best_score"], L)),
-                         rank=db.user_rank(m.from_user.id) or "-", n=u["tests_taken"], sd=u["best_sudden"],
-                         recent=recent), parse_mode="HTML")
+        await m.answer(stats_text(m.from_user.id), parse_mode="HTML")
+
+    @r.callback_query(F.data == "st")
+    async def cb_stats(c: CallbackQuery):
+        await c.answer()
+        await c.message.answer(stats_text(c.from_user.id), parse_mode="HTML")
+
+    @r.callback_query(F.data == "noop")
+    async def cb_noop(c: CallbackQuery):
+        await c.answer()
 
     @r.message(Command("diag"))
     async def cmd_diag(m: Message):
@@ -487,7 +524,7 @@ def build_router(ctx: Ctx) -> Router:
     async def cb_menu(c: CallbackQuery):
         await c.answer()
         L = lang(c.from_user.id)
-        await c.message.answer(t(L, "welcome"), reply_markup=menu_kb(L), parse_mode="HTML")
+        await c.message.answer(t(L, "welcome"), reply_markup=menu(L), parse_mode="HTML")
 
     def name_of(c: CallbackQuery) -> str:
         return c.from_user.full_name
@@ -549,7 +586,7 @@ def build_router(ctx: Ctx) -> Router:
             new = "ar" if lang(c.from_user.id) == "en" else "en"
         db.set_lang(c.from_user.id, new)
         await c.answer(t(new, "lang_set"))
-        await c.message.answer(t(new, "welcome"), reply_markup=menu_kb(new), parse_mode="HTML")
+        await c.message.answer(t(new, "welcome"), reply_markup=menu(new), parse_mode="HTML")
 
     @r.callback_query(F.data == "chk")
     async def cb_check(c: CallbackQuery):
@@ -559,7 +596,7 @@ def build_router(ctx: Ctx) -> Router:
             await c.answer(t(L, "sub_no") if ok is False else t(L, "sub_err"), show_alert=True)
             return
         await c.answer(t(L, "sub_ok"))
-        await c.message.answer(t(L, "welcome"), reply_markup=menu_kb(L), parse_mode="HTML")
+        await c.message.answer(t(L, "welcome"), reply_markup=menu(L), parse_mode="HTML")
 
     @r.callback_query(F.data.startswith("nw:"))
     async def cb_new(c: CallbackQuery):
@@ -633,7 +670,7 @@ def build_router(ctx: Ctx) -> Router:
         L = lang(c.from_user.id)
         cancel_timer(sid, sess["current_pos"])
         db.abandon_active(c.from_user.id)
-        await render(c.bot, c.message.chat.id, sid, t(L, "stopped"), menu_kb(L))
+        await render(c.bot, c.message.chat.id, sid, t(L, "stopped"), menu(L))
 
     # ── الإبلاغ عن الأسئلة (مقيَّد حتى لا يُساء استخدامه) ──
     # • يظهر زر الإبلاغ فقط بعد انتهاء الاختبار، وللأسئلة التي أخطأ فيها اللاعب نفسه.

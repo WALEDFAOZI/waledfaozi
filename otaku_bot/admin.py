@@ -39,6 +39,16 @@ class IsAdmin(BaseFilter):
         return bool(u and self.ctx.is_admin(u.id))
 
 
+async def nav(c: CallbackQuery, text: str, markup, parse_mode: str | None = "HTML") -> None:
+    """يحدّث رسالة اللوحة مكانها (أسرع وبلا ازدحام)؛ وإن تعذّر (مثلًا الرسالة صورة) يرسل جديدة."""
+    try:
+        await c.message.edit_text(text, parse_mode=parse_mode, reply_markup=markup)
+    except TelegramAPIError as e:
+        if "not modified" in str(e).lower():
+            return
+        await c.message.answer(text, parse_mode=parse_mode, reply_markup=markup)
+
+
 class ClearPending(BaseMiddleware):
     """أي زر في اللوحة (عدا خطوات المعالج نفسه) يُلغي الإدخال المعلّق، حتى لا يُفسَّر كلامك العادي بالغلط."""
     KEEP = ("ad:aa:", "ad:ad:", "ad:ac:", "ad:ae:")
@@ -135,7 +145,7 @@ def build_admin_router(ctx: Ctx) -> Router:
     async def cb_home(c: CallbackQuery, state: FSMContext):
         await state.clear()
         await c.answer()
-        await c.message.answer("🛠 <b>لوحة التحكم</b>", parse_mode="HTML", reply_markup=HOME)
+        await nav(c, "🛠 <b>لوحة التحكم</b>", HOME)
 
     @r.message(Command("flagged"))
     async def cmd_flagged(m: Message):
@@ -164,7 +174,7 @@ def build_admin_router(ctx: Ctx) -> Router:
             f"🎯 نسبة الصحة حسب التصنيف:\n{cats}\n\n🧗 أصعب الأسئلة:\n{hard}\n\n🌱 أسهل الأسئلة:\n{easy}\n\n"
             f"📚 البنك: {s['bank_active']} مفعّل ({s['bank_disabled']} معطّل) · 🇬🇧 {s['bank_en']} · 🖼 {s['bank_img']}\n"
             f"🚩 أسئلة عليها بلاغات مفتوحة: {s['open_reports']}")
-        await c.message.answer(text, parse_mode="HTML", reply_markup=kb(BACK))
+        await nav(c, text, kb(BACK))
 
     # ── البلاغات ────────────────────────────────────────────
     @r.callback_query(F.data == "ad:rep")
@@ -172,12 +182,12 @@ def build_admin_router(ctx: Ctx) -> Router:
         await c.answer()
         rows = db.open_reports_grouped()
         if not rows:
-            await c.message.answer("لا توجد بلاغات مفتوحة 🎉", reply_markup=kb(BACK))
+            await nav(c, "لا توجد بلاغات مفتوحة 🎉", kb(BACK), None)
             return
         thr = ctx.report_threshold()
         btns = [[btn(f"{'🔴' if x['n'] >= thr else '🟡'} #{x['qid']} ({x['n']}) {x['q'][:30]}", f"ad:rv:{x['qid']}")]
                 for x in rows]
-        await c.message.answer(f"🚩 البلاغات المفتوحة (🔴 = وصلت العتبة {thr}):", reply_markup=kb(*btns, BACK))
+        await nav(c, f"🚩 البلاغات المفتوحة (🔴 = وصلت العتبة {thr}):", kb(*btns, BACK), None)
 
     @r.callback_query(F.data.startswith("ad:rv:"))
     async def cb_review(c: CallbackQuery):
@@ -449,7 +459,7 @@ def build_admin_router(ctx: Ctx) -> Router:
     async def cb_settings(c: CallbackQuery):
         await c.answer()
         text, markup = settings_view()
-        await c.message.answer(text, parse_mode="HTML", reply_markup=markup)
+        await nav(c, text, markup)
 
     @r.callback_query(F.data.regexp(r"^ad:(st|cd|rt|rd):\d+$"))
     async def cb_set_value(c: CallbackQuery):
@@ -479,9 +489,9 @@ def build_admin_router(ctx: Ctx) -> Router:
             return
         ids = ctx.admin_ids()
         rows = [[btn(f"🗑 {i}", f"ad:rm:{i}")] for i in ids if i != c.from_user.id and not ctx.is_owner(i)]
-        await c.message.answer("👥 المشرفون الحاليون:\n" + "\n".join(
+        await nav(c, "👥 المشرفون الحاليون:\n" + "\n".join(
             f"• {i}{' 👑' if ctx.is_owner(i) else ''}" for i in ids),
-            reply_markup=kb(*rows, [btn("➕ إضافة مشرف", "ad:addadm")], BACK))
+            kb(*rows, [btn("➕ إضافة مشرف", "ad:addadm")], BACK), None)
 
     @r.callback_query(F.data == "ad:addadm")
     async def cb_add_admin(c: CallbackQuery, state: FSMContext):
@@ -504,11 +514,11 @@ def build_admin_router(ctx: Ctx) -> Router:
     @r.callback_query(F.data == "ad:img")
     async def cb_img(c: CallbackQuery):
         await c.answer()
-        await c.message.answer(
+        await nav(c,
             "🖼 <b>أسئلة «من هذه الشخصية؟»</b>\nأجلب ~200 شخصية من AniList (وJikan كبديل). الاسم والصورة يأتيان "
             "من سجل واحد في المصدر فلا يختلفان، والأشهر = الأسهل.\n\n"
             "💡 تقدر أيضًا إضافة صورك الخاصة من «➕ سؤال جديد».",
-            parse_mode="HTML", reply_markup=kb([btn("▶️ ابدأ الجلب", "ad:img:go")], BACK))
+            kb([btn("▶️ ابدأ الجلب", "ad:img:go")], BACK))
 
     @r.callback_query(F.data == "ad:img:go")
     async def cb_img_go(c: CallbackQuery):

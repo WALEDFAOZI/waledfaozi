@@ -74,6 +74,14 @@ CREATE TABLE IF NOT EXISTS game_scores(
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(tg_id, state);
 """
 
+# فهارس تُنشأ بعد الترقية (لأن بعضها على أعمدة أُضيفت لاحقًا)
+INDEXES = """
+CREATE INDEX IF NOT EXISTS idx_sessions_finished ON sessions(state, mode, finished_at);
+CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at);
+CREATE INDEX IF NOT EXISTS idx_reports_q ON reports(question_id, status);
+CREATE INDEX IF NOT EXISTS idx_users_best ON users(best_score);
+"""
+
 # أعمدة أُضيفت لاحقًا: تُضاف تلقائيًا لقواعد البيانات القديمة (ترقية آمنة بلا فقد بيانات)
 MIGRATIONS = {
     "questions": {
@@ -92,37 +100,53 @@ ADMIN_ID_BASE = 100000   # أسئلة الأدمن تبدأ من هنا حتى �
 class DB:
     def __init__(self, path: str):
         self.path = path
-        self.conn = sqlite3.connect(path)
+        self.conn = sqlite3.connect(path, timeout=10)
         self.conn.row_factory = sqlite3.Row
-        self.conn.execute("PRAGMA journal_mode=WAL")
+        try:
+            self.conn.execute("PRAGMA journal_mode=WAL")
+        except sqlite3.DatabaseError:       # بعض الاستضافات (أقراص الشبكة) لا تدعم WAL
+            pass
+        self.conn.execute("PRAGMA synchronous=NORMAL")   # أسرع بكثير على الأقراص البطيئة، وآمن مع WAL
+        self.conn.execute("PRAGMA busy_timeout=10000")
+        self.conn.execute("PRAGMA temp_store=MEMORY")
         self.conn.executescript(SCHEMA)
         for table, cols in MIGRATIONS.items():
             have = {r["name"] for r in self.conn.execute(f"PRAGMA table_info({table})")}
             for col, ddl in cols.items():
                 if col not in have:
                     self.conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}")
+        self.conn.executescript(INDEXES)
         self.conn.commit()
+        # كاشات في الذاكرة لما يُقرأ في كل تحديث (فلا نلمس القرص): الإعدادات، المشرفون، اللغة، بنك الأسئلة
+        self._settings = {r["key"]: r["value"] for r in self.conn.execute("SELECT key,value FROM settings")}
+        self._admins = {r["tg_id"] for r in self.conn.execute("SELECT tg_id FROM admins")}
+        self._lang: dict[int, str] = {}
+        self._qcache: tuple[float, list[Question]] | None = None
+        self._stats_cache: tuple[float, dict] | None = None
+
+    def _invalidate_questions(self) -> None:
+        self._qcache = None
 
     # ── الإعدادات والمشرفون ──────────────────────────────────
     def get_setting(self, key: str, default: str | None = None) -> str | None:
-        r = self.conn.execute("SELECT value FROM settings WHERE key=?", (key,)).fetchone()
-        return r["value"] if r else default
+        return self._settings.get(key, default)
 
     def set_setting(self, key: str, value: str) -> None:
         with self.conn:
             self.conn.execute(
                 "INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
                 (key, value))
+        self._settings[key] = value
 
     def is_admin(self, tg_id: int) -> bool:
-        return self.conn.execute("SELECT 1 FROM admins WHERE tg_id=?", (tg_id,)).fetchone() is not None
+        return tg_id in self._admins
 
     def is_owner(self, tg_id: int) -> bool:
         r = self.conn.execute("SELECT is_owner FROM admins WHERE tg_id=?", (tg_id,)).fetchone()
         return bool(r and r["is_owner"])
 
     def admin_ids(self) -> list[int]:
-        return [r["tg_id"] for r in self.conn.execute("SELECT tg_id FROM admins")]
+        return sorted(self._admins)
 
     def admin_count(self) -> int:
         return self.conn.execute("SELECT COUNT(*) n FROM admins").fetchone()["n"]
@@ -133,10 +157,13 @@ class DB:
                 "INSERT INTO admins(tg_id,is_owner,added_at) VALUES(?,?,?) "
                 "ON CONFLICT(tg_id) DO UPDATE SET is_owner=MAX(is_owner, excluded.is_owner)",
                 (tg_id, int(owner), time.time()))
+        self._admins.add(tg_id)
 
     def remove_admin(self, tg_id: int) -> bool:
         with self.conn:
             cur = self.conn.execute("DELETE FROM admins WHERE tg_id=? AND is_owner=0", (tg_id,))
+        if cur.rowcount > 0:
+            self._admins.discard(tg_id)
         return cur.rowcount > 0
 
     # ── الأسئلة ──────────────────────────────────────────────
@@ -145,6 +172,7 @@ class DB:
         return self.upsert_questions(json.loads(Path(path).read_text(encoding="utf-8")))
 
     def upsert_questions(self, data: list[dict]) -> int:
+        self._invalidate_questions()
         with self.conn:
             for d in data:
                 assert len(d["options"]) >= 2 and 0 <= d["answer"] < len(d["options"]), d["id"]
@@ -168,8 +196,13 @@ class DB:
                         json.loads(r["options_en"]) if r["options_en"] else None, not r["flagged"])
 
     def all_questions(self) -> list[Question]:
+        """نسخة مخزّنة 30 ثانية (إحصائيات الصعوبة تتأخر لحظات فقط)؛ أي تعديل يُبطلها فورًا."""
+        if self._qcache and time.time() - self._qcache[0] < 30:
+            return list(self._qcache[1])
         rows = self.conn.execute("SELECT * FROM questions WHERE flagged=0").fetchall()
-        return [self._q(r) for r in rows]
+        qs = [self._q(r) for r in rows]
+        self._qcache = (time.time(), qs)
+        return list(qs)
 
     def get_question(self, qid: int) -> Question | None:
         r = self.conn.execute("SELECT * FROM questions WHERE id=?", (qid,)).fetchone()
@@ -182,6 +215,7 @@ class DB:
     def add_question(self, q: str, options: list[str], answer: int, category: str, difficulty: float,
                      image: str | None = None, q_en: str | None = None,
                      options_en: list[str] | None = None, source: str = "admin") -> int:
+        self._invalidate_questions()
         with self.conn:
             mx = self.conn.execute("SELECT MAX(id) m FROM questions WHERE id>=? AND id<?",
                                    (ADMIN_ID_BASE, 100_000_000)).fetchone()["m"]
@@ -204,15 +238,18 @@ class DB:
             vals.append(v)
         if not sets:
             return
+        self._invalidate_questions()
         with self.conn:
             self.conn.execute(f"UPDATE questions SET {', '.join(sets)}, edited=1 WHERE id=?", (*vals, qid))
 
     def set_question_active(self, qid: int, active: bool) -> None:
+        self._invalidate_questions()
         with self.conn:
             self.conn.execute("UPDATE questions SET flagged=?, edited=1 WHERE id=?", (0 if active else 1, qid))
 
     def delete_question(self, qid: int) -> bool:
         """الحذف النهائي للأسئلة غير القادمة من الملف فقط (أسئلة الملف تُعطَّل لأنها ستعود عند التحديث)."""
+        self._invalidate_questions()
         with self.conn:
             cur = self.conn.execute("DELETE FROM questions WHERE id=? AND source!='file'", (qid,))
         return cur.rowcount > 0
@@ -224,6 +261,7 @@ class DB:
 
     def bump_img_fail(self, qid: int) -> None:
         """صورة فشل تحميلها: بعد 3 مرات يُعطَّل السؤال تلقائيًا."""
+        self._invalidate_questions()
         with self.conn:
             self.conn.execute("UPDATE questions SET img_fail=img_fail+1 WHERE id=?", (qid,))
             self.conn.execute("UPDATE questions SET flagged=1 WHERE id=? AND img_fail>=3", (qid,))
@@ -240,6 +278,7 @@ class DB:
 
     # ── المستخدمون ───────────────────────────────────────────
     def upsert_user(self, tg_id: int, name: str, lang_hint: str | None = None) -> None:
+        self._lang.pop(tg_id, None)
         with self.conn:
             self.conn.execute(
                 """INSERT INTO users(tg_id,name,created_at,lang) VALUES(?,?,?,?)
@@ -250,12 +289,17 @@ class DB:
         return self.conn.execute("SELECT * FROM users WHERE tg_id=?", (tg_id,)).fetchone()
 
     def get_lang(self, tg_id: int) -> str:
-        r = self.conn.execute("SELECT lang FROM users WHERE tg_id=?", (tg_id,)).fetchone()
-        return r["lang"] if r else "ar"
+        if tg_id not in self._lang:
+            r = self.conn.execute("SELECT lang FROM users WHERE tg_id=?", (tg_id,)).fetchone()
+            if not r:
+                return "ar"
+            self._lang[tg_id] = r["lang"]
+        return self._lang[tg_id]
 
     def set_lang(self, tg_id: int, lang: str) -> None:
         with self.conn:
             self.conn.execute("UPDATE users SET lang=? WHERE tg_id=?", (lang, tg_id))
+        self._lang[tg_id] = lang
 
     # ── الجلسات ──────────────────────────────────────────────
     def active_session(self, tg_id: int) -> sqlite3.Row | None:
@@ -495,7 +539,14 @@ class DB:
         return self.conn.execute("SELECT best FROM game_scores WHERE tg_id=? AND kind=?", (tg_id, kind)).fetchone()["best"]
 
     # ── إحصائيات الأدمن ─────────────────────────────────────
-    def admin_stats(self) -> dict:
+    def admin_stats(self, max_age: float = 30) -> dict:
+        if self._stats_cache and time.time() - self._stats_cache[0] < max_age:
+            return self._stats_cache[1]
+        data = self._compute_admin_stats()
+        self._stats_cache = (time.time(), data)
+        return data
+
+    def _compute_admin_stats(self) -> dict:
         c = self.conn
         one = lambda sql, *a: c.execute(sql, a).fetchone()[0]   # noqa: E731
         now, today, week = time.time(), day_start(), time.time() - 7 * 86400
@@ -514,9 +565,8 @@ class DB:
             "modes": {r["mode"]: r["n"] for r in c.execute(
                 "SELECT mode, COUNT(*) n FROM sessions WHERE state='finished' GROUP BY mode")},
             "cat_acc": [(r["category"], r["acc"], r["n"]) for r in c.execute(
-                """SELECT q.category, AVG(sq.is_correct) acc, COUNT(*) n FROM session_questions sq
-                   JOIN questions q ON q.id=sq.question_id WHERE sq.is_correct IS NOT NULL
-                   GROUP BY q.category ORDER BY acc""")],
+                """SELECT category, 1.0*SUM(correct)/SUM(asked) acc, SUM(asked) n FROM questions
+                   WHERE asked>0 GROUP BY category ORDER BY acc""")],
             "hardest": [(r["id"], r["q"], r["pct"], r["asked"]) for r in c.execute(
                 """SELECT id,q,ROUND(100.0*correct/asked) pct,asked FROM questions
                    WHERE asked>=10 ORDER BY 1.0*correct/asked ASC LIMIT 5""")],

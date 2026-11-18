@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import logging
 import secrets
+import time
 
-from aiogram import Bot, Dispatcher
+from aiogram import BaseMiddleware, Bot, Dispatcher
+from aiogram.types import BotCommand, CallbackQuery
 
 from .admin import build_admin_router
 from .bot import build_router
@@ -15,8 +17,30 @@ from .games import build_games_router
 log = logging.getLogger(__name__)
 
 
+class Guard(BaseMiddleware):
+    """يسجّل أي تحديث أبطأ من ثانية، وإن فشل المعالج يردّ على الزر حتى لا يبقى «يحمّل» بلا نهاية."""
+
+    async def __call__(self, handler, event, data):
+        t0 = time.monotonic()
+        try:
+            return await handler(event, data)
+        except Exception:  # noqa: BLE001
+            log.exception("handler failed")
+            if isinstance(event, CallbackQuery):
+                try:
+                    await event.answer("⚠️ حدث خطأ مؤقت، جرّب مرة ثانية")
+                except Exception:  # noqa: BLE001
+                    pass
+        finally:
+            dt = time.monotonic() - t0
+            if dt > 1.0:
+                log.warning("slow update %.2fs: %s", dt, getattr(event, "data", None) or getattr(event, "text", None))
+
+
 def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp = Dispatcher()
+    dp.message.outer_middleware(Guard())
+    dp.callback_query.outer_middleware(Guard())
     dp.include_router(build_admin_router(ctx))   # أولًا: محميّ بفلتر المشرفين
     dp.include_router(build_games_router(ctx))
     dp.include_router(build_router(ctx))
@@ -35,4 +59,22 @@ async def run(settings: Settings) -> None:
         print(banner, flush=True)
     bot = Bot(settings.token)
     await bot.delete_webhook(drop_pending_updates=False)   # لا نفقد الرسائل المعلّقة أثناء إعادة التشغيل
-    await build_dispatcher(ctx).start_polling(bot)
+    try:   # زر «القائمة» الدائم بجانب خانة الكتابة
+        await bot.set_my_commands([
+            BotCommand(command="start", description="القائمة الرئيسية 🎌"),
+            BotCommand(command="games", description="الألعاب 🎮"),
+            BotCommand(command="weekly", description="متصدرو الأسبوع 📅"),
+            BotCommand(command="top", description="المتصدرون 🏆"),
+            BotCommand(command="stats", description="إحصائياتي 📈"),
+            BotCommand(command="lang", description="اللغة 🌐")])
+        await bot.set_my_commands([
+            BotCommand(command="start", description="Main menu 🎌"),
+            BotCommand(command="games", description="Games 🎮"),
+            BotCommand(command="weekly", description="Weekly board 📅"),
+            BotCommand(command="top", description="Leaderboard 🏆"),
+            BotCommand(command="stats", description="My stats 📈"),
+            BotCommand(command="lang", description="Language 🌐")], language_code="en")
+    except Exception as e:  # noqa: BLE001
+        log.warning("set_my_commands failed: %s", e)
+    dp = build_dispatcher(ctx)
+    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())

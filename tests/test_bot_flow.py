@@ -372,3 +372,29 @@ def test_admin_fetch_images_ok_and_failure_messages():
             adm.fetch_post, adm.fetch_get = old
         assert any("فشل الجلب" in x for x in h.session.texts())
     run(go())
+
+
+def test_start_menu_shows_all_player_buttons_and_each_works():
+    async def go():
+        h = Harness()
+        u = h.user(1, "Waled")
+        await h.say(u, "/start")
+        start_call = [c for c in h.session.calls if type(c).__name__ == "SendMessage"][-1]
+        data = {b.callback_data for row in start_call.reply_markup.inline_keyboard for b in row}
+        for must in ("go", "qk", "cats", "sd", "g:tf", "g:song", "g:ord", "lb:all", "lb:week", "st", "lg:toggle"):
+            assert must in data, must
+        # كل زر يشتغل فعلًا
+        for cb in ("noop", "st", "lb:all", "lb:week", "lb:sd", "cats", "g:tf", "g:song", "g:ord", "menu"):
+            before = len(h.session.calls)
+            await h.tap(u, cb)
+            assert len(h.session.calls) > before, cb
+        await h.tap(u, "qk")
+        assert h.db.active_session(1) is not None
+        # بعد وجود أسئلة صور تظهر لها خانة في القائمة
+        for i in range(12):
+            h.db.add_question(f"من؟{i}", ["a", "b", "c", "d"], 0, "images", 1, image=f"https://x/{i}.png",
+                              q_en="Who?", options_en=["a", "b", "c", "d"])
+        await h.say(h.user(2, "B"), "/start")
+        c2 = [c for c in h.session.calls if type(c).__name__ == "SendMessage"][-1]
+        assert "ct:images" in {b.callback_data for row in c2.reply_markup.inline_keyboard for b in row}
+    run(go())
