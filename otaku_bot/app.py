@@ -13,6 +13,7 @@ from aiogram.types import BotCommand, CallbackQuery
 
 from .admin import build_admin_router
 from .backup import RESTORE_MESSAGES, backup_loop, db_user_count, restore_if_empty
+from .daily import reminder_loop
 from .growth import growth_loop
 from .bot import build_router
 from .config import Settings
@@ -145,6 +146,7 @@ async def run(settings: Settings) -> None:
     except Exception as e:  # noqa: BLE001
         log.warning("set_my_commands failed: %s", e)
     ctx.tasks.append(asyncio.create_task(growth_loop(bot, ctx)))   # لقطة يومية لعدد مشتركي القناة
+    ctx.tasks.append(asyncio.create_task(reminder_loop(bot, ctx)))   # تذكير يومي اختياري
     ctx.tasks.append(asyncio.create_task(backup_loop(bot, ctx)))   # نسخة احتياطية أسبوعية تلقائية
     dp = build_dispatcher(ctx)
     await dp.start_polling(

@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 LETTERS = {"ar": ["أ", "ب", "ج", "د"], "en": ["A", "B", "C", "D"]}
 GRACE_SECONDS = 2          # سماح لتأخر الشبكة
 SUSPECT_FAST_RATIO = 0.7   # نسبة إجابات أسرع من ثانية تعتبر مشبوهة
-MODE_SIZE = {"full": LEVELS * 5, "quick": 10, "category": 10, "sudden": LEVELS * 5}
+MODE_SIZE = {"full": LEVELS * 5, "quick": 10, "category": 10, "sudden": LEVELS * 5, "daily": 5, "dq": 1, "duel": 7}
 
 
 class Suggest(StatesGroup):
@@ -88,6 +88,7 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
     """القائمة الرئيسية قصيرة: الاختبار أولًا، والألعاب والمزيد في قوائم فرعية."""
     return kb(*(top or []),
               [btn(t(L, "btn_full"), "go")],
+              [btn(t(L, "btn_daily"), "dy:m"), btn(t(L, "du_btn"), "du:new")],
               [btn(t(L, "btn_quick"), "qk"), btn(t(L, "btn_cat"), "cats")],
               [btn(t(L, "btn_games_menu"), "m:games"), btn(t(L, "btn_anime"), "an:m")],
               [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_week"), "lb:week")],
@@ -305,6 +306,138 @@ def build_router(ctx: Ctx) -> Router:
         else:
             await finish(bot, chat_id, sid)
 
+
+    # ── التحدي اليومي وسؤال اليوم وسلسلة الأيام ───────────────
+    def board_text(L: str, day: int) -> str:
+        rows = db.daily_board(day, "daily", 10)
+        medals = ["🥇", "🥈", "🥉"]
+        lines = [f"{medals[i] if i < 3 else str(i + 1) + '.'} {esc(r['name'] or '?')} — <b>{r['correct']}/{r['total']}</b> · {r['secs']:.0f}s"
+                 for i, r in enumerate(rows)]
+        return t(L, "dy_board", rows="\n".join(lines)) if lines else t(L, "dy_board_empty")
+
+    async def finish_daily(bot: Bot, chat_id: int, sid: int, tg_id: int, mode: str, answers, L: str) -> None:
+        from .daily import STREAK_MILESTONES
+        day = db.today()
+        correct = sum(a.correct for a in answers)
+        total = db.session_len(sid)
+        secs = db.session_time_ms(sid) / 1000
+        db.finish_session(sid, tg_id, float(correct), mode, counted=False)
+        db.record_daily(day, mode, tg_id, correct, total, secs)
+        streak, grew = db.mark_streak(tg_id, day)
+        if mode == "dq":
+            pct, n = db.daily_pct(day, mode)
+            r = t(L, "dy_right" if correct else "dy_wrong")
+            text = t(L, "dy_res_q", r=r, p=pct, n=n) if n >= 3 else t(L, "dy_res_q_solo", r=r)
+        else:
+            rank = db.daily_rank(day, mode, tg_id)
+            text = t(L, "dy_res_d", c=correct, n=total, s=f"{secs:.0f}", rank=rank if rank else "—")
+        text += "\n\n" + t(L, "dy_streak_now", n=streak)
+        if grew and streak in STREAK_MILESTONES:
+            text += "\n" + t(L, "dy_streak_ms", n=streak)
+        await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=kb(
+            [btn(t(L, "dy_btn_lb"), "dy:lb"), btn(t(L, "btn_daily"), "dy:m")], *chan_row(L), [btn(t(L, "btn_menu"), "menu")]))
+
+    def dy_menu_view(uid: int, L: str):
+        day = db.today()
+        u = db.get_user(uid)
+        text = t(L, "dy_menu", streak=db.current_streak(uid, day), best=u["best_streak"],
+                 q=t(L, "dy_done" if db.played_today(uid, "dq") else "dy_todo"),
+                 d=t(L, "dy_done" if db.played_today(uid, "daily") else "dy_todo"))
+        return text, kb([btn(t(L, "dy_btn_q"), "dy:q"), btn(t(L, "dy_btn_d"), "dy:d")],
+                        [btn(t(L, "dy_btn_lb"), "dy:lb")],
+                        [btn(t(L, "dy_rm_on" if u["remind"] else "dy_rm_off"), "dy:rm")],
+                        [btn(t(L, "btn_menu"), "menu")])
+
+    @r.message(Command("daily"))
+    async def cmd_daily(m: Message):
+        db.upsert_user(m.from_user.id, m.from_user.full_name)
+        L = lang(m.from_user.id)
+        text, markup = dy_menu_view(m.from_user.id, L)
+        await m.answer(text, parse_mode="HTML", reply_markup=markup)
+
+    @r.callback_query(F.data == "dy:m")
+    async def cb_daily_menu(c: CallbackQuery):
+        db.upsert_user(c.from_user.id, c.from_user.full_name)
+        await c.answer()
+        L = lang(c.from_user.id)
+        text, markup = dy_menu_view(c.from_user.id, L)
+        await c.message.answer(text, parse_mode="HTML", reply_markup=markup)
+
+    @r.callback_query(F.data.in_({"dy:q", "dy:d"}))
+    async def cb_daily_start(c: CallbackQuery):
+        await c.answer()
+        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="dq" if c.data == "dy:q" else "daily")
+
+    @r.callback_query(F.data == "dy:lb")
+    async def cb_daily_board(c: CallbackQuery):
+        await c.answer()
+        L = lang(c.from_user.id)
+        await c.message.answer(board_text(L, db.today()), parse_mode="HTML",
+                               reply_markup=kb(*chan_row(L), [btn(t(L, "btn_daily"), "dy:m")]))
+
+    @r.callback_query(F.data.in_({"dy:rm", "dy:off"}))
+    async def cb_daily_remind(c: CallbackQuery):
+        uid = c.from_user.id
+        db.upsert_user(uid, c.from_user.full_name)
+        L = lang(uid)
+        on = (not db.get_user(uid)["remind"]) if c.data == "dy:rm" else False
+        db.set_remind(uid, on)
+        await c.answer(t(L, "dy_rm_set_on" if on else "dy_rm_set_off"), show_alert=True)
+        if c.data == "dy:rm":
+            text, markup = dy_menu_view(uid, L)
+            try:
+                await c.message.edit_text(text, parse_mode="HTML", reply_markup=markup)
+            except TelegramAPIError:
+                pass
+
+    # ── مواجهة مع صديق (نفس الأسئلة، كلٌّ في وقته) ───────────────
+    @r.callback_query(F.data == "du:new")
+    async def cb_duel_new(c: CallbackQuery):
+        await c.answer()
+        did = db.create_duel(c.from_user.id)
+        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="duel", duel_id=did)
+
+    @r.callback_query(F.data.regexp(r"^du:acc:\d+$"))
+    async def cb_duel_accept(c: CallbackQuery):
+        L = lang(c.from_user.id)
+        did = int(c.data.split(":")[2])
+        d = db.get_duel(did)
+        cs = db.get_session(d["creator_sid"]) if d and d["creator_sid"] else None
+        if not cs or cs["state"] != "finished" or not db.join_duel(did, c.from_user.id):
+            await c.answer(t(L, "du_unavail"), show_alert=True)
+            return
+        await c.answer()
+        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="duel",
+                    challenge_of=cs["id"], duel_id=did, force_new=True)
+
+    async def finish_duel(bot: Bot, chat_id: int, sess, tg_id: int, answers, L: str) -> None:
+        did = sess["duel_id"]
+        correct = sum(a.correct for a in answers)
+        n = db.session_len(sess["id"])
+        db.finish_session(sess["id"], tg_id, float(correct), "duel", counted=False)
+        d = db.get_duel(did)
+        if not d:
+            return
+        if tg_id == d["creator"]:
+            link = f"https://t.me/{await bot_username(bot)}?start=du_{did}"
+            await bot.send_message(chat_id, t(L, "du_wait", c=correct, n=n), parse_mode="HTML", reply_markup=kb(
+                [btn(t(L, "du_share_btn"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(t(L, 'du_share_text'))}")],
+                [btn(t(L, "btn_menu"), "menu")]))
+            return
+        a_sess = db.get_session(d["creator_sid"])
+        sa, sb = int(a_sess["score"] or 0), correct
+        db.duel_done(did)
+        ua, ub = db.get_user(d["creator"]), db.get_user(tg_id)
+        for uid, Lx in ((d["creator"], lang(d["creator"])), (tg_id, L)):
+            winner = pub(ua) if sa > sb else pub(ub) if sb > sa else None
+            verdict = t(Lx, "du_win", w=esc(winner)) if winner else t(Lx, "du_draw")
+            try:
+                await bot.send_message(uid, t(Lx, "du_result", a=esc(pub(ua)), sa=sa, b=esc(pub(ub)), sb=sb, n=n, v=verdict),
+                                       parse_mode="HTML", reply_markup=kb([btn(t(Lx, "du_btn"), "du:new")],
+                                                                          [btn(t(Lx, "btn_menu"), "menu")]))
+            except TelegramAPIError:
+                pass
+
     # ── الدعوات ─────────────────────────────────────────────
     async def credit_invite(bot: Bot, tg_id: int) -> None:
         inv = db.credit_invite(tg_id)
@@ -378,6 +511,15 @@ def build_router(ctx: Ctx) -> Router:
                 await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=kb(again))
             return
 
+        if mode in ("daily", "dq"):
+            await drop_quiz_message()
+            await finish_daily(bot, chat_id, sid, tg_id, mode, answers, L)
+            return
+        if mode == "duel":
+            await drop_quiz_message()
+            await finish_duel(bot, chat_id, sess, tg_id, answers, L)
+            return
+
         score = compute_score(answers)
         suspicious = mode == "full" and db.fast_answer_ratio(sid) > SUSPECT_FAST_RATIO
         db.finish_session(sid, tg_id, score, mode, counted=not suspicious)
@@ -444,7 +586,8 @@ def build_router(ctx: Ctx) -> Router:
 
     # ── بدء الاختبار ────────────────────────────────────────
     async def begin(bot: Bot, chat_id: int, tg_id: int, name: str, mode: str = "full",
-                    category: str | None = None, force_new: bool = False, challenge_of: int | None = None) -> None:
+                    category: str | None = None, force_new: bool = False, challenge_of: int | None = None, duel_id: int | None = None) -> None:
+        from .daily import daily_questions, duel_questions
         db.upsert_user(tg_id, name)
         L = lang(tg_id)
         if not await gate(bot, chat_id, tg_id):
@@ -454,7 +597,12 @@ def build_router(ctx: Ctx) -> Router:
             await bot.send_message(
                 chat_id, t(L, "resume_prompt", n=active["current_pos"] + 1, t=db.session_len(active["id"])),
                 reply_markup=kb([btn(t(L, "btn_resume"), "resume"),
-                                 btn(t(L, "btn_new"), f"nw:{mode}:{category or '-'}:{challenge_of or 0}")]))
+                                 btn(t(L, "btn_new"), f"nw:{mode}:{category or '-'}:{challenge_of or 0}"
+                                     if mode not in ("daily", "dq", "duel") else "dy:m")]))
+            return
+        if mode in ("daily", "dq") and db.played_today(tg_id, mode):
+            await bot.send_message(chat_id, t(L, "dy_played"), reply_markup=kb(
+                [btn(t(L, "dy_btn_lb"), "dy:lb")], [btn(t(L, "btn_menu"), "menu")]))
             return
         if mode == "full" and not challenge_of and not force_new:
             last = db.last_finished_at(tg_id)
@@ -468,6 +616,10 @@ def build_router(ctx: Ctx) -> Router:
         seen = db.seen_map(tg_id)
         if challenge_of:
             qs = db.session_questions_ordered(challenge_of)
+        elif mode in ("daily", "dq"):
+            qs = daily_questions([q for q in db.all_questions() if q.q_en], db.today(), mode)
+        elif mode == "duel":
+            qs = duel_questions([q for q in db.all_questions() if q.q_en], seen, rng)
         elif mode == "quick":
             qs = pick_questions(pool, seen, rng, per_level=1)
         elif mode == "category":
@@ -481,7 +633,11 @@ def build_router(ctx: Ctx) -> Router:
         for q in qs:
             order, cpos = shuffle_options(q, rng)
             picked.append((q, order, cpos))
-        sid = db.create_session(tg_id, picked, mode=mode, challenge_of=challenge_of, category=category)
+        sid = db.create_session(tg_id, picked, mode=mode, challenge_of=challenge_of, category=category,
+                                duel_id=duel_id)
+        if duel_id:
+            d = db.get_duel(duel_id)
+            db.duel_set_sid(duel_id, "creator" if d["creator"] == tg_id else "opponent", sid)
         await send_question(bot, chat_id, sid, 0)
 
     async def resume(bot: Bot, chat_id: int, tg_id: int, name: str) -> None:
@@ -538,6 +694,13 @@ def build_router(ctx: Ctx) -> Router:
                 extra = t(L, "challenge_banner", name=esc(pub(friend)), score=f"{s['score']:.1f}",
                           title=esc(title_for(s["score"], L)))
                 top = [[btn(t(L, "btn_accept"), f"cc:{s['id']}")]]
+        if arg.startswith("du_") and arg[3:].isdigit():
+            d = db.get_duel(int(arg[3:]))
+            cs = db.get_session(d["creator_sid"]) if d and d["creator_sid"] else None
+            if d and d["creator"] != m.from_user.id and d["state"] == "open" and cs and cs["state"] == "finished" \
+                    and d["opponent"] in (None, m.from_user.id):
+                extra = t(L, "du_invite", name=esc(pub(db.get_user(d["creator"]))))
+                top = [[btn(t(L, "du_accept"), f"du:acc:{d['id']}")]]
         if arg.startswith("pf_") and arg[3:].isdigit() and int(arg[3:]) != m.from_user.id:
             fr = db.get_user(int(arg[3:]))
             if fr and fr["best_score"] > 0 and not db.is_admin(fr["tg_id"]):      # ملف الأدمن لا يُعرض لأحد
