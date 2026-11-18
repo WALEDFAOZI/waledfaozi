@@ -6,6 +6,7 @@ import secrets
 import time
 from pathlib import Path
 
+from aiogram.exceptions import TelegramNetworkError
 from aiogram import BaseMiddleware, Bot, Dispatcher
 from aiogram.utils.backoff import BackoffConfig
 from aiogram.types import BotCommand, CallbackQuery
@@ -88,7 +89,15 @@ async def run(settings: Settings) -> None:
                                                               + f"\n👥 اللاعبون الآن: {db_user_count(Path(settings.db_path))}")))
     elif restore in ("chat-unreachable", "download-failed", "bad-zip", "bad-db"):
         ctx.tasks.append(asyncio.create_task(_tell_owners(bot, ctx, RESTORE_MESSAGES[restore])))
-    await bot.delete_webhook(drop_pending_updates=False)   # لا نفقد الرسائل المعلّقة أثناء إعادة التشغيل
+    # لا نفقد الرسائل المعلّقة أثناء إعادة التشغيل. إن تعذّر الوصول لتليجرام مؤقتًا لا ننهار: نعيد المحاولة.
+    for attempt in range(1, 1000):
+        try:
+            await bot.delete_webhook(drop_pending_updates=False)
+            break
+        except (TelegramNetworkError, asyncio.TimeoutError, OSError) as e:
+            wait = min(60, 3 * attempt)
+            log.warning("cannot reach Telegram yet (%s). retry #%d in %ds", e, attempt, wait)
+            await asyncio.sleep(wait)
     try:   # زر «القائمة» الدائم بجانب خانة الكتابة
         await bot.set_my_commands([
             BotCommand(command="start", description="القائمة الرئيسية 🎌"),
