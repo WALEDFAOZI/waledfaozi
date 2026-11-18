@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import sys
+import time
 
 from .config import ROOT, Settings
 
@@ -48,7 +49,18 @@ def main() -> None:
     if not settings.token:
         sys.exit("BOT_TOKEN غير موجود. ضعه في ملف .env أو كمتغير بيئة (انظر .env.example).")
     from .app import run
-    asyncio.run(run(settings))
+    log = logging.getLogger("supervisor")
+    delay = 5
+    while True:                    # أي انهيار غير متوقع (شبكة/تليجرام) = إعادة تشغيل ذاتية بدل التوقف
+        try:
+            asyncio.run(run(settings))
+            return
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception:  # noqa: BLE001
+            log.exception("bot crashed, restarting in %ds", delay)
+            time.sleep(delay)
+            delay = min(60, delay * 2)
 
 
 if __name__ == "__main__":

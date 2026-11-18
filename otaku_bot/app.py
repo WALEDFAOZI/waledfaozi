@@ -6,7 +6,7 @@ import secrets
 import time
 from pathlib import Path
 
-from aiogram.exceptions import TelegramNetworkError
+from aiogram.exceptions import TelegramNetworkError, TelegramRetryAfter, TelegramServerError
 from aiogram import BaseMiddleware, Bot, Dispatcher
 from aiogram.utils.backoff import BackoffConfig
 from aiogram.types import BotCommand, CallbackQuery
@@ -94,7 +94,7 @@ async def run(settings: Settings) -> None:
         try:
             await bot.delete_webhook(drop_pending_updates=False)
             break
-        except (TelegramNetworkError, asyncio.TimeoutError, OSError) as e:
+        except (TelegramNetworkError, TelegramServerError, TelegramRetryAfter, asyncio.TimeoutError, OSError) as e:
             wait = min(60, 3 * attempt)
             log.warning("cannot reach Telegram yet (%s). retry #%d in %ds", e, attempt, wait)
             await asyncio.sleep(wait)
