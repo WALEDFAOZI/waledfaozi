@@ -8,7 +8,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, features
 
-from .config import CATEGORY_LABELS, ROOT
+from .config import CATEGORY_LABELS, CATEGORY_LABELS_EN, ROOT
 
 _FONT_CANDIDATES = [
     os.getenv("FONT_PATH", ""),
@@ -39,8 +39,8 @@ def strip_emoji(text: str) -> str:
     return re.sub(r"[^\w\s/&.\-]", "", text, flags=re.UNICODE).strip()
 
 
-def make_card(name: str, score: float, title: str, percentile: float,
-              breakdown: dict[str, tuple[int, int]]) -> bytes:
+def make_card(name: str, score: float, title: str, percentile: float | None,
+              breakdown: dict[str, tuple[int, int]], lang: str = "ar") -> bytes:
     font_path = find_font()
     if not font_path:
         raise RuntimeError("no usable font found; set FONT_PATH")
@@ -64,16 +64,20 @@ def make_card(name: str, score: float, title: str, percentile: float,
         w = d.textlength(text, font=f)
         d.text(((W - w) / 2, y), text, font=f, fill=fill)
 
-    center(_ar("تقييم الأوتاكو"), 28, 40, (255, 214, 102))
+    en = lang == "en"
+    labels = CATEGORY_LABELS_EN if en else CATEGORY_LABELS
+    center(_ar("Otaku Rating" if en else "تقييم الأوتاكو"), 28, 40, (255, 214, 102))
     center(_ar(name[:28]), 90, 34)
     center(f"{score:.1f} / 10", 140, 120, (255, 255, 255))
     center(_ar(strip_emoji(title)), 285, 50, (255, 214, 102))
-    center(_ar(f"أفضل من {percentile:.0f}% من اللاعبين"), 350, 28, (225, 220, 255))
+    if percentile is not None:
+        txt = f"Better than {percentile:.0f}% of players" if en else f"أفضل من {percentile:.0f}% من اللاعبين"
+        center(_ar(txt), 350, 28, (225, 220, 255))
 
     rows = sorted(breakdown.items(), key=lambda kv: kv[1][0] / max(kv[1][1], 1), reverse=True)[:3]
     y = 415
     for cat, (ok, total) in rows:
-        label = _ar(CATEGORY_LABELS.get(cat, cat))
+        label = _ar(labels.get(cat, cat))
         pct = ok / total if total else 0
         d.text((W - 90 - d.textlength(label, font=font(24)), y), label, font=font(24), fill=(255, 255, 255))
         x0, x1 = 90, 560

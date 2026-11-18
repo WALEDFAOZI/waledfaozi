@@ -29,6 +29,7 @@ def check(settings: Settings) -> int:
     print(f"✅ {n} سؤالًا")
     print("المستويات:", dict(sorted(lv.items())))
     print("التصنيفات:", dict(cat))
+    print(f"🇬🇧 بالإنجليزية: {sum(1 for q in qs if q.q_en)} · 🖼 بصور: {sum(1 for q in qs if q.image)}")
     bad = [lvl for lvl in range(1, 11) if lv[lvl] < 5]
     if bad:
         print("❌ مستويات أقل من 5 أسئلة:", bad)
@@ -46,7 +47,7 @@ def main() -> None:
         sys.exit(check(settings))
     if not settings.token:
         sys.exit("BOT_TOKEN غير موجود. ضعه في ملف .env أو كمتغير بيئة (انظر .env.example).")
-    from .bot import run
+    from .app import run
     asyncio.run(run(settings))
 
 

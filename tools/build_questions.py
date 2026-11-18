@@ -350,26 +350,46 @@ for row in Q:
     LEVELS[row[1]] += 1
 
 
+def _check_alignment(i, ar_q, ar_opts, en_q, en_opts):
+    """يتأكد آليًا أن الترجمة وُضعت أمام سؤالها الصحيح: نفس الأرقام ونفس الأسماء اللاتينية."""
+    import re
+    digits = lambda *xs: sorted(re.findall(r"\d+", " ".join(xs)))   # noqa: E731
+    assert set(digits(ar_q, *ar_opts)) <= set(digits(en_q, *en_opts)), (i, ar_q, en_q)   # العربي قد يكتب «الأول» بدل 1
+    tok = lambda x: [t.strip(".!;:").lower() for t in re.findall(r"[A-Za-z0-9][A-Za-z0-9.!;:'\-/★]*", x)]  # noqa: E731
+    for t in tok(ar_q):
+        assert t in en_q.lower(), (i, "stem", t, ar_q, en_q)
+    for a, e in zip(ar_opts, en_opts):
+        for t in tok(a):
+            assert t in e.lower(), (i, "option", t, a, e)
+
+
 def build():
+    from en_translations import parse as parse_en
+    EN = parse_en()
+    assert len(EN) == len(Q), (len(EN), len(Q))
     rng = random.Random(2026)
     out = []
     seen_q = set()
-    for i, (cat, diff, q, right, *wrong) in enumerate(Q, start=1):
+    for i, ((cat, diff, q, right, *wrong), (q_en, en_opts)) in enumerate(zip(Q, EN), start=1):
         assert len(wrong) == 3, (i, q)
-        opts = [right, *wrong]
-        assert len(set(opts)) == 4, (i, q, opts)
+        ar_opts = [right, *wrong]
+        assert len(set(ar_opts)) == 4 and len(set(en_opts)) == 4, (i, q, ar_opts, en_opts)
         assert q not in seen_q, ("dup", q)
         seen_q.add(q)
         assert 1 <= diff <= 10
-        rng.shuffle(opts)
+        _check_alignment(i, q, ar_opts, q_en, en_opts)
+        idx = [0, 1, 2, 3]
+        rng.shuffle(idx)                      # نفس التبديل لكلتا اللغتين (ونفس ناتج rng القديم)
+        opts = [ar_opts[k] for k in idx]
         out.append({
-            "id": i, "q": q, "options": opts, "answer": opts.index(right),
+            "id": i, "q": q, "options": opts, "answer": idx.index(0),
             "category": cat, "base_difficulty": diff,
+            "q_en": q_en, "options_en": [en_opts[k] for k in idx],
         })
     path = Path(__file__).resolve().parent.parent / "data" / "questions.json"
     lines = ",\n".join("  " + json.dumps(x, ensure_ascii=False) for x in out)
     path.write_text("[\n" + lines + "\n]\n", encoding="utf-8")
-    print(f"wrote {len(out)} questions -> {path}")
+    print(f"wrote {len(out)} questions (with English) -> {path}")
     print("per level:", dict(sorted(LEVELS.items())))
 
 

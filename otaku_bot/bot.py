@@ -2,96 +2,179 @@ from __future__ import annotations
 
 import asyncio
 import html
+import json
 import logging
-import random
 import time
 from urllib.parse import quote
 
-from aiogram import Bot, Dispatcher, F, Router
+from aiogram import Bot, F, Router
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 from aiogram.filters import Command, CommandObject
 from aiogram.types import (BufferedInputFile, CallbackQuery, InlineKeyboardButton,
-                           InlineKeyboardMarkup, Message)
+                           InlineKeyboardMarkup, InputMediaPhoto, Message)
 
 from . import card
-from .config import CATEGORY_LABELS, LEVELS, PER_LEVEL, Settings
-from .db import DB
-from .quiz import category_breakdown, compute_score, pick_questions, progress_bar, shuffle_options, title_for
+from .config import LEVELS
+from .ctx import Ctx
+from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
+                   shuffle_options, title_for)
+from .texts import cat_label, t
+from .timeutil import week_start
 
 log = logging.getLogger(__name__)
-LETTERS = ["أ", "ب", "ج", "د", "هـ", "و"]
+LETTERS = {"ar": ["أ", "ب", "ج", "د"], "en": ["A", "B", "C", "D"]}
 GRACE_SECONDS = 2          # سماح لتأخر الشبكة
 SUSPECT_FAST_RATIO = 0.7   # نسبة إجابات أسرع من ثانية تعتبر مشبوهة
+MODE_SIZE = {"full": LEVELS * 5, "quick": 10, "category": 10, "sudden": LEVELS * 5}
 
 
 def esc(s: str) -> str:
-    return html.escape(s, quote=False)
+    return html.escape(str(s), quote=False)
 
 
 def kb(*rows: list[InlineKeyboardButton]) -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=list(rows))
+    return InlineKeyboardMarkup(inline_keyboard=[r for r in rows if r])
 
 
 def btn(text: str, data: str | None = None, url: str | None = None) -> InlineKeyboardButton:
     return InlineKeyboardButton(text=text, callback_data=data, url=url)
 
 
-def build_router(settings: Settings, db: DB) -> Router:
+def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None) -> InlineKeyboardMarkup:
+    return kb(*(top or []),
+              [btn(t(L, "btn_full"), "go")],
+              [btn(t(L, "btn_quick"), "qk"), btn(t(L, "btn_cat"), "cats")],
+              [btn(t(L, "btn_sudden"), "sd"), btn(t(L, "btn_games"), "g:menu")],
+              [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_lang"), "lg:toggle")])
+
+
+def build_router(ctx: Ctx) -> Router:
     r = Router()
+    db, rng, settings = ctx.db, ctx.rng, ctx.settings
     timers: dict[tuple[int, int], asyncio.Task] = {}
-    rng = random.Random()
-    TOTAL = LEVELS * PER_LEVEL
 
-    # ── أدوات مساعدة ─────────────────────────────────────────
-    def expired(row) -> bool:
-        return bool(settings.timer_seconds and row["sent_at"]
-                    and time.time() - row["sent_at"] > settings.timer_seconds + GRACE_SECONDS)
+    def lang(uid: int) -> str:
+        return db.get_lang(uid)
 
-    def cancel_timer(sid: int, pos: int) -> None:
-        t = timers.pop((sid, pos), None)
-        if t:
-            t.cancel()
+    # ── الاشتراك الإجباري ───────────────────────────────────
+    async def subscribed(bot: Bot, tg_id: int) -> bool | None:
+        """True مشترك، False غير مشترك، None تعذّر التحقق (غالبًا البوت ليس أدمن بالقناة)."""
+        ch = ctx.channel()
+        if not ch:
+            return True
+        if ctx.is_admin(tg_id):
+            return True
+        try:
+            member = await bot.get_chat_member(ch, tg_id)
+        except TelegramAPIError as e:
+            log.warning("cannot verify subscription to %s (is the bot an admin there?): %s", ch, e)
+            return None
+        return member.status in ("creator", "administrator", "member") or (
+            member.status == "restricted" and getattr(member, "is_member", False))
 
-    async def safe_edit(bot: Bot, chat_id: int, message_id: int | None, text: str,
-                        markup: InlineKeyboardMarkup | None) -> int:
-        """يعدّل الرسالة إن أمكن وإلا يرسل جديدة. يرجع message_id المستخدم."""
-        if message_id:
+    async def gate(bot: Bot, chat_id: int, tg_id: int) -> bool:
+        ok = await subscribed(bot, tg_id)
+        if ok:
+            return True
+        L = lang(tg_id)
+        if ok is None:
+            await bot.send_message(chat_id, t(L, "sub_unverifiable"))
+        else:
+            ch = ctx.channel()
+            await bot.send_message(
+                chat_id, t(L, "sub_required", ch=esc(ch)), parse_mode="HTML",
+                reply_markup=kb([btn(t(L, "btn_subscribe"), url=f"https://t.me/{ch.lstrip('@')}")],
+                                [btn(t(L, "btn_checked"), "chk")]))
+        return False
+
+    # ── عرض الرسائل (نص/صورة) ──────────────────────────────
+    async def render(bot: Bot, chat_id: int, sid: int, text: str, markup, photo: str | None = None) -> bool:
+        """يعرض رسالة الجلسة: يعدّل الموجودة إن أمكن، وإلا يحذفها ويرسل جديدة.
+        يرجع False فقط إذا تعذّر تحميل صورة السؤال."""
+        sess = db.get_session(sid)
+        kind = "photo" if photo else "text"
+        mid = sess["message_id"]
+        if mid and sess["msg_kind"] == kind:
             try:
-                await bot.edit_message_text(text, chat_id=chat_id, message_id=message_id,
-                                            reply_markup=markup, parse_mode="HTML")
-                return message_id
+                if photo:
+                    await bot.edit_message_media(
+                        InputMediaPhoto(media=photo, caption=text, parse_mode="HTML"),
+                        chat_id=chat_id, message_id=mid, reply_markup=markup)
+                else:
+                    await bot.edit_message_text(text, chat_id=chat_id, message_id=mid,
+                                                reply_markup=markup, parse_mode="HTML")
+                return True
             except TelegramBadRequest as e:
                 if "not modified" in str(e).lower():
-                    return message_id
-        m = await bot.send_message(chat_id, text, reply_markup=markup, parse_mode="HTML")
-        return m.message_id
+                    return True
+        if mid:
+            try:
+                await bot.delete_message(chat_id, mid)
+            except TelegramAPIError:
+                pass
+            db.set_message(sid, 0, "text")
+        try:
+            if photo:
+                m = await bot.send_photo(chat_id, photo, caption=text, reply_markup=markup, parse_mode="HTML")
+            else:
+                m = await bot.send_message(chat_id, text, reply_markup=markup, parse_mode="HTML")
+        except TelegramBadRequest as e:
+            if not photo:
+                raise
+            log.warning("photo failed (%s): %s", photo[:60], e)
+            return False
+        db.set_message(sid, m.message_id, kind)
+        return True
 
-    def question_text(sid: int, pos: int) -> tuple[str, InlineKeyboardMarkup]:
+    def question_text(sid: int, pos: int):
+        sess = db.get_session(sid)
         row = db.session_question(sid, pos)
         q = db.get_question(row["question_id"])
-        import json
+        L = lang(sess["tg_id"])
         order = json.loads(row["option_order"])
-        lines = [f"{LETTERS[i]}) {esc(q.options[o])}" for i, o in enumerate(order)]
-        head = (f"🎌 <b>السؤال {pos + 1}/{TOTAL}</b>  ·  المستوى {row['level']}/{LEVELS}\n"
-                f"{progress_bar(pos, TOTAL)}")
-        if settings.timer_seconds:
-            head += f"  ⏱ {settings.timer_seconds}ث"
-        text = f"{head}\n\n<b>{esc(q.q)}</b>\n\n" + "\n".join(lines)
-        answers = [btn(LETTERS[i], f"a:{sid}:{pos}:{i}") for i in range(len(order))]
-        return text, kb(answers, [btn("⛔ إنهاء الاختبار", f"stop:{sid}")])
+        opts = q.opts(L)
+        letters = LETTERS.get(L, LETTERS["ar"])
+        total = db.session_len(sid)
+        head = t(L, "q_head", n=pos + 1, t=total, lvl=row["level"]) + f"\n{progress_bar(pos, total)}"
+        if ctx.timer():
+            head += "  " + t(L, "timer", s=ctx.timer())
+        if sess["mode"] == "sudden":
+            head += "  ☠️"
+        lines = [f"{letters[i]}) {esc(opts[o])}" for i, o in enumerate(order)]
+        text = f"{head}\n\n<b>{esc(q.text(L))}</b>\n\n" + "\n".join(lines)
+        answers = [btn(letters[i], f"a:{sid}:{pos}:{i}") for i in range(len(order))]
+        return text, kb(answers, [btn(t(L, "btn_stop"), f"stop:{sid}")]), q.image
+
+    def expired(row) -> bool:
+        return bool(ctx.timer() and row["sent_at"] and time.time() - row["sent_at"] > ctx.timer() + GRACE_SECONDS)
+
+    def cancel_timer(sid: int, pos: int) -> None:
+        tk = timers.pop((sid, pos), None)
+        if tk:
+            tk.cancel()
 
     async def send_question(bot: Bot, chat_id: int, sid: int, pos: int) -> None:
-        sess = db.get_session(sid)
-        text, markup = question_text(sid, pos)
-        msg_id = await safe_edit(bot, chat_id, sess["message_id"], text, markup)
-        db.mark_sent(sid, pos, msg_id)
-        if settings.timer_seconds:
+        while True:
+            text, markup, photo = question_text(sid, pos)
+            if await render(bot, chat_id, sid, text, markup, photo):
+                break
+            # الصورة تعطّلت: نتخطى السؤال بلا احتساب، وبعد 3 مرات يُعطَّل تلقائيًا
+            row = db.session_question(sid, pos)
+            db.bump_img_fail(row["question_id"])
+            db.skip_question(sid, pos)
+            if pos + 1 >= db.session_len(sid):
+                await finish(bot, chat_id, sid)
+                return
+            pos += 1
+            db.advance(sid, pos)
+        db.mark_sent(sid, pos)
+        if ctx.timer():
             cancel_timer(sid, pos)
             timers[(sid, pos)] = asyncio.create_task(timeout_watch(bot, chat_id, sid, pos))
 
     async def timeout_watch(bot: Bot, chat_id: int, sid: int, pos: int) -> None:
         try:
-            await asyncio.sleep(settings.timer_seconds + GRACE_SECONDS)
+            await asyncio.sleep(ctx.timer() + GRACE_SECONDS)
         except asyncio.CancelledError:
             return
         timers.pop((sid, pos), None)
@@ -103,130 +186,151 @@ def build_router(settings: Settings, db: DB) -> Router:
         await show_timeout(bot, chat_id, sid, pos)
 
     async def show_timeout(bot: Bot, chat_id: int, sid: int, pos: int) -> None:
-        import json
+        sess = db.get_session(sid)
+        L = lang(sess["tg_id"])
         row = db.session_question(sid, pos)
         q = db.get_question(row["question_id"])
-        order = json.loads(row["option_order"])
-        right = q.options[order[row["correct_pos"]]]
-        text = (f"⏰ <b>انتهى الوقت!</b>\nالجواب الصحيح: <b>{esc(right)}</b>")
-        sess = db.get_session(sid)
-        await safe_edit(bot, chat_id, sess["message_id"], text,
-                        kb([btn("التالي ▶️", f"n:{sid}:{pos}")], [btn("⛔ إنهاء", f"stop:{sid}")]))
+        right = q.opts(L)[json.loads(row["option_order"])[row["correct_pos"]]]
+        await render(bot, chat_id, sid, t(L, "timeout", ans=esc(right)),
+                     kb([btn(t(L, "btn_next"), f"n:{sid}:{pos}")], [btn(t(L, "btn_stop"), f"stop:{sid}")]))
 
-    async def next_or_finish(bot: Bot, chat_id: int, sid: int, pos: int, tg_id: int, name: str) -> None:
-        if pos + 1 < db.session_len(sid):
+    async def advance_after(bot: Bot, chat_id: int, sid: int, pos: int, correct: bool) -> None:
+        sess = db.get_session(sid)
+        if sess["mode"] == "sudden" and not correct:
+            await finish(bot, chat_id, sid)
+        elif pos + 1 < db.session_len(sid):
             db.advance(sid, pos + 1)
             await send_question(bot, chat_id, sid, pos + 1)
         else:
-            await finish(bot, chat_id, sid, tg_id, name)
+            await finish(bot, chat_id, sid)
 
-    async def finish(bot: Bot, chat_id: int, sid: int, tg_id: int, name: str) -> None:
+    # ── النتيجة ─────────────────────────────────────────────
+    async def finish(bot: Bot, chat_id: int, sid: int) -> None:
+        sess = db.get_session(sid)
+        tg_id, mode = sess["tg_id"], sess["mode"]
+        user = db.get_user(tg_id)
+        name, L = user["name"] or "?", user["lang"]
         answers = db.session_answers(sid)
+        me = await bot.get_me()
+
+        async def drop_quiz_message():
+            if sess["message_id"]:
+                try:
+                    await bot.delete_message(chat_id, sess["message_id"])
+                except TelegramAPIError:
+                    pass
+
+        again = [btn(t(L, "btn_again"), "go" if mode == "full" else {"quick": "qk", "sudden": "sd"}.get(mode, "cats")),
+                 btn(t(L, "btn_menu"), "menu")]
+
+        if mode == "sudden":
+            streak = sum(a.correct for a in answers)
+            lvl = answers[-1].level if answers else 1
+            db.finish_session(sid, tg_id, float(streak), "sudden", counted=False)
+            best = db.set_best_sudden(tg_id, streak)
+            text = t(L, "fin_head", name=esc(name)) + "\n\n" + t(L, "sudden_res", n=streak, lvl=lvl, best=best)
+            if streak == len(answers) == db.session_len(sid):
+                text += "\n" + t(L, "sudden_perfect")
+            await drop_quiz_message()
+            await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=kb(again))
+            return
+
         score = compute_score(answers)
-        suspicious = db.fast_answer_ratio(sid) > SUSPECT_FAST_RATIO
-        db.finish_session(sid, tg_id, score, count_best=not suspicious)
-        pct = db.percentile(score)
-        title = title_for(score)
+        suspicious = mode == "full" and db.fast_answer_ratio(sid) > SUSPECT_FAST_RATIO
+        db.finish_session(sid, tg_id, score, mode, counted=not suspicious)
+        title = title_for(score, L)
         brk = category_breakdown(answers)
+        pct = db.percentile(score) if mode == "full" else None
         correct = sum(a.correct for a in answers)
 
-        parts = [f"🏁 <b>انتهى التقييم يا {esc(name)}!</b>", "",
-                 f"⭐ التقييم: <b>{score:.1f} / 10</b>",
-                 f"🏷 اللقب: <b>{esc(title)}</b>",
-                 f"✅ الإجابات الصحيحة: {correct}/{len(answers)}",
-                 f"📊 أفضل من {pct:.0f}% من اللاعبين", "", "<b>حسب التصنيف:</b>"]
+        parts = [t(L, "fin_head", name=esc(name)), "", t(L, "res_score", score=f"{score:.1f}"),
+                 t(L, "res_title", title=esc(title)), t(L, "res_correct", c=correct, t=len(answers))]
+        if pct is not None:
+            parts.append(t(L, "res_pct", p=f"{pct:.0f}"))
+        parts += ["", t(L, "res_cat")]
         for cat, (ok, total) in sorted(brk.items(), key=lambda kv: -kv[1][0] / kv[1][1]):
-            parts.append(f"• {CATEGORY_LABELS.get(cat, cat)}: {ok}/{total}")
+            parts.append(f"• {cat_label(L, cat)}: {ok}/{total}")
         if suspicious:
-            parts += ["", "⚠️ إجاباتك كانت سريعة جدًا؛ لن تُحتسب النتيجة في المتصدرين."]
-        caption = "\n".join(parts)
+            parts += ["", t(L, "res_suspect")]
+        elif mode != "full":
+            parts += ["", t(L, "res_nolb")]
 
-        me = await bot.get_me()
-        share_text = f"حصلت على {score:.1f}/10 وصرت «{title}» في بوت تقييم الأوتاكو! تقدر تغلبني؟"
-        link = f"https://t.me/{me.username}?start=ch_{tg_id}"
-        markup = kb(
-            [btn("🔁 اختبار جديد", "go"), btn("🏆 المتصدرون", "top")],
-            [btn("📤 تحدَّ صديقك", url=f"https://t.me/share/url?url={quote(link)}&text={quote(share_text)}")],
-        )
-        sess = db.get_session(sid)
-        if sess["message_id"]:
-            try:
-                await bot.delete_message(chat_id, sess["message_id"])
-            except TelegramBadRequest:
-                pass
+        # مقارنة التحدي
+        if sess["challenge_of"]:
+            ch = db.get_session(sess["challenge_of"])
+            if ch and ch["score"] is not None:
+                them_user = db.get_user(ch["tg_id"])
+                them, mine = ch["score"], score
+                verdict = "vs_win" if mine > them else "vs_lose" if mine < them else "vs_draw"
+                parts += ["", t(L, "vs_head", name=esc(them_user["name"])),
+                          t(L, "vs_line", me=f"{mine:.1f}", name=esc(them_user["name"]), them=f"{them:.1f}"),
+                          t(L, verdict)]
+                Lc = them_user["lang"]
+                dm_v = "vs_dm_win" if them > mine else "vs_dm_lose" if them < mine else "vs_dm_draw"
+                try:
+                    await bot.send_message(ch["tg_id"], t(Lc, "vs_dm", name=esc(name), me=f"{mine:.1f}",
+                                                          them=f"{them:.1f}", verdict=t(Lc, dm_v)), parse_mode="HTML")
+                except TelegramAPIError:
+                    pass
+
+        rows = [again]
+        if mode == "full":
+            link = f"https://t.me/{me.username}?start=ch_{sid}"
+            share = t(L, "share_text", score=f"{score:.1f}", title=title)
+            rows.append([btn(t(L, "btn_share"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")])
+        if db.session_wrong(sid):
+            rows.append([btn(t(L, "btn_report"), f"rp:{sid}")])
+        markup = kb(*rows)
+        caption = "\n".join(parts)
+        await drop_quiz_message()
         try:
-            png = card.make_card(name, score, title, pct, brk)
-            await bot.send_photo(chat_id, BufferedInputFile(png, "result.png"),
-                                 caption=caption, reply_markup=markup, parse_mode="HTML")
-        except Exception as e:  # الخط غير متوفر أو أي خطأ في الصورة → نص فقط
+            png = card.make_card(name, score, title, pct, brk, L)
+            await bot.send_photo(chat_id, BufferedInputFile(png, "result.png"), caption=caption,
+                                 reply_markup=markup, parse_mode="HTML")
+        except Exception as e:  # noqa: BLE001  (الخط غير متوفر أو أي خطأ في الصورة → نص فقط)
             log.warning("card failed: %s", e)
             await bot.send_message(chat_id, caption, reply_markup=markup, parse_mode="HTML")
 
-    async def subscribed(bot: Bot, tg_id: int) -> bool | None:
-        """True مشترك، False غير مشترك، None تعذّر التحقق (غالبًا البوت ليس أدمن بالقناة)."""
-        ch = settings.required_channel
-        if not ch:
-            return True
-        try:
-            member = await bot.get_chat_member(ch, tg_id)
-        except TelegramAPIError as e:
-            log.warning("cannot verify subscription to %s (is the bot an admin there?): %s", ch, e)
-            return None
-        return member.status in ("creator", "administrator", "member") or (
-            member.status == "restricted" and getattr(member, "is_member", False))
-
-    async def gate(bot: Bot, chat_id: int, tg_id: int) -> bool:
-        """True = مسموح له بالمتابعة."""
-        ok = await subscribed(bot, tg_id)
-        if ok:
-            return True
-        if ok is None:
-            await bot.send_message(
-                chat_id, "⚠️ تعذّر التحقق من الاشتراك حاليًا. نبّه صاحب البوت: "
-                         "لازم يكون البوت مشرفًا (أدمن) في القناة. جرّب /diag")
-        else:
-            await ask_subscribe(bot, chat_id)
-        return False
-
-    async def ask_subscribe(bot: Bot, chat_id: int) -> None:
-        ch = settings.required_channel
-        await bot.send_message(
-            chat_id,
-            f"🔒 للمشاركة في التقييم لازم تشترك أولًا في قناتنا {esc(ch)}\n"
-            "اشترك ثم اضغط «تحققت».",
-            reply_markup=kb([btn("📢 اشترك في القناة", url=f"https://t.me/{ch.lstrip('@')}")],
-                            [btn("✅ تحققت", "chk")]),
-            parse_mode="HTML")
-
-    async def begin_test(bot: Bot, chat_id: int, tg_id: int, name: str, force_new: bool = False) -> None:
+    # ── بدء الاختبار ────────────────────────────────────────
+    async def begin(bot: Bot, chat_id: int, tg_id: int, name: str, mode: str = "full",
+                    category: str | None = None, force_new: bool = False, challenge_of: int | None = None) -> None:
         db.upsert_user(tg_id, name)
+        L = lang(tg_id)
         if not await gate(bot, chat_id, tg_id):
             return
         active = db.active_session(tg_id)
         if active and not force_new:
             await bot.send_message(
-                chat_id,
-                f"عندك اختبار غير مكتمل (وصلت للسؤال {active['current_pos'] + 1}/{TOTAL}).",
-                reply_markup=kb([btn("▶️ كمّل", "resume"), btn("🆕 ابدأ من جديد", "new")]))
+                chat_id, t(L, "resume_prompt", n=active["current_pos"] + 1, t=db.session_len(active["id"])),
+                reply_markup=kb([btn(t(L, "btn_resume"), "resume"),
+                                 btn(t(L, "btn_new"), f"nw:{mode}:{category or '-'}:{challenge_of or 0}")]))
             return
-        if not force_new:
+        if mode == "full" and not challenge_of and not force_new:
             last = db.last_finished_at(tg_id)
-            if last and settings.cooldown_minutes:
-                wait = last + settings.cooldown_minutes * 60 - time.time()
+            if last and ctx.cooldown():
+                wait = last + ctx.cooldown() * 60 - time.time()
                 if wait > 0:
-                    await bot.send_message(
-                        chat_id, f"⏳ لازم تنتظر {int(wait // 60) + 1} دقيقة قبل اختبار جديد.\n"
-                                 "راجع نتيجتك بـ /stats أو شف المتصدرين بـ /top")
+                    await bot.send_message(chat_id, t(L, "cooldown", m=int(wait // 60) + 1))
                     return
         db.abandon_active(tg_id)
+        pool = [q for q in db.all_questions() if (q.q_en if L == "en" else True)]
+        seen = db.seen_map(tg_id)
+        if challenge_of:
+            qs = db.session_questions_ordered(challenge_of)
+        elif mode == "quick":
+            qs = pick_questions(pool, seen, rng, per_level=1)
+        elif mode == "category":
+            qs = pick_category(pool, seen, category or "", rng)
+        else:
+            qs = pick_questions(pool, seen, rng)
+        if len(qs) < MODE_SIZE.get(mode, 50) or not qs:
+            await bot.send_message(chat_id, t(L, "bank_short"))
+            return
         picked = []
-        for q in pick_questions(db.all_questions(), db.seen_map(tg_id), rng):
+        for q in qs:
             order, cpos = shuffle_options(q, rng)
             picked.append((q, order, cpos))
-        if len(picked) < TOTAL:
-            await bot.send_message(chat_id, "عذرًا، بنك الأسئلة لا يكفي حاليًا. جرّب لاحقًا.")
-            return
-        sid = db.create_session(tg_id, picked)
+        sid = db.create_session(tg_id, picked, mode=mode, challenge_of=challenge_of, category=category)
         await send_question(bot, chat_id, sid, 0)
 
     async def resume(bot: Bot, chat_id: int, tg_id: int, name: str) -> None:
@@ -234,81 +338,80 @@ def build_router(settings: Settings, db: DB) -> Router:
             return
         sess = db.active_session(tg_id)
         if not sess:
-            await begin_test(bot, chat_id, tg_id, name)
+            await begin(bot, chat_id, tg_id, name)
             return
         sid, pos = sess["id"], sess["current_pos"]
         row = db.session_question(sid, pos)
         if row["user_answer"] is None and expired(row):
             db.record_answer(sid, pos, -1, timed_out=True)
             row = db.session_question(sid, pos)
-        if row["user_answer"] is not None:   # أُجيب/انتهى وقته لكن لم ننتقل بعد
+        if row["user_answer"] is not None:
             if row["user_answer"] == -1:
                 await show_timeout(bot, chat_id, sid, pos)
             else:
-                await next_or_finish(bot, chat_id, sid, pos, tg_id, name)
+                await advance_after(bot, chat_id, sid, pos, row["is_correct"] != 0)
             return
         await send_question(bot, chat_id, sid, pos)
 
     # ── الأوامر ─────────────────────────────────────────────
-    START_KB = kb([btn("🎮 ابدأ التقييم", "go")], [btn("🏆 المتصدرون", "top")])
-
     @r.message(Command("start"))
     async def cmd_start(m: Message, command: CommandObject):
-        db.upsert_user(m.from_user.id, m.from_user.full_name)
-        extra = ""
+        hint = "en" if (m.from_user.language_code or "").startswith("en") else "ar"
+        db.upsert_user(m.from_user.id, m.from_user.full_name, hint)
+        L = lang(m.from_user.id)
+        extra, top = "", []
         arg = (command.args or "").strip()
         if arg.startswith("ch_") and arg[3:].isdigit():
-            friend = db.get_user(int(arg[3:]))
-            if friend and friend["tests_taken"] and friend["tg_id"] != m.from_user.id:
-                extra = (f"\n\n⚔️ <b>{esc(friend['name'])}</b> تحداك! "
-                         f"أفضل نتيجة له: <b>{friend['best_score']:.1f}/10</b> — تقدر تغلبه؟")
-        await m.answer(
-            "أهلًا بك في <b>بوت تقييم الأوتاكو</b> 🎌\n\n"
-            f"{TOTAL} سؤالًا بأربعة اختيارات، من الأسهل للأصعب، وفي النهاية تحصل على تقييم من 10 "
-            "ولقب! الأسئلة الصعبة تُحسب بوزن أكبر.\n"
-            "الأسئلة تتغير في كل مرة، فلا تتكرر عليك إلا إذا خلصت البنك." + extra,
-            reply_markup=START_KB, parse_mode="HTML")
+            s = db.get_session(int(arg[3:]))
+            if s and s["state"] == "finished" and s["mode"] == "full" and s["tg_id"] != m.from_user.id:
+                friend = db.get_user(s["tg_id"])
+                extra = t(L, "challenge_banner", name=esc(friend["name"]), score=f"{s['score']:.1f}",
+                          title=esc(title_for(s["score"], L)))
+                top = [[btn(t(L, "btn_accept"), f"cc:{s['id']}")]]
+        await m.answer(t(L, "welcome") + extra, reply_markup=menu_kb(L, top), parse_mode="HTML")
 
     @r.message(Command("help"))
     async def cmd_help(m: Message):
-        await m.answer("/start — البداية\n/retry — اختبار جديد\n/stats — إحصائياتك\n/top — المتصدرون")
+        await m.answer(t(lang(m.from_user.id), "help"))
 
     @r.message(Command("retry"))
     async def cmd_retry(m: Message):
-        await begin_test(m.bot, m.chat.id, m.from_user.id, m.from_user.full_name)
+        await begin(m.bot, m.chat.id, m.from_user.id, m.from_user.full_name)
+
+    @r.message(Command("myid"))
+    async def cmd_myid(m: Message):
+        await m.answer(f"ID: <code>{m.from_user.id}</code>", parse_mode="HTML")
+
+    @r.message(Command("lang"))
+    async def cmd_lang(m: Message):
+        await m.answer("🌐", reply_markup=kb([btn("العربية", "lg:ar"), btn("English", "lg:en")]))
 
     @r.message(Command("top"))
     async def cmd_top(m: Message):
-        await m.answer(top_text(), parse_mode="HTML")
+        text, markup = lb_view(m.from_user.id, "all")
+        await m.answer(text, parse_mode="HTML", reply_markup=markup)
 
-    def top_text() -> str:
-        rows = db.leaderboard(10)
-        if not rows:
-            return "ما فيه متصدرين بعد، كن الأول! 🏆"
-        medals = ["🥇", "🥈", "🥉"]
-        lines = ["🏆 <b>أفضل 10 أوتاكو</b>", ""]
-        for i, u in enumerate(rows):
-            lines.append(f"{medals[i] if i < 3 else f'{i + 1}.'} {esc(u['name'] or '؟')} — "
-                         f"<b>{u['best_score']:.1f}</b>  ({title_for(u['best_score'])})")
-        return "\n".join(lines)
+    @r.message(Command("weekly"))
+    async def cmd_weekly(m: Message):
+        text, markup = lb_view(m.from_user.id, "week")
+        await m.answer(text, parse_mode="HTML", reply_markup=markup)
 
     @r.message(Command("stats"))
     async def cmd_stats(m: Message):
+        L = lang(m.from_user.id)
         u = db.get_user(m.from_user.id)
         if not u or not u["tests_taken"]:
-            await m.answer("ما أخذت أي اختبار بعد. اضغط /start 🎌")
+            await m.answer(t(L, "no_tests"))
             return
         recent = ", ".join(f"{s['score']:.1f}" for s in db.last_session_stats(m.from_user.id))
-        await m.answer(
-            f"📈 <b>إحصائياتك</b>\nأفضل تقييم: <b>{u['best_score']:.1f}/10</b> "
-            f"({esc(title_for(u['best_score']))})\n"
-            f"الترتيب: #{db.user_rank(m.from_user.id)}\nعدد الاختبارات: {u['tests_taken']}\n"
-            f"آخر النتائج: {recent}", parse_mode="HTML")
+        await m.answer(t(L, "stats", best=f"{u['best_score']:.1f}", title=esc(title_for(u["best_score"], L)),
+                         rank=db.user_rank(m.from_user.id) or "-", n=u["tests_taken"], sd=u["best_sudden"],
+                         recent=recent), parse_mode="HTML")
 
     @r.message(Command("diag"))
     async def cmd_diag(m: Message):
         """تشخيص الاشتراك الإجباري: يوضح لماذا لا يظهر طلب الاشتراك."""
-        ch = settings.required_channel
+        ch = ctx.channel()
         if not ch:
             await m.answer("الاشتراك الإجباري معطّل (REQUIRED_CHANNEL فارغ).")
             return
@@ -323,54 +426,155 @@ def build_router(settings: Settings, db: DB) -> Router:
         try:
             u = await m.bot.get_chat_member(ch, m.from_user.id)
             lines.append(f"حالتك أنت في القناة: {u.status}")
-            if u.status in ("creator", "administrator"):
-                lines.append("ℹ️ أنت مالك/مشرف القناة، لذلك لن يطلب منك الاشتراك. جرّب بحساب آخر.")
+            if u.status in ("creator", "administrator") or ctx.is_admin(m.from_user.id):
+                lines.append("ℹ️ أنت مالك/مشرف، لذلك لن يطلب منك الاشتراك. جرّب بحساب آخر.")
         except TelegramAPIError as e:
             lines.append(f"❌ تعذّر فحص حسابك: {e}")
         await m.answer("\n".join(lines))
 
-    @r.message(Command("flagged"))
-    async def cmd_flagged(m: Message):
-        if m.from_user.id not in settings.admin_ids:
-            return
-        rows = db.suspicious_questions()
-        if not rows:
-            await m.answer("لا توجد أسئلة مشبوهة حاليًا ✅")
-            return
-        await m.answer("⚠️ أسئلة نسبة نجاحها ≤ 27% (قد تحتاج مراجعة):\n\n" + "\n".join(
-            f"#{x['id']} ({x['pct']}% من {x['asked']}) {x['q']}" for x in rows[:20]))
+    @r.message(Command("claim"))
+    async def cmd_claim(m: Message, command: CommandObject):
+        code = (command.args or "").strip()
+        if ctx.claim_code and code == ctx.claim_code and db.admin_count() == 0:
+            db.add_admin(m.from_user.id, owner=True)
+            ctx.claim_code = None
+            await m.answer("✅ صرت مالك البوت. افتح لوحة التحكم بـ /admin")
+        else:
+            await m.answer("❌")
 
-    # ── الأزرار ─────────────────────────────────────────────
+    # ── المتصدرون ───────────────────────────────────────────
+    def lb_view(uid: int, kind: str):
+        L = lang(uid)
+        extra = ""
+        if kind == "week":
+            since = week_start()
+            rows = db.weekly_leaderboard(since)
+            head = t(L, "lb_week")
+            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['score']:.1f}</b>" for i, x in enumerate(rows)]
+            rank = db.weekly_rank(uid, since)
+            if rank:
+                extra = t(L, "lb_you", rank=rank)
+        elif kind == "sd":
+            rows = db.sudden_leaderboard()
+            head = t(L, "lb_sudden")
+            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['best_sudden']}</b>" for i, x in enumerate(rows)]
+        else:
+            rows = db.leaderboard(10)
+            head = t(L, "lb_all")
+            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['best_score']:.1f}</b> ({esc(title_for(x['best_score'], L))})"
+                     for i, x in enumerate(rows)]
+            rank = db.user_rank(uid)
+            if rank:
+                extra = t(L, "lb_you", rank=rank)
+        medals = ["🥇", "🥈", "🥉"]
+        lines = [(medals[i] + l[l.index("."):][1:]) if i < 3 else l for i, l in enumerate(lines)]
+        body = "\n".join(lines) if lines else t(L, "lb_empty")
+        markup = kb([btn(t(L, "tab_all"), "lb:all"), btn(t(L, "tab_week"), "lb:week"), btn(t(L, "tab_sd"), "lb:sd")],
+                    [btn(t(L, "btn_menu"), "menu")])
+        return f"{head}\n\n{body}{extra}", markup
+
+    @r.callback_query(F.data.startswith("lb:"))
+    async def cb_lb(c: CallbackQuery):
+        await c.answer()
+        text, markup = lb_view(c.from_user.id, c.data.split(":")[1])
+        try:
+            await c.message.edit_text(text, parse_mode="HTML", reply_markup=markup)
+        except TelegramBadRequest:
+            await c.message.answer(text, parse_mode="HTML", reply_markup=markup)
+
+    # ── القوائم والأوضاع ────────────────────────────────────
+    @r.callback_query(F.data == "menu")
+    async def cb_menu(c: CallbackQuery):
+        await c.answer()
+        L = lang(c.from_user.id)
+        await c.message.answer(t(L, "welcome"), reply_markup=menu_kb(L), parse_mode="HTML")
+
+    def name_of(c: CallbackQuery) -> str:
+        return c.from_user.full_name
+
     @r.callback_query(F.data == "go")
     async def cb_go(c: CallbackQuery):
         await c.answer()
-        await begin_test(c.bot, c.message.chat.id, c.from_user.id, c.from_user.full_name)
+        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c))
+
+    @r.callback_query(F.data == "qk")
+    async def cb_quick(c: CallbackQuery):
+        await c.answer()
+        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="quick")
+
+    @r.callback_query(F.data == "sd")
+    async def cb_sudden(c: CallbackQuery):
+        await c.answer()
+        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="sudden")
+
+    @r.callback_query(F.data == "cats")
+    async def cb_cats(c: CallbackQuery):
+        await c.answer()
+        L = lang(c.from_user.id)
+        counts = db.category_counts(L)
+        rows = [[btn(f"{cat_label(L, cat)} ({n})", f"ct:{cat}")] for cat, n in sorted(counts.items()) if n >= 10]
+        if not rows:
+            await c.message.answer(t(L, "no_cats"))
+            return
+        await c.message.answer(t(L, "cat_menu"), reply_markup=kb(*rows, [btn(t(L, "btn_back"), "menu")]))
+
+    @r.callback_query(F.data.startswith("ct:"))
+    async def cb_cat(c: CallbackQuery):
+        await c.answer()
+        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="category",
+                    category=c.data.split(":", 1)[1])
+
+    @r.callback_query(F.data.startswith("cc:"))
+    async def cb_accept(c: CallbackQuery):
+        await c.answer()
+        L = lang(c.from_user.id)
+        s = db.get_session(int(c.data.split(":")[1]))
+        if not s or s["state"] != "finished" or s["mode"] != "full":
+            await c.message.answer(t(L, "ch_gone"))
+            return
+        if s["tg_id"] == c.from_user.id:
+            await c.message.answer(t(L, "ch_self"))
+            return
+        prev = db.challenge_session(c.from_user.id, s["id"])
+        if prev and prev["state"] == "finished":
+            await c.message.answer(t(L, "ch_done", score=f"{prev['score']:.1f}"), parse_mode="HTML")
+            return
+        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), challenge_of=s["id"])
+
+    @r.callback_query(F.data.startswith("lg:"))
+    async def cb_lang(c: CallbackQuery):
+        db.upsert_user(c.from_user.id, c.from_user.full_name)
+        new = c.data.split(":")[1]
+        if new == "toggle":
+            new = "ar" if lang(c.from_user.id) == "en" else "en"
+        db.set_lang(c.from_user.id, new)
+        await c.answer(t(new, "lang_set"))
+        await c.message.answer(t(new, "welcome"), reply_markup=menu_kb(new), parse_mode="HTML")
 
     @r.callback_query(F.data == "chk")
     async def cb_check(c: CallbackQuery):
+        L = lang(c.from_user.id)
         ok = await subscribed(c.bot, c.from_user.id)
         if not ok:
-            await c.answer("ما لقيتك مشترك بعد 🙁 اشترك ثم جرّب مرة ثانية" if ok is False
-                           else "تعذّر التحقق: البوت ليس أدمن في القناة", show_alert=True)
+            await c.answer(t(L, "sub_no") if ok is False else t(L, "sub_err"), show_alert=True)
             return
-        await c.answer("✅ تمام، أهلًا بك!")
-        await begin_test(c.bot, c.message.chat.id, c.from_user.id, c.from_user.full_name)
+        await c.answer(t(L, "sub_ok"))
+        await c.message.answer(t(L, "welcome"), reply_markup=menu_kb(L), parse_mode="HTML")
 
-    @r.callback_query(F.data == "new")
+    @r.callback_query(F.data.startswith("nw:"))
     async def cb_new(c: CallbackQuery):
         await c.answer()
-        await begin_test(c.bot, c.message.chat.id, c.from_user.id, c.from_user.full_name, force_new=True)
+        _, mode, cat, ch = c.data.split(":")
+        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode=mode,
+                    category=None if cat == "-" else cat, force_new=True,
+                    challenge_of=int(ch) or None)
 
     @r.callback_query(F.data == "resume")
     async def cb_resume(c: CallbackQuery):
         await c.answer()
-        await resume(c.bot, c.message.chat.id, c.from_user.id, c.from_user.full_name)
+        await resume(c.bot, c.message.chat.id, c.from_user.id, name_of(c))
 
-    @r.callback_query(F.data == "top")
-    async def cb_top(c: CallbackQuery):
-        await c.answer()
-        await c.message.answer(top_text(), parse_mode="HTML")
-
+    # ── الإجابات ────────────────────────────────────────────
     def own_active(c: CallbackQuery, sid: int):
         sess = db.get_session(sid)
         if not sess or sess["tg_id"] != c.from_user.id or sess["state"] != "active":
@@ -381,9 +585,10 @@ def build_router(settings: Settings, db: DB) -> Router:
     async def cb_answer(c: CallbackQuery):
         _, sid, pos, choice = c.data.split(":")
         sid, pos, choice = int(sid), int(pos), int(choice)
+        L = lang(c.from_user.id)
         sess = own_active(c, sid)
         if not sess or sess["current_pos"] != pos:
-            await c.answer("هذا السؤال لم يعد نشطًا", show_alert=False)
+            await c.answer(t(L, "toast_stale"))
             return
         row = db.session_question(sid, pos)
         if row["user_answer"] is not None:
@@ -396,15 +601,14 @@ def build_router(settings: Settings, db: DB) -> Router:
             await c.answer()
             return
         if was_expired:
-            await c.answer("⏰ انتهى الوقت")
+            await c.answer(t(L, "toast_time"))
         elif correct:
-            await c.answer("✅ صح!")
+            await c.answer(t(L, "toast_ok"))
         else:
-            import json
             q = db.get_question(row["question_id"])
-            right = q.options[json.loads(row["option_order"])[row["correct_pos"]]]
-            await c.answer(f"❌ غلط — الجواب: {right}"[:190])
-        await next_or_finish(c.bot, c.message.chat.id, sid, pos, c.from_user.id, c.from_user.full_name)
+            right = q.opts(L)[json.loads(row["option_order"])[row["correct_pos"]]]
+            await c.answer(t(L, "toast_bad", ans=right)[:190])
+        await advance_after(c.bot, c.message.chat.id, sid, pos, bool(correct))
 
     @r.callback_query(F.data.startswith("n:"))
     async def cb_next(c: CallbackQuery):
@@ -417,7 +621,7 @@ def build_router(settings: Settings, db: DB) -> Router:
         row = db.session_question(sid, pos)
         if row["user_answer"] is None:
             return
-        await next_or_finish(c.bot, c.message.chat.id, sid, pos, c.from_user.id, c.from_user.full_name)
+        await advance_after(c.bot, c.message.chat.id, sid, pos, bool(row["is_correct"]))
 
     @r.callback_query(F.data.startswith("stop:"))
     async def cb_stop(c: CallbackQuery):
@@ -426,20 +630,78 @@ def build_router(settings: Settings, db: DB) -> Router:
         await c.answer()
         if not sess:
             return
+        L = lang(c.from_user.id)
         cancel_timer(sid, sess["current_pos"])
         db.abandon_active(c.from_user.id)
-        await safe_edit(c.bot, c.message.chat.id, sess["message_id"],
-                        "تم إيقاف الاختبار. ارجع متى ما حبيت! 🎌", START_KB)
+        await render(c.bot, c.message.chat.id, sid, t(L, "stopped"), menu_kb(L))
+
+    # ── الإبلاغ عن الأسئلة (مقيَّد حتى لا يُساء استخدامه) ──
+    # • يظهر زر الإبلاغ فقط بعد انتهاء الاختبار، وللأسئلة التي أخطأ فيها اللاعب نفسه.
+    # • بلاغ واحد لكل مستخدم لكل سؤال، وحد يومي لكل مستخدم.
+    # • لا يصل الأدمن إلا عند تجمّع عدة بلاغات مستقلة على نفس السؤال (العتبة من الإعدادات).
+    def finished_own(c: CallbackQuery, sid: int):
+        s = db.get_session(sid)
+        return s if s and s["tg_id"] == c.from_user.id and s["state"] == "finished" else None
+
+    @r.callback_query(F.data.startswith("rp:"))
+    async def cb_report_list(c: CallbackQuery):
+        await c.answer()
+        L = lang(c.from_user.id)
+        sid = int(c.data.split(":")[1])
+        if not finished_own(c, sid):
+            await c.message.answer(t(L, "rp_closed"))
+            return
+        wrong = db.session_wrong(sid)[:8]
+        if not wrong:
+            await c.message.answer(t(L, "rp_none"))
+            return
+        rows = []
+        for w in wrong:
+            q = db.get_question(w["question_id"])
+            rows.append([btn(f"{w['pos'] + 1}. {q.text(L)[:45]}", f"rq:{sid}:{w['pos']}")])
+        await c.message.answer(t(L, "rp_pick"), reply_markup=kb(*rows))
+
+    @r.callback_query(F.data.startswith("rq:"))
+    async def cb_report_reason(c: CallbackQuery):
+        await c.answer()
+        L = lang(c.from_user.id)
+        _, sid, pos = c.data.split(":")
+        sid, pos = int(sid), int(pos)
+        if not finished_own(c, sid):
+            return
+        q = db.get_question(db.session_question(sid, pos)["question_id"])
+        idx = [0, 1, 2, 3] + ([4] if q.image else [])
+        await c.message.answer(t(L, "rp_reason"),
+                               reply_markup=kb(*[[btn(t(L, f"rr_{i}"), f"rr:{sid}:{pos}:{i}")] for i in idx]))
+
+    @r.callback_query(F.data.startswith("rr:"))
+    async def cb_report_send(c: CallbackQuery):
+        L = lang(c.from_user.id)
+        _, sid, pos, ri = c.data.split(":")
+        sid, pos, ri = int(sid), int(pos), int(ri)
+        if not finished_own(c, sid) or not 0 <= ri <= 4:
+            await c.answer(t(L, "rp_closed"))
+            return
+        row = db.session_question(sid, pos)
+        if not row or row["is_correct"] != 0:
+            await c.answer(t(L, "rp_closed"))
+            return
+        res = db.add_report(row["question_id"], c.from_user.id, t("ar", f"rr_{ri}"), ctx.reports_per_day())
+        if res == "dup":
+            await c.answer(t(L, "rp_dup"), show_alert=True)
+        elif res == "limit":
+            await c.answer(t(L, "rp_limit", n=ctx.reports_per_day()), show_alert=True)
+        else:
+            await c.answer(t(L, "rp_ok"), show_alert=True)
+            qid = row["question_id"]
+            if db.open_report_count(qid) == ctx.report_threshold():
+                q = db.get_question(qid)
+                for admin in ctx.admin_ids():
+                    try:
+                        await c.bot.send_message(
+                            admin, f"🚩 سؤال وصل {ctx.report_threshold()} بلاغات مستقلة:\n#{qid} {esc(q.q)}",
+                            reply_markup=kb([btn("🔎 مراجعة", f"ad:rv:{qid}")]))
+                    except TelegramAPIError:
+                        pass
 
     return r
-
-
-async def run(settings: Settings) -> None:
-    db = DB(settings.db_path)
-    n = db.load_questions(settings.questions_path)
-    log.info("loaded %d questions", n)
-    bot = Bot(settings.token)
-    dp = Dispatcher()
-    dp.include_router(build_router(settings, db))
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)

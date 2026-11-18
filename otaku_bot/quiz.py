@@ -4,7 +4,7 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass, field
 
-from .config import CALIBRATION_WEIGHT, LEVELS, PER_LEVEL, TITLES
+from .config import CALIBRATION_WEIGHT, LEVELS, PER_LEVEL, TITLES, TITLES_EN
 
 
 @dataclass
@@ -17,6 +17,16 @@ class Question:
     base_difficulty: float
     asked: int = 0
     correct: int = 0
+    image: str | None = None          # رابط أو "tg:<file_id>"
+    q_en: str | None = None
+    options_en: list[str] | None = None
+    active: bool = True
+
+    def text(self, lang: str = "ar") -> str:
+        return self.q_en if lang == "en" and self.q_en else self.q
+
+    def opts(self, lang: str = "ar") -> list[str]:
+        return self.options_en if lang == "en" and self.options_en else self.options
 
     @property
     def difficulty(self) -> float:
@@ -82,10 +92,27 @@ def pick_questions(
     chosen: list[Question] = []
     used: set[int] = set()
 
+    def diversify(cands: list[Question], n: int, cap: int = 2) -> list[Question]:
+        """يفضّل ألا يزيد نفس التصنيف عن cap داخل المستوى الواحد (تنويع)."""
+        out: list[Question] = []
+        counts: dict[str, int] = {}
+        for c in cands:
+            if len(out) >= n:
+                break
+            if counts.get(c.category, 0) < cap:
+                out.append(c)
+                counts[c.category] = counts.get(c.category, 0) + 1
+        for c in cands:
+            if len(out) >= n:
+                break
+            if c not in out:
+                out.append(c)
+        return out
+
     def take(candidates: list[Question], n: int) -> list[Question]:
         fresh = [c for c in candidates if c.id not in seen and c.id not in used]
         rng.shuffle(fresh)
-        got = fresh[:n]
+        got = diversify(fresh, n)
         if len(got) < n:
             stale = [c for c in candidates if c.id in seen and c.id not in used]
             rng.shuffle(stale)
@@ -126,9 +153,28 @@ def compute_score(answers: list[Answer]) -> float:
     return round(10 * got / total, 2)
 
 
-def title_for(score: float) -> str:
-    title = TITLES[0][1]
-    for threshold, name in TITLES:
+def pick_category(questions: list[Question], seen: dict[int, float], category: str,
+                  rng: random.Random | None = None, n: int = 10) -> list[Question]:
+    """n سؤالًا من تصنيف واحد موزعة على مستويات 1..n ومرتبة من الأسهل للأصعب."""
+    rng = rng or random.Random()
+    pool = [q for q in questions if q.category == category]
+    if len(pool) < n:
+        return []
+    result: list[Question] = []
+    used: set[int] = set()
+    for target in range(1, n + 1):
+        cands = [q for q in pool if q.id not in used]
+        cands.sort(key=lambda q: (abs(q.level - target) + (3 if q.id in seen else 0), rng.random()))
+        used.add(cands[0].id)
+        result.append(cands[0])
+    result.sort(key=lambda q: q.level)
+    return result
+
+
+def title_for(score: float, lang: str = "ar") -> str:
+    table = TITLES_EN if lang == "en" else TITLES
+    title = table[0][1]
+    for threshold, name in table:
         if score >= threshold:
             title = name
     return title

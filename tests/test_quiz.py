@@ -133,7 +133,7 @@ def test_suspicious_result_does_not_raise_best():
     db = load()
     db.upsert_user(2, "cheater")
     sid = db.create_session(2, [(q, [0, 1, 2, 3], q.answer) for q in db.all_questions()[:50]])
-    db.finish_session(sid, 2, 10.0, count_best=False)
+    db.finish_session(sid, 2, 10.0, mode="full", counted=False)
     assert db.get_user(2)["best_score"] == 0
 
 

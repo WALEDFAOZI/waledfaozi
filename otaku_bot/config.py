@@ -8,7 +8,19 @@ LEVELS = 10
 PER_LEVEL = 5            # 10 مستويات × 5 = 50 سؤال
 CALIBRATION_WEIGHT = 20  # وزن رأيك (الصعوبة الأساسية) مقابل الإجابات الحقيقية
 
+CATEGORY_LABELS_EN = {
+    "anime": "General anime", "characters": "Characters", "studios": "Studios",
+    "creators": "Creators & authors", "music": "Music", "culture": "Otaku culture",
+    "history": "Anime history", "manga": "Manga", "images": "Character pics",
+}
+
+TITLES_EN = [
+    (0.0, "Noob 🍼"), (2.0, "Casual viewer 📺"), (4.0, "Otaku 🎌"),
+    (6.0, "Seasoned Otaku ⚔️"), (8.0, "Sensei 🥋"), (9.5, "King of Otaku 👑"),
+]
+
 CATEGORY_LABELS = {
+    "images": "شخصيات بالصور",
     "anime": "أنمي عام",
     "characters": "شخصيات",
     "studios": "استوديوهات",
