@@ -83,3 +83,17 @@ def test_flow_report_and_admin_hide():
         for _ in range(5):
             await h.tap(u, "an:r:x:x:x")
     run(go())
+
+
+def test_channel_button_in_key_places():
+    async def go():
+        h = Harness()
+        u = h.user(1)
+        h.db.set_setting("required_channel", "@Anime1Galaxy")
+        await h.say(u, "/start")
+        await h.tap(u, "an:r:x:x:x")
+        await h.tap(u, "lb:all")
+        urls = [b.url for c in h.session.calls if getattr(c, "reply_markup", None) is not None
+                for row in c.reply_markup.inline_keyboard for b in row if b.url]
+        assert urls.count("https://t.me/Anime1Galaxy") >= 3
+    run(go())

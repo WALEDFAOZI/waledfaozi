@@ -328,3 +328,6 @@ T["en"].update({
     "an_foot": "ℹ️ Info is approximate. Spot a mistake? Tap 🚩",
     "an_rp_ok": "Thanks! We'll review this title 🙏",
 })
+
+T["ar"]["btn_channel"] = "💬 تعال للقناة وتفاعل مع الأوتاكو"
+T["en"]["btn_channel"] = "💬 Join the channel & chat with fellow otakus"

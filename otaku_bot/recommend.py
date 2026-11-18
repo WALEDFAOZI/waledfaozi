@@ -8,7 +8,7 @@ from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
 
-from .bot import btn, esc, kb
+from .bot import btn, chan_row, esc, kb
 from .config import ROOT
 from .ctx import Ctx
 from .games import item_key
@@ -129,7 +129,7 @@ def build_recommend_router(ctx: Ctx) -> Router:
         seen[uid].add(a["key"])
         await c.message.answer(render(a, L), parse_mode="HTML", reply_markup=kb(
             [btn(t(L, "an_next"), f"an:r:{g}:{ln}:{aud}"), btn(t(L, "btn_report_q"), f"an:q:{hkey(a)}")],
-            [btn(t(L, "an_back"), "an:m")]))
+            *chan_row(L), [btn(t(L, "an_back"), "an:m")]))
 
     @r.callback_query(F.data.regexp(r"^an:q:[0-9a-f]{12}$"))
     async def cb_report(c: CallbackQuery):

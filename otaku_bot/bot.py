@@ -60,6 +60,15 @@ def btn(text: str, data: str | None = None, url: str | None = None) -> InlineKey
     return InlineKeyboardButton(text=text, callback_data=data, url=url)
 
 
+_CHAN = {"get": lambda: ""}   # يضبطها build_router: القناة الحالية (قابلة للتعديل من لوحة الأدمن)
+
+
+def chan_row(L: str) -> list[list[InlineKeyboardButton]]:
+    """صف زر «تعال للقناة وتفاعل مع الأوتاكو»، أو لا شيء إن لم تُضبط قناة."""
+    ch = (_CHAN["get"]() or "").lstrip("@")
+    return [[btn(t(L, "btn_channel"), url=f"https://t.me/{ch}")]] if ch else []
+
+
 def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
             images: bool = False) -> InlineKeyboardMarkup:
     """القائمة الرئيسية: كل ما يهم اللاعب ظاهر مباشرة (الاختبارات، الألعاب، المتصدرون، إحصائياتي، اللغة)."""
@@ -81,12 +90,14 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
               [btn(t(L, "btn_anime"), "an:m")],
               [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_week"), "lb:week")],
               [btn(t(L, "btn_profile"), "pf"), btn(t(L, "btn_stats"), "st")],
-              [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")])
+              [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")],
+              *chan_row(L))
 
 
 def build_router(ctx: Ctx) -> Router:
     r = Router()
     db, rng, settings = ctx.db, ctx.rng, ctx.settings
+    _CHAN["get"] = ctx.channel
     r.callback_query.outer_middleware(ClearState())
     timers: dict[tuple[int, int], asyncio.Task] = {}
     sub_ok: dict[int, float] = {}      # من ثبت اشتراكه: لا نسأل تليجرام عنه ثانية قبل 5 دقائق (أسرع)
@@ -360,6 +371,7 @@ def build_router(ctx: Ctx) -> Router:
             rows.append([btn(t(L, "btn_share"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")])
         if db.session_shown(sid):
             rows.append([btn(t(L, "btn_report"), f"rp:{sid}:0")])
+        rows += chan_row(L)
         markup = kb(*rows)
         caption = "\n".join(parts)
         await drop_quiz_message()
@@ -565,7 +577,7 @@ def build_router(ctx: Ctx) -> Router:
         link = f"https://t.me/{await bot_username(bot)}"
         share = t(L, "prof_share", score=f"{p['best']:.1f}", title=title)
         markup = kb([btn(t(L, "btn_share_profile"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")],
-                    [btn(t(L, "btn_menu"), "menu")])
+                    *chan_row(L), [btn(t(L, "btn_menu"), "menu")])
         caption = "\n".join(lines)
         try:
             png = await asyncio.to_thread(card.make_profile_card, p, title, L, "@" + await bot_username(bot))
@@ -693,7 +705,7 @@ def build_router(ctx: Ctx) -> Router:
         lines = [(medals[i] + l[l.index("."):][1:]) if i < 3 else l for i, l in enumerate(lines)]
         body = "\n".join(lines) if lines else t(L, "lb_empty")
         markup = kb([btn(t(L, "tab_all"), "lb:all"), btn(t(L, "tab_week"), "lb:week"), btn(t(L, "tab_sd"), "lb:sd")],
-                    [btn(t(L, "btn_menu"), "menu")])
+                    *chan_row(L), [btn(t(L, "btn_menu"), "menu")])
         return f"{head}\n\n{body}{extra}", markup
 
     @r.callback_query(F.data.startswith("lb:"))
