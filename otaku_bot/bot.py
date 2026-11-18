@@ -89,6 +89,7 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
     return kb(*(top or []),
               [btn(t(L, "btn_full"), "go")],
               [btn(t(L, "btn_daily"), "dy:m"), btn(t(L, "du_btn"), "du:new")],
+              [btn(t(L, "btn_group"), "gpm")],
               [btn(t(L, "btn_quick"), "qk"), btn(t(L, "btn_cat"), "cats")],
               [btn(t(L, "btn_games_menu"), "m:games"), btn(t(L, "btn_anime"), "an:m")],
               [btn(t(L, "btn_rank"), "lb:menu"), btn(t(L, "btn_profile"), "pf")],
@@ -985,6 +986,15 @@ def build_router(ctx: Ctx) -> Router:
             await c.message.answer(text, parse_mode="HTML", reply_markup=markup)
 
     # ── القوائم والأوضاع ────────────────────────────────────
+    @r.callback_query(F.data == "gpm")
+    async def cb_group_menu(c: CallbackQuery):
+        """التحدي في مجموعة: الزر يفتح قائمة تليجرام لاختيار المجموعة ويضيف البوت إليها."""
+        await c.answer()
+        L = lang(c.from_user.id)
+        me = await bot_username(c.bot)
+        await c.message.answer(t(L, "gpm_text"), parse_mode="HTML", reply_markup=kb(
+            [btn(t(L, "gpm_btn"), url=f"https://t.me/{me}?startgroup=play")], [btn(t(L, "btn_menu"), "menu")]))
+
     @r.callback_query(F.data == "m:games")
     async def cb_games_menu(c: CallbackQuery):
         await c.answer()

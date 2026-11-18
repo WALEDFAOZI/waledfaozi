@@ -137,11 +137,15 @@ def build_group_router(ctx: Ctx) -> Router:
         return uid == g.host_id or await is_group_admin(bot, g.chat_id, uid)
 
     async def send(bot: Bot, g: Game, text: str, markup=None, photo: str | None = None) -> int | None:
+        return await send_to(bot, g.chat_id, g.reply_to, g.thread, text, markup, photo)
+
+    async def send_to(bot: Bot, chat_id: int, reply_to: int, thread: int | None, text: str, markup=None,
+                      photo: str | None = None) -> int | None:
         """كل رسالة جديدة في المجموعة = رد على رسالة صاحب الأمر."""
-        kw = dict(chat_id=g.chat_id, reply_parameters=ReplyParameters(message_id=g.reply_to, allow_sending_without_reply=True),
+        kw = dict(chat_id=chat_id, reply_parameters=ReplyParameters(message_id=reply_to, allow_sending_without_reply=True),
                   parse_mode="HTML", reply_markup=markup)
-        if g.thread:
-            kw["message_thread_id"] = g.thread
+        if thread:
+            kw["message_thread_id"] = thread
         for attempt in (1, 2):
             try:
                 if photo:
@@ -155,10 +159,10 @@ def build_group_router(ctx: Ctx) -> Router:
                 if photo:                                   # صورة معطوبة: نرسل النص فقط
                     photo = None
                     continue
-                log.warning("group send failed in %s: %s", g.chat_id, e)
+                log.warning("group send failed in %s: %s", chat_id, e)
                 return None
             except (TelegramForbiddenError, TelegramAPIError) as e:
-                log.warning("group send failed in %s: %s", g.chat_id, e)
+                log.warning("group send failed in %s: %s", chat_id, e)
                 return None
         return None
 
@@ -360,7 +364,8 @@ def build_group_router(ctx: Ctx) -> Router:
         medals = ["🥇", "🥈", "🥉"]
         lines = [f"{medals[i] if i < 3 else str(i + 1) + '.'} {esc(p.name)} — <b>{p.points}</b>" for i, p in enumerate(rk[:10])]
         win = ("🏆 " + t(g.lang, "gp_winner", w=" + ".join(esc(p.name) for p in champs))) if champs else t(g.lang, "gp_nowinner")
-        await send(bot, g, t(g.lang, "gp_final", w=win, rows="\n".join(lines)), None)
+        await send(bot, g, t(g.lang, "gp_final", w=win, rows="\n".join(lines)),
+                   kb([btn(t(g.lang, "gp_top_btn"), "gp:t")]))
         for p in g.players.values():                                       # الأدمن لا يدخل الترتيب
             if not db.is_admin(p.id):
                 db.add_group_result(g.chat_id, p.id, p.points, g.kind, p in champs)
@@ -438,7 +443,7 @@ def build_group_router(ctx: Ctx) -> Router:
 
     def menu_markup(L: str):
         rows = [[btn(t(L, f"gpk_{k}"), f"gp:n:{k}")] for k in KINDS]
-        return kb(*[rows[i] for i in range(len(rows))])
+        return kb(*rows, [btn(t(L, "gp_top_btn"), "gp:t")])
 
     @r.message(Command("play"))
     async def cmd_play(m: Message):
@@ -552,15 +557,36 @@ def build_group_router(ctx: Ctx) -> Router:
         if g.task:
             g.task.cancel()
 
-    @r.message(Command("gtop"))
-    async def cmd_top(m: Message):
-        L = db.group_lang(m.chat.id)
+    def top_text(chat_id: int, L: str, plain: bool = False, n: int = 10) -> str:
         medals = ["🥇", "🥈", "🥉"]
 
         def fmt(rows):
-            return "\n".join(f"{medals[i] if i < 3 else str(i + 1) + '.'} {esc(x['name'] or '?')} — <b>{x['pts']}</b> "
-                             f"({x['wins']}🏆/{x['games']})" for i, x in enumerate(rows)) or t(L, "lb_empty")
-        await reply(m, t(L, "gp_top", week=fmt(db.group_top(m.chat.id, week_start())), all=fmt(db.group_top(m.chat.id))))
+            return "\n".join(f"{medals[i] if i < 3 else str(i + 1) + '.'} {x['name'] if plain else esc(x['name'] or '?')} — "
+                             f"🏆{x['wins']} · 🎮{x['games']} · ⭐{x['pts']}" for i, x in enumerate(rows[:n])) or t(L, "lb_empty")
+        week, allt = fmt(db.group_top(chat_id, week_start(), n)), fmt(db.group_top(chat_id, 0.0, n))
+        return t(L, "gp_top_plain" if plain else "gp_top", week=week, all=allt)
+
+    @r.message(Command("gtop"))
+    async def cmd_top(m: Message):
+        L = db.group_lang(m.chat.id)
+        await reply(m, top_text(m.chat.id, L))
+
+    top_at: dict[int, float] = {}
+
+    @r.callback_query(F.data == "gp:t")
+    async def cb_group_top(c: CallbackQuery):
+        """زر «ترتيب المجموعة»: رسالة (رد على صاحب الأمر) أو نافذة منبثقة إن ضُغط بكثرة (حماية من الإزعاج)."""
+        chat = c.message.chat.id
+        L = db.group_lang(chat)
+        now = time.monotonic()
+        if now - top_at.get(chat, -1e9) < 15:
+            await c.answer(top_text(chat, L, plain=True, n=5)[:195], show_alert=True)
+            return
+        top_at[chat] = now
+        await c.answer()
+        base = c.message.reply_to_message.message_id if c.message.reply_to_message else c.message.message_id
+        thread = c.message.message_thread_id if getattr(c.message, "is_topic_message", False) else None
+        await send_to(c.bot, chat, base, thread, top_text(chat, L))
 
     @r.message(Command("glang"))
     async def cmd_lang(m: Message):
@@ -575,8 +601,13 @@ def build_group_router(ctx: Ctx) -> Router:
         await reply(m, t(new, "gp_lang_set"))
 
     @r.message(Command("start", "help", "ghelp"))
-    async def cmd_help(m: Message):
+    async def cmd_help(m: Message, command: CommandObject):
         L = db.group_lang(m.chat.id)
+        if command.command == "start" and (command.args or "").strip() == "play":      # جاء من زر «تحدٍّ في مجموعة»
+            db.touch_group(m.chat.id, m.chat.title)
+            if enabled():
+                await reply(m, t(L, "gp_menu"), menu_markup(L))
+                return
         me = await m.bot.get_me()
         await reply(m, t(L, "gp_help"), kb([btn(t(L, "gp_open_private"), url=f"https://t.me/{me.username}")]))
 

@@ -509,3 +509,18 @@ T["en"].update({
     "lbt_ord": "📅 Order by year", "lbt_char": "🕵️ Character", "lbt_quote": "💬 Quote",
     "lb_title": "🏆 <b>{p} · {k}</b>", "lb_back_types": "⬅️ Types", "lb_back_period": "🏆 Period",
 })
+
+T["ar"].update({
+    "btn_group": "👥 تحدٍّ في مجموعة",
+    "gpm_text": "👥 <b>تحدٍّ في مجموعة</b>\n1️⃣ اضغط الزر واختر المجموعة (يُضاف البوت إليها)\n2️⃣ أعطه صلاحية إرسال الرسائل\n3️⃣ اكتب <b>/play</b> في المجموعة وتبدأ اللعبة بعد 30 ثانية!\n\n<i>إذا كان البوت موجودًا في المجموعة، اكتب /play مباشرة.</i>",
+    "gpm_btn": "➕ اختر المجموعة", "gp_top_btn": "🏆 ترتيب المجموعة",
+    "gp_top": "🏆 <b>متصدرو المجموعة</b>\n<i>🏆 انتصارات · 🎮 ألعاب · ⭐ نقاط</i>\n\n📅 <b>هذا الأسبوع</b>\n{week}\n\n🌍 <b>كل الأوقات</b>\n{all}",
+    "gp_top_plain": "🏆 متصدرو المجموعة (🏆 انتصارات · 🎮 ألعاب · ⭐ نقاط)\n{all}",
+})
+T["en"].update({
+    "btn_group": "👥 Challenge in a group",
+    "gpm_text": "👥 <b>Challenge in a group</b>\n1️⃣ Tap the button and pick the group (the bot gets added)\n2️⃣ Give it permission to send messages\n3️⃣ Type <b>/play</b> in the group and the game starts in 30 seconds!\n\n<i>If the bot is already in the group, just type /play.</i>",
+    "gpm_btn": "➕ Pick a group", "gp_top_btn": "🏆 Group ranking",
+    "gp_top": "🏆 <b>Group leaderboard</b>\n<i>🏆 wins · 🎮 games · ⭐ points</i>\n\n📅 <b>This week</b>\n{week}\n\n🌍 <b>All time</b>\n{all}",
+    "gp_top_plain": "🏆 Group leaderboard (🏆 wins · 🎮 games · ⭐ points)\n{all}",
+})

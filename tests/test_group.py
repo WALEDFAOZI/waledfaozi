@@ -210,3 +210,34 @@ def test_every_game_kind_builds_and_sudden_eliminates():
             assert await play_out(h, [a, b], timeout=12), kind
             assert all(c.reply_parameters.message_id == 70 for c in sent(h)), kind
     run(go())
+
+
+def test_main_menu_group_button_and_start_play_in_group_and_group_ranking_button():
+    async def go():
+        h = Harness()
+        a, b = h.user(1, "Ali"), h.user(2, "Bob")
+        await h.say(a, "/start")
+        from harness import last_menu_call
+        assert "gpm" in {x.callback_data for row in last_menu_call(h).reply_markup.inline_keyboard for x in row}
+        await h.tap(a, "gpm")
+        urls = [x.url for c in h.session.calls if getattr(c, "reply_markup", None) is not None
+                for row in c.reply_markup.inline_keyboard for x in row if x.url]
+        assert any("startgroup=play" in u for u in urls)
+        # الإضافة من الزر ترسل /start play في المجموعة → تظهر قائمة الألعاب كردّ
+        await gsay(h, a, "/start play", mid=90)
+        menu = sent(h)[-1]
+        assert menu.reply_parameters.message_id == 90 and "gp:n:quiz" in buttons(menu) and "gp:t" in buttons(menu)
+        # نتائج سابقة + زر الترتيب
+        h.db.upsert_user(1, "Ali"); h.db.upsert_user(2, "Bob")
+        h.db.add_group_result(GROUP.id, 1, 900, "quiz", True)
+        h.db.add_group_result(GROUP.id, 1, 700, "tf", True)
+        h.db.add_group_result(GROUP.id, 2, 500, "quiz", False)
+        n = len(sent(h))
+        cmd = gmsg(a, "/play", mid=95)
+        await gtap(h, b, "gp:t", reply_to=cmd)
+        board = sent(h)[-1]
+        assert len(sent(h)) == n + 1 and board.reply_parameters.message_id == 95
+        assert "Ali" in board.text and "🏆2" in board.text and "🎮2" in board.text and "⭐1600" in board.text
+        await gtap(h, b, "gp:t", reply_to=cmd)                    # ضغط سريع ثانٍ: نافذة منبثقة بلا رسالة جديدة
+        assert len(sent(h)) == n + 1
+    run(go())
