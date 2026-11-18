@@ -141,7 +141,12 @@ def test_general_rating_top10_is_separate_from_weekly():
         await h.say(u, "/start")
         menu = last_menu_call(h)
         labels = [b.text for row in menu.reply_markup.inline_keyboard for b in row]
-        assert any("التقييم العام" in x for x in labels) and any("تقييم الأسبوع" in x for x in labels)
+        assert any("الترتيب" in x for x in labels) and not any("تقييم الأسبوع" in x for x in labels)   # زر واحد في القائمة
+        tabs = {b.text for row in last_menu_call(h).reply_markup.inline_keyboard for b in row}
+        await h.tap(u, "lb:all")
+        tabs = [b.text for c in h.session.calls if getattr(c, "reply_markup", None) is not None
+                for row in c.reply_markup.inline_keyboard for b in row]
+        assert any("العام" in x for x in tabs) and any("الأسبوع" in x for x in tabs)
         await h.tap(u, "lg:en")
         await h.say(u, "/top")
         assert "Overall rating" in h.session.texts()[-1]

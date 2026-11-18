@@ -412,3 +412,6 @@ T["en"].update({
     "du_result": "⚔️ <b>Duel result</b>\n{a}: <b>{sa}/{n}</b>\n{b}: <b>{sb}/{n}</b>\n\n{v}",
     "du_win": "🏆 {w} wins!", "du_draw": "🤝 It's a draw!",
 })
+
+T["ar"]["btn_rank"] = "🏆 الترتيب"
+T["en"]["btn_rank"] = "🏆 Rankings"
