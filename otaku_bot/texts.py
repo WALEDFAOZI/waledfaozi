@@ -288,3 +288,43 @@ T["en"]["btn_report_q"] = "🚩 Report"
 T["ar"]["rp_pick"] = "🚩 اختر السؤال اللي فيه خطأ (✅ أجبته صح، ❌ أخطأت، ⏭ تخطّيته):"
 T["en"]["rp_pick"] = "🚩 Pick the question with a mistake (✅ got it, ❌ missed, ⏭ skipped):"
 T["ar"]["rp_ok"] = "شكرًا! وصل بلاغك للمراجعة 🙏"
+
+# ── اقترح لي أنمي ──
+GENRE_NAMES = {
+    "action": ("أكشن", "Action"), "adventure": ("مغامرة", "Adventure"), "fantasy": ("خيال", "Fantasy"),
+    "comedy": ("كوميديا", "Comedy"), "romance": ("رومانسي", "Romance"), "drama": ("دراما", "Drama"),
+    "sports": ("رياضة", "Sports"), "mystery": ("غموض", "Mystery"), "thriller": ("إثارة", "Thriller"),
+    "scifi": ("خيال علمي", "Sci-Fi"), "supernatural": ("خارق للطبيعة", "Supernatural"), "music": ("موسيقى", "Music"),
+    "slice": ("شريحة من الحياة", "Slice of Life"), "psychological": ("نفسي", "Psychological"),
+    "school": ("مدرسي", "School"), "family": ("عائلي", "Family"), "historical": ("تاريخي", "Historical"),
+}
+T["ar"].update({
+    "btn_anime": "🎬 اقترح لي أنمي",
+    "an_menu": "🎬 <b>اقترح لي أنمي</b>\nاختر ما يناسبك، أو اترك الأمر للحظ 🎲\n<i>قائمة منتقاة بعناية وبدون محتوى مبتذل.</i>",
+    "an_surprise": "🎲 فاجئني", "an_family": "👨‍👩‍👧 مناسب للجميع", "an_genre": "🎭 حسب النوع", "an_len": "⏱ حسب الطول",
+    "an_pick_genre": "🎭 اختر النوع:", "an_pick_len": "⏱ اختر الطول:",
+    "an_len_film": "🎞 فيلم", "an_len_short": "⚡ قصير (حتى 26 حلقة)", "an_len_medium": "📺 متوسط (27–100)", "an_len_long": "🌊 طويل جدًا",
+    "an_next": "🔄 اقتراح آخر", "an_back": "⬅️ القائمة",
+    "an_empty": "ما لقيت شيئًا بهذه الشروط 😅 جرّب شرطًا آخر.",
+    "an_rate_all": "🟢 مناسب للجميع", "an_rate_teen": "🟡 +13", "an_rate_mature": "🟠 +16",
+    "an_f_genre": "🎭 النوع", "an_f_rate": "🔞 التصنيف", "an_f_info": "📊 المعلومات", "an_f_note": "⚠️ ملاحظة",
+    "an_film": "🎬 فيلم · {m} دقيقة", "an_series": "📺 {s} · {e}",
+    "an_seasons": "{n} موسم", "an_eps": "{n} حلقة", "an_ongoing": "مستمر",
+    "an_foot": "ℹ️ المعلومات تقريبية. إن لقيت خطأ اضغط 🚩",
+    "an_rp_ok": "شكرًا! سنراجع هذا العمل 🙏",
+})
+T["en"].update({
+    "btn_anime": "🎬 Suggest me an anime",
+    "an_menu": "🎬 <b>Suggest me an anime</b>\nPick what suits you, or leave it to luck 🎲\n<i>A carefully curated list with no crude content.</i>",
+    "an_surprise": "🎲 Surprise me", "an_family": "👨‍👩‍👧 All ages", "an_genre": "🎭 By genre", "an_len": "⏱ By length",
+    "an_pick_genre": "🎭 Pick a genre:", "an_pick_len": "⏱ Pick a length:",
+    "an_len_film": "🎞 Movie", "an_len_short": "⚡ Short (up to 26 eps)", "an_len_medium": "📺 Medium (27–100)", "an_len_long": "🌊 Very long",
+    "an_next": "🔄 Another one", "an_back": "⬅️ Menu",
+    "an_empty": "Nothing matches that 😅 Try another filter.",
+    "an_rate_all": "🟢 All ages", "an_rate_teen": "🟡 13+", "an_rate_mature": "🟠 16+",
+    "an_f_genre": "🎭 Genre", "an_f_rate": "🔞 Rating", "an_f_info": "📊 Info", "an_f_note": "⚠️ Note",
+    "an_film": "🎬 Movie · {m} min", "an_series": "📺 {s} · {e}",
+    "an_seasons": "{n} season(s)", "an_eps": "{n} episodes", "an_ongoing": "ongoing",
+    "an_foot": "ℹ️ Info is approximate. Spot a mistake? Tap 🚩",
+    "an_rp_ok": "Thanks! We'll review this title 🙏",
+})

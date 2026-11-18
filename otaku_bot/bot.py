@@ -78,6 +78,7 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
               [btn(t(L, "g_char"), "g:char")],
               [btn(t(L, "g_quote"), "g:quote")],
               [btn(t(L, "sec_more"), "noop")],
+              [btn(t(L, "btn_anime"), "an:m")],
               [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_week"), "lb:week")],
               [btn(t(L, "btn_profile"), "pf"), btn(t(L, "btn_stats"), "st")],
               [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")])

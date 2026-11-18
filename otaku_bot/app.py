@@ -17,6 +17,7 @@ from .bot import build_router
 from .config import Settings
 from .ctx import Ctx
 from .db import DB
+from .recommend import build_recommend_router
 from .games import build_games_router
 
 log = logging.getLogger(__name__)
@@ -62,6 +63,7 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp.callback_query.outer_middleware(Guard())
     dp.include_router(build_admin_router(ctx))   # أولًا: محميّ بفلتر المشرفين
     dp.include_router(build_games_router(ctx))
+    dp.include_router(build_recommend_router(ctx))
     dp.include_router(build_router(ctx))
     return dp
 

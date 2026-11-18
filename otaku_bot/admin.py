@@ -203,7 +203,7 @@ def build_admin_router(ctx: Ctx) -> Router:
         await nav(c, f"🚩 البلاغات المفتوحة (🔴 = وصلت العتبة {thr}):", kb(*btns, BACK), None)
 
     # بلاغات عناصر الألعاب: التعديل الدائم في data/games.json، لكن يمكنك هنا إخفاء العنصر فورًا من اللعبة
-    @r.callback_query(F.data.regexp(r"^ad:gv:(tf|song|ord|char|quote):[0-9a-f]{12}$"))
+    @r.callback_query(F.data.regexp(r"^ad:gv:(tf|song|ord|char|quote|anime):[0-9a-f]{12}$"))
     async def cb_game_review(c: CallbackQuery):
         await c.answer()
         _, _, kind, key = c.data.split(":")
@@ -218,14 +218,14 @@ def build_admin_router(ctx: Ctx) -> Router:
         await c.message.answer(f"🎮 <b>بلاغ على عنصر لعبة</b> ({info['n']})\n{esc(info['label'])}\n\nالأسباب:\n{esc(reasons)}",
                                parse_mode="HTML", reply_markup=kb(*rows, BACK))
 
-    @r.callback_query(F.data.regexp(r"^ad:gh:(tf|song|char|quote):[0-9a-f]{12}$"))
+    @r.callback_query(F.data.regexp(r"^ad:gh:(tf|song|char|quote|anime):[0-9a-f]{12}$"))
     async def cb_game_hide(c: CallbackQuery):
         _, _, kind, key = c.data.split(":")
         db.hide_game_item(key)
         db.close_game_reports(kind, key, "resolved")
         await c.answer("🚫 أُخفي من اللعبة", show_alert=True)
 
-    @r.callback_query(F.data.regexp(r"^ad:gd:(tf|song|ord|char|quote):[0-9a-f]{12}$"))
+    @r.callback_query(F.data.regexp(r"^ad:gd:(tf|song|ord|char|quote|anime):[0-9a-f]{12}$"))
     async def cb_game_dismiss(c: CallbackQuery):
         _, _, kind, key = c.data.split(":")
         db.close_game_reports(kind, key, "dismissed")
