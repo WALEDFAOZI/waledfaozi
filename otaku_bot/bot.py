@@ -93,7 +93,8 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
               [btn(t(L, "btn_quick"), "qk"), btn(t(L, "btn_cat"), "cats")],
               [btn(t(L, "btn_games_menu"), "m:games"), btn(t(L, "btn_anime"), "an:m")],
               [btn(t(L, "btn_rank"), "lb:menu"), btn(t(L, "btn_profile"), "pf")],
-              [btn(t(L, "btn_invite"), "iv"), btn(t(L, "btn_more"), "m:more")],
+              [btn(t(L, "btn_invite"), "iv"), btn(t(L, "btn_stats"), "st")],
+              [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")],
               *chan_row(L))
 
 

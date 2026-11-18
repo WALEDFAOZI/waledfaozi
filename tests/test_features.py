@@ -246,13 +246,10 @@ def test_main_menu_has_new_buttons_and_bank_doubled():
         await h.say(h.user(1), "/start")
         m = last_menu_call(h)
         data = {b.callback_data for row in m.reply_markup.inline_keyboard for b in row}
-        assert {"m:games", "m:more", "an:m", "iv"} <= data
+        assert {"m:games", "an:m", "iv", "sg", "st", "lg:toggle"} <= data and "m:more" not in data
         await h.tap(h.user(1), "m:games")
         gd = {b.callback_data for row in last_menu_call(h).reply_markup.inline_keyboard for b in row}
         assert {"g:char", "g:quote", "g:tf", "g:song", "g:ord"} <= gd
-        await h.tap(h.user(1), "m:more")
-        md = {b.callback_data for row in last_menu_call(h).reply_markup.inline_keyboard for b in row}
-        assert "sg" in md
     run(go())
     qs = json.loads(Path(QPATH).read_text(encoding="utf-8"))
     assert len(qs) >= 616                                         # ضعف البنك السابق (308)
