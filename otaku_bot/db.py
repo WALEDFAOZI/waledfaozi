@@ -80,6 +80,14 @@ CREATE TABLE IF NOT EXISTS game_reports(
 CREATE TABLE IF NOT EXISTS extra_content(
   id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, data TEXT NOT NULL, created_at REAL NOT NULL
 );
+CREATE TABLE IF NOT EXISTS group_chats(
+  chat_id INTEGER PRIMARY KEY, title TEXT, lang TEXT NOT NULL DEFAULT 'ar', created_at REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS group_results(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, chat_id INTEGER NOT NULL, tg_id INTEGER NOT NULL, points INTEGER NOT NULL,
+  kind TEXT NOT NULL, won INTEGER NOT NULL DEFAULT 0, at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_group_results_chat ON group_results(chat_id, at);
 CREATE TABLE IF NOT EXISTS daily_results(
   day INTEGER NOT NULL, mode TEXT NOT NULL, tg_id INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL,
   secs REAL NOT NULL, PRIMARY KEY(day, mode, tg_id)
@@ -345,6 +353,36 @@ class DB:
         return self.conn.execute("SELECT COUNT(*) n FROM users WHERE invited_by=? AND invite_credited=1",
                                  (inviter,)).fetchone()["n"]
 
+    # ── ألعاب المجموعات ─────────────────────────────────────
+    def touch_group(self, chat_id: int, title: str | None) -> None:
+        with self.conn:
+            self.conn.execute(
+                "INSERT INTO group_chats(chat_id,title,created_at) VALUES(?,?,?) "
+                "ON CONFLICT(chat_id) DO UPDATE SET title=excluded.title", (chat_id, title, time.time()))
+
+    def group_lang(self, chat_id: int) -> str:
+        r = self.conn.execute("SELECT lang FROM group_chats WHERE chat_id=?", (chat_id,)).fetchone()
+        return r["lang"] if r else "ar"
+
+    def set_group_lang(self, chat_id: int, lang: str) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE group_chats SET lang=? WHERE chat_id=?", (lang, chat_id))
+
+    def group_count(self) -> int:
+        return self.conn.execute("SELECT COUNT(*) n FROM group_chats").fetchone()["n"]
+
+    def add_group_result(self, chat_id: int, tg_id: int, points: int, kind: str, won: bool) -> None:
+        with self.conn:
+            self.conn.execute("INSERT INTO group_results(chat_id,tg_id,points,kind,won,at) VALUES(?,?,?,?,?,?)",
+                              (chat_id, tg_id, points, kind, int(won), time.time()))
+
+    def group_top(self, chat_id: int, since: float = 0.0, limit: int = 10) -> list[sqlite3.Row]:
+        return self.conn.execute(
+            """SELECT u.name, SUM(r.points) pts, COUNT(*) games, SUM(r.won) wins FROM group_results r
+               JOIN users u ON u.tg_id=r.tg_id WHERE r.chat_id=? AND r.at>=?
+               AND r.tg_id NOT IN (SELECT tg_id FROM admins)
+               GROUP BY r.tg_id ORDER BY pts DESC LIMIT ?""", (chat_id, since, limit)).fetchall()
+
     # ── التحدي اليومي والسلسلة والتذكير ─────────────────────
     @staticmethod
     def today() -> int:
@@ -609,6 +647,21 @@ class DB:
             if r["tg_id"] == tg_id:
                 return i
         return None
+
+    def sudden_rank(self, tg_id: int) -> int | None:
+        u = self.get_user(tg_id)
+        if not u or u["best_sudden"] <= 0:
+            return None
+        return self.conn.execute("SELECT COUNT(*)+1 rk FROM users WHERE best_sudden>? AND tg_id NOT IN (SELECT tg_id FROM admins)",
+                                 (u["best_sudden"],)).fetchone()["rk"]
+
+    def game_rank(self, tg_id: int, kind: str) -> int | None:
+        r = self.conn.execute("SELECT best FROM game_scores WHERE tg_id=? AND kind=?", (tg_id, kind)).fetchone()
+        if not r or r["best"] <= 0:
+            return None
+        return self.conn.execute(
+            "SELECT COUNT(*)+1 rk FROM game_scores WHERE kind=? AND best>? AND tg_id NOT IN (SELECT tg_id FROM admins)",
+            (kind, r["best"])).fetchone()["rk"]
 
     def sudden_leaderboard(self, limit: int = 10) -> list[sqlite3.Row]:
         return self.conn.execute(

@@ -136,10 +136,10 @@ def test_rankings_are_split_by_type_and_hide_admin():
             h.db.conn.execute("INSERT INTO game_scores(tg_id,kind,best) VALUES(1,'tf',8),(2,'tf',6),(9,'tf',10),(1,'song',5)")
         d = h.db.today()
         h.db.record_daily(d, "daily", 1, 4, 5, 20); h.db.record_daily(d, "daily", 9, 5, 5, 10)
-        await h.tap(u, "lb:all")
+        await h.tap(u, "lb:menu")
         cbs = {b.callback_data for c in h.session.calls if getattr(c, "reply_markup", None) is not None
                for row in c.reply_markup.inline_keyboard for b in row}
-        assert {"lb:all", "lb:week", "lb:sd", "lb:gm", "lb:dy"} <= cbs
+        assert {"lb:all", "lb:sd", "lb:gm", "lb:dy"} <= cbs and "lb:week" not in cbs      # الشاشة الأولى: أقسام فقط
         await h.tap(u, "lb:g:tf")
         txt = h.session.texts()[-1] if h.session.texts() else ""
         calls = [c for c in h.session.calls if type(c).__name__ in ("EditMessageText", "SendMessage")]

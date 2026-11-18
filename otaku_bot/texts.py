@@ -420,3 +420,18 @@ T["ar"].update({"lt_quiz": "🎯 الاختبار", "lt_sd": "☠️ الموت"
                 "lt_daily_head": "📅 <b>متصدرو تحدي اليوم</b>", "lt_game_head": "🎮 <b>متصدرو لعبة: {g}</b>"})
 T["en"].update({"lt_quiz": "🎯 Test", "lt_sd": "☠️ Sudden", "lt_games": "🎮 Games", "lt_daily": "📅 Daily",
                 "lt_daily_head": "📅 <b>Today's daily challenge top</b>", "lt_game_head": "🎮 <b>Top players: {g}</b>"})
+
+T["ar"].update({
+    "lbm_text": "🏆 <b>الترتيب</b>\nاختر القسم اللي تبي تشوفه:\n\n🎯 <b>الاختبار</b> — أعلى تقييم من 10 (عام وأسبوعي)\n☠️ <b>الموت المفاجئ</b> — أطول سلسلة إجابات صحيحة\n🎮 <b>الألعاب</b> — أعلى نتيجة في كل لعبة\n📅 <b>اليومي</b> — متصدرو تحدي اليوم",
+    "lbm_quiz": "🎯 ترتيب الاختبار", "lbm_sd": "☠️ ترتيب الموت المفاجئ", "lbm_games": "🎮 ترتيب الألعاب", "lbm_daily": "📅 متصدرو اليوم",
+    "lb_back": "⬅️ أقسام الترتيب", "lb_you_none": "\n\nما دخلت الترتيب بعد، العب وكن منهم! 💪",
+    "lg_tf": "✅❌ صح/غلط", "lg_song": "🎵 الأغنية", "lg_ord": "📅 الترتيب", "lg_char": "🕵️ الشخصية", "lg_quote": "💬 الاقتباس",
+    "tab_all": "🌍 العام", "tab_week": "📅 الأسبوعي",
+})
+T["en"].update({
+    "lbm_text": "🏆 <b>Rankings</b>\nPick a section:\n\n🎯 <b>Test</b> — best score out of 10 (overall & weekly)\n☠️ <b>Sudden death</b> — longest correct streak\n🎮 <b>Games</b> — best score in each game\n📅 <b>Daily</b> — today's challenge leaders",
+    "lbm_quiz": "🎯 Test ranking", "lbm_sd": "☠️ Sudden-death ranking", "lbm_games": "🎮 Games ranking", "lbm_daily": "📅 Today's leaders",
+    "lb_back": "⬅️ Ranking sections", "lb_you_none": "\n\nYou're not on the board yet, play and join in! 💪",
+    "lg_tf": "✅❌ True/False", "lg_song": "🎵 Song", "lg_ord": "📅 Order", "lg_char": "🕵️ Character", "lg_quote": "💬 Quote",
+    "tab_all": "🌍 Overall", "tab_week": "📅 Weekly",
+})

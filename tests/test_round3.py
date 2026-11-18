@@ -137,7 +137,7 @@ def test_general_rating_top10_is_separate_from_weekly():
         assert "تقييم الأسبوع" in wk or "الأسبوع" in wk
         wk_lines = [l for l in wk.splitlines() if "P" in l and "—" in l]
         assert len(wk_lines) == 4 and "P4" in wk_lines[0]            # الأسبوعي لا يضم القدامى
-        assert {"lb:all", "lb:week", "lb:sd"} <= cb_data(h)
+        assert {"lb:all", "lb:week", "lb:menu"} <= cb_data(h)
         await h.say(u, "/start")
         menu = last_menu_call(h)
         labels = [b.text for row in menu.reply_markup.inline_keyboard for b in row]
