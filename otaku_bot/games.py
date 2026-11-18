@@ -1,12 +1,13 @@
 """ألعاب منفصلة عن الاختبار الرئيسي: صح/غلط، خمّن الأنمي من الأغنية، ورتّب حسب سنة العرض."""
 from __future__ import annotations
 
+import hashlib
 import json
 import random
 from pathlib import Path
 
 from aiogram import F, Router
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
 
@@ -19,13 +20,35 @@ ROUNDS = {"tf": 10, "song": 10, "ord": 8, "char": 10, "quote": 10}
 MC_KINDS = ("song", "char", "quote")   # أسئلة اختيار من متعدد
 
 
+def item_key(content: str) -> str:
+    """مفتاح ثابت لعنصر لعبة (للإبلاغ عنه وإخفائه) من نصه، فلا يتأثر بترتيب الملف."""
+    return hashlib.md5(content.encode("utf-8")).hexdigest()[:12]
+
+
+def round_info(kind: str, rd, data: dict) -> tuple[str, str]:
+    """(المفتاح, وصف قصير) للجولة الحالية، لتُستخدم في البلاغات."""
+    if kind == "tf":
+        text = data["tf"][rd][0]
+        return item_key(text), f"✅❌ {text}"
+    if kind == "song":
+        right = rd["options"][rd["answer"]]
+        return item_key(f"{rd['song']}|{right}"), f"🎵 {rd['song']} → {right}"
+    if kind == "char":
+        return item_key(rd["text"]["ar"]), f"🕵️ {rd['text']['ar']}"
+    if kind == "quote":
+        return item_key(rd["text"]["en"]), f"💬 {rd['text']['en']}"
+    names = ", ".join(i["name"] for i in rd["items"])
+    return item_key("ord|" + names), f"📅 {names}"
+
+
 def load_games(path: str | Path | None = None) -> dict:
     return json.loads(Path(path or ROOT / "data" / "games.json").read_text(encoding="utf-8"))
 
 
 # ── المنطق الصافي (قابل للاختبار) ───────────────────────────
-def tf_rounds(data: dict, rng: random.Random, n: int = 10) -> list[int]:
-    return rng.sample(range(len(data["tf"])), min(n, len(data["tf"])))
+def tf_rounds(data: dict, rng: random.Random, n: int = 10, hidden=frozenset()) -> list[int]:
+    ok = [i for i, s in enumerate(data["tf"]) if item_key(s[0]) not in hidden]
+    return rng.sample(ok, min(n, len(ok)))
 
 
 def _clash(a: str, b: str) -> bool:
@@ -35,10 +58,11 @@ def _clash(a: str, b: str) -> bool:
     return a in b or b in a
 
 
-def song_rounds(data: dict, rng: random.Random, n: int = 10) -> list[dict]:
+def song_rounds(data: dict, rng: random.Random, n: int = 10, hidden=frozenset()) -> list[dict]:
     names = sorted({a for _, a in data["songs"]})
+    visible = [x for x in data["songs"] if item_key(f"{x[0]}|{x[1]}") not in hidden]
     out = []
-    for song, anime in rng.sample(data["songs"], min(n, len(data["songs"]))):
+    for song, anime in rng.sample(visible, min(n, len(visible))):
         pool = [x for x in names if not _clash(x, anime)]
         options = [anime] + rng.sample(pool, 3)
         rng.shuffle(options)
@@ -46,10 +70,11 @@ def song_rounds(data: dict, rng: random.Random, n: int = 10) -> list[dict]:
     return out
 
 
-def char_rounds(data: dict, rng: random.Random, n: int = 10) -> list[dict]:
+def char_rounds(data: dict, rng: random.Random, n: int = 10, hidden=frozenset()) -> list[dict]:
     names = sorted({c[2] for c in data["chars"]})
+    visible = [c for c in data["chars"] if item_key(c[0]) not in hidden]
     out = []
-    for ar, en, name in rng.sample(data["chars"], min(n, len(data["chars"]))):
+    for ar, en, name in rng.sample(visible, min(n, len(visible))):
         pool = [x for x in names if not _clash(x, name)]
         options = [name] + rng.sample(pool, 3)
         rng.shuffle(options)
@@ -57,10 +82,11 @@ def char_rounds(data: dict, rng: random.Random, n: int = 10) -> list[dict]:
     return out
 
 
-def quote_rounds(data: dict, rng: random.Random, n: int = 10) -> list[dict]:
+def quote_rounds(data: dict, rng: random.Random, n: int = 10, hidden=frozenset()) -> list[dict]:
     animes = sorted({q[2] for q in data["quotes"]} | set(data.get("quote_extra", [])))
+    visible = [q for q in data["quotes"] if item_key(q[0]) not in hidden]
     out = []
-    for en, ar, anime in rng.sample(data["quotes"], min(n, len(data["quotes"]))):
+    for en, ar, anime in rng.sample(visible, min(n, len(visible))):
         pool = [x for x in animes if not _clash(x, anime)]
         options = [anime] + rng.sample(pool, 3)
         rng.shuffle(options)
@@ -68,7 +94,7 @@ def quote_rounds(data: dict, rng: random.Random, n: int = 10) -> list[dict]:
     return out
 
 
-def order_rounds(data: dict, rng: random.Random, n: int = 8) -> list[dict]:
+def order_rounds(data: dict, rng: random.Random, n: int = 8, hidden=frozenset()) -> list[dict]:
     out = []
     items = data["anime"]
     for _ in range(n):
@@ -90,9 +116,9 @@ def order_correct(round_: dict) -> list[int]:
     return sorted(range(len(items)), key=lambda i: items[i]["year"])
 
 
-def new_state(kind: str, data: dict, rng: random.Random) -> dict:
+def new_state(kind: str, data: dict, rng: random.Random, hidden=frozenset()) -> dict:
     rounds = {"tf": tf_rounds, "song": song_rounds, "ord": order_rounds,
-              "char": char_rounds, "quote": quote_rounds}[kind](data, rng, ROUNDS[kind])
+              "char": char_rounds, "quote": quote_rounds}[kind](data, rng, ROUNDS[kind], hidden)
     return {"rounds": rounds, "pos": 0, "score": 0, "picked": []}
 
 
@@ -112,7 +138,8 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
 
     def screen(L: str, gid: int, kind: str, st: dict):
         text, markup = _screen(L, gid, kind, st)
-        rows = list(markup.inline_keyboard) + [[btn(t(L, "g_stop"), f"gx:{gid}")]]   # إنهاء اللعبة في أي وقت
+        rows = list(markup.inline_keyboard) + [[btn(t(L, "btn_report_q"), f"gq:{gid}:{st['pos']}"),
+                                                 btn(t(L, "g_stop"), f"gx:{gid}")]]      # إبلاغ + إنهاء في أي وقت
         return text, kb(*rows)
 
     def _screen(L: str, gid: int, kind: str, st: dict):
@@ -170,7 +197,7 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
         await c.answer()
         db.upsert_user(c.from_user.id, c.from_user.full_name)
         kind = c.data.split(":")[1]
-        gid = db.new_game(c.from_user.id, kind, new_state(kind, games, rng))
+        gid = db.new_game(c.from_user.id, kind, new_state(kind, games, rng, db.game_hidden()))
         g = db.get_game(gid)
         L = lang(c.from_user.id)
         text, markup = screen(L, gid, kind, g["state"])
@@ -210,6 +237,49 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
         rd = g["state"]["rounds"][g["state"]["pos"]]
         ok = int(idx) == rd["answer"]
         await step(c, int(gid), ok, t(L, "g_ok") if ok else f"{t(L, 'g_bad')} — {rd['options'][rd['answer']]}")
+
+    # ── الإبلاغ عن عنصر لعبة (نفس قيود الأسئلة: لازم يكون ظهر لك، وبلاغ واحد لكل عنصر، وحد يومي) ──
+    @r.callback_query(F.data.regexp(r"^gq:\d+:\d+$"))
+    async def cb_game_report(c: CallbackQuery):
+        _, gid, pos = c.data.split(":")
+        L = lang(c.from_user.id)
+        g = db.get_game(int(gid))
+        if not g or g["tg_id"] != c.from_user.id or int(pos) >= len(g["state"]["rounds"]) or int(pos) > g["state"]["pos"]:
+            await c.answer(t(L, "rp_closed"))
+            return
+        await c.answer()
+        await c.message.answer(t(L, "rp_reason"), reply_markup=kb(
+            *[[btn(t(L, f"rr_{i}"), f"gz:{gid}:{pos}:{i}")] for i in range(4)]))
+
+    @r.callback_query(F.data.regexp(r"^gz:\d+:\d+:[0-3]$"))
+    async def cb_game_report_send(c: CallbackQuery):
+        _, gid, pos, ri = c.data.split(":")
+        L = lang(c.from_user.id)
+        g = db.get_game(int(gid))
+        pos, ri = int(pos), int(ri)
+        if not g or g["tg_id"] != c.from_user.id or pos >= len(g["state"]["rounds"]) or pos > g["state"]["pos"]:
+            await c.answer(t(L, "rp_closed"))
+            return
+        kind = g["kind"]
+        key, label = round_info(kind, g["state"]["rounds"][pos], games)
+        res = db.add_game_report(kind, key, label, c.from_user.id, t("ar", f"rr_{ri}"), ctx.reports_per_day())
+        if res == "dup":
+            await c.answer(t(L, "rp_dup"), show_alert=True)
+        elif res == "limit":
+            await c.answer(t(L, "rp_limit", n=ctx.reports_per_day()), show_alert=True)
+        else:
+            await c.answer(t(L, "rp_ok"))
+            if db.game_open_count(kind, key) == ctx.report_threshold():
+                for admin in ctx.admin_ids():
+                    try:
+                        await c.bot.send_message(admin, f"🚩 عنصر لعبة وصل {ctx.report_threshold()} بلاغات مستقلة:\n{label}",
+                                                 reply_markup=kb([btn("🔎 مراجعة", f"ad:gv:{kind}:{key}")]))
+                    except TelegramAPIError:
+                        pass
+        try:
+            await c.message.delete()                      # ننظّف رسالة الأسباب؛ اللعبة نفسها لم تتأثر
+        except TelegramBadRequest:
+            pass
 
     @r.callback_query(F.data.startswith("gx:"))
     async def cb_game_stop(c: CallbackQuery):

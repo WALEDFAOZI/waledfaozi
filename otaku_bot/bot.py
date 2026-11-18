@@ -100,6 +100,11 @@ def build_router(ctx: Ctx) -> Router:
     def lang(uid: int) -> str:
         return db.get_lang(uid)
 
+    def welcome_for(L: str, user) -> str:
+        """يا هلا والله {الاسم}! — الاسم الأول للمستخدم (وإن لم يوجد فالاسم الكامل)."""
+        first = (getattr(user, "first_name", None) or getattr(user, "full_name", None) or "").strip()
+        return t(L, "welcome", name=esc(first[:30]) or ("صديقي" if L == "ar" else "friend"))
+
     def menu(L: str, top=None) -> InlineKeyboardMarkup:
         return menu_kb(L, top, images=db.category_counts(L).get("images", 0) >= 10)
 
@@ -204,7 +209,7 @@ def build_router(ctx: Ctx) -> Router:
         lines = [f"{letters[i]}) {esc(opts[o])}" for i, o in enumerate(order)]
         text = f"{head}\n\n<b>{esc(q.text(L))}</b>\n\n" + "\n".join(lines)
         answers = [btn(letters[i], f"a:{sid}:{pos}:{i}") for i in range(len(order))]
-        return text, kb(answers, [btn(t(L, "btn_stop"), f"stop:{sid}")]), q.image
+        return text, kb(answers, [btn(t(L, "btn_report_q"), f"rq:{sid}:{pos}"), btn(t(L, "btn_stop"), f"stop:{sid}")]), q.image
 
     def expired(row) -> bool:
         return bool(ctx.timer() and row["sent_at"] and time.time() - row["sent_at"] > ctx.timer() + GRACE_SECONDS)
@@ -253,7 +258,8 @@ def build_router(ctx: Ctx) -> Router:
         q = db.get_question(row["question_id"])
         right = q.opts(L)[json.loads(row["option_order"])[row["correct_pos"]]]
         await render(bot, chat_id, sid, t(L, "timeout", ans=esc(right)),
-                     kb([btn(t(L, "btn_next"), f"n:{sid}:{pos}")], [btn(t(L, "btn_stop"), f"stop:{sid}")]))
+                     kb([btn(t(L, "btn_next"), f"n:{sid}:{pos}")],
+                        [btn(t(L, "btn_report_q"), f"rq:{sid}:{pos}"), btn(t(L, "btn_stop"), f"stop:{sid}")]))
 
     async def advance_after(bot: Bot, chat_id: int, sid: int, pos: int, correct: bool) -> None:
         sess = db.get_session(sid)
@@ -348,8 +354,8 @@ def build_router(ctx: Ctx) -> Router:
             link = f"https://t.me/{username}?start=ch_{sid}"
             share = t(L, "share_text", score=f"{score:.1f}", title=title)
             rows.append([btn(t(L, "btn_share"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")])
-        if db.session_wrong(sid):
-            rows.append([btn(t(L, "btn_report"), f"rp:{sid}")])
+        if db.session_shown(sid):
+            rows.append([btn(t(L, "btn_report"), f"rp:{sid}:0")])
         markup = kb(*rows)
         caption = "\n".join(parts)
         await drop_quiz_message()
@@ -459,7 +465,7 @@ def build_router(ctx: Ctx) -> Router:
                 extra = t(L, "challenge_banner", name=esc(friend["name"]), score=f"{s['score']:.1f}",
                           title=esc(title_for(s["score"], L)))
                 top = [[btn(t(L, "btn_accept"), f"cc:{s['id']}")]]
-        await send_welcome(m, L, t(L, "welcome") + extra, menu(L, top))
+        await send_welcome(m, L, welcome_for(L, m.from_user) + extra, menu(L, top))
 
     @r.message(Command("help"))
     async def cmd_help(m: Message):
@@ -488,6 +494,15 @@ def build_router(ctx: Ctx) -> Router:
             f"🏓 pong\n⏱ تأخر وصول رسالتك للبوت: {age:.0f} ث (±1)\n📤 زمن إرسال الرد إلى تليجرام: {rt:.0f} ms\n\n"
             "• التأخر كبير (أكثر من 3 ث)؟ المشكلة في الوصول: نسخة ثانية/Conflict أو شبكة الاستضافة.\n"
             "• التأخر صغير والرد بطيء؟ المشكلة في الاستضافة نفسها.")
+
+    @r.message(Command("chatid"))
+    async def cmd_chatid(m: Message):
+        """يعرض رقم المحادثة (اكتبه داخل قناة/مجموعة النسخ ليعطيك BACKUP_CHAT_ID)."""
+        await m.answer(f"chat id: <code>{m.chat.id}</code>", parse_mode="HTML")
+
+    @r.channel_post(Command("chatid"))
+    async def ch_chatid(m: Message):
+        await m.answer(f"chat id: <code>{m.chat.id}</code>", parse_mode="HTML")
 
     @r.message(Command("lang"))
     async def cmd_lang(m: Message):
@@ -701,7 +716,7 @@ def build_router(ctx: Ctx) -> Router:
     async def cb_menu(c: CallbackQuery):
         await c.answer()
         L = lang(c.from_user.id)
-        await c.message.answer(t(L, "welcome"), reply_markup=menu(L), parse_mode="HTML")
+        await c.message.answer(welcome_for(L, c.from_user), reply_markup=menu(L), parse_mode="HTML")
 
     def name_of(c: CallbackQuery) -> str:
         return c.from_user.full_name
@@ -763,7 +778,7 @@ def build_router(ctx: Ctx) -> Router:
             new = "ar" if lang(c.from_user.id) == "en" else "en"
         db.set_lang(c.from_user.id, new)
         await c.answer(t(new, "lang_set"))
-        await c.message.answer(t(new, "welcome"), reply_markup=menu(new), parse_mode="HTML")
+        await c.message.answer(welcome_for(new, c.from_user), reply_markup=menu(new), parse_mode="HTML")
 
     @r.callback_query(F.data == "chk")
     async def cb_check(c: CallbackQuery):
@@ -774,7 +789,7 @@ def build_router(ctx: Ctx) -> Router:
             return
         note_join(c.from_user.id)
         await c.answer(t(L, "sub_ok"))
-        await c.message.answer(t(L, "welcome"), reply_markup=menu(L), parse_mode="HTML")
+        await c.message.answer(welcome_for(L, c.from_user), reply_markup=menu(L), parse_mode="HTML")
 
     @r.callback_query(F.data.startswith("nw:"))
     async def cb_new(c: CallbackQuery):
@@ -893,55 +908,72 @@ def build_router(ctx: Ctx) -> Router:
     async def cmd_stop(m: Message, state: FSMContext):
         await stop_everything(m.bot, m.chat.id, m.from_user.id, state)
 
-    # ── الإبلاغ عن الأسئلة (مقيَّد حتى لا يُساء استخدامه) ──
-    # • يظهر زر الإبلاغ فقط بعد انتهاء الاختبار، وللأسئلة التي أخطأ فيها اللاعب نفسه.
-    # • بلاغ واحد لكل مستخدم لكل سؤال، وحد يومي لكل مستخدم.
+    # ── الإبلاغ عن الأخطاء: متاح لكل سؤال، بحماية من الإساءة ──
+    # • زر «🚩 أبلغ» على كل سؤال أثناء الاختبار، وبعد النتيجة قائمة بكل أسئلة جولتك (✅/❌).
+    # • لازم يكون السؤال ظهر لك فعلًا في جلستك أنت (لا يمكن الإبلاغ عن سؤال لم تره).
+    # • بلاغ واحد لكل مستخدم لكل سؤال، وحد يومي لكل مستخدم (الإعدادات).
     # • لا يصل الأدمن إلا عند تجمّع عدة بلاغات مستقلة على نفس السؤال (العتبة من الإعدادات).
-    def finished_own(c: CallbackQuery, sid: int):
+    def own_shown(c: CallbackQuery, sid: int, pos: int):
+        """صف السؤال إن كانت الجلسة له وكان السؤال قد ظهر له (في أي حالة للجلسة)."""
         s = db.get_session(sid)
-        return s if s and s["tg_id"] == c.from_user.id and s["state"] == "finished" else None
+        if not s or s["tg_id"] != c.from_user.id:
+            return None
+        row = db.session_question(sid, pos)
+        return row if row and row["sent_at"] is not None else None
 
-    @r.callback_query(F.data.startswith("rp:"))
+    PAGE = 8
+
+    @r.callback_query(F.data.regexp(r"^rp:\d+(:\d+)?$"))
     async def cb_report_list(c: CallbackQuery):
         await c.answer()
         L = lang(c.from_user.id)
-        sid = int(c.data.split(":")[1])
-        if not finished_own(c, sid):
+        parts = c.data.split(":")
+        sid, page = int(parts[1]), int(parts[2]) if len(parts) > 2 else 0
+        s = db.get_session(sid)
+        if not s or s["tg_id"] != c.from_user.id:
             await c.message.answer(t(L, "rp_closed"))
             return
-        wrong = db.session_wrong(sid)[:8]
-        if not wrong:
+        shown = db.session_shown(sid)
+        if not shown:
             await c.message.answer(t(L, "rp_none"))
             return
+        pages = (len(shown) + PAGE - 1) // PAGE
+        page = max(0, min(page, pages - 1))
         rows = []
-        for w in wrong:
+        for w in shown[page * PAGE:(page + 1) * PAGE]:
             q = db.get_question(w["question_id"])
-            rows.append([btn(f"{w['pos'] + 1}. {q.text(L)[:45]}", f"rq:{sid}:{w['pos']}")])
-        await c.message.answer(t(L, "rp_pick"), reply_markup=kb(*rows))
+            icon = "✅" if w["is_correct"] == 1 else "❌" if w["is_correct"] == 0 else "⏭"
+            rows.append([btn(f"{icon} {w['pos'] + 1}. {q.text(L)[:40]}", f"rq:{sid}:{w['pos']}")])
+        nav = []
+        if page > 0:
+            nav.append(btn("◀️", f"rp:{sid}:{page - 1}"))
+        nav.append(btn(f"{page + 1}/{pages}", "noop"))
+        if page < pages - 1:
+            nav.append(btn("▶️", f"rp:{sid}:{page + 1}"))
+        await c.message.answer(t(L, "rp_pick"), reply_markup=kb(*rows, nav if pages > 1 else []))
 
-    @r.callback_query(F.data.startswith("rq:"))
+    @r.callback_query(F.data.regexp(r"^rq:\d+:\d+$"))
     async def cb_report_reason(c: CallbackQuery):
-        await c.answer()
         L = lang(c.from_user.id)
         _, sid, pos = c.data.split(":")
-        sid, pos = int(sid), int(pos)
-        if not finished_own(c, sid):
+        row = own_shown(c, int(sid), int(pos))
+        if not row:
+            await c.answer(t(L, "rp_closed"))
             return
-        q = db.get_question(db.session_question(sid, pos)["question_id"])
+        await c.answer()
+        q = db.get_question(row["question_id"])
         idx = [0, 1, 2, 3] + ([4] if q.image else [])
+        # رسالة جديدة: لا نلمس رسالة السؤال، فيستمر الاختبار والمؤقت كما هما
         await c.message.answer(t(L, "rp_reason"),
                                reply_markup=kb(*[[btn(t(L, f"rr_{i}"), f"rr:{sid}:{pos}:{i}")] for i in idx]))
 
-    @r.callback_query(F.data.startswith("rr:"))
+    @r.callback_query(F.data.regexp(r"^rr:\d+:\d+:\d$"))
     async def cb_report_send(c: CallbackQuery):
         L = lang(c.from_user.id)
         _, sid, pos, ri = c.data.split(":")
         sid, pos, ri = int(sid), int(pos), int(ri)
-        if not finished_own(c, sid) or not 0 <= ri <= 4:
-            await c.answer(t(L, "rp_closed"))
-            return
-        row = db.session_question(sid, pos)
-        if not row or row["is_correct"] != 0:
+        row = own_shown(c, sid, pos)
+        if not row or not 0 <= ri <= 4:
             await c.answer(t(L, "rp_closed"))
             return
         res = db.add_report(row["question_id"], c.from_user.id, t("ar", f"rr_{ri}"), ctx.reports_per_day())
@@ -950,7 +982,7 @@ def build_router(ctx: Ctx) -> Router:
         elif res == "limit":
             await c.answer(t(L, "rp_limit", n=ctx.reports_per_day()), show_alert=True)
         else:
-            await c.answer(t(L, "rp_ok"), show_alert=True)
+            await c.answer(t(L, "rp_ok"))
             qid = row["question_id"]
             if db.open_report_count(qid) == ctx.report_threshold():
                 q = db.get_question(qid)
@@ -961,6 +993,10 @@ def build_router(ctx: Ctx) -> Router:
                             reply_markup=kb([btn("🔎 مراجعة", f"ad:rv:{qid}")]))
                     except TelegramAPIError:
                         pass
+        try:
+            await c.message.delete()                 # ننظّف رسالة الأسباب (واختبارك لم يتأثر)
+        except TelegramAPIError:
+            pass
 
     # شبكة أمان: أي زر لم يلتقطه معالج (زر قديم من رسالة سابقة) يُجاب فورًا بدل أن يبقى «يحمّل» بلا رد.
     # يجب أن يبقى آخر معالج في آخر راوتر.

@@ -29,7 +29,7 @@ class Ctx:
         return int(self.db.get_setting("report_threshold", "3"))
 
     def reports_per_day(self) -> int:
-        return int(self.db.get_setting("reports_per_day", "3"))
+        return int(self.db.get_setting("reports_per_day", "10"))
 
     def is_admin(self, tg_id: int) -> bool:
         return tg_id in self.settings.admin_ids or self.db.is_admin(tg_id)

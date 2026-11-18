@@ -23,7 +23,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, FSInputFile, Message
 
 from . import anilist
-from .backup import enabled as backup_enabled, last_backup_text, make_zip
+from .backup import chat_status_text, enabled as backup_enabled, last_backup_text, make_zip, send_chat_backup
 from .growth import growth_text, refresh_count
 from .countries import label as country_label
 from .bot import btn, esc, kb
@@ -193,14 +193,45 @@ def build_admin_router(ctx: Ctx) -> Router:
     @r.callback_query(F.data == "ad:rep")
     async def cb_reports(c: CallbackQuery):
         await c.answer()
-        rows = db.open_reports_grouped()
-        if not rows:
+        rows, games = db.open_reports_grouped(), db.game_reports_grouped()
+        if not rows and not games:
             await nav(c, "لا توجد بلاغات مفتوحة 🎉", kb(BACK), None)
             return
         thr = ctx.report_threshold()
         btns = [[btn(f"{'🔴' if x['n'] >= thr else '🟡'} #{x['qid']} ({x['n']}) {x['q'][:30]}", f"ad:rv:{x['qid']}")]
                 for x in rows]
+        btns += [[btn(f"{'🔴' if x['n'] >= thr else '🟡'} 🎮 ({x['n']}) {x['label'][:34]}", f"ad:gv:{x['kind']}:{x['key']}")]
+                 for x in games]
         await nav(c, f"🚩 البلاغات المفتوحة (🔴 = وصلت العتبة {thr}):", kb(*btns, BACK), None)
+
+    # بلاغات عناصر الألعاب: التعديل الدائم في data/games.json، لكن يمكنك هنا إخفاء العنصر فورًا من اللعبة
+    @r.callback_query(F.data.regexp(r"^ad:gv:(tf|song|ord|char|quote):[0-9a-f]{12}$"))
+    async def cb_game_review(c: CallbackQuery):
+        await c.answer()
+        _, _, kind, key = c.data.split(":")
+        info = db.game_report_info(kind, key)
+        if not info:
+            await c.message.answer("هذا البلاغ تمّت مراجعته.", reply_markup=kb(BACK))
+            return
+        reasons = "\n".join(f"  • {k}: {v}" for k, v in info["reasons"].items())
+        rows = [[btn("🙈 تجاهل البلاغات", f"ad:gd:{kind}:{key}")]]
+        if kind != "ord":
+            rows.insert(0, [btn("🚫 أخفِه من اللعبة", f"ad:gh:{kind}:{key}")])
+        await c.message.answer(f"🎮 <b>بلاغ على عنصر لعبة</b> ({info['n']})\n{esc(info['label'])}\n\nالأسباب:\n{esc(reasons)}",
+                               parse_mode="HTML", reply_markup=kb(*rows, BACK))
+
+    @r.callback_query(F.data.regexp(r"^ad:gh:(tf|song|char|quote):[0-9a-f]{12}$"))
+    async def cb_game_hide(c: CallbackQuery):
+        _, _, kind, key = c.data.split(":")
+        db.hide_game_item(key)
+        db.close_game_reports(kind, key, "resolved")
+        await c.answer("🚫 أُخفي من اللعبة", show_alert=True)
+
+    @r.callback_query(F.data.regexp(r"^ad:gd:(tf|song|ord|char|quote):[0-9a-f]{12}$"))
+    async def cb_game_dismiss(c: CallbackQuery):
+        _, _, kind, key = c.data.split(":")
+        db.close_game_reports(kind, key, "dismissed")
+        await c.answer("🙈 تم تجاهل البلاغات", show_alert=True)
 
     @r.callback_query(F.data.startswith("ad:rv:"))
     async def cb_review(c: CallbackQuery):
@@ -476,13 +507,14 @@ def build_admin_router(ctx: Ctx) -> Router:
                 f"🚩 عتبة إشعار البلاغات: <b>{ctx.report_threshold()}</b> بلاغات مستقلة · "
                 f"حد المستخدم اليومي: <b>{ctx.reports_per_day()}</b>\n"
                 f"💾 النسخة الأسبوعية التلقائية: <b>{'✅ مفعّلة' if backup_enabled(ctx) else '❌ متوقفة'}</b> "
-                f"(آخر نسخة: {last_backup_text(ctx)})")
+                f"(آخر نسخة: {last_backup_text(ctx)})\n{chat_status_text(ctx)}")
         markup = kb(
             [btn("⏱ " + (str(v) if v else "بدون"), f"ad:st:{v}") for v in (0, 15, 20, 30, 45, 60)],
             [btn(f"⏳ {v}", f"ad:cd:{v}") for v in (0, 10, 30, 60, 120)],
             [btn(f"🚩 عتبة {v}", f"ad:rt:{v}") for v in (1, 2, 3, 5)],
             [btn(f"🚩 يوميًا {v}", f"ad:rd:{v}") for v in (1, 3, 5, 10)],
             [btn("💾 تفعيل النسخ الأسبوعي", "ad:ab:1"), btn("💾 إيقافه", "ad:ab:0")],
+            [btn("🛟 أرسل نسخة لقناة النسخ الآن", "ad:cb")],
             [btn("📢 تغيير/تعطيل القناة", "ad:ch")], BACK)
         return text, markup
 
@@ -510,6 +542,12 @@ def build_admin_router(ctx: Ctx) -> Router:
         await c.answer("✅ تم الحفظ")
         text, markup = settings_view()
         await nav(c, text, markup)
+
+    @r.callback_query(F.data == "ad:cb")
+    async def cb_chat_backup(c: CallbackQuery):
+        await c.answer("⏳ أرسل النسخة…")
+        ok, msg = await send_chat_backup(c.bot, ctx)
+        await c.message.answer(("✅ " if ok else "❌ ") + msg)
 
     @r.callback_query(F.data == "ad:ch")
     async def cb_channel(c: CallbackQuery, state: FSMContext):

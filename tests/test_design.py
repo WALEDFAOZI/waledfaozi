@@ -74,9 +74,9 @@ def test_bundled_banners_exist_and_licenses_are_shipped():
 def test_start_sends_banner_with_menu_caches_file_id_and_falls_back():
     async def go():
         h = Harness()
-        await h.say(h.user(1), "/start")
+        await h.say(h.user(1, "Waled"), "/start")
         m = last_menu_call(h)
-        assert type(m).__name__ == "SendPhoto" and "يا هلا" in m.caption
+        assert type(m).__name__ == "SendPhoto" and "يا هلا والله Waled!" in m.caption
         data = {b.callback_data for row in m.reply_markup.inline_keyboard for b in row}
         assert {"go", "qk", "g:tf", "pf"} <= data
         # معرّف صورة مخزَّن: لا نرفع الملف ثانية
@@ -88,10 +88,10 @@ def test_start_sends_banner_with_menu_caches_file_id_and_falls_back():
         await h.say(h.user(3), "/start")
         assert type(last_menu_call(h)).__name__ == "SendMessage" and h.db.get_setting("banner_fid_ar") == ""
         # الإنجليزية: بانر ونص إنجليزي
-        en = h.user(4, lang="en")
+        en = h.user(4, "Sam", lang="en")
         await h.say(en, "/start")
         m = last_menu_call(h)
-        assert type(m).__name__ == "SendPhoto" and "Welcome, fellow otaku" in m.caption
+        assert type(m).__name__ == "SendPhoto" and "Hey Sam, welcome aboard" in m.caption
     run(go())
 
 
@@ -132,3 +132,19 @@ def test_text_pools_are_varied_complete_and_formatted():
     # لا بقايا نبرة آلية متكررة في الرسائل الأساسية
     for L in ("ar", "en"):
         assert "—" not in T[L]["welcome"]
+
+
+def test_welcome_uses_first_name_escaped_in_every_entry_point():
+    async def go():
+        h = Harness()
+        u = h.user(1, "<b>Hack</b> & Co")                          # اسم فيه وسوم: لازم يُهرَّب
+        await h.say(u, "/start")
+        cap = last_menu_call(h).caption
+        assert "يا هلا والله &lt;b&gt;Hack&lt;/b&gt; &amp; Co!" in cap and "<b>Hack</b>" not in cap
+        await h.tap(u, "menu")
+        assert "يا هلا والله &lt;b&gt;Hack" in h.session.texts()[-1]
+        await h.tap(u, "lg:en")
+        assert "Hey &lt;b&gt;Hack" in h.session.texts()[-1]
+        from otaku_bot.texts import t
+        assert "{name}" not in t("ar", "welcome", name="X") and "X" in t("en", "welcome", name="X")
+    run(go())

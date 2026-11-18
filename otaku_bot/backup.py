@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import shutil
+import sqlite3
 import tempfile
 import time
 import zipfile
@@ -82,9 +84,152 @@ async def send_backup(bot: Bot, ctx: Ctx) -> int:
     return sent
 
 
+# ═════════ حماية التقدم: نسخ متكررة إلى قناة خاصة + استعادة تلقائية ═════════
+# الفكرة: كل N ساعات يرسل البوت نسخة إلى قناة/مجموعة خاصة ويثبّتها (pin). وعند أي تشغيل على قاعدة فارغة
+# (قرص انمسح/سيرفر جديد) يقرأ البوت الرسالة المثبتة وينزّل آخر نسخة ويستعيد منها كل شيء قبل أن يبدأ.
+# لا نحتاج أي خدمة خارجية: تليجرام نفسه هو المخزن.
+
+def parse_chat(value: str):
+    v = (value or "").strip()
+    if not v:
+        return None
+    return int(v) if v.lstrip("-").isdigit() else v
+
+
+def chat_due(ctx: Ctx, now: float | None = None) -> bool:
+    if not parse_chat(ctx.settings.backup_chat):
+        return False
+    now = now if now is not None else time.time()
+    last = float(ctx.db.get_setting("last_chat_backup", "0") or 0)
+    return now - last >= ctx.settings.backup_hours * 3600
+
+
+def chat_status_text(ctx: Ctx) -> str:
+    if not parse_chat(ctx.settings.backup_chat):
+        return "🛟 قناة النسخ الاحتياطي: ❌ غير مضبوطة (BACKUP_CHAT_ID) — لن يُستعاد التقدم تلقائيًا لو انمسح القرص"
+    last = float(ctx.db.get_setting("last_chat_backup", "0") or 0)
+    when = (datetime.fromtimestamp(last, timezone.utc) + timedelta(hours=TZ_HOURS)).strftime("%Y-%m-%d %H:%M") if last else "لم تُرسل بعد"
+    err = ctx.db.get_setting("chat_backup_error", "")
+    return (f"🛟 قناة النسخ الاحتياطي: ✅ مضبوطة · كل {ctx.settings.backup_hours} ساعات · آخر نسخة: {when}"
+            + (f"\n⚠️ آخر خطأ: {err}" if err else ""))
+
+
+async def send_chat_backup(bot: Bot, ctx: Ctx) -> tuple[bool, str]:
+    """يرسل نسخة إلى قناة النسخ ويثبّتها. يرجع (نجح, رسالة)."""
+    chat = parse_chat(ctx.settings.backup_chat)
+    if not chat:
+        return False, "BACKUP_CHAT_ID غير مضبوط"
+    with tempfile.TemporaryDirectory() as d:
+        path = make_zip(ctx, Path(d))
+        try:
+            msg = await bot.send_document(chat, FSInputFile(path), caption=summary(ctx), disable_notification=True)
+        except TelegramAPIError as e:
+            ctx.db.set_setting("chat_backup_error", f"الإرسال: {e}"[:200])
+            log.warning("chat backup send failed: %s", e)
+            return False, f"تعذّر الإرسال: {e}"
+    try:
+        await bot.pin_chat_message(chat, msg.message_id, disable_notification=True)   # الرسالة المثبتة = آخر نسخة
+    except TelegramAPIError as e:
+        ctx.db.set_setting("chat_backup_error", "الإرسال نجح لكن التثبيت فشل: اجعل البوت أدمن بصلاحية «تثبيت الرسائل»")
+        ctx.db.set_setting("last_chat_backup", str(time.time()))
+        log.warning("chat backup pin failed: %s", e)
+        return True, "أُرسلت النسخة لكن التثبيت فشل (أعطِ البوت صلاحية تثبيت الرسائل، وإلا لن تعمل الاستعادة التلقائية)"
+    ctx.db.set_setting("chat_backup_error", "")
+    ctx.db.set_setting("last_chat_backup", str(time.time()))
+    return True, "تم الإرسال والتثبيت"
+
+
+def _valid_db(path: Path) -> bool:
+    try:
+        con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        try:
+            if con.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                return False
+            tables = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            return {"users", "questions", "sessions"} <= tables
+        finally:
+            con.close()
+    except sqlite3.Error:
+        return False
+
+
+def db_user_count(path: Path) -> int:
+    """عدد اللاعبين في ملف قاعدة؛ -1 إن كان الملف غير صالح، 0 إن لم يوجد."""
+    if not path.exists() or path.stat().st_size == 0:
+        return 0
+    try:
+        con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        try:
+            return con.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        finally:
+            con.close()
+    except sqlite3.Error:
+        return -1
+
+
+async def restore_if_empty(bot: Bot, settings) -> str:
+    """يُستدعى قبل فتح القاعدة. لا يلمس أي قاعدة فيها لاعبون أبدًا.
+    الحالات: kept | restored | no-backup-chat | chat-unreachable | no-pinned-backup | download-failed | bad-zip | bad-db"""
+    path = Path(settings.db_path)
+    n = db_user_count(path)
+    if n > 0:
+        return "kept"
+    if n == -1:                                   # ملف تالف: نحفظه جانبًا ونحاول الاستعادة
+        shutil.move(str(path), f"{path}.corrupt-{int(time.time())}")
+    chat = parse_chat(getattr(settings, "backup_chat", ""))
+    if not chat:
+        return "no-backup-chat"
+    try:
+        info = await bot.get_chat(chat)
+    except TelegramAPIError as e:
+        log.warning("backup chat unreachable: %s", e)
+        return "chat-unreachable"
+    pinned = getattr(info, "pinned_message", None)
+    doc = getattr(pinned, "document", None)
+    if not doc:
+        return "no-pinned-backup"
+    with tempfile.TemporaryDirectory() as d:
+        zp = Path(d) / "backup.zip"
+        try:
+            await bot.download(doc.file_id, destination=zp)
+        except Exception as e:  # noqa: BLE001
+            log.warning("backup download failed: %s", e)
+            return "download-failed"
+        try:
+            with zipfile.ZipFile(zp) as z:
+                if "otaku.db" not in z.namelist():
+                    return "bad-zip"
+                z.extract("otaku.db", d)
+        except (zipfile.BadZipFile, OSError):
+            return "bad-zip"
+        restored = Path(d) / "otaku.db"
+        if not _valid_db(restored):
+            return "bad-db"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        for ext in ("", "-wal", "-shm"):               # نظّف بقايا القاعدة الفارغة القديمة
+            old = Path(str(path) + ext)
+            if old.exists():
+                old.unlink()
+        shutil.copy2(restored, path)
+    return "restored"
+
+
+RESTORE_MESSAGES = {
+    "restored": "✅ تمت استعادة كل التقدم (اللاعبون والتقييمات والأسئلة المضافة) من آخر نسخة احتياطية.",
+    "no-backup-chat": "ℹ️ بدأت بقاعدة جديدة. لحماية التقدم ضع BACKUP_CHAT_ID (قناة خاصة أضفتها للبوت أدمن) في .env.",
+    "chat-unreachable": "⚠️ بدأت بقاعدة جديدة: لم أستطع الوصول إلى قناة النسخ (BACKUP_CHAT_ID). تأكد أن البوت أدمن فيها.",
+    "no-pinned-backup": "ℹ️ بدأت بقاعدة جديدة: لا توجد نسخة مثبتة في قناة النسخ بعد.",
+    "download-failed": "⚠️ بدأت بقاعدة جديدة: فشل تنزيل النسخة المثبتة. أعد التشغيل للمحاولة ثانية.",
+    "bad-zip": "⚠️ بدأت بقاعدة جديدة: النسخة المثبتة ليست ملف نسخة صالحًا.",
+    "bad-db": "⚠️ بدأت بقاعدة جديدة: النسخة المثبتة تالفة.",
+}
+
+
 async def backup_loop(bot: Bot, ctx: Ctx) -> None:
     while True:
         try:
+            if chat_due(ctx):
+                await send_chat_backup(bot, ctx)
             if due(ctx):
                 await send_backup(bot, ctx)
         except asyncio.CancelledError:

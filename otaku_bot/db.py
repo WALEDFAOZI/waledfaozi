@@ -72,6 +72,11 @@ CREATE TABLE IF NOT EXISTS events(
   id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, kind TEXT NOT NULL, ts REAL NOT NULL
 );
 CREATE TABLE IF NOT EXISTS channel_snapshots(day TEXT PRIMARY KEY, count INTEGER NOT NULL, ts REAL NOT NULL);
+CREATE TABLE IF NOT EXISTS game_reports(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, key TEXT NOT NULL, label TEXT NOT NULL,
+  tg_id INTEGER NOT NULL, reason TEXT NOT NULL, created_at REAL NOT NULL, status TEXT NOT NULL DEFAULT 'open',
+  UNIQUE(kind, key, tg_id)
+);
 CREATE TABLE IF NOT EXISTS game_sessions(
   id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, kind TEXT NOT NULL,
   state TEXT NOT NULL, score INTEGER, started_at REAL NOT NULL, finished_at REAL
@@ -589,8 +594,10 @@ class DB:
 
     # ── البلاغات ─────────────────────────────────────────────
     def reports_today(self, tg_id: int) -> int:
-        return self.conn.execute("SELECT COUNT(*) n FROM reports WHERE tg_id=? AND created_at>=?",
-                                 (tg_id, day_start())).fetchone()["n"]
+        """بلاغات اليوم (أسئلة الاختبار + عناصر الألعاب) لحساب الحد اليومي الواحد."""
+        a = self.conn.execute("SELECT COUNT(*) n FROM reports WHERE tg_id=? AND created_at>=?", (tg_id, day_start())).fetchone()["n"]
+        b = self.conn.execute("SELECT COUNT(*) n FROM game_reports WHERE tg_id=? AND created_at>=?", (tg_id, day_start())).fetchone()["n"]
+        return a + b
 
     def add_report(self, qid: int, tg_id: int, reason: str, daily_limit: int) -> str:
         """'ok' | 'dup' | 'limit' — بلاغ واحد لكل مستخدم لكل سؤال، وحد يومي لكل مستخدم."""
@@ -602,6 +609,55 @@ class DB:
             self.conn.execute("INSERT INTO reports(question_id,tg_id,reason,created_at) VALUES(?,?,?,?)",
                               (qid, tg_id, reason, time.time()))
         return "ok"
+
+    def session_shown(self, sid: int) -> list[sqlite3.Row]:
+        """الأسئلة التي ظهرت فعلًا للاعب في هذه الجلسة (وحدها يحق له الإبلاغ عنها)."""
+        return self.conn.execute(
+            "SELECT pos, question_id, is_correct FROM session_questions WHERE session_id=? AND sent_at IS NOT NULL ORDER BY pos",
+            (sid,)).fetchall()
+
+    # بلاغات الألعاب (عناصرها في data/games.json وليست في جدول الأسئلة)
+    def add_game_report(self, kind: str, key: str, label: str, tg_id: int, reason: str, daily_limit: int) -> str:
+        if self.conn.execute("SELECT 1 FROM game_reports WHERE kind=? AND key=? AND tg_id=?", (kind, key, tg_id)).fetchone():
+            return "dup"
+        if self.reports_today(tg_id) >= daily_limit:
+            return "limit"
+        with self.conn:
+            self.conn.execute("INSERT INTO game_reports(kind,key,label,tg_id,reason,created_at) VALUES(?,?,?,?,?,?)",
+                              (kind, key, label[:160], tg_id, reason, time.time()))
+        return "ok"
+
+    def game_open_count(self, kind: str, key: str) -> int:
+        return self.conn.execute("SELECT COUNT(*) n FROM game_reports WHERE kind=? AND key=? AND status='open'",
+                                 (kind, key)).fetchone()["n"]
+
+    def game_reports_grouped(self) -> list[sqlite3.Row]:
+        return self.conn.execute(
+            "SELECT kind, key, MAX(label) AS label, COUNT(*) AS n FROM game_reports WHERE status='open' "
+            "GROUP BY kind, key ORDER BY n DESC, MAX(created_at) DESC LIMIT 15").fetchall()
+
+    def game_report_info(self, kind: str, key: str) -> dict | None:
+        rows = self.conn.execute("SELECT label, reason FROM game_reports WHERE kind=? AND key=? AND status='open'",
+                                 (kind, key)).fetchall()
+        if not rows:
+            return None
+        reasons: dict[str, int] = {}
+        for r in rows:
+            reasons[r["reason"]] = reasons.get(r["reason"], 0) + 1
+        return {"label": rows[0]["label"], "n": len(rows), "reasons": reasons}
+
+    def close_game_reports(self, kind: str, key: str, status: str) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE game_reports SET status=? WHERE kind=? AND key=? AND status='open'", (status, kind, key))
+
+    def game_hidden(self) -> set[str]:
+        try:
+            return set(json.loads(self.get_setting("game_hidden", "[]") or "[]"))
+        except ValueError:
+            return set()
+
+    def hide_game_item(self, key: str) -> None:
+        self.set_setting("game_hidden", json.dumps(sorted(self.game_hidden() | {key})))
 
     def open_report_count(self, qid: int) -> int:
         return self.conn.execute("SELECT COUNT(*) n FROM reports WHERE question_id=? AND status='open'",
@@ -763,7 +819,8 @@ class DB:
             "easiest": [(r["id"], r["q"], r["pct"], r["asked"]) for r in c.execute(
                 """SELECT id,q,ROUND(100.0*correct/asked) pct,asked FROM questions
                    WHERE asked>=10 ORDER BY 1.0*correct/asked DESC LIMIT 5""")],
-            "open_reports": one("SELECT COUNT(DISTINCT question_id) FROM reports WHERE status='open'"),
+            "open_reports": one("SELECT COUNT(DISTINCT question_id) FROM reports WHERE status='open'")
+                            + one("SELECT COUNT(*) FROM (SELECT DISTINCT kind, key FROM game_reports WHERE status='open')"),
             "bank_active": one("SELECT COUNT(*) FROM questions WHERE flagged=0"),
             "bank_disabled": one("SELECT COUNT(*) FROM questions WHERE flagged=1"),
             "bank_en": one("SELECT COUNT(*) FROM questions WHERE flagged=0 AND q_en IS NOT NULL"),

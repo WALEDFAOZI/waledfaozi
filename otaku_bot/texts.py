@@ -181,7 +181,7 @@ def cat_label(lang: str, cat: str) -> str:
 # نحافظ على نفس المتغيرات {name} {ans} ... وعلى الكلمات المفتاحية التي تعتمد عليها الاختبارات.
 T["ar"].update({
  "mode_quick": "اختبار سريع",
- "welcome": "يا هلا والله بالأوتاكو! 🎌\n\nتحسب نفسك تعرف الأنمي؟ خلنا نشوف! أسئلة بأربع اختيارات تبدأ سهلة وتشتد معك، وفي الآخر تاخذ تقييم من 10 ولقب تفتخر فيه.\nوالسؤال الصعب يوزن أكثر، فلا تستخف فيه 😏\n\nوش تبي تلعب؟",
+ "welcome": "يا هلا والله {name}! 🎌\n\nتحسب نفسك تعرف الأنمي؟ خلنا نشوف! أسئلة بأربع اختيارات تبدأ سهلة وتشتد معك، وفي الآخر تاخذ تقييم من 10 ولقب تفتخر فيه.\nوالسؤال الصعب يوزن أكثر، فلا تستخف فيه 😏\n\nوش تبي تلعب؟",
  "challenge_banner": "\n\n⚔️ <b>{name}</b> يتحداك! جاب <b>{score}/10</b> ولقبه «{title}».\nتجرؤ تواجهه بنفس الأسئلة؟",
  "toast_ok": ["✅ صح عليك!", "✅ كفو!", "✅ ناكاما! 💪", "✅ هذا هو!", "✅ ضربة معلم 🔥", "✅ ما شاء الله"],
  "toast_bad": ["❌ لا… الجواب: {ans}", "❌ قربت! الجواب: {ans}", "❌ أوه لا، الجواب: {ans}", "❌ مو هذا، الجواب: {ans}"],
@@ -214,7 +214,7 @@ T["ar"].update({
 })
 T["en"].update({
  "mode_quick": "Quick test",
- "welcome": "Welcome, fellow otaku! 🎌\n\nThink you know your anime? Let's find out! Four-choice questions that start easy and get nasty, and at the end you get a score out of 10 and a title worth bragging about.\nHard questions are worth more, so don't skip the boss fights 😏\n\nWhat are we playing?",
+ "welcome": "Hey {name}, welcome aboard! 🎌\n\nThink you know your anime? Let's find out! Four-choice questions that start easy and get nasty, and at the end you get a score out of 10 and a title worth bragging about.\nHard questions are worth more, so don't skip the boss fights 😏\n\nWhat are we playing?",
  "challenge_banner": "\n\n⚔️ <b>{name}</b> challenges you! They scored <b>{score}/10</b> and hold the title “{title}”.\nDare to face them on the same questions?",
  "toast_ok": ["✅ Nice!", "✅ That's the one!", "✅ Nakama approved 💪", "✅ Boom!", "✅ Master move 🔥", "✅ Sugoi!"],
  "toast_bad": ["❌ Nope… answer: {ans}", "❌ So close! Answer: {ans}", "❌ Oh no, answer: {ans}", "❌ Not that one, answer: {ans}"],
@@ -280,3 +280,11 @@ T["en"].update({
 
 T["ar"]["cn_btn_top"] = "🏆 متصدرو بلدي"
 T["en"]["cn_btn_top"] = "🏆 My country's top"
+
+
+# ═════════ الإبلاغ عن كل سؤال ═════════
+T["ar"]["btn_report_q"] = "🚩 أبلغ"
+T["en"]["btn_report_q"] = "🚩 Report"
+T["ar"]["rp_pick"] = "🚩 اختر السؤال اللي فيه خطأ (✅ أجبته صح، ❌ أخطأت، ⏭ تخطّيته):"
+T["en"]["rp_pick"] = "🚩 Pick the question with a mistake (✅ got it, ❌ missed, ⏭ skipped):"
+T["ar"]["rp_ok"] = "شكرًا! وصل بلاغك للمراجعة 🙏"

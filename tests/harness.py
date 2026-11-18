@@ -7,9 +7,9 @@ from pathlib import Path
 from aiogram import Bot
 from aiogram.client.session.base import BaseSession
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
-from aiogram.methods import (EditMessageMedia, GetChatMember, GetChatMemberCount, GetMe, SendDocument, SendMessage,
+from aiogram.methods import (GetChat, GetFile, PinChatMessage, EditMessageMedia, GetChatMember, GetChatMemberCount, GetMe, SendDocument, SendMessage,
                              SendPhoto, EditMessageText)
-from aiogram.types import (CallbackQuery, Chat, ChatMemberLeft, ChatMemberMember, Location, Message,
+from aiogram.types import (AcceptedGiftTypes, ChatFullInfo, Document, File, CallbackQuery, Chat, ChatMemberLeft, ChatMemberMember, Location, Message,
                            MessageEntity, Update, User)
 
 from otaku_bot.app import build_dispatcher
@@ -29,10 +29,16 @@ class FakeSession(BaseSession):
         self.bad_photos = set()     # صور تُرفض كأن الرابط معطوب
         self.blocked_chats = set()  # مستخدمون حظروا البوت
         self.channel_count = 1000   # عدد مشتركي القناة الذي يرجعه تليجرام
+        self.pinned = None          # الرسالة المثبتة في قناة النسخ
+        self.files = {}             # file_id -> bytes (ما «حفظه تليجرام»)
+        self.messages = {}          # message_id -> Message
+        self.pin_error = False
+        self.chat_error = False
         self.count_error = False
 
     async def close(self): ...
-    async def stream_content(self, *a, **k): yield b""
+    async def stream_content(self, url, *a, **k):
+        yield self.files.get(url.rsplit("/", 1)[-1], b"")
 
     async def make_request(self, bot, method, timeout=None):
         self.calls.append(method)
@@ -45,8 +51,33 @@ class FakeSession(BaseSession):
                 raise TelegramBadRequest(method=method, message="Bad Request: failed to get HTTP URL content")
             self.n += 1
             chat_id = getattr(method, "chat_id", 1)
-            return Message(message_id=self.n, date=dt.datetime.now(),
-                           chat=Chat(id=chat_id, type="private")).as_(bot)
+            doc = None
+            if isinstance(method, SendDocument):
+                fid = f"DOC{self.n}"
+                path = getattr(method.document, "path", None)
+                if path:                                   # يقرأ الملف الآن لأن المجلد المؤقت يُحذف بعد الإرسال
+                    from pathlib import Path as _P
+                    self.files[fid] = _P(path).read_bytes()
+                doc = Document(file_id=fid, file_unique_id=f"U{self.n}", file_name="backup.zip")
+            msg = Message(message_id=self.n, date=dt.datetime.now(), chat=Chat(id=chat_id, type="private"),
+                          document=doc).as_(bot)
+            self.messages[self.n] = msg
+            return msg
+        if isinstance(method, PinChatMessage):
+            if self.pin_error:
+                raise TelegramBadRequest(method=method, message="Bad Request: not enough rights to pin a message")
+            self.pinned = self.messages.get(method.message_id)
+            return True
+        if isinstance(method, GetChat):
+            if self.chat_error:
+                raise TelegramBadRequest(method=method, message="Bad Request: chat not found")
+            return ChatFullInfo(id=method.chat_id if isinstance(method.chat_id, int) else -100, type="channel", title="Backups",
+                                accent_color_id=0, max_reaction_count=0, pinned_message=self.pinned,
+                                accepted_gift_types=AcceptedGiftTypes(unlimited_gifts=False, limited_gifts=False,
+                                                                      unique_gifts=False, premium_subscription=False,
+                                                                      gifts_from_channels=False)).as_(bot)
+        if isinstance(method, GetFile):
+            return File(file_id=method.file_id, file_unique_id="u", file_path=f"docs/{method.file_id}")
         if isinstance(method, GetChatMember):
             if self.member is None:
                 raise TelegramBadRequest(method=method, message="Bad Request: chat not found")
@@ -68,11 +99,12 @@ class FakeSession(BaseSession):
 
 
 class Harness:
-    def __init__(self, channel="", timer=0, cooldown=0, admin_ids=()):
+    def __init__(self, channel="", timer=0, cooldown=0, admin_ids=(), backup_chat="", backup_hours=6):
         self.db = DB(":memory:")
         self.db.load_questions(QPATH)
         s = Settings(token="1:fake", db_path=":memory:", questions_path=QPATH, timer_seconds=timer,
-                     cooldown_minutes=cooldown, admin_ids=tuple(admin_ids), required_channel=channel)
+                     cooldown_minutes=cooldown, admin_ids=tuple(admin_ids), required_channel=channel,
+                     backup_chat=backup_chat, backup_hours=backup_hours)
         self.ctx = Ctx(s, self.db)
         self.session = FakeSession()
         self.bot = Bot("1:fake", session=self.session)

@@ -51,6 +51,8 @@ class Settings:
     cooldown_minutes: int    # الانتظار بين اختبارين مكتملين، 0 = بدون
     admin_ids: tuple[int, ...]
     required_channel: str = ""   # مثل @Anime1Galaxy ، فارغ = بدون اشتراك إجباري
+    backup_chat: str = ""        # قناة/مجموعة خاصة تُحفظ فيها النسخ ويُستعاد منها التقدم تلقائيًا (BACKUP_CHAT_ID)
+    backup_hours: int = 6        # كل كم ساعة تُرسل نسخة إلى backup_chat
 
     @staticmethod
     def from_env() -> "Settings":
@@ -65,4 +67,6 @@ class Settings:
             cooldown_minutes=int(os.getenv("COOLDOWN_MINUTES", "30")),
             admin_ids=admins,
             required_channel=os.getenv("REQUIRED_CHANNEL", "@Anime1Galaxy").strip(),
+            backup_chat=os.getenv("BACKUP_CHAT_ID", "").strip(),
+            backup_hours=max(1, int(os.getenv("BACKUP_HOURS", "6") or 6)),
         )

@@ -4,13 +4,14 @@ import asyncio
 import logging
 import secrets
 import time
+from pathlib import Path
 
 from aiogram import BaseMiddleware, Bot, Dispatcher
 from aiogram.utils.backoff import BackoffConfig
 from aiogram.types import BotCommand, CallbackQuery
 
 from .admin import build_admin_router
-from .backup import backup_loop
+from .backup import RESTORE_MESSAGES, backup_loop, db_user_count, restore_if_empty
 from .growth import growth_loop
 from .bot import build_router
 from .config import Settings
@@ -48,6 +49,14 @@ class Guard(BaseMiddleware):
                 log.warning("slow update %.2fs: %s", dt, getattr(event, "data", None) or getattr(event, "text", None))
 
 
+async def _tell_owners(bot: Bot, ctx: Ctx, text: str) -> None:
+    for owner in ctx.owner_ids():
+        try:
+            await bot.send_message(owner, text)
+        except Exception:  # noqa: BLE001
+            pass
+
+
 def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp = Dispatcher()
     dp.message.outer_middleware(Guard())
@@ -60,6 +69,11 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
 
 
 async def run(settings: Settings) -> None:
+    bot = Bot(settings.token)
+    restore = await restore_if_empty(bot, settings)          # قبل فتح القاعدة: لو انمسح القرص نستعيد التقدم
+    if restore != "kept":
+        log.warning("database startup: %s", restore)
+        print(f"\n[قاعدة البيانات] {RESTORE_MESSAGES.get(restore, restore)}\n", flush=True)
     db = DB(settings.db_path)
     n = db.load_questions(settings.questions_path)
     ctx = Ctx(settings, db)
@@ -69,7 +83,11 @@ async def run(settings: Settings) -> None:
         banner = f"\n{'=' * 50}\n  كود تفعيل المالك (مرة واحدة):  /claim {ctx.claim_code}\n  أرسله للبوت من حسابك لتصير المالك.\n{'=' * 50}"
         log.warning(banner)
         print(banner, flush=True)
-    bot = Bot(settings.token)
+    if restore == "restored":
+        ctx.tasks.append(asyncio.create_task(_tell_owners(bot, ctx, RESTORE_MESSAGES["restored"]
+                                                              + f"\n👥 اللاعبون الآن: {db_user_count(Path(settings.db_path))}")))
+    elif restore in ("chat-unreachable", "download-failed", "bad-zip", "bad-db"):
+        ctx.tasks.append(asyncio.create_task(_tell_owners(bot, ctx, RESTORE_MESSAGES[restore])))
     await bot.delete_webhook(drop_pending_updates=False)   # لا نفقد الرسائل المعلّقة أثناء إعادة التشغيل
     try:   # زر «القائمة» الدائم بجانب خانة الكتابة
         await bot.set_my_commands([

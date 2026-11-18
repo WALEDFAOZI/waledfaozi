@@ -187,7 +187,7 @@ def test_english_language_flow():
         h = Harness()
         u = h.user(1, "Sam", lang="en")
         await h.say(u, "/start")
-        assert h.db.get_lang(1) == "en" and "Welcome" in h.session.texts()[-1]
+        assert h.db.get_lang(1) == "en" and "welcome aboard" in h.session.texts()[-1] and "Sam" in h.session.texts()[-1]
         await h.tap(u, "qk")
         txt = h.session.texts()[-1]
         assert "Question 1/10" in txt
