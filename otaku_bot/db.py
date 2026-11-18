@@ -107,7 +107,8 @@ MIGRATIONS = {
         "image": "TEXT", "q_en": "TEXT", "options_en": "TEXT", "img_fail": "INTEGER NOT NULL DEFAULT 0",
     },
     "users": {"lang": "TEXT NOT NULL DEFAULT 'ar'", "best_sudden": "INTEGER NOT NULL DEFAULT 0",
-              "blocked": "INTEGER NOT NULL DEFAULT 0", "country": "TEXT", "country_asked": "INTEGER NOT NULL DEFAULT 0"},
+              "blocked": "INTEGER NOT NULL DEFAULT 0", "country": "TEXT", "country_asked": "INTEGER NOT NULL DEFAULT 0",
+              "invited_by": "INTEGER", "invite_credited": "INTEGER NOT NULL DEFAULT 0"},
     "sessions": {
         "mode": "TEXT NOT NULL DEFAULT 'full'", "counted": "INTEGER NOT NULL DEFAULT 1",
         "challenge_of": "INTEGER", "msg_kind": "TEXT NOT NULL DEFAULT 'text'", "category": "TEXT",
@@ -303,6 +304,32 @@ class DB:
                 """INSERT INTO users(tg_id,name,created_at,lang) VALUES(?,?,?,?)
                    ON CONFLICT(tg_id) DO UPDATE SET name=excluded.name, blocked=0""",
                 (tg_id, name, time.time(), lang_hint if lang_hint in ("ar", "en") else "ar"))
+
+    # ── الدعوات: تُحسب بعد أن يكمل المدعو أول اختبار كامل ويشترك بالقناة ──
+    def set_inviter(self, tg_id: int, inviter: int) -> bool:
+        """يسجّل الداعي لمستخدم جديد فقط (لم يُدعَ من قبل ولم يختبر)، ولا يُسمح بدعوة النفس."""
+        if tg_id == inviter or not self.get_user(inviter):
+            return False
+        with self.conn:
+            cur = self.conn.execute(
+                "UPDATE users SET invited_by=? WHERE tg_id=? AND invited_by IS NULL AND tests_taken=0", (inviter, tg_id))
+        return cur.rowcount > 0
+
+    def pending_inviter(self, tg_id: int) -> int | None:
+        r = self.conn.execute("SELECT invited_by FROM users WHERE tg_id=? AND invite_credited=0", (tg_id,)).fetchone()
+        return r["invited_by"] if r and r["invited_by"] else None
+
+    def credit_invite(self, tg_id: int) -> int | None:
+        inv = self.pending_inviter(tg_id)
+        if not inv:
+            return None
+        with self.conn:
+            cur = self.conn.execute("UPDATE users SET invite_credited=1 WHERE tg_id=? AND invite_credited=0", (tg_id,))
+        return inv if cur.rowcount else None
+
+    def invite_count(self, inviter: int) -> int:
+        return self.conn.execute("SELECT COUNT(*) n FROM users WHERE invited_by=? AND invite_credited=1",
+                                 (inviter,)).fetchone()["n"]
 
     def get_user(self, tg_id: int) -> sqlite3.Row | None:
         return self.conn.execute("SELECT * FROM users WHERE tg_id=?", (tg_id,)).fetchone()

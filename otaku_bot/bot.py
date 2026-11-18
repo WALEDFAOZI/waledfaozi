@@ -60,6 +60,20 @@ def btn(text: str, data: str | None = None, url: str | None = None) -> InlineKey
     return InlineKeyboardButton(text=text, callback_data=data, url=url)
 
 
+INVITE_BADGES = [(1, "🌱", "سفير الأوتاكو", "Otaku Ambassador"), (3, "🤝", "جامع الشلّة", "Squad Gatherer"),
+                 (5, "🔥", "قائد النقابة", "Guild Leader"), (10, "⚔️", "أسطورة الدعوات", "Recruiter Legend"),
+                 (25, "👑", "إمبراطور الأوتاكو", "Otaku Emperor")]
+
+
+def invite_badge(n: int):
+    got = [b for b in INVITE_BADGES if n >= b[0]]
+    return got[-1] if got else None
+
+
+def badge_label(b, L: str) -> str:
+    return f"{b[1]} {b[2] if L == 'ar' else b[3]}"
+
+
 _CHAN = {"get": lambda: ""}   # يضبطها build_router: القناة الحالية (قابلة للتعديل من لوحة الأدمن)
 
 
@@ -87,7 +101,7 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
               [btn(t(L, "g_char"), "g:char")],
               [btn(t(L, "g_quote"), "g:quote")],
               [btn(t(L, "sec_more"), "noop")],
-              [btn(t(L, "btn_anime"), "an:m")],
+              [btn(t(L, "btn_anime"), "an:m"), btn(t(L, "btn_invite"), "iv")],
               [btn(t(L, "btn_top"), "lb:all"), btn(t(L, "btn_week"), "lb:week")],
               [btn(t(L, "btn_profile"), "pf"), btn(t(L, "btn_stats"), "st")],
               [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")],
@@ -286,6 +300,41 @@ def build_router(ctx: Ctx) -> Router:
         else:
             await finish(bot, chat_id, sid)
 
+    # ── الدعوات ─────────────────────────────────────────────
+    async def credit_invite(bot: Bot, tg_id: int) -> None:
+        inv = db.credit_invite(tg_id)
+        if not inv:
+            return
+        n = db.invite_count(inv)
+        Li = lang(inv)
+        old, new = invite_badge(n - 1), invite_badge(n)
+        text = t(Li, "iv_joined", n=n)
+        if new and new != old:
+            text += "\n" + t(Li, "iv_badge_up", b=badge_label(new, Li))
+        try:
+            await bot.send_message(inv, text)
+        except TelegramAPIError:
+            pass
+
+    @r.callback_query(F.data == "iv")
+    async def cb_invite(c: CallbackQuery):
+        uid = c.from_user.id
+        db.upsert_user(uid, c.from_user.full_name)
+        L = lang(uid)
+        await c.answer()
+        n = db.invite_count(uid)
+        b = invite_badge(n)
+        nxt = next((x for x in INVITE_BADGES if x[0] > n), None)
+        lines = [t(L, "iv_head"), "", t(L, "iv_count", n=n),
+                 t(L, "iv_badge", b=badge_label(b, L)) if b else t(L, "iv_nobadge")]
+        if nxt:
+            lines.append(t(L, "iv_next", k=nxt[0] - n, b=badge_label(nxt, L)))
+        link = f"https://t.me/{await bot_username(c.bot)}?start=inv_{uid}"
+        share = t(L, "iv_share")
+        await c.message.answer("\n".join(lines), parse_mode="HTML", reply_markup=kb(
+            [btn(t(L, "iv_btn"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")],
+            [btn(t(L, "btn_menu"), "menu")]))
+
     # ── النتيجة ─────────────────────────────────────────────
     async def finish(bot: Bot, chat_id: int, sid: int) -> None:
         sess = db.get_session(sid)
@@ -327,6 +376,9 @@ def build_router(ctx: Ctx) -> Router:
         score = compute_score(answers)
         suspicious = mode == "full" and db.fast_answer_ratio(sid) > SUSPECT_FAST_RATIO
         db.finish_session(sid, tg_id, score, mode, counted=not suspicious)
+        if mode == "full" and not suspicious and db.pending_inviter(tg_id):
+            if await subscribed(bot, tg_id) is not False:        # لا يُحسب إلا بعد الاشتراك بالقناة
+                await credit_invite(bot, tg_id)
         title = title_for(score, L)
         brk = category_breakdown(answers)
         pct = db.percentile(score) if mode == "full" else None
@@ -467,10 +519,13 @@ def build_router(ctx: Ctx) -> Router:
     @r.message(Command("start"))
     async def cmd_start(m: Message, command: CommandObject):
         hint = "en" if (m.from_user.language_code or "").startswith("en") else "ar"
+        arg = (command.args or "").strip()
+        is_new = db.get_user(m.from_user.id) is None
         db.upsert_user(m.from_user.id, m.from_user.full_name, hint)
+        if is_new and arg.startswith("inv_") and arg[4:].isdigit():
+            db.set_inviter(m.from_user.id, int(arg[4:]))
         L = lang(m.from_user.id)
         extra, top = "", []
-        arg = (command.args or "").strip()
         if arg.startswith("ch_") and arg[3:].isdigit():
             s = db.get_session(int(arg[3:]))
             if s and s["state"] == "finished" and s["mode"] == "full" and s["tg_id"] != m.from_user.id:
@@ -571,6 +626,9 @@ def build_router(ctx: Ctx) -> Router:
             lines.append(t(L, "prof_acc", pct=round(100 * p["correct"] / p["answers"]), ok=p["correct"], n=p["answers"]))
         if p["sudden"]:
             lines.append(t(L, "prof_sudden", n=p["sudden"]))
+        ib = invite_badge(db.invite_count(uid))
+        if ib:
+            lines.append(t(L, "iv_badge", b=badge_label(ib, L)))
         if p["cats"]:
             lines.append(t(L, "prof_cat"))
             lines += [f"• {cat_label(L, cat)}: {acc * 100:.0f}%" for cat, acc, _ in p["cats"]]

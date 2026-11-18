@@ -331,3 +331,20 @@ T["en"].update({
 
 T["ar"]["btn_channel"] = "💬 تعال للقناة وتفاعل مع الأوتاكو"
 T["en"]["btn_channel"] = "💬 Join the channel & chat with fellow otakus"
+
+T["ar"].update({
+    "btn_invite": "👥 ادعُ أصدقاءك",
+    "iv_head": "👥 <b>ادعُ أصدقاءك</b>\nتُحسب الدعوة بعد أن يكمل صديقك أول اختبار كامل ويشترك بالقناة، وتأخذ ألقابًا خاصة.",
+    "iv_count": "📨 دعواتك المكتملة: {n}", "iv_badge": "🏅 لقبك: {b}", "iv_nobadge": "🏅 لا لقب بعد، أول دعوة تعطيك لقبًا!",
+    "iv_next": "🎯 باقي {k} للقب {b}", "iv_btn": "📤 شارك رابط الدعوة",
+    "iv_share": "تعال جرّب تقييم الأوتاكو، شف كم تجيب من 10 🔥",
+    "iv_joined": "🎉 صديقك أكمل أول اختبار واشترك! دعواتك المكتملة: {n}", "iv_badge_up": "🏅 ترقّيت للقب: {b}",
+})
+T["en"].update({
+    "btn_invite": "👥 Invite friends",
+    "iv_head": "👥 <b>Invite friends</b>\nAn invite counts once your friend finishes a full test and joins the channel. Earn special badges.",
+    "iv_count": "📨 Completed invites: {n}", "iv_badge": "🏅 Your badge: {b}", "iv_nobadge": "🏅 No badge yet, your first invite earns one!",
+    "iv_next": "🎯 {k} more for {b}", "iv_btn": "📤 Share invite link",
+    "iv_share": "Come try the Otaku Rating, see what you score out of 10 🔥",
+    "iv_joined": "🎉 Your friend finished a first test and joined! Completed invites: {n}", "iv_badge_up": "🏅 New badge: {b}",
+})
