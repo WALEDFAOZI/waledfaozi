@@ -271,3 +271,16 @@ def test_conflict_watcher_notifies_owner_once():
         msgs = [c for c in h.session.sent_to(5) if "نسخة أخرى" in (c.text or "")]
         assert len(msgs) == 1 and "/revoke" in msgs[0].text
     run(go())
+
+
+def test_myid_shows_admin_status_and_version():
+    async def go():
+        h = Harness(admin_ids=(5,))
+        await h.say(h.user(5), "/myid")
+        txt = h.session.texts()[-1]
+        assert "مشرف: ✅" in txt and "نسخة البوت" in txt
+        await h.say(h.user(6), "/myid")
+        assert "مشرف: ❌" in h.session.texts()[-1]
+        await h.say(h.user(5), "/admin")
+        assert "لوحة التحكم" in h.session.texts()[-1]
+    run(go())

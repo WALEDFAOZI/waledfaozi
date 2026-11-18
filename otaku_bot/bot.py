@@ -431,7 +431,10 @@ def build_router(ctx: Ctx) -> Router:
 
     @r.message(Command("myid"))
     async def cmd_myid(m: Message):
-        await m.answer(f"ID: <code>{m.from_user.id}</code>", parse_mode="HTML")
+        from . import VERSION
+        adm = "✅ نعم" if ctx.is_admin(m.from_user.id) else "❌ لا"
+        await m.answer(f"ID: <code>{m.from_user.id}</code>\nمشرف: {adm}\nنسخة البوت: <code>{VERSION}</code>",
+                       parse_mode="HTML")
 
     @r.message(Command("lang"))
     async def cmd_lang(m: Message):
