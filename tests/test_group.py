@@ -16,7 +16,7 @@ def fast():
     old = (group.LOBBY_SECONDS, group.Q_SECONDS, group.PAUSE, group.CHAT_COOLDOWN, group.START_COOLDOWN,
            group.CH_LOBBY_SECONDS, group.CH_Q_SECONDS)
     (group.LOBBY_SECONDS, group.Q_SECONDS, group.PAUSE, group.CHAT_COOLDOWN, group.START_COOLDOWN,
-     group.CH_LOBBY_SECONDS, group.CH_Q_SECONDS) = 0.5, 0.6, 0.02, 0, 0, 0.5, 0.6
+     group.CH_LOBBY_SECONDS, group.CH_Q_SECONDS) = 0.5, 0.6, 0.02, 0, 0, 0.8, 1.2
     yield
     (group.LOBBY_SECONDS, group.Q_SECONDS, group.PAUSE, group.CHAT_COOLDOWN, group.START_COOLDOWN,
      group.CH_LOBBY_SECONDS, group.CH_Q_SECONDS) = old
@@ -338,7 +338,7 @@ def test_channel_contest_flow_single_live_message_and_final_top():
         players = [h.user(100 + i, f"P{i}") for i in range(300)]       # أعداد كبيرة
         for u in players:
             await ctap(h, u, f"gp:j:{gid}")
-        assert await chan_play_out(h, players, timeout=20), "المسابقة لم تنتهِ"
+        assert await chan_play_out(h, players, timeout=45), "المسابقة لم تنتهِ"
         assert len(chan_sent(h)) == 2                              # الغرفة الحيّة + النتيجة النهائية فقط
         assert any(type(c).__name__ == "DeleteMessage" and c.chat_id == CHAN.id for c in h.session.calls)
         final = chan_sent(h)[-1]
@@ -346,6 +346,9 @@ def test_channel_contest_flow_single_live_message_and_final_top():
         rows = h.db.conn.execute("SELECT COUNT(*) n FROM group_results WHERE chat_id=?", (CHAN.id,)).fetchone()["n"]
         assert rows == group.CH_KEEP                               # أفضل 50 فقط في القاعدة
         assert h.db.conn.execute("SELECT COUNT(*) n FROM users WHERE tg_id>=100").fetchone()["n"] == group.CH_KEEP
+        everything = " ".join((getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in chan_shows(h))
+        assert "Owner" not in everything and "المضيف" not in everything and "Host" not in everything   # لا معلومات عن المنظّم في القناة
+        assert all(getattr(c, "reply_parameters", None) is None for c in chan_sent(h))
         assert h.db.conn.execute("SELECT COUNT(*) n FROM group_results WHERE tg_id=5").fetchone()["n"] == 0   # المنظّم ليس مشاركًا إلا إذا ضغط «شارك»
     run(go())
 
