@@ -332,11 +332,10 @@ def test_channel_contest_flow_single_live_message_and_final_top():
         group.CH_LOBBY_SECONDS = 30                                 # مهلة طويلة؛ نبدأ يدويًا بعد انضمام الجميع (بلا اعتماد على سرعة الجهاز)
         await h.tap(owner, f"ch:n:{CHAN.id}:quiz")
         lobby = chan_sent(h)[0]
-        assert buttons(lobby)[0].startswith("gp:j:") and len(buttons(lobby)) == 1      # زر المشاركة فقط
+        assert buttons(lobby)[0].startswith("gp:j:") and len([d for d in buttons(lobby) if d]) == 1      # زر مشاركة واحد (+ رابط الاشتراك)
         assert lobby.reply_parameters is None and "تبدأ بعد" in lobby.text
-        assert [b.text for row in lobby.reply_markup.inline_keyboard for b in row] == ["✋ شارك"]      # زر «شارك» ظاهر في القناة
+        assert [b.text for row in lobby.reply_markup.inline_keyboard for b in row] == ["✋ شارك", "📢 اشترك في قناة البوت"]
         gid = buttons(lobby)[0].split(":")[2]
-        h.session.member = False                                  # الضاغطون غير مشتركين: لا فحص لكل ضغطة في القنوات
         players = [h.user(100 + i, f"P{i}") for i in range(300)]       # أعداد كبيرة
         for u in players:
             await ctap(h, u, f"gp:j:{gid}")
@@ -430,4 +429,96 @@ def test_channel_contest_runs_with_a_single_participant_and_empty_lobby_message(
         await asyncio.sleep(1.2)
         edits = [c for c in h2.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == CHAN.id]
         assert any("ما شارك أحد" in e.text for e in edits)
+    run(go())
+
+
+def test_channel_contest_requires_subscription_and_shows_subscribe_button():
+    async def go():
+        h = Harness(channel="@Anime1Galaxy")
+        h.session.member = True
+        owner, a, b = h.user(5, "Owner"), h.user(10, "Ann"), h.user(11, "Bob")
+        h.db.upsert_user(5, "Owner"); h.db.link_channel(CHAN.id, 5, CHAN.title)
+        group.CH_LOBBY_SECONDS = 20
+        await h.tap(owner, f"ch:n:{CHAN.id}:tf")
+        gid = buttons(chan_sent(h)[0])[0].split(":")[2]
+
+        def clear_cache():
+            for cell in h.ctx.subscribed.__closure__:
+                if isinstance(cell.cell_contents, dict):
+                    cell.cell_contents.clear()
+        h.session.member = False                                   # غير مشترك: لا يشارك
+        await ctap(h, a, f"gp:j:{gid}")
+        alerts = [c for c in h.session.calls if type(c).__name__ == "AnswerCallbackQuery" and getattr(c, "show_alert", False)]
+        assert alerts and "تشترك في قناتنا @Anime1Galaxy" in (alerts[-1].text or "")
+        clear_cache()
+        h.session.member = True
+        await ctap(h, a, f"gp:j:{gid}")
+        await ctap(h, b, f"gp:j:{gid}")
+        await h.tap(owner, f"ch:s:{CHAN.id}")
+        # زر الاشتراك تحت الخيارات
+        for _ in range(60):
+            qc = [c for c in chan_shows(h) if any((d or "").startswith("gp:a:") for d in buttons(c))]
+            if qc:
+                break
+            await asyncio.sleep(0.05)
+        urls = [x.url for row in qc[-1].reply_markup.inline_keyboard for x in row if x.url]
+        assert urls == ["https://t.me/Anime1Galaxy"]
+        # أحدهما يغادر القناة أثناء المسابقة: لا يدخل النتيجة النهائية
+        clear_cache()
+        done = False
+        t0 = asyncio.get_event_loop().time()
+        answered = set()
+        while asyncio.get_event_loop().time() - t0 < 20 and not done:
+            if any("انتهت اللعبة" in (c.text or "") for c in chan_sent(h)):
+                break
+            for c in reversed(chan_shows(h)):
+                ds = [d for d in buttons(c) if (d or "").startswith("gp:a:")]
+                if ds:
+                    if id(c) not in answered:
+                        answered.add(id(c))
+                        await ctap(h, a, ds[0]); await ctap(h, b, ds[0])
+                    break
+            await asyncio.sleep(0.05)
+        final = chan_sent(h)[-1]
+        assert "انتهت اللعبة" in final.text
+        assert [x.url for row in final.reply_markup.inline_keyboard for x in row if x.url] == ["https://t.me/Anime1Galaxy"]
+        # ... وعند الكشف تبقى أزرار الاشتراك
+        reveals = [c for c in h.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == CHAN.id and "الجواب" in (c.text or "")]
+        assert reveals and all(any(x.url for row in c.reply_markup.inline_keyboard for x in row) for c in reveals)
+    run(go())
+
+
+def test_channel_final_excludes_player_who_left_our_channel():
+    async def go():
+        h = Harness(channel="@Anime1Galaxy")
+        h.session.member = True
+        owner, a = h.user(5, "Owner"), h.user(10, "Ann")
+        h.db.upsert_user(5, "Owner"); h.db.link_channel(CHAN.id, 5, CHAN.title)
+        group.CH_LOBBY_SECONDS = 20
+        await h.tap(owner, f"ch:n:{CHAN.id}:tf")
+        gid = buttons(chan_sent(h)[0])[0].split(":")[2]
+        await ctap(h, a, f"gp:j:{gid}")
+        await h.tap(owner, f"ch:s:{CHAN.id}")
+        t0 = asyncio.get_event_loop().time()
+        answered, left = set(), False
+        while asyncio.get_event_loop().time() - t0 < 20:
+            if any("انتهت اللعبة" in (c.text or "") for c in chan_sent(h)):
+                break
+            for c in reversed(chan_shows(h)):
+                ds = [d for d in buttons(c) if (d or "").startswith("gp:a:")]
+                if ds:
+                    if id(c) not in answered:
+                        answered.add(id(c))
+                        await ctap(h, a, ds[0])
+                        if len(answered) == 9 and not left:                # قبل آخر سؤال يغادر القناة
+                            left = True
+                            h.session.member = False
+                            for cell in h.ctx.subscribed.__closure__:
+                                if isinstance(cell.cell_contents, dict):
+                                    cell.cell_contents.clear()
+                    break
+            await asyncio.sleep(0.05)
+        final = chan_sent(h)[-1]
+        assert "انتهت اللعبة" in final.text and "Ann" not in final.text
+        assert h.db.conn.execute("SELECT COUNT(*) n FROM group_results WHERE tg_id=10").fetchone()["n"] == 0
     run(go())

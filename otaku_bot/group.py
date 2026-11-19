@@ -292,11 +292,29 @@ def build_group_router(ctx: Ctx) -> Router:
         return t(g.lang, "gp_lobby" if g.scope == "group" else "gp_lobby_ch", kind=t(g.lang, f"gpk_{g.kind}"), host=esc(g.host_name), left=max(0, left),
                  n=len(g.players), names=pnames(g), min=g.min_players)
 
+    def sub_row(L: str) -> list:
+        """زر «اشترك في قناة البوت» تحت الخيارات والنتيجة (إن كانت قناة الاشتراك مضبوطة)."""
+        ch = (ctx.channel() or "").lstrip("@")
+        return [[btn(t(L, "btn_sub_bot_channel"), url=f"https://t.me/{ch}")]] if ch else []
+
+    sub_sem = asyncio.Semaphore(20)           # لا نغرق تليجرام بفحوص الاشتراك عند الانضمام الجماعي
+
+    async def is_subscribed(bot: Bot, uid: int) -> bool:
+        """الاشتراك إجباري. تعذّر التحقق (البوت ليس أدمن بقناة الاشتراك) يُعامل كمشترك كما في بقية البوت."""
+        if not ctx.channel() or not ctx.subscribed or ctx.is_admin(uid):
+            return True
+        async with sub_sem:
+            try:
+                return (await ctx.subscribed(bot, uid)) is not False
+            except Exception:  # noqa: BLE001
+                return True
+
     def lobby_markup(g: Game):
         if g.scope == "channel":                          # في القناة زر المشاركة فقط؛ التحكم من الخاص
-            return kb([btn(t(g.lang, "gp_join_ch"), f"gp:j:{g.gid}")])
+            return kb([btn(t(g.lang, "gp_join_ch"), f"gp:j:{g.gid}")], *sub_row(g.lang))
         return kb([btn(t(g.lang, "gp_join"), f"gp:j:{g.gid}")],
-                  [btn(t(g.lang, "gp_start_now"), f"gp:s:{g.gid}"), btn(t(g.lang, "gp_cancel"), f"gp:x:{g.gid}")])
+                  [btn(t(g.lang, "gp_start_now"), f"gp:s:{g.gid}"), btn(t(g.lang, "gp_cancel"), f"gp:x:{g.gid}")],
+                  *sub_row(g.lang))
 
     def round_text(g: Game, rnd: Rnd, left: int, answered: int = 0, total: int = 0) -> str:
         n, tot = g.idx + 1, len(g.rounds)
@@ -313,9 +331,10 @@ def build_group_router(ctx: Ctx) -> Router:
 
     def answer_markup(g: Game, rnd: Rnd):
         if rnd.tf:
-            return kb([btn(t(g.lang, "g_true"), f"gp:a:{g.gid}:{g.idx}:0"), btn(t(g.lang, "g_false"), f"gp:a:{g.gid}:{g.idx}:1")])
+            return kb([btn(t(g.lang, "g_true"), f"gp:a:{g.gid}:{g.idx}:0"), btn(t(g.lang, "g_false"), f"gp:a:{g.gid}:{g.idx}:1")],
+                      *sub_row(g.lang))
         btns = [btn(LETTERS[i], f"gp:a:{g.gid}:{g.idx}:{i}") for i in range(len(rnd.options))]
-        return kb(btns[:2], btns[2:])
+        return kb(btns[:2], btns[2:], *sub_row(g.lang))
 
     # ── سير اللعبة ─────────────────────────────────────────
     async def lobby_phase(bot: Bot, g: Game) -> None:
@@ -386,7 +405,8 @@ def build_group_router(ctx: Ctx) -> Router:
             lines += ["", t(g.lang, "gp_nobody")]
         if g.kind == "sudden" and out_now:
             lines.append("💀 " + t(g.lang, "gp_out") + ": " + "، ".join(esc(p.name) for p in out_now[:8]))
-        await edit(bot, g, mid, "\n".join(lines), None, caption=is_photo)
+        sr = sub_row(g.lang)
+        await edit(bot, g, mid, "\n".join(lines), kb(*sr) if sr else None, caption=is_photo)
         return True
 
     def ranking(g: Game) -> list[Player]:
@@ -397,6 +417,14 @@ def build_group_router(ctx: Ctx) -> Router:
 
     async def finish(bot: Bot, g: Game) -> None:
         rk = ranking(g)
+        if g.scope == "channel" and ctx.channel():              # من غادر قناتنا أثناء المسابقة لا يدخل النتيجة
+            ok: list[Player] = []
+            for i, p in enumerate(rk):
+                if len(ok) >= CH_KEEP or i >= 80:
+                    break
+                if await is_subscribed(bot, p.id):
+                    ok.append(p)
+            rk = ok
         if g.kind == "sudden":
             top = rk[0]
             champs = [p for p in rk if (p.alive, p.out_round) == (top.alive, top.out_round)]
@@ -405,7 +433,8 @@ def build_group_router(ctx: Ctx) -> Router:
         medals = ["🥇", "🥈", "🥉"]
         lines = [f"{medals[i] if i < 3 else str(i + 1) + '.'} {esc(p.name)} — <b>{p.points}</b>" for i, p in enumerate(rk[:10])]
         win = ("🏆 " + t(g.lang, "gp_winner", w=" + ".join(esc(p.name) for p in champs[:5]))) if champs else t(g.lang, "gp_nowinner")
-        markup = kb([btn(t(g.lang, "gp_top_btn"), "gp:t")]) if g.scope == "group" else None
+        markup = kb(*([[btn(t(g.lang, "gp_top_btn"), "gp:t")]] if g.scope == "group" else []), *sub_row(g.lang)) \
+            if (g.scope == "group" or sub_row(g.lang)) else None
         old = g.live
         await send(bot, g, t(g.lang, "gp_final", w=win, n=len(g.players), rows="\n".join(lines)), markup)   # الرسالة الجديدة الوحيدة
         await delete_msg(bot, g, old)
@@ -527,6 +556,9 @@ def build_group_router(ctx: Ctx) -> Router:
         uid = c.from_user.id
         if uid in g.players:
             await c.answer(t(L, "gp_already"))
+            return
+        if g.scope == "channel" and not await is_subscribed(c.bot, uid):
+            await c.answer(t(L, "gp_must_sub", ch=(ctx.channel() or "").lstrip("@")), show_alert=True)
             return
         if len(g.players) >= g.max_players:
             await c.answer(t(L, "gp_full"), show_alert=True)

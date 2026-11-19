@@ -566,3 +566,8 @@ T["en"].update({
 
 T["ar"]["gp_nobody_joined"] = "😴 ما شارك أحد هذه المرة. جرّب مرة ثانية!"
 T["en"]["gp_nobody_joined"] = "😴 Nobody joined this time. Try again!"
+
+T["ar"]["btn_sub_bot_channel"] = "📢 اشترك في قناة البوت"
+T["en"]["btn_sub_bot_channel"] = "📢 Subscribe to the bot's channel"
+T["ar"]["gp_must_sub"] = "⚠️ لازم تشترك في قناتنا @{ch} عشان تشارك. اشترك ثم اضغط «شارك» مرة ثانية."
+T["en"]["gp_must_sub"] = "⚠️ You must subscribe to our channel @{ch} to take part. Subscribe, then tap “Participate” again."
