@@ -64,5 +64,5 @@ def test_old_suggest_command_still_asks_for_a_question_and_menu_label():
         await h.say(u, "/start")
         from harness import last_menu_call
         labels = [b.text for row in last_menu_call(h).reply_markup.inline_keyboard for b in row]
-        assert "💬 الاقتراحات والملاحظات" in labels
+        assert "💬 اقتراحات" in labels
     run(go())

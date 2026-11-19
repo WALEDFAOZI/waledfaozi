@@ -9,7 +9,7 @@ T: dict[str, dict[str, str]] = {
 "ar": {
  "welcome": "أهلًا بك في <b>بوت اختبار الأوتاكو</b> 🎌\n\nاختبر معرفتك بالأنمي: أكثر من <b>1400 سؤال</b> من الأسهل للأصعب، وألعاب، وتحدٍّ يومي، ومواجهات ومسابقات في المجموعات والقنوات.\nتحصل على <b>تقييم من 10 ولقب ومستوى وإنجازات</b>!\n\nاختر طريقة اللعب:",
  "challenge_banner": "\n\n⚔️ <b>{name}</b> تحداك! حصل على <b>{score}/10</b> ويلقّب <b>{title}</b>.\nتقبل التحدي بنفس الأسئلة؟",
- "btn_full": "🎯 الاختبار الكامل (50 سؤال)", "btn_quick": "⚡ اختبار سريع (10 أسئلة)",
+ "btn_full": "🎯 الاختبار الكامل", "btn_quick": "⚡ اختبار سريع",
  "btn_cat": "📂 حسب التصنيف", "btn_sudden": "☠️ الموت المفاجئ", "btn_games": "🎮 ألعاب أخرى",
  "btn_top": "🌍 التقييم العام", "btn_lang": "🌐 English", "btn_accept": "✅ أقبل التحدي", "btn_back": "◀️ رجوع",
  "btn_stale": "هذا الزر قديم 🕒 اكتب /start (أو /admin) لقائمة جديدة", "btn_week": "📅 تقييم الأسبوع", "btn_stats": "📈 إحصائياتي", "btn_images": "🖼 شخصيات بالصور", "btn_suggest": "💡 اقترح سؤالًا",
@@ -86,7 +86,7 @@ T: dict[str, dict[str, str]] = {
 "en": {
  "welcome": "Welcome to the <b>Otaku Quiz Bot</b> 🎌\n\nTest your anime knowledge: <b>1400+ questions</b> from easy to hard, games, a daily challenge, duels and contests in groups and channels.\nYou get a <b>score out of 10, a title, a level and achievements</b>!\n\nPick a mode:",
  "challenge_banner": "\n\n⚔️ <b>{name}</b> challenged you! They scored <b>{score}/10</b> and are <b>{title}</b>.\nAccept the challenge with the same questions?",
- "btn_full": "🎯 Full test (50 questions)", "btn_quick": "⚡ Quick test (10 questions)",
+ "btn_full": "🎯 Full test", "btn_quick": "⚡ Quick test",
  "btn_cat": "📂 By category", "btn_sudden": "☠️ Sudden death", "btn_games": "🎮 Other games",
  "btn_top": "🌍 Overall rating", "btn_lang": "🌐 العربية", "btn_accept": "✅ Accept challenge", "btn_back": "◀️ Back",
  "btn_stale": "This button is outdated 🕒 Send /start (or /admin) for a fresh menu", "btn_week": "📅 Weekly rating", "btn_stats": "📈 My stats", "btn_images": "🖼 Character pics", "btn_suggest": "💡 Suggest a question",
@@ -329,14 +329,14 @@ T["en"].update({
     "an_rp_ok": "Thanks! We'll review this title 🙏",
 })
 
-T["ar"]["btn_channel"] = "💬 تعال للقناة وتفاعل مع الأوتاكو"
-T["en"]["btn_channel"] = "💬 Join the channel & chat with fellow otakus"
+T["ar"]["btn_channel"] = "💬 قناتنا"
+T["en"]["btn_channel"] = "💬 Our channel"
 
 T["ar"].update({
     "btn_invite": "👥 ادعُ أصدقاءك",
     "iv_head": "👥 <b>ادعُ أصدقاءك</b>\nتُحسب الدعوة بعد أن يكمل صديقك أول اختبار كامل ويشترك بالقناة، وتأخذ ألقابًا خاصة.",
     "iv_count": "📨 دعواتك المكتملة: {n}", "iv_badge": "🏅 لقبك: {b}", "iv_nobadge": "🏅 لا لقب بعد، أول دعوة تعطيك لقبًا!",
-    "iv_next": "🎯 باقي {k} للقب {b}", "iv_btn": "📤 شارك رابط الدعوة",
+    "iv_next": "🎯 باقي {k} للقب {b}", "iv_btn": "📤 شارك الرابط",
     "iv_share": "تعال جرّب اختبار الأوتاكو، شف كم تجيب من 10 🔥",
     "iv_joined": "🎉 صديقك أكمل أول اختبار واشترك! دعواتك المكتملة: {n}", "iv_badge_up": "🏅 ترقّيت للقب: {b}",
 })
@@ -344,7 +344,7 @@ T["en"].update({
     "btn_invite": "👥 Invite friends",
     "iv_head": "👥 <b>Invite friends</b>\nAn invite counts once your friend finishes a full test and joins the channel. Earn special badges.",
     "iv_count": "📨 Completed invites: {n}", "iv_badge": "🏅 Your badge: {b}", "iv_nobadge": "🏅 No badge yet, your first invite earns one!",
-    "iv_next": "🎯 {k} more for {b}", "iv_btn": "📤 Share invite link",
+    "iv_next": "🎯 {k} more for {b}", "iv_btn": "📤 Share link",
     "iv_share": "Come try the Otaku Quiz, see what you score out of 10 🔥",
     "iv_joined": "🎉 Your friend finished a first test and joined! Completed invites: {n}", "iv_badge_up": "🏅 New badge: {b}",
 })
@@ -382,7 +382,7 @@ T["ar"].update({
     "dy_streak_now": "🔥 السلسلة: {n} يوم", "dy_streak_ms": "🎉 إنجاز! {n} يوم متواصل!",
     "dy_board": "🏆 <b>متصدرو تحدي اليوم</b>\n\n{rows}", "dy_board_empty": "ما فيه نتائج لسا. كن الأول! 💪",
     "du_btn": "⚔️ تحدَّ صديقًا", "du_wait": "⚔️ انتهيت: <b>{c}/{n}</b>\nأرسل الرابط لصديقك ليلعب نفس الأسئلة، وأبلغك بالنتيجة.",
-    "du_share_btn": "📤 أرسل التحدي لصديق", "du_share_text": "⚔️ تحدّاك في 7 أسئلة أنمي، تقدر تغلبني؟",
+    "du_share_btn": "📤 أرسل لصديق", "du_share_text": "⚔️ تحدّاك في 7 أسئلة أنمي، تقدر تغلبني؟",
     "du_invite": "\n\n⚔️ <b>{name}</b> يتحداك في 7 أسئلة! نتيجته تظهر بعد ما تخلّص.",
     "du_accept": "⚔️ أقبل التحدي", "du_unavail": "هذا التحدي لم يعد متاحًا (انتهى أو أخذه شخص آخر).",
     "du_result": "⚔️ <b>نتيجة المواجهة</b>\n{a}: <b>{sa}/{n}</b>\n{b}: <b>{sb}/{n}</b>\n\n{v}",
@@ -406,7 +406,7 @@ T["en"].update({
     "dy_streak_now": "🔥 Streak: {n} days", "dy_streak_ms": "🎉 Milestone! {n} days in a row!",
     "dy_board": "🏆 <b>Today's top players</b>\n\n{rows}", "dy_board_empty": "No results yet. Be the first! 💪",
     "du_btn": "⚔️ Challenge a friend", "du_wait": "⚔️ Done: <b>{c}/{n}</b>\nSend the link to a friend so they play the same questions, and I'll tell you the result.",
-    "du_share_btn": "📤 Send challenge to a friend", "du_share_text": "⚔️ I challenge you to 7 anime questions, can you beat me?",
+    "du_share_btn": "📤 Send to a friend", "du_share_text": "⚔️ I challenge you to 7 anime questions, can you beat me?",
     "du_invite": "\n\n⚔️ <b>{name}</b> challenges you to 7 questions! Their score is revealed after you finish.",
     "du_accept": "⚔️ Accept the challenge", "du_unavail": "This challenge is no longer available (finished or taken).",
     "du_result": "⚔️ <b>Duel result</b>\n{a}: <b>{sa}/{n}</b>\n{b}: <b>{sb}/{n}</b>\n\n{v}",
@@ -554,12 +554,12 @@ T["ar"]["gp_joined_ch"] = "✅ تم تسجيل مشاركتك! انتظر بدا
 T["en"]["gp_joined_ch"] = "✅ You're in! Wait for the questions to start"
 
 T["ar"].update({
-    "ch_test_btn": "🔧 اختبار النشر في القناة", "ch_test_ok": "✅ البوت ينشر ويحذف في القناة بشكل سليم.",
+    "ch_test_btn": "🔧 تجربة النشر", "ch_test_ok": "✅ البوت ينشر ويحذف في القناة بشكل سليم.",
     "ch_test_ok_nodel": "⚠️ البوت ينشر لكن لا يستطيع الحذف: فعّل له صلاحية «حذف الرسائل».",
     "ch_open_pm": "📩 لإكمال المسابقة افتح البوت بالخاص أولًا: @{me} ثم أعد كتابة /play",
 })
 T["en"].update({
-    "ch_test_btn": "🔧 Test posting in the channel", "ch_test_ok": "✅ The bot can post and delete in the channel.",
+    "ch_test_btn": "🔧 Test posting", "ch_test_ok": "✅ The bot can post and delete in the channel.",
     "ch_test_ok_nodel": "⚠️ The bot can post but not delete: enable the “Delete messages” right.",
     "ch_open_pm": "📩 To continue, open the bot in private first: @{me}, then type /play again",
 })
@@ -567,13 +567,13 @@ T["en"].update({
 T["ar"]["gp_nobody_joined"] = "😴 ما شارك أحد هذه المرة. جرّب مرة ثانية!"
 T["en"]["gp_nobody_joined"] = "😴 Nobody joined this time. Try again!"
 
-T["ar"]["btn_sub_bot_channel"] = "📢 اشترك في قناة البوت"
-T["en"]["btn_sub_bot_channel"] = "📢 Subscribe to the bot's channel"
+T["ar"]["btn_sub_bot_channel"] = "💬 قناتنا"
+T["en"]["btn_sub_bot_channel"] = "💬 Our channel"
 T["ar"]["gp_must_sub"] = "⚠️ لازم تشترك في قناتنا @{ch} عشان تشارك. اشترك ثم اضغط «شارك» مرة ثانية."
 T["en"]["gp_must_sub"] = "⚠️ You must subscribe to our channel @{ch} to take part. Subscribe, then tap “Participate” again."
 
 T["ar"].update({
-    "btn_suggest": "💬 الاقتراحات والملاحظات",
+    "btn_suggest": "💬 اقتراحات",
     "fb_menu": "💬 <b>الاقتراحات والملاحظات</b>\nرأيك يهمنا! اختر نوع رسالتك:",
     "fbk_feat": "🛠 اقتراح لتطوير البوت", "fbk_q": "❓ اقتراح سؤال", "fbk_anime": "🎬 اقتراح أنمي للقائمة",
     "fbk_bug": "🐞 مشكلة أو خطأ", "fbk_note": "💭 ملاحظة أو شكر",
@@ -587,7 +587,7 @@ T["ar"].update({
     "fb_reply": "💬 <b>رد من الإدارة</b>\n\n{text}",
 })
 T["en"].update({
-    "btn_suggest": "💬 Suggestions & feedback",
+    "btn_suggest": "💬 Suggestions",
     "fb_menu": "💬 <b>Suggestions & feedback</b>\nWe value your opinion! Pick a type:",
     "fbk_feat": "🛠 Suggest a bot improvement", "fbk_q": "❓ Suggest a question", "fbk_anime": "🎬 Suggest an anime for the list",
     "fbk_bug": "🐞 Problem or bug", "fbk_note": "💭 Note or thanks",
@@ -695,7 +695,7 @@ T["ar"].update({
     "lb_hide_on": "تم إخفاء اسمك من كل الترتيبات 👻", "lb_hide_off": "تم إظهار اسمك في الترتيب 👁",
     "lb_rank_of": "📍 ترتيبك: <b>#{rank}</b>", "lb_rank_none_q": "📍 ما دخلت الترتيب بعد، العب وكن منهم!",
     "tie_hint": "⚖️ عندك تقييم مساوٍ لبعض اللاعبين. تحدَّاهم لتحديد الأفضل (تُغلق المهلة بعد 5 ساعات):",
-    "tie_btn": "⚖️ تحدَّ {name} ({score})",
+    "tie_btn": "⚔️ تحدَّ {name} ({score})",
     "tie_no": "لا يمكن هذا التحدي.", "tie_not": "التقييم لم يعد متساويًا.", "tie_hidden": "أحد الطرفين مخفي من الترتيب.",
     "tie_cooldown": "تحدّيت هذا اللاعب قبل قليل. جرّب بعد 24 ساعة.",
     "tie_invite": "⚖️ <b>{name}</b> عنده نفس تقييمك بالضبط! يتحداك لتحديد الأفضل بينكما.\n\n⏳ عندك <b>5 ساعات</b> تلعب فيها، وإن ما لعبت يُحسب الفوز لمن وصل لهذا التقييم أولًا.",
@@ -710,7 +710,7 @@ T["en"].update({
     "lb_hide_on": "Your name is hidden from all rankings 👻", "lb_hide_off": "Your name is shown in rankings 👁",
     "lb_rank_of": "📍 Your rank: <b>#{rank}</b>", "lb_rank_none_q": "📍 You're not on the board yet, play and join in!",
     "tie_hint": "⚖️ Some players have the exact same score as you. Challenge them to find the best (the window closes after 5 hours):",
-    "tie_btn": "⚖️ Challenge {name} ({score})",
+    "tie_btn": "⚔️ Challenge {name} ({score})",
     "tie_no": "This challenge isn't possible.", "tie_not": "Your scores are no longer tied.", "tie_hidden": "One of you is hidden from the rankings.",
     "tie_cooldown": "You challenged this player recently. Try again in 24 hours.",
     "tie_invite": "⚖️ <b>{name}</b> has the exact same score as you! They challenge you to decide who's the best.\n\n⏳ You have <b>5 hours</b> to play; if you don't, the win goes to whoever reached this score first.",
@@ -724,7 +724,7 @@ T["ar"].update({"gp_top_week": "📅 <b>متصدرو المجموعة · هذا 
 T["en"].update({"gp_top_week": "📅 <b>Group top · This week</b>", "gp_top_all": "🌍 <b>Group top · All time</b>"})
 
 T["ar"].update({
-    "btn_persona": "🧬 اختبار نمط الشخصية", "ps_go": "ابدأ الاختبار",
+    "btn_persona": "🧬 نمط الشخصية", "ps_go": "ابدأ الاختبار",
     "ps_intro": "🧬 <b>اختبار نمط الشخصية</b>\n{n} سؤالًا قصيرًا. جاوب بدون تفكير طويل، وقيّم كل عبارة من 1 (لا تنطبق عليّ) إلى 5 (تنطبق عليّ تمامًا).\nالنتيجة تُظهر لك قربك من كل جانب، وشخصيات أنمي من نفس النمط.",
     "ps_q": "🧬 <b>سؤال {n}/{total}</b>\n{q}\n\n<i>1 = لا تنطبق عليّ · 5 = تنطبق عليّ تمامًا</i>",
     "ps_back": "↩️ السؤال السابق", "ps_again": "🔄 أعد الاختبار",
@@ -734,7 +734,7 @@ T["ar"].update({
     "ps_anime_soon": "🎭 قائمة شخصيات هذا النمط قيد الإعداد.",
 })
 T["en"].update({
-    "btn_persona": "🧬 Personality type test", "ps_go": "Start the test",
+    "btn_persona": "🧬 Personality type", "ps_go": "Start the test",
     "ps_intro": "🧬 <b>Personality type test</b>\n{n} short statements. Answer quickly, rate each from 1 (doesn't describe me) to 5 (describes me perfectly).\nYou'll see how close you are to each side, and anime characters of the same type.",
     "ps_q": "🧬 <b>Question {n}/{total}</b>\n{q}\n\n<i>1 = not me · 5 = very much me</i>",
     "ps_back": "↩️ Previous question", "ps_again": "🔄 Retake the test",
@@ -885,8 +885,8 @@ T["en"]['mf_no_channels'] = 'You have no linked channels. Add the bot as admin i
 T["en"]['mf_pick_channel'] = '📢 Pick the channel to start a mafia game in:'
 T["en"]['mf_channel_started'] = '✅ The mafia game is posted in the channel. Control it with the buttons there.'
 
-T["ar"]["btn_mafia_channel"] = "🔪 المافيا في قناتي"
-T["en"]["btn_mafia_channel"] = "🔪 Mafia in my channel"
+T["ar"]["btn_mafia_channel"] = "🔪 مافيا في قناة"
+T["en"]["btn_mafia_channel"] = "🔪 Mafia in a channel"
 
 T["ar"]['sp_title'] = '🎭 <b>برا السالفة · أنمي</b>'
 T["ar"]['sp_host'] = '🎩 المضيف: {h}'
@@ -985,11 +985,11 @@ T["en"]['sp_end_team_win'] = '🎉 <b>The insiders</b> win!'
 T["en"]['sp_end'] = '🏁 <b>Outside the Story is over!</b>\n{head}\n\nThe character was: <b>{char}</b>\nOutsider: <b>{out}</b>\n\nRanking points: winner 100, others 0 (admins excluded).'
 T["en"]['sp_stopped'] = '⛔ The game was cancelled.'
 
-T["ar"]['sw_btn'] = '🎭 تبادل الشخصيات بدل الأسئلة'
+T["ar"]['sw_btn'] = '🎭 تبادل الشخصيات'
 T["ar"]['sw_guess_btn'] = '🎯 خمّنت شخصيتي'
 T["ar"]['sw_quit_btn'] = '🏳 استسلم'
 T["ar"]['sw_invite_text'] = '🎭 <b>تبادل الشخصيات</b>\nأرسل الرابط لصديقك. أول ما يقبل تتوزع الشخصيات: كل واحد يعرف شخصية صاحبه ولا يعرف شخصيته.\nاسألوا بعض بأي طريقة تبون، وأول من يخمّن شخصيته يفوز.'
-T["ar"]['sw_share_btn'] = '📤 أرسل التحدي لصديق'
+T["ar"]['sw_share_btn'] = '📤 أرسل لصديق'
 T["ar"]['sw_share_text'] = 'تعال نلعب تبادل الشخصيات 🎭 أنا أعرف شخصيتك وأنت تعرف شخصيتي… من يخمّن أولًا؟'
 T["ar"]['sw_accept_ask'] = '🎭 <b>{name}</b> يتحداك بتبادل الشخصيات. تقبل؟'
 T["ar"]['sw_accept_btn'] = '✅ اقبل التحدي'
@@ -1002,11 +1002,11 @@ T["ar"]['sw_gone'] = 'هذا التحدي انتهى أو غير موجود.'
 T["ar"]['sw_win'] = '🏆 <b>فزت!</b>'
 T["ar"]['sw_lose'] = '😅 <b>خسرت هذه المرة</b>'
 T["ar"]['sw_end'] = '{head}\nشخصيتك كانت: <b>{own}</b>\nشخصية صاحبك: <b>{other}</b>'
-T["en"]['sw_btn'] = '🎭 Swap characters instead of questions'
+T["en"]['sw_btn'] = '🎭 Swap characters'
 T["en"]['sw_guess_btn'] = '🎯 I guessed my character'
 T["en"]['sw_quit_btn'] = '🏳 Give up'
 T["en"]['sw_invite_text'] = "🎭 <b>Swap characters</b>\nSend the link to your friend. Once they accept, each of you gets the other's character without knowing your own.\nAsk each other however you like; the first to guess their own character wins."
-T["en"]['sw_share_btn'] = '📤 Send the challenge'
+T["en"]['sw_share_btn'] = '📤 Send to a friend'
 T["en"]['sw_share_text'] = "Let's play Swap Characters 🎭 I know yours and you know mine… who guesses first?"
 T["en"]['sw_accept_ask'] = '🎭 <b>{name}</b> challenges you to Swap Characters. Accept?'
 T["en"]['sw_accept_btn'] = '✅ Accept'
@@ -1020,7 +1020,7 @@ T["en"]['sw_win'] = '🏆 <b>You won!</b>'
 T["en"]['sw_lose'] = '😅 <b>You lost this time</b>'
 T["en"]['sw_end'] = "{head}\nYour character was: <b>{own}</b>\nYour friend's character: <b>{other}</b>"
 
-T["ar"]['btn_online'] = '🌐 لعب أونلاين مع لاعب'
+T["ar"]['btn_online'] = '🌐 لعب أونلاين'
 T["ar"]['on_menu'] = '🌐 <b>لعب أونلاين</b>\nاختر اللعبة، وأوّل لاعب يلاقيك في الطابور تتنافسون على نفس الأسئلة. الأفضل يفوز، وتظهر النتيجة لكم الاثنين.'
 T["ar"]['on_kind_quiz'] = '🎯 أسئلة أنمي'
 T["ar"]['on_kind_tf'] = '✅❌ صح أم غلط'
@@ -1041,7 +1041,7 @@ T["ar"]['on_win'] = '🏆 <b>فزت!</b>'
 T["ar"]['on_lose'] = '😅 <b>خسرت</b>'
 T["ar"]['on_draw'] = '🤝 <b>تعادل!</b>'
 T["ar"]['on_result'] = '🏁 <b>انتهت المباراة</b>\n{head}\n\nأنت: <b>{me}</b> · المنافس ({name}): <b>{op}</b> من {n}'
-T["en"]['btn_online'] = '🌐 Play online vs a player'
+T["en"]['btn_online'] = '🌐 Play online'
 T["en"]['on_menu'] = '🌐 <b>Play online</b>\nPick a game. The first player who joins the queue after you is your opponent, on the same questions. The best wins, and both see the result.'
 T["en"]['on_kind_quiz'] = '🎯 Anime questions'
 T["en"]['on_kind_tf'] = '✅❌ True or false'

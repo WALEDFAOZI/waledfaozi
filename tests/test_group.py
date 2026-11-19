@@ -335,7 +335,7 @@ def test_channel_contest_flow_single_live_message_and_final_top():
         lobby = chan_sent(h)[0]
         assert buttons(lobby)[0].startswith("gp:j:") and buttons(lobby)[1].startswith("gp:u:") and len([d for d in buttons(lobby) if d]) == 2      # مشاركة + إلغاء مشاركتي (+ رابط الاشتراك)
         assert lobby.reply_parameters is None and "تبدأ بعد" in lobby.text
-        assert [b.text for row in lobby.reply_markup.inline_keyboard for b in row] == ["✋ شارك", "↩️ إلغاء مشاركتي", "📢 اشترك في قناة البوت"]
+        assert [b.text for row in lobby.reply_markup.inline_keyboard for b in row] == ["✋ شارك", "↩️ إلغاء مشاركتي", "💬 قناتنا"]
         gid = buttons(lobby)[0].split(":")[2]
         players = [h.user(100 + i, f"P{i}") for i in range(300)]       # أعداد كبيرة
         for u in players:
