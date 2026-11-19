@@ -127,3 +127,30 @@ def test_expired_tie_cannot_be_accepted_late():
         await h.tap(b, "du:acc:1")
         assert h.db.get_duel(1)["opponent"] is None                          # لم يُقبل
     run(go())
+
+
+def test_tie_winner_after_timeout_ranks_above_the_other():
+    async def go():
+        h = Harness()
+        h.db.upsert_user(1, "Ali"); h.db.upsert_user(2, "Bob")
+        with h.db.conn:
+            h.db.conn.execute("UPDATE users SET best_score=8.0 WHERE tg_id IN (1,2)")
+            h.db.conn.execute("UPDATE users SET tests_taken=5 WHERE tg_id=1")
+            h.db.conn.execute("UPDATE users SET tests_taken=1 WHERE tg_id=2")
+        before = [r["name"] for r in h.db.leaderboard(10)]
+        assert before[0] == "Bob"                                            # قبل المهلة: الترتيب بعدد الاختبارات
+        h.db.upsert_user(3, "Cy")
+        with h.db.conn:
+            h.db.conn.execute("INSERT INTO sessions(tg_id,started_at,mode,state,score,finished_at,counted) VALUES(2,?,'full','finished',8.0,?,1)",
+                              (time.time() - 9000, time.time() - 9000))
+            h.db.conn.execute("INSERT INTO sessions(tg_id,started_at,mode,state,score,finished_at,counted) VALUES(1,?,'full','finished',8.0,?,1)",
+                              (time.time() - 5000, time.time() - 5000))
+        await h.tap(h.user(1, "Ali"), "tt:2")
+        with h.db.conn:
+            h.db.conn.execute("UPDATE duels SET created_at=? WHERE id=1", (time.time() - 6 * 3600,))
+        await ties.sweep(h.bot, h.db)
+        # Bob (لم يلعب) وصل أولًا لهذا التقييم ثم Ali: الفوز لـ Bob ويصير ترتيبه أعلى
+        names = [r["name"] for r in h.db.leaderboard(10)]
+        assert names.index("Bob") < names.index("Ali")
+        assert h.db.user_rank(2) == 1 and h.db.user_rank(1) == 2
+    run(go())

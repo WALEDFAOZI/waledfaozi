@@ -1,7 +1,7 @@
 """تحدّي التعادل: لاعبان بنفس أفضل تقييم يتحدّى أحدهما الآخر لتحديد الأفضل.
 
 القواعد:
-• المدة: 5 ساعات. إن لم يلعب المدعو خلالها يُحسب الفوز لمن وصل لهذا التقييم أولًا.
+• المدة: 5 ساعات. إن لم يلعب المدعو خلالها يُحسب الفوز لمن وصل لهذا التقييم أولًا، ويصير ترتيبه أعلى من صاحب نفس التقييم.
 • لا يُتحدّى نفس الشخص أكثر من مرة كل 24 ساعة.
 • التحدي نفسه مواجهة (7 أسئلة) تُحسب بالطريقة العادية إن لعب الطرفان.
 """
@@ -49,6 +49,7 @@ async def sweep(bot: Bot, db, now: float | None = None) -> None:
         ft = db.first_reached(target, score)
         winner, loser = (creator, target) if (fc or float("inf")) <= (ft or float("inf")) else (target, creator)
         db.duel_done(d["id"])
+        db.apply_tie_result(winner, loser, score)                     # الترتيب: الفائز يصير أعلى من صاحب نفس التقييم
         wps = progress.bonus(db, winner, "duel_win", 25, "duel_wins")
         no_show = target                                              # المدعو هو من لم يلعب (المضيف لعب قبل ذلك)
         msgs = {winner: ("tie_timeout_win", loser), loser: ("tie_timeout_lose" if loser == no_show else "tie_timeout_lose_played", winner)}

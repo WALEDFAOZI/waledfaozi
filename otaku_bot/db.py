@@ -10,6 +10,8 @@ from .quiz import Answer, Question
 
 # المستخدمون الذين أخفوا أسماءهم من الترتيب
 HID = "tg_id NOT IN (SELECT tg_id FROM users WHERE lb_hidden=1)"
+# ترتيب التعادل: من فاز بمهلة التحدي يتقدم على صاحب نفس التقييم (تُحسب فقط إن كان tie_score يطابق التقييم الحالي)
+TIEKEY = "CASE WHEN ABS(tie_score-best_score)<0.001 THEN tie_pts ELSE 0 END"
 from .timeutil import day_start
 
 SCHEMA = """
@@ -158,7 +160,8 @@ MIGRATIONS = {
               "streak_day": "INTEGER NOT NULL DEFAULT 0", "remind": "INTEGER NOT NULL DEFAULT 0",
               "last_remind_day": "INTEGER NOT NULL DEFAULT 0", "xp": "INTEGER NOT NULL DEFAULT 0",
               "freezes": "INTEGER NOT NULL DEFAULT 0", "team_id": "INTEGER",
-              "lb_hidden": "INTEGER NOT NULL DEFAULT 0"},
+              "lb_hidden": "INTEGER NOT NULL DEFAULT 0", "tie_pts": "INTEGER NOT NULL DEFAULT 0",
+              "tie_score": "REAL NOT NULL DEFAULT 0"},
     "duels": {"target": "INTEGER", "tie": "INTEGER NOT NULL DEFAULT 0"},
     "sessions": {
         "mode": "TEXT NOT NULL DEFAULT 'full'", "counted": "INTEGER NOT NULL DEFAULT 1",
@@ -673,6 +676,12 @@ class DB:
             "SELECT * FROM duels WHERE tie=1 AND state='open' AND created_at<? AND opponent_sid IS NULL",
             (cutoff,)).fetchall()
 
+    def apply_tie_result(self, winner: int, loser: int, score: float) -> None:
+        """نتيجة تعادل انتهت بالمهلة: الفائز يتقدم على صاحب نفس التقييم في الترتيب، والخاسر يتأخر."""
+        with self.conn:
+            self.conn.execute("UPDATE users SET tie_pts=1, tie_score=? WHERE tg_id=?", (score, winner))
+            self.conn.execute("UPDATE users SET tie_pts=-1, tie_score=? WHERE tg_id=?", (score, loser))
+
     def first_reached(self, tg_id: int, score: float) -> float | None:
         """أول وقت وصل فيه اللاعب لهذا التقييم (يحدد من «قبله»)."""
         r = self.conn.execute(
@@ -845,7 +854,7 @@ class DB:
     def leaderboard(self, limit: int = 10) -> list[sqlite3.Row]:
         return self.conn.execute(
             f"SELECT name, best_score FROM users WHERE best_score>0 AND tg_id NOT IN (SELECT tg_id FROM admins) AND {HID} "
-            "ORDER BY best_score DESC, tests_taken ASC LIMIT ?", (limit,)).fetchall()
+            f"ORDER BY best_score DESC, ({TIEKEY}) DESC, tests_taken ASC LIMIT ?", (limit,)).fetchall()
 
     def user_rank(self, tg_id: int) -> int | None:
         u = self.get_user(tg_id)
@@ -853,8 +862,10 @@ class DB:
             return None
         if u["lb_hidden"]:
             return None
-        return self.conn.execute(f"SELECT COUNT(*)+1 rk FROM users WHERE best_score > ? AND {HID}",
-                                 (u["best_score"],)).fetchone()["rk"]
+        return self.conn.execute(
+            f"SELECT COUNT(*)+1 rk FROM users WHERE {HID} AND tg_id NOT IN (SELECT tg_id FROM admins) AND (best_score > ? "
+            f"OR (ABS(best_score-?)<0.001 AND ({TIEKEY}) > ?))",
+            (u["best_score"], u["best_score"], int(u["tie_pts"] if abs((u["tie_score"] or 0) - u["best_score"]) < 0.001 else 0))).fetchone()["rk"]
 
     def weekly_leaderboard(self, since: float, limit: int = 10) -> list[sqlite3.Row]:
         return self.conn.execute(
@@ -880,7 +891,7 @@ class DB:
         if since is None:
             if kind == "q":
                 sql, args = (f"SELECT tg_id, name, best_score AS score FROM users WHERE best_score>0 AND {adm_t} "
-                             "ORDER BY best_score DESC, tests_taken ASC, tg_id ASC LIMIT ?"), (limit,)
+                             f"ORDER BY best_score DESC, ({TIEKEY}) DESC, tests_taken ASC, tg_id ASC LIMIT ?"), (limit,)
             elif kind == "s":
                 sql, args = (f"SELECT tg_id, name, best_sudden AS score FROM users WHERE best_sudden>0 AND {adm_t} "
                              "ORDER BY best_sudden DESC, tg_id ASC LIMIT ?"), (limit,)
