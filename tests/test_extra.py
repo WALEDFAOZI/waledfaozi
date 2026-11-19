@@ -176,7 +176,7 @@ def test_game_rounds_are_valid():
         assert ar and en and isinstance(ans, bool)
         if not ans:
             assert ex_ar and ex_en
-    assert 40 <= sum(1 for s in data["tf"] if s[2]) + sum(1 for s in data["tf"] if not s[2]) <= 60
+    assert 40 <= len(data["tf"]) <= 200                       # المحتوى تضاعف
 
 
 def test_stats_and_settings_values_flow():

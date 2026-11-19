@@ -1,0 +1,3574 @@
+[
+ {
+  "q": "من هو والد ساسكي أوتشيها؟",
+  "options": [
+   "فوغاكو أوتشيها",
+   "ميناتو ناميكازي",
+   "هياشي هيوغا",
+   "شيكاكو نارا"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "Who is Sasuke Uchiha's father?",
+  "options_en": [
+   "Fugaku Uchiha",
+   "Minato Namikaze",
+   "Hiashi Hyuga",
+   "Shikaku Nara"
+  ]
+ },
+ {
+  "q": "ما اسم الثعلب ذي الذيول التسعة المختوم داخل ناروتو؟",
+  "options": [
+   "شوكاكو",
+   "كوراما",
+   "ماتاتابي",
+   "غيوكي"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "What is the name of the Nine-Tailed Fox sealed inside Naruto?",
+  "options_en": [
+   "Shukaku",
+   "Kurama",
+   "Matatabi",
+   "Gyuki"
+  ]
+ },
+ {
+  "q": "ما اسم كلب كيبا إينوزوكا الأبيض؟",
+  "options": [
+   "باكون",
+   "كوروماورو",
+   "أكامارو",
+   "غاماكيتشي"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of Kiba Inuzuka's white dog?",
+  "options_en": [
+   "Pakkun",
+   "Kuromaru",
+   "Akamaru",
+   "Gamakichi"
+  ]
+ },
+ {
+  "q": "من هو معلم روك لي في فريق غاي؟",
+  "options": [
+   "كاكاشي هاتاكي",
+   "أسوما ساروتوبي",
+   "إيروكا أومينو",
+   "مايت غاي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "Who is Rock Lee's teacher on Team Guy?",
+  "options_en": [
+   "Kakashi Hatake",
+   "Asuma Sarutobi",
+   "Iruka Umino",
+   "Might Guy"
+  ]
+ },
+ {
+  "q": "ما اسم السيف الذي يستخدمه ساسكي أوتشيها في القتال؟",
+  "options": [
+   "كوساناغي",
+   "ساميهادا",
+   "كوبيكيريبوتشو",
+   "هيراميكاريه"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "What is the name of the sword Sasuke Uchiha uses in battle?",
+  "options_en": [
+   "Kusanagi",
+   "Samehada",
+   "Kubikiribocho",
+   "Hiramekarei"
+  ]
+ },
+ {
+  "q": "من هو «حكيم المسارات الستة» الذي يُنسب إليه نشر الشاكرا؟",
+  "options": [
+   "هامورا أوتسوتسوكي",
+   "هاغوروموا أوتسوتسوكي",
+   "إندرا أوتسوتسوكي",
+   "هاشيراما سينجو"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "Who is the \"Sage of the Six Paths\" credited with spreading chakra?",
+  "options_en": [
+   "Hamura Otsutsuki",
+   "Hagoromo Otsutsuki",
+   "Indra Otsutsuki",
+   "Hashirama Senju"
+  ]
+ },
+ {
+  "q": "ما اسم السفينة الأولى لطاقم قبعة القش؟",
+  "options": [
+   "ثاوزند صني",
+   "موبي ديك",
+   "غوينغ ميري",
+   "ريد فورس"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the Straw Hat Pirates' first ship?",
+  "options_en": [
+   "Thousand Sunny",
+   "Moby Dick",
+   "Going Merry",
+   "Red Force"
+  ]
+ },
+ {
+  "q": "ما اسم فاكهة الشيطان التي أكلها إيس؟",
+  "options": [
+   "غورا غورا نو مي",
+   "هي هي نو مي",
+   "ماغو ماغو نو مي",
+   "ميرا ميرا نو مي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the Devil Fruit eaten by Ace?",
+  "options_en": [
+   "Gura Gura no Mi",
+   "Hie Hie no Mi",
+   "Magu Magu no Mi",
+   "Mera Mera no Mi"
+  ]
+ },
+ {
+  "q": "ما اسم السيف الأبيض الذي يحمله زورو بين أسنانه؟",
+  "options": [
+   "وادو إيتشيمونجي",
+   "سانداي كيتيتسو",
+   "شوسوي",
+   "إنما"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the white sword Zoro holds in his mouth?",
+  "options_en": [
+   "Wado Ichimonji",
+   "Sandai Kitetsu",
+   "Shusui",
+   "Enma"
+  ]
+ },
+ {
+  "q": "ما الاسم الأصلي لفرانكي قبل أن يغيّره؟",
+  "options": [
+   "آيسبرغ",
+   "كاتي فلام",
+   "توم",
+   "كوكورو"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What was Franky's original name before he changed it?",
+  "options_en": [
+   "Iceberg",
+   "Cutty Flam",
+   "Tom",
+   "Kokoro"
+  ]
+ },
+ {
+  "q": "ما اسم صديقة طفولة زورو التي وعدها بأن يصبح أعظم سيّاف؟",
+  "options": [
+   "تاشيغي",
+   "نوجيكو",
+   "كوينا",
+   "روبين"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is the name of Zoro's childhood friend to whom he promised to become the world's greatest swordsman?",
+  "options_en": [
+   "Tashigi",
+   "Nojiko",
+   "Kuina",
+   "Robin"
+  ]
+ },
+ {
+  "q": "ما اسم طاقم القراصنة السابق الذي كان بروك ينتمي إليه؟",
+  "options": [
+   "قراصنة الشمس",
+   "قراصنة روجر",
+   "قراصنة اللحية البيضاء",
+   "قراصنة رامبار"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What was the name of the pirate crew Brook belonged to before joining the Straw Hats?",
+  "options_en": [
+   "Sun Pirates",
+   "Roger Pirates",
+   "Whitebeard Pirates",
+   "Rumbar Pirates"
+  ]
+ },
+ {
+  "q": "ما اسم الجزيرة التي وُلدت فيها نيكو روبين؟",
+  "options": [
+   "أوهارا",
+   "ألاباستا",
+   "سكاي بيا",
+   "ووتر سفن"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "What is the name of the island where Nico Robin was born?",
+  "options_en": [
+   "Ohara",
+   "Alabasta",
+   "Skypiea",
+   "Water 7"
+  ]
+ },
+ {
+  "q": "ما اسم سيف الروح الخاص بالكابتن بياكويا كوتشيكي؟",
+  "options": [
+   "هيوريمارو",
+   "سينبونزاكورا",
+   "رويجين جاكا",
+   "زابيمارو"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "What is the name of Captain Byakuya Kuchiki's Zanpakuto?",
+  "options_en": [
+   "Hyorinmaru",
+   "Senbonzakura",
+   "Ryujin Jakka",
+   "Zabimaru"
+  ]
+ },
+ {
+  "q": "من هو القائد العام لفرق الغوتيي 13 في سوول سوسايتي؟",
+  "options": [
+   "كنباتشي زاراكي",
+   "جوشيرو أوكيتاكي",
+   "غينريوساي ياماموتو",
+   "سوسكي أيزن"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "Who is the Captain-Commander of the Gotei 13 in the Soul Society?",
+  "options_en": [
+   "Kenpachi Zaraki",
+   "Jushiro Ukitake",
+   "Genryusai Yamamoto",
+   "Sosuke Aizen"
+  ]
+ },
+ {
+  "q": "من هو الإسبادا رقم 1 (بريميرا إسبادا) في Bleach؟",
+  "options": [
+   "باراغان لويزنبارن",
+   "أولكيورا سيفر",
+   "غريمجو جاغرجاك",
+   "كويوتي ستارك"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "Who is the Primera Espada (Espada No. 1) in Bleach?",
+  "options_en": [
+   "Baraggan Louisenbairn",
+   "Ulquiorra Schiffer",
+   "Grimmjow Jaegerjaquez",
+   "Coyote Starrk"
+  ]
+ },
+ {
+  "q": "ما اسم سيف الروح الخاص بالكابتن كنباتشي زاراكي؟",
+  "options": [
+   "نوزاراشي",
+   "هيوريمارو",
+   "كاتن كيوكوتسو",
+   "رويجين جاكا"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is the name of Captain Kenpachi Zaraki's Zanpakuto?",
+  "options_en": [
+   "Nozarashi",
+   "Hyorinmaru",
+   "Katen Kyokotsu",
+   "Ryujin Jakka"
+  ]
+ },
+ {
+  "q": "ما اسم صورة الإطلاق (ريسوريكسيون) الخاصة بأولكيورا سيفر؟",
+  "options": [
+   "بانتيرا",
+   "مورسييلاغو",
+   "سانتا تيريسا",
+   "تيبورون"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is the name of Ulquiorra Schiffer's Resurreccion?",
+  "options_en": [
+   "Pantera",
+   "Murcielago",
+   "Santa Teresa",
+   "Tiburon"
+  ]
+ },
+ {
+  "q": "ما اسم سيف الروح الخاص بالكابتن السابق جين إيتشيمارو؟",
+  "options": [
+   "بينيهيمي",
+   "هاينيكو",
+   "شينسو",
+   "كيوكا سويغيتسو"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is the name of former Captain Gin Ichimaru's Zanpakuto?",
+  "options_en": [
+   "Benihime",
+   "Haineko",
+   "Shinso",
+   "Kyoka Suigetsu"
+  ]
+ },
+ {
+  "q": "ما اسم صديقة الطفولة الميكانيكية للأخوين إلريك؟",
+  "options": [
+   "ريزا هوكاي",
+   "إزومي كورتيس",
+   "لاست",
+   "وينري روكبيل"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the Elric brothers' childhood friend who is a mechanic?",
+  "options_en": [
+   "Riza Hawkeye",
+   "Izumi Curtis",
+   "Lust",
+   "Winry Rockbell"
+  ]
+ },
+ {
+  "q": "من هو الخيميائي الملقب بـ«الخيميائي ذي الذراع القوية»؟",
+  "options": [
+   "أليكس لويس أرمسترونغ",
+   "روي موستانغ",
+   "ماس هيوز",
+   "سكار"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "Who is known as the \"Strong Arm Alchemist\"?",
+  "options_en": [
+   "Alex Louis Armstrong",
+   "Roy Mustang",
+   "Maes Hughes",
+   "Scar"
+  ]
+ },
+ {
+  "q": "أي خطيئة من الخطايا السبع يمثلها الفوهرر كينغ برادلي في Fullmetal Alchemist: Brotherhood؟",
+  "options": [
+   "الكبرياء",
+   "الغضب",
+   "الجشع",
+   "الحسد"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "Which of the Seven Sins does Fuhrer King Bradley represent in Fullmetal Alchemist: Brotherhood?",
+  "options_en": [
+   "Pride",
+   "Wrath",
+   "Greed",
+   "Envy"
+  ]
+ },
+ {
+  "q": "من هي معلمة الأخوين إلريك في الخيمياء؟",
+  "options": [
+   "بيناكو روكبيل",
+   "أوليفييه أرمسترونغ",
+   "إزومي كورتيس",
+   "تريشا إلريك"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "Who taught the Elric brothers alchemy?",
+  "options_en": [
+   "Pinako Rockbell",
+   "Olivier Armstrong",
+   "Izumi Curtis",
+   "Trisha Elric"
+  ]
+ },
+ {
+  "q": "ما اسم ابنة ماس هيوز الصغيرة؟",
+  "options": [
+   "نينا تاكر",
+   "روز توماس",
+   "شيسكا",
+   "إليسيا هيوز"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is the name of Maes Hughes' young daughter?",
+  "options_en": [
+   "Nina Tucker",
+   "Rose Thomas",
+   "Sheska",
+   "Elicia Hughes"
+  ]
+ },
+ {
+  "q": "ما اسم والدة الأخوين إدوارد وألفونس إلريك؟",
+  "options": [
+   "تريشا إلريك",
+   "بيناكو روكبيل",
+   "سارا روكبيل",
+   "إزومي كورتيس"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of Edward and Alphonse Elric's mother?",
+  "options_en": [
+   "Trisha Elric",
+   "Pinako Rockbell",
+   "Sara Rockbell",
+   "Izumi Curtis"
+  ]
+ },
+ {
+  "q": "ما اسم والد غون فريكس الذي يعمل صيادًا؟",
+  "options": [
+   "إسحاق نيتيرو",
+   "جينغ فريكس",
+   "سيلفا زولديك",
+   "كايت"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of Gon Freecss's father, who is a Hunter?",
+  "options_en": [
+   "Isaac Netero",
+   "Ging Freecss",
+   "Silva Zoldyck",
+   "Kite"
+  ]
+ },
+ {
+  "q": "إلى أي فئة نين ينتمي غون فريكس؟",
+  "options": [
+   "الاستحضار",
+   "الإطلاق",
+   "التعزيز",
+   "التحكم"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "Which Nen type does Gon Freecss belong to?",
+  "options_en": [
+   "Conjurer",
+   "Emitter",
+   "Enhancer",
+   "Manipulator"
+  ]
+ },
+ {
+  "q": "ما اسم ملك النمل الخيميري الذي وُلد من الملكة؟",
+  "options": [
+   "نفيربيتو",
+   "شايابوف",
+   "مينتوتويوبي",
+   "ميروم"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "What is the name of the Chimera Ant King born to the Queen?",
+  "options_en": [
+   "Neferpitou",
+   "Shaiapouf",
+   "Menthuthuyoupi",
+   "Meruem"
+  ]
+ },
+ {
+  "q": "ما اسم أخت كيلوا الصغرى؟",
+  "options": [
+   "ألوكا زولديك",
+   "كالوتو",
+   "كاناري",
+   "ميتو"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "What is the name of Killua's younger sister?",
+  "options_en": [
+   "Alluka Zoldyck",
+   "Kalluto",
+   "Canary",
+   "Mito"
+  ]
+ },
+ {
+  "q": "ما اسم الأخ الأصغر لكيلوا الذي يرتدي الكيمونو؟",
+  "options": [
+   "ميلوكي زولديك",
+   "كالوتو زولديك",
+   "إيلومي زولديك",
+   "ألوكا زولديك"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What is the name of Killua's youngest brother who wears a kimono?",
+  "options_en": [
+   "Milluki Zoldyck",
+   "Kalluto Zoldyck",
+   "Illumi Zoldyck",
+   "Alluka Zoldyck"
+  ]
+ },
+ {
+  "q": "ما الاسم المستعار الذي دخل به إيلومي زولديك اختبار الصيادين؟",
+  "options": [
+   "بوكل",
+   "تونبا",
+   "غيتاراكور",
+   "هانزو"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What alias did Illumi Zoldyck use during the Hunter Exam?",
+  "options_en": [
+   "Pokkle",
+   "Tonpa",
+   "Gittarackur",
+   "Hanzo"
+  ]
+ },
+ {
+  "q": "ما اسم لعنة الملك التي تسكن جسد إيتادوري يوجي؟",
+  "options": [
+   "ماهيتو",
+   "جوغو",
+   "هانامي",
+   "سوكونا"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the King of Curses residing in Yuji Itadori's body?",
+  "options_en": [
+   "Mahito",
+   "Jogo",
+   "Hanami",
+   "Sukuna"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة التي تقاتل بالمطرقة والمسامير في Jujutsu Kaisen؟",
+  "options": [
+   "نوبارا كوغيساكي",
+   "ماكي زينين",
+   "ميوا كاسومي",
+   "أوتاهيمي إيوري"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "Which girl fights with a hammer and nails in Jujutsu Kaisen?",
+  "options_en": [
+   "Nobara Kugisaki",
+   "Maki Zenin",
+   "Kasumi Miwa",
+   "Utahime Iori"
+  ]
+ },
+ {
+  "q": "من هو الطالب الذي يستخدم «لغة التعويذات» لإجبار الخصم على الطاعة؟",
+  "options": [
+   "باندا",
+   "توغي إينوماكي",
+   "ماكي زينين",
+   "أوي تودو"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "Which student uses \"Cursed Speech\" to force opponents to obey?",
+  "options_en": [
+   "Panda",
+   "Toge Inumaki",
+   "Maki Zenin",
+   "Aoi Todo"
+  ]
+ },
+ {
+  "q": "ما اسم تقنية ميغومي فوشيغورو الملعونة؟",
+  "options": [
+   "بوغي وغي",
+   "اللانهائي",
+   "تقنية الظلال العشرة",
+   "دمية القش"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "What is the name of Megumi Fushiguro's cursed technique?",
+  "options_en": [
+   "Boogie Woogie",
+   "Limitless",
+   "Ten Shadows Technique",
+   "Straw Doll Technique"
+  ]
+ },
+ {
+  "q": "من هو «الأخ» الأكبر ليوجي من أبناء الرحم الملعون الذي يتحكم بالدم؟",
+  "options": [
+   "ماهيتو",
+   "جوغو",
+   "سوغورو غيتو",
+   "تشوسو"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "Who is Yuji's older \"brother\" from the Cursed Womb Death Paintings who controls blood?",
+  "options_en": [
+   "Mahito",
+   "Jogo",
+   "Suguru Geto",
+   "Choso"
+  ]
+ },
+ {
+  "q": "ما اسم الأخت التوأم لماكي زينين؟",
+  "options": [
+   "ماي زينين",
+   "نوبارا كوغيساكي",
+   "مومو نيشيميا",
+   "كاسومي ميوا"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is the name of Maki Zenin's twin sister?",
+  "options_en": [
+   "Mai Zenin",
+   "Nobara Kugisaki",
+   "Momo Nishimiya",
+   "Kasumi Miwa"
+  ]
+ },
+ {
+  "q": "ما الاسم الحقيقي لأول مايت (All Might)؟",
+  "options": [
+   "نانا شيمورا",
+   "توشينوري ياغي",
+   "إنجي تودوروكي",
+   "شوتا إيزاوا"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is All Might's real name?",
+  "options_en": [
+   "Nana Shimura",
+   "Toshinori Yagi",
+   "Enji Todoroki",
+   "Shota Aizawa"
+  ]
+ },
+ {
+  "q": "ما قدرة (Quirk) أوتشاكو أوراراكا؟",
+  "options": [
+   "المحرك",
+   "الانفجار",
+   "انعدام الجاذبية",
+   "الضفدع"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is Ochaco Uraraka's Quirk?",
+  "options_en": [
+   "Engine",
+   "Explosion",
+   "Zero Gravity",
+   "Frog"
+  ]
+ },
+ {
+  "q": "من هو الطالب صاحب قدرة «الاختراق» (Permeation) في أكاديمية U.A.؟",
+  "options": [
+   "تاماكي أماجيكي",
+   "نيجيري هادو",
+   "نيتو مونوما",
+   "ميريو توغاتا"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "Which U.A. student has the Quirk \"Permeation\"?",
+  "options_en": [
+   "Tamaki Amajiki",
+   "Nejire Hado",
+   "Neito Monoma",
+   "Mirio Togata"
+  ]
+ },
+ {
+  "q": "من هو البطل المحترف صاحب الأجنحة القرمزية الملقب بـ«البطل المجنّح»؟",
+  "options": [
+   "هوكس (كيغو تاكامي)",
+   "بيست جينيست",
+   "إندفور",
+   "إدجشوت"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "Which Pro Hero with crimson wings is known as the \"Winged Hero\"?",
+  "options_en": [
+   "Hawks (Keigo Takami)",
+   "Best Jeanist",
+   "Endeavor",
+   "Edgeshot"
+  ]
+ },
+ {
+  "q": "ما اسم والدة شوتو تودوروكي؟",
+  "options": [
+   "إينكو ميدوريا",
+   "ري تودوروكي",
+   "ميتسوكي باكوغو",
+   "مينا أشيدو"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is the name of Shoto Todoroki's mother?",
+  "options_en": [
+   "Inko Midoriya",
+   "Rei Todoroki",
+   "Mitsuki Bakugo",
+   "Mina Ashido"
+  ]
+ },
+ {
+  "q": "ما قدرة البطل سير نايت آي (Sir Nighteye)؟",
+  "options": [
+   "الانفجار",
+   "الانحلال",
+   "الرؤية المستقبلية",
+   "التحوير الكلي"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "What is Sir Nighteye's Quirk?",
+  "options_en": [
+   "Explosion",
+   "Decay",
+   "Foresight",
+   "Overhaul"
+  ]
+ },
+ {
+  "q": "من هو الفتى الذي يرتدي رأس خنزير بري في Demon Slayer؟",
+  "options": [
+   "زينيتسو أغاتسوما",
+   "جينيا شيناتسوغاوا",
+   "كاناو تسويوري",
+   "إينوسكي هاشيبيرا"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "Who is the boy that wears a boar's head in Demon Slayer?",
+  "options_en": [
+   "Zenitsu Agatsuma",
+   "Genya Shinazugawa",
+   "Kanao Tsuyuri",
+   "Inosuke Hashibira"
+  ]
+ },
+ {
+  "q": "من هي هاشيرا الحشرة في Demon Slayer؟",
+  "options": [
+   "شينوبو كوتشو",
+   "ميتسوري كانروجي",
+   "كاناو تسويوري",
+   "كانايي كوتشو"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "Who is the Insect Hashira in Demon Slayer?",
+  "options_en": [
+   "Shinobu Kocho",
+   "Mitsuri Kanroji",
+   "Kanao Tsuyuri",
+   "Kanae Kocho"
+  ]
+ },
+ {
+  "q": "من هو هاشيرا الحجر الكفيف في Demon Slayer؟",
+  "options": [
+   "أوباناي إيغورو",
+   "غيوميي هيميجيما",
+   "موتشيرو توكيتو",
+   "تينغن أوزوي"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "Who is the blind Stone Hashira in Demon Slayer?",
+  "options_en": [
+   "Obanai Iguro",
+   "Gyomei Himejima",
+   "Muichiro Tokito",
+   "Tengen Uzui"
+  ]
+ },
+ {
+  "q": "من هو هاشيرا الأفعى الذي يرافقه ثعبان أبيض؟",
+  "options": [
+   "غيو توميوكا",
+   "سانيمي شيناتسوغاوا",
+   "أوباناي إيغورو",
+   "موتشيرو توكيتو"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "Which Hashira is accompanied by a white snake?",
+  "options_en": [
+   "Giyu Tomioka",
+   "Sanemi Shinazugawa",
+   "Obanai Iguro",
+   "Muichiro Tokito"
+  ]
+ },
+ {
+  "q": "من هو القمر الأعلى الأول (Upper Rank One) بين شياطين موزان؟",
+  "options": [
+   "أكازا",
+   "دوما",
+   "غيوكو",
+   "كوكوشيبو"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "Who is the Upper Rank One among Muzan's demons?",
+  "options_en": [
+   "Akaza",
+   "Doma",
+   "Gyokko",
+   "Kokushibo"
+  ]
+ },
+ {
+  "q": "ما اسم الشيطان المرافق لتاماو الذي يقف إلى جانبها؟",
+  "options": [
+   "يوشيرو",
+   "كيوغاي",
+   "إينمو",
+   "روي"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "What is the name of the demon companion who stays by Tamayo's side?",
+  "options_en": [
+   "Yushiro",
+   "Kyogai",
+   "Enmu",
+   "Rui"
+  ]
+ },
+ {
+  "q": "من هو قائد فرقة الاستطلاع قبل هانجي زوي؟",
+  "options": [
+   "كيث شاديس",
+   "إروين سميث",
+   "دوت بيكسيس",
+   "ليفاي أكرمان"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "Who was the Commander of the Survey Corps before Hange Zoe?",
+  "options_en": [
+   "Keith Shadis",
+   "Erwin Smith",
+   "Dot Pixis",
+   "Levi Ackerman"
+  ]
+ },
+ {
+  "q": "من هي الفتاة المحبة للبطاطس في فرقة التدريب؟",
+  "options": [
+   "ميكاسا أكرمان",
+   "هيستوريا ريس",
+   "ساشا بلوز",
+   "إيمير"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "Which girl in the training corps is famously fond of potatoes?",
+  "options_en": [
+   "Mikasa Ackerman",
+   "Historia Reiss",
+   "Sasha Blouse",
+   "Ymir"
+  ]
+ },
+ {
+  "q": "ما اسم الأخ غير الشقيق لإيرين ييغر؟",
+  "options": [
+   "فالكو غرايس",
+   "رينر براون",
+   "غريشا ييغر",
+   "زيك ييغر"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of Eren Yeager's half-brother?",
+  "options_en": [
+   "Falco Grice",
+   "Reiner Braun",
+   "Grisha Yeager",
+   "Zeke Yeager"
+  ]
+ },
+ {
+  "q": "من هي حاملة عملاق العربة (Cart Titan)؟",
+  "options": [
+   "بيك فينغر",
+   "غابي براون",
+   "آني ليونهارت",
+   "إيمير"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "Who is the holder of the Cart Titan?",
+  "options_en": [
+   "Pieck Finger",
+   "Gabi Braun",
+   "Annie Leonhart",
+   "Ymir"
+  ]
+ },
+ {
+  "q": "ما اسم عم ليفاي أكرمان الملقب بـ«كيني السفاح»؟",
+  "options": [
+   "إروين سميث",
+   "كيني أكرمان",
+   "رود ريس",
+   "كيث شاديس"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is the name of Levi Ackerman's uncle, known as \"Kenny the Ripper\"?",
+  "options_en": [
+   "Erwin Smith",
+   "Kenny Ackerman",
+   "Rod Reiss",
+   "Keith Shadis"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة الصغيرة من ماريه التي تحلم بأن تصبح محاربة؟",
+  "options": [
+   "بيك فينغر",
+   "آني ليونهارت",
+   "غابي براون",
+   "ميكاسا أكرمان"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "What is the name of the young girl from Marley who dreams of becoming a Warrior?",
+  "options_en": [
+   "Pieck Finger",
+   "Annie Leonhart",
+   "Gabi Braun",
+   "Mikasa Ackerman"
+  ]
+ },
+ {
+  "q": "ما اسم المذيعة التي اتخذها لايت متحدثة باسم كيرا؟",
+  "options": [
+   "كيومي تاكادا",
+   "ميسا أمان",
+   "سايو ياغامي",
+   "ناومي ميسورا"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "Which news anchor did Light use as Kira's spokesperson?",
+  "options_en": [
+   "Kiyomi Takada",
+   "Misa Amane",
+   "Sayu Yagami",
+   "Naomi Misora"
+  ]
+ },
+ {
+  "q": "من هو المدّعي العام المتعصب الذي أصبح تابع كيرا الأخير؟",
+  "options": [
+   "كيومي تاكادا",
+   "تيرو ميكامي",
+   "كيوسكي هيغوتشي",
+   "توتا ماتسودا"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "Which fanatical prosecutor became Kira's final follower?",
+  "options_en": [
+   "Kiyomi Takada",
+   "Teru Mikami",
+   "Kyosuke Higuchi",
+   "Touta Matsuda"
+  ]
+ },
+ {
+  "q": "ما الاسم الحقيقي لميلو في Death Note؟",
+  "options": [
+   "نيت ريفر",
+   "ميل جيفاس",
+   "ميهائيل كيل",
+   "رايي بنبر"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is Mello's real name in Death Note?",
+  "options_en": [
+   "Nate River",
+   "Mail Jeevas",
+   "Mihael Keehl",
+   "Raye Penber"
+  ]
+ },
+ {
+  "q": "ما الاسم الحقيقي لنير في Death Note؟",
+  "options": [
+   "ميهائيل كيل",
+   "ميل جيفاس",
+   "روجر روفي",
+   "نيت ريفر"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is Near's real name in Death Note?",
+  "options_en": [
+   "Mihael Keehl",
+   "Mail Jeevas",
+   "Roger Ruvie",
+   "Nate River"
+  ]
+ },
+ {
+  "q": "ما اسم القاتل المتسلسل الذي ظهر في رواية Death Note: Another Note ويشبه L؟",
+  "options": [
+   "بيوند بيرثداي",
+   "ناومي ميسورا",
+   "واتاري",
+   "رايي بنبر"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "Which serial killer, resembling L, appears in the Death Note: Another Note novel?",
+  "options_en": [
+   "Beyond Birthday",
+   "Naomi Misora",
+   "Watari",
+   "Raye Penber"
+  ]
+ },
+ {
+  "q": "ما اسم الكائن الاصطناعي الذي امتص الأندرويد 17 و18 ليصل إلى شكله الكامل؟",
+  "options": [
+   "فريزا",
+   "سيل",
+   "ماجين بو",
+   "الدكتور غيرو"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the bio-android who absorbed Androids 17 and 18 to reach his perfect form?",
+  "options_en": [
+   "Frieza",
+   "Cell",
+   "Majin Buu",
+   "Dr. Gero"
+  ]
+ },
+ {
+  "q": "إلى أي عرق ينتمي بيكولو؟",
+  "options": [
+   "السايان",
+   "الأركوزيين",
+   "الناميك",
+   "الماجين"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "Which race does Piccolo belong to?",
+  "options_en": [
+   "Saiyan",
+   "Arcosian",
+   "Namekian",
+   "Majin"
+  ]
+ },
+ {
+  "q": "ما اسم ملاك المعلم الذي يرافق بيروس ويدرّب غوكو؟",
+  "options": [
+   "فادوس",
+   "الكاهن الأعظم",
+   "كيبيتو",
+   "ويس"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the angelic attendant who accompanies Beerus and trains Goku?",
+  "options_en": [
+   "Vados",
+   "Grand Priest",
+   "Kibito",
+   "Whis"
+  ]
+ },
+ {
+  "q": "ما اسم والد فريزا؟",
+  "options": [
+   "الملك كولد",
+   "كولر",
+   "الملك فيجيتا",
+   "الدكتور غيرو"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "What is the name of Frieza's father?",
+  "options_en": [
+   "King Cold",
+   "Cooler",
+   "King Vegeta",
+   "Dr. Gero"
+  ]
+ },
+ {
+  "q": "ما اسم ابنة هيركول (ميستر ساتان) التي تزوجت غوهان؟",
+  "options": [
+   "تشي تشي",
+   "فيدل",
+   "بولما",
+   "الأندرويد 18"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of Hercule (Mr. Satan)'s daughter who married Gohan?",
+  "options_en": [
+   "Chi-Chi",
+   "Videl",
+   "Bulma",
+   "Android 18"
+  ]
+ },
+ {
+  "q": "ما اسم الأندرويد الضخم الذي يحب الطبيعة والحيوانات؟",
+  "options": [
+   "الأندرويد 19",
+   "الأندرويد 17",
+   "الأندرويد 16",
+   "سيل جونيور"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is the name of the large android who loves nature and animals?",
+  "options_en": [
+   "Android 19",
+   "Android 17",
+   "Android 16",
+   "Cell Jr."
+  ]
+ },
+ {
+  "q": "ما اسم زوجة فيجيتا؟",
+  "options": [
+   "تشي تشي",
+   "فيدل",
+   "الأندرويد 18",
+   "بولما"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of Vegeta's wife?",
+  "options_en": [
+   "Chi-Chi",
+   "Videl",
+   "Android 18",
+   "Bulma"
+  ]
+ },
+ {
+  "q": "ما الاسم الحركي لفيونا فروست؟",
+  "options": [
+   "نايتفول",
+   "توايلايت",
+   "أميرة الشوك",
+   "ستريكس"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What is Fiona Frost's codename?",
+  "options_en": [
+   "Nightfall",
+   "Twilight",
+   "Thorn Princess",
+   "Strix"
+  ]
+ },
+ {
+  "q": "ما اسم أخ يور الأصغر الذي يعمل في الشرطة السرية؟",
+  "options": [
+   "لويد فورجر",
+   "يوري برايار",
+   "فرانكي فرانكلين",
+   "هنري هندرسون"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of Yor's younger brother who works in the Secret Police?",
+  "options_en": [
+   "Loid Forger",
+   "Yuri Briar",
+   "Franky Franklin",
+   "Henry Henderson"
+  ]
+ },
+ {
+  "q": "ما اسم ابن دونوفان ديزموند الذي يدرس في مدرسة إيدن؟",
+  "options": [
+   "إيوين إيغبرغ",
+   "يوري برايار",
+   "داميان ديزموند",
+   "بيكي بلاكبيل"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "What is the name of Donovan Desmond's son who attends Eden Academy?",
+  "options_en": [
+   "Ewen Egeburg",
+   "Yuri Briar",
+   "Damian Desmond",
+   "Becky Blackbell"
+  ]
+ },
+ {
+  "q": "ما اسم أقرب صديقات آنيا في المدرسة؟",
+  "options": [
+   "فيونا فروست",
+   "سيلفيا شيروود",
+   "يور فورجر",
+   "بيكي بلاكبيل"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of Anya's close friend at school?",
+  "options_en": [
+   "Fiona Frost",
+   "Sylvia Sherwood",
+   "Yor Forger",
+   "Becky Blackbell"
+  ]
+ },
+ {
+  "q": "ما اسم المخبر الودود الذي يزوّد لويد بالمعلومات؟",
+  "options": [
+   "فرانكي فرانكلين",
+   "يوري برايار",
+   "هنري هندرسون",
+   "دونوفان ديزموند"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What is the name of the friendly informant who supplies Loid with information?",
+  "options_en": [
+   "Franky Franklin",
+   "Yuri Briar",
+   "Henry Henderson",
+   "Donovan Desmond"
+  ]
+ },
+ {
+  "q": "من هو كابتن فريق كاراسونو في بداية السلسلة؟",
+  "options": [
+   "آساهي أزومان",
+   "دايتشي ساوامورا",
+   "كويشي سوغاوارا",
+   "ريونوسكي تاناكا"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "Who is the captain of Karasuno at the start of the series?",
+  "options_en": [
+   "Asahi Azumane",
+   "Daichi Sawamura",
+   "Koshi Sugawara",
+   "Ryunosuke Tanaka"
+  ]
+ },
+ {
+  "q": "من هو نجم فريق شيراتوريزاوا؟",
+  "options": [
+   "ساتوري تندو",
+   "توبيو كاغيياما",
+   "واكاتوشي أوشيجيما",
+   "تورو أويكاوا"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "Who is the ace of Shiratorizawa Academy?",
+  "options_en": [
+   "Satori Tendo",
+   "Tobio Kageyama",
+   "Wakatoshi Ushijima",
+   "Tooru Oikawa"
+  ]
+ },
+ {
+  "q": "من هو كابتن فريق نيكوما؟",
+  "options": [
+   "كين كوزوم",
+   "كوتارو بوكوتو",
+   "دايتشي ساوامورا",
+   "تيتسورو كورو"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "Who is the captain of Nekoma High?",
+  "options_en": [
+   "Kenma Kozume",
+   "Kotaro Bokuto",
+   "Daichi Sawamura",
+   "Tetsuro Kuroo"
+  ]
+ },
+ {
+  "q": "من هو لاعب الليبيرو في كاراسونو؟",
+  "options": [
+   "يو نيشينويا",
+   "ريونوسكي تاناكا",
+   "آساهي أزومان",
+   "كاي تسوكيشيما"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "Who is Karasuno's libero?",
+  "options_en": [
+   "Yu Nishinoya",
+   "Ryunosuke Tanaka",
+   "Asahi Azumane",
+   "Kei Tsukishima"
+  ]
+ },
+ {
+  "q": "من هو منسّق (سيتر) فريق أوبا جوساي؟",
+  "options": [
+   "توبيو كاغيياما",
+   "تورو أويكاوا",
+   "كويشي سوغاوارا",
+   "كين كوزوم"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "Who is the setter of Aoba Johsai?",
+  "options_en": [
+   "Tobio Kageyama",
+   "Tooru Oikawa",
+   "Koshi Sugawara",
+   "Kenma Kozume"
+  ]
+ },
+ {
+  "q": "من هو نجم فريق فوكورودني؟",
+  "options": [
+   "كيجي أكاشي",
+   "شويو هيناتا",
+   "كوتارو بوكوتو",
+   "واكاتوشي أوشيجيما"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "Who is the ace of Fukurodani Academy?",
+  "options_en": [
+   "Keiji Akaashi",
+   "Shoyo Hinata",
+   "Kotaro Bokuto",
+   "Wakatoshi Ushijima"
+  ]
+ },
+ {
+  "q": "ما الاسم الحقيقي لـ Saber في Fate/stay night؟",
+  "options": [
+   "جان دارك",
+   "ميدوسا",
+   "نيرو كلوديوس",
+   "أرتوريا بندراغون"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is Saber's true name in Fate/stay night?",
+  "options_en": [
+   "Joan of Arc",
+   "Medusa",
+   "Nero Claudius",
+   "Artoria Pendragon"
+  ]
+ },
+ {
+  "q": "من هو الخادم Lancer في Fate/stay night؟",
+  "options": [
+   "كو تشولين",
+   "هرقل",
+   "ميدوسا",
+   "غيلغامش"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "Who is the Lancer-class Servant in Fate/stay night?",
+  "options_en": [
+   "Cu Chulainn",
+   "Heracles",
+   "Medusa",
+   "Gilgamesh"
+  ]
+ },
+ {
+  "q": "من هو الخادم Rider في Fate/stay night؟",
+  "options": [
+   "ميديا",
+   "ميدوسا",
+   "هرقل",
+   "كو تشولين"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "Who is the Rider-class Servant in Fate/stay night?",
+  "options_en": [
+   "Medea",
+   "Medusa",
+   "Heracles",
+   "Cu Chulainn"
+  ]
+ },
+ {
+  "q": "من هو الخادم Berserker في Fate/stay night؟",
+  "options": [
+   "كو تشولين",
+   "ميدوسا",
+   "هرقل",
+   "أرتوريا بندراغون"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "Who is the Berserker-class Servant in Fate/stay night?",
+  "options_en": [
+   "Cu Chulainn",
+   "Medusa",
+   "Heracles",
+   "Artoria Pendragon"
+  ]
+ },
+ {
+  "q": "ما اسم الكاهن المشرف على حرب الكأس المقدسة في Fate/stay night؟",
+  "options": [
+   "شيرو إيميا",
+   "سوئيتشيرو كوزوكي",
+   "زوكين ماتو",
+   "كيريي كوتوميني"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "What is the name of the priest who oversees the Holy Grail War in Fate/stay night?",
+  "options_en": [
+   "Shirou Emiya",
+   "Souichirou Kuzuki",
+   "Zouken Matou",
+   "Kirei Kotomine"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة ذات الشعر الأبيض والعيون الحمراء من عائلة أينزبيرن في Fate/stay night؟",
+  "options": [
+   "إيليا (إيليسفيل فون أينزبيرن)",
+   "ساكورا ماتو",
+   "رين توساكا",
+   "لوفياغيليتا إديلفيلت"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "What is the name of the white-haired, red-eyed girl of the Einzbern family in Fate/stay night?",
+  "options_en": [
+   "Illyasviel von Einzbern",
+   "Sakura Matou",
+   "Rin Tohsaka",
+   "Luviagelita Edelfelt"
+  ]
+ },
+ {
+  "q": "ما اسم القطة السوداء رفيقة كيكي في Kiki's Delivery Service؟",
+  "options": [
+   "كالسيفر",
+   "جيجي",
+   "كات باص",
+   "موتا"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of Kiki's black cat companion in Kiki's Delivery Service?",
+  "options_en": [
+   "Calcifer",
+   "Jiji",
+   "Catbus",
+   "Muta"
+  ]
+ },
+ {
+  "q": "ما اسم الأمير الذي يحمل اللعنة في Princess Mononoke؟",
+  "options": [
+   "سان",
+   "الليدي إيبوشي",
+   "أشيتاكا",
+   "جيغو"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the prince who bears the curse in Princess Mononoke?",
+  "options_en": [
+   "San",
+   "Lady Eboshi",
+   "Ashitaka",
+   "Jigo"
+  ]
+ },
+ {
+  "q": "ما اسم شيطان النار في Howl's Moving Castle؟",
+  "options": [
+   "هاول",
+   "ماركل",
+   "هين",
+   "كالسيفر"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "What is the name of the fire demon in Howl's Moving Castle?",
+  "options_en": [
+   "Howl",
+   "Markl",
+   "Heen",
+   "Calcifer"
+  ]
+ },
+ {
+  "q": "ما اسم أخت الساحرة يوبابا التوأم في Spirited Away؟",
+  "options": [
+   "زينيبا",
+   "كاماجي",
+   "لين",
+   "بو"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "What is the name of Yubaba's twin sister in Spirited Away?",
+  "options_en": [
+   "Zeniba",
+   "Kamaji",
+   "Lin",
+   "Boh"
+  ]
+ },
+ {
+  "q": "ما اسم الصبي الصغير المتدرب عند هاول في Howl's Moving Castle؟",
+  "options": [
+   "صوفي",
+   "ماركل",
+   "رأس اللفت",
+   "هين"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What is the name of Howl's young apprentice in Howl's Moving Castle?",
+  "options_en": [
+   "Sophie",
+   "Markl",
+   "Turnip Head",
+   "Heen"
+  ]
+ },
+ {
+  "q": "ما اسم بطلة Castle in the Sky؟",
+  "options": [
+   "ناوسيكا",
+   "كيكي",
+   "شيتا",
+   "سان"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the heroine of Castle in the Sky?",
+  "options_en": [
+   "Nausicaä",
+   "Kiki",
+   "Sheeta",
+   "San"
+  ]
+ },
+ {
+  "q": "ما اسم صديق كيكي المهتم بالطيران في Kiki's Delivery Service؟",
+  "options": [
+   "باتزو",
+   "أشيتاكا",
+   "سوسكي",
+   "تومبو"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What is the name of Kiki's friend who is fascinated by flying in Kiki's Delivery Service?",
+  "options_en": [
+   "Pazu",
+   "Ashitaka",
+   "Sosuke",
+   "Tombo"
+  ]
+ },
+ {
+  "q": "ما اسم رفيقة آش الأولى التي تتخصص في بوكيمون الماء؟",
+  "options": [
+   "ميستي",
+   "ماي",
+   "داون",
+   "سيرينا"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "What is the name of Ash's early companion who specializes in Water-type Pokémon?",
+  "options_en": [
+   "Misty",
+   "May",
+   "Dawn",
+   "Serena"
+  ]
+ },
+ {
+  "q": "ما اسم زعيم فريق روكيت؟",
+  "options": [
+   "جيسي",
+   "جيوفاني",
+   "جيمس",
+   "بروفيسور أوك"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the leader of Team Rocket?",
+  "options_en": [
+   "Jessie",
+   "Giovanni",
+   "James",
+   "Professor Oak"
+  ]
+ },
+ {
+  "q": "ما اسم المنافس الأول لآش وحفيد البروفيسور أوك؟",
+  "options": [
+   "بول",
+   "درو",
+   "غاري أوك",
+   "تريب"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of Ash's first rival, the grandson of Professor Oak?",
+  "options_en": [
+   "Paul",
+   "Drew",
+   "Gary Oak",
+   "Trip"
+  ]
+ },
+ {
+  "q": "من هو منافس آش الشرس في منطقة سينوه؟",
+  "options": [
+   "غاري أوك",
+   "درو",
+   "ريتشي",
+   "بول"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "Who is Ash's fierce rival in the Sinnoh region?",
+  "options_en": [
+   "Gary Oak",
+   "Drew",
+   "Richie",
+   "Paul"
+  ]
+ },
+ {
+  "q": "ما اسما العضوين الأساسيين في فريق روكيت المطاردين لبيكاتشو؟",
+  "options": [
+   "جيسي وجيمس",
+   "بروك وميستي",
+   "غاري وبول",
+   "غرين وبلو"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What are the names of the two main Team Rocket members who chase Pikachu?",
+  "options_en": [
+   "Jessie and James",
+   "Brock and Misty",
+   "Gary and Paul",
+   "Green and Blue"
+  ]
+ },
+ {
+  "q": "ما اسم البوكيمون الناطق الذي ينتمي إلى فريق روكيت؟",
+  "options": [
+   "بيكاتشو",
+   "ميوث",
+   "سنورلاكس",
+   "جيغليبف"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the talking Pokémon in Team Rocket?",
+  "options_en": [
+   "Pikachu",
+   "Meowth",
+   "Snorlax",
+   "Jigglypuff"
+  ]
+ },
+ {
+  "q": "من هي طيارة الوحدة 02 في Neon Genesis Evangelion؟",
+  "options": [
+   "ري أيانامي",
+   "ميساتو كاتسوراغي",
+   "أسوكا لانغلي سوريو",
+   "ريتسوكو أكاغي"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "Who pilots Unit-02 in Neon Genesis Evangelion?",
+  "options_en": [
+   "Rei Ayanami",
+   "Misato Katsuragi",
+   "Asuka Langley Soryu",
+   "Ritsuko Akagi"
+  ]
+ },
+ {
+  "q": "ما اسم والد شينجي إيكاري؟",
+  "options": [
+   "كوزو فويوتسوكي",
+   "ريوجي كاجي",
+   "كيل لورنز",
+   "غيندو إيكاري"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "What is the name of Shinji Ikari's father?",
+  "options_en": [
+   "Kozo Fuyutsuki",
+   "Ryoji Kaji",
+   "Keel Lorenz",
+   "Gendo Ikari"
+  ]
+ },
+ {
+  "q": "ما اسم البطريق الأليف الذي يعيش مع ميساتو؟",
+  "options": [
+   "بن بن",
+   "هاكو",
+   "ليو",
+   "كوكو"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the pet penguin that lives with Misato?",
+  "options_en": [
+   "Pen Pen",
+   "Haku",
+   "Leo",
+   "Coco"
+  ]
+ },
+ {
+  "q": "ما اسم العالمة الشقراء التي ترأس قسم الأبحاث في NERV؟",
+  "options": [
+   "ميساتو كاتسوراغي",
+   "ريتسوكو أكاغي",
+   "مايا إيبوكي",
+   "يوي إيكاري"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the blonde scientist who heads NERV's research division?",
+  "options_en": [
+   "Misato Katsuragi",
+   "Ritsuko Akagi",
+   "Maya Ibuki",
+   "Yui Ikari"
+  ]
+ },
+ {
+  "q": "ما اسم رئيس منظمة SEELE في Evangelion؟",
+  "options": [
+   "غيندو إيكاري",
+   "كوزو فويوتسوكي",
+   "كيل لورنز",
+   "ريوجي كاجي"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What is the name of the chairman of SEELE in Evangelion?",
+  "options_en": [
+   "Gendo Ikari",
+   "Kozo Fuyutsuki",
+   "Keel Lorenz",
+   "Ryoji Kaji"
+  ]
+ },
+ {
+  "q": "من هو العميل مزدوج الولاء الذي يرتبط بعلاقة قديمة مع ميساتو؟",
+  "options": [
+   "كوزو فويوتسوكي",
+   "توجي سوزوهارا",
+   "كنسكي أيدا",
+   "ريوجي كاجي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "Who is the double agent with a past relationship with Misato?",
+  "options_en": [
+   "Kozo Fuyutsuki",
+   "Toji Suzuhara",
+   "Kensuke Aida",
+   "Ryoji Kaji"
+  ]
+ },
+ {
+  "q": "من هو الخصم الرئيسي في الجزء الأول من JoJo's Bizarre Adventure؟",
+  "options": [
+   "ديو براندو",
+   "كارس",
+   "كيرا يوشيكاغي",
+   "ديابلو"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "Who is the main antagonist of Part 1 of JoJo's Bizarre Adventure?",
+  "options_en": [
+   "Dio Brando",
+   "Kars",
+   "Yoshikage Kira",
+   "Diavolo"
+  ]
+ },
+ {
+  "q": "من هو بطل الجزء الخامس Golden Wind من JoJo؟",
+  "options": [
+   "جوسكي هيغاشيكاتا",
+   "جيورنو جوفانا",
+   "جولين كوجو",
+   "جوني جوستار"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "Who is the protagonist of JoJo Part 5, Golden Wind?",
+  "options_en": [
+   "Josuke Higashikata",
+   "Giorno Giovanna",
+   "Jolyne Cujoh",
+   "Johnny Joestar"
+  ]
+ },
+ {
+  "q": "من هو بطل الجزء الرابع Diamond Is Unbreakable؟",
+  "options": [
+   "جيورنو جوفانا",
+   "جوتارو كوجو",
+   "جوسكي هيغاشيكاتا",
+   "جوزيف جوستار"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "Who is the protagonist of Part 4, Diamond Is Unbreakable?",
+  "options_en": [
+   "Giorno Giovanna",
+   "Jotaro Kujo",
+   "Josuke Higashikata",
+   "Joseph Joestar"
+  ]
+ },
+ {
+  "q": "ما اسم ستاند جوسكي هيغاشيكاتا؟",
+  "options": [
+   "ستار بلاتينوم",
+   "غولد إكسبيرينس",
+   "ذا وورلد",
+   "كريزي دايموند"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "What is the name of Josuke Higashikata's Stand?",
+  "options_en": [
+   "Star Platinum",
+   "Gold Experience",
+   "The World",
+   "Crazy Diamond"
+  ]
+ },
+ {
+  "q": "ما اسم ستاند يوشيكاغي كيرا؟",
+  "options": [
+   "كيلر كوين",
+   "كينغ كريمسون",
+   "ستيكي فينغرز",
+   "هيروفانت غرين"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "What is the name of Yoshikage Kira's Stand?",
+  "options_en": [
+   "Killer Queen",
+   "King Crimson",
+   "Sticky Fingers",
+   "Hierophant Green"
+  ]
+ },
+ {
+  "q": "ما اسم الفارس الإيطالي الماهر بكرات الحديد في Steel Ball Run؟",
+  "options": [
+   "دييغو براندو",
+   "جيرو زيبيلي",
+   "ديو",
+   "سيزر زيبيلي"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "Which Italian-born rider is a master of the steel ball technique in Steel Ball Run?",
+  "options_en": [
+   "Diego Brando",
+   "Gyro Zeppeli",
+   "Dio",
+   "Caesar Zeppeli"
+  ]
+ },
+ {
+  "q": "ما اسم تلميذ سايتاما السايبورغ؟",
+  "options": [
+   "سونيك",
+   "كينغ",
+   "جينوس",
+   "ميتال نايت"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of Saitama's cyborg disciple?",
+  "options_en": [
+   "Sonic",
+   "King",
+   "Genos",
+   "Metal Knight"
+  ]
+ },
+ {
+  "q": "من هي البطلة من الفئة S ذات القدرات التخاطرية الملقبة بـ«الإعصار الرهيب»؟",
+  "options": [
+   "فوبوكي",
+   "سايتاما",
+   "جينوس",
+   "تاتسوماكي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "Which S-Class heroine with psychic powers is known as the \"Terrible Tornado\"?",
+  "options_en": [
+   "Fubuki",
+   "Saitama",
+   "Genos",
+   "Tatsumaki"
+  ]
+ },
+ {
+  "q": "ما اسم «صائد الأبطال» الذي يتحول إلى وحش في One Punch Man؟",
+  "options": [
+   "غارو",
+   "بوروس",
+   "كارنيج كابوتو",
+   "سونيك"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the \"Hero Hunter\" who becomes a monster in One Punch Man?",
+  "options_en": [
+   "Garou",
+   "Boros",
+   "Carnage Kabuto",
+   "Sonic"
+  ]
+ },
+ {
+  "q": "من هو بطل الفئة S المعروف بأنه «أقوى رجل على الأرض» رغم ضعفه الفعلي؟",
+  "options": [
+   "بانغ",
+   "كينغ",
+   "ميتال بات",
+   "سوبر ألوي دارك شاين"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "Which S-Class hero is known as the \"Strongest Man on Earth\" despite being weak in reality?",
+  "options_en": [
+   "Bang",
+   "King",
+   "Metal Bat",
+   "Superalloy Darkshine"
+  ]
+ },
+ {
+  "q": "ما اسم زعيم الغزاة الفضائيين الذي هاجم الأرض في One Punch Man؟",
+  "options": [
+   "غارو",
+   "كينغ",
+   "بوروس",
+   "رجل اللقاح"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the leader of the alien invaders who attacked Earth in One Punch Man?",
+  "options_en": [
+   "Garou",
+   "King",
+   "Boros",
+   "Vaccine Man"
+  ]
+ },
+ {
+  "q": "ما اسم البطل الذي يركب دراجة وينتمي إلى الفئة C؟",
+  "options": [
+   "ميتال بات",
+   "بانغ",
+   "جينوس",
+   "موميون رايدر"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the hero who rides a bicycle and belongs to Class C?",
+  "options_en": [
+   "Metal Bat",
+   "Bang",
+   "Genos",
+   "Mumen Rider"
+  ]
+ },
+ {
+  "q": "ما اسم أميرة بيت سيلفا التي تستخدم سحر الماء؟",
+  "options": [
+   "نويل سيلفا",
+   "ميموزا فيرميليون",
+   "فانيسا إينوتيكا",
+   "ليوبولد فيرميليون"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "What is the name of the Silva royal who uses water magic?",
+  "options_en": [
+   "Noelle Silva",
+   "Mimosa Vermillion",
+   "Vanessa Enoteca",
+   "Leopold Vermillion"
+  ]
+ },
+ {
+  "q": "ما اسم الساحر الغريب صاحب سحر الفخاخ في فرقة الثور الأسود؟",
+  "options": [
+   "لاك فولتيا",
+   "زورا إيديال",
+   "ماغنا سوينغ",
+   "غوردن أغريبا"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What is the name of the eccentric trap-magic user in the Black Bull squad?",
+  "options_en": [
+   "Luck Voltia",
+   "Zora Ideale",
+   "Magna Swing",
+   "Gordon Agrippa"
+  ]
+ },
+ {
+  "q": "من هو ملك السحرة (Wizard King) في مملكة كلوفر بعد ويليام فانجيانس؟",
+  "options": [
+   "يامي سوكيهيرو",
+   "ماركس فرانسوا",
+   "جوليوس نوفاكرونو",
+   "ناتشت فاوست"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "Who becomes the Wizard King of the Clover Kingdom after William Vangeance?",
+  "options_en": [
+   "Yami Sukehiro",
+   "Marx Francois",
+   "Julius Novachrono",
+   "Nacht Faust"
+  ]
+ },
+ {
+  "q": "ما اسم كابتن فرقة الوردة الزرقاء (Blue Rose)؟",
+  "options": [
+   "نويل سيلفا",
+   "فانيسا إينوتيكا",
+   "ميموزا فيرميليون",
+   "شارلوت روزلي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What is the name of the captain of the Blue Rose squad?",
+  "options_en": [
+   "Noelle Silva",
+   "Vanessa Enoteca",
+   "Mimosa Vermillion",
+   "Charlotte Roselei"
+  ]
+ },
+ {
+  "q": "ما اسم الفرقة السحرية التي ينتمي إليها أستا؟",
+  "options": [
+   "الثور الأسود",
+   "الصقر الذهبي",
+   "النسر الفضي",
+   "الوردة الزرقاء"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the magic knight squad Asta belongs to?",
+  "options_en": [
+   "Black Bull",
+   "Golden Dawn",
+   "Silver Eagle",
+   "Blue Rose"
+  ]
+ },
+ {
+  "q": "ما اسم القط الأزرق المجنح رفيق ناتسو؟",
+  "options": [
+   "كارلا",
+   "هابي",
+   "بانثر ليلي",
+   "بلو"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of Natsu's blue winged cat companion?",
+  "options_en": [
+   "Carla",
+   "Happy",
+   "Panther Lily",
+   "Plue"
+  ]
+ },
+ {
+  "q": "من هي الساحرة الملقبة بـ«تيتانيا» في Fairy Tail؟",
+  "options": [
+   "لوسي هارتفيليا",
+   "ويندي مارفيل",
+   "إيرزا سكارلت",
+   "ميراجين ستراوس"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "Which wizard is nicknamed \"Titania\" in Fairy Tail?",
+  "options_en": [
+   "Lucy Heartfilia",
+   "Wendy Marvell",
+   "Erza Scarlet",
+   "Mirajane Strauss"
+  ]
+ },
+ {
+  "q": "ما اسم ماستر نقابة Fairy Tail في بداية القصة؟",
+  "options": [
+   "غيلدارتس كلايف",
+   "لاكسوس دريار",
+   "جوزيه",
+   "ماكاروف دريار"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the Fairy Tail guild master at the start of the story?",
+  "options_en": [
+   "Gildarts Clive",
+   "Laxus Dreyar",
+   "Jose Porla",
+   "Makarov Dreyar"
+  ]
+ },
+ {
+  "q": "ما نوع الساحرة ويندي مارفيل؟",
+  "options": [
+   "قاتلة تنين السماء",
+   "قاتلة تنين النار",
+   "قاتلة تنين الحديد",
+   "قاتلة تنين البرق"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What type of wizard is Wendy Marvell?",
+  "options_en": [
+   "Sky Dragon Slayer",
+   "Fire Dragon Slayer",
+   "Iron Dragon Slayer",
+   "Lightning Dragon Slayer"
+  ]
+ },
+ {
+  "q": "ما اسم حفيد ماكاروف الذي يمتلك سحر قاتل تنين البرق؟",
+  "options": [
+   "غاجيل ريدفوكس",
+   "لاكسوس دريار",
+   "ناتسو دراغنيل",
+   "ستينغ"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "What is the name of Makarov's grandson who wields Lightning Dragon Slayer magic?",
+  "options_en": [
+   "Gajeel Redfox",
+   "Laxus Dreyar",
+   "Natsu Dragneel",
+   "Sting Eucliffe"
+  ]
+ },
+ {
+  "q": "ما اسم قائد فريق شوهوكو في Slam Dunk؟",
+  "options": [
+   "هيساشي ميتسوي",
+   "ريوتا ميياغي",
+   "تاكينوري أكاغي",
+   "كيمينوبو كوغوري"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of Shohoku's captain in Slam Dunk?",
+  "options_en": [
+   "Hisashi Mitsui",
+   "Ryota Miyagi",
+   "Takenori Akagi",
+   "Kiminobu Kogure"
+  ]
+ },
+ {
+  "q": "ما اسم مدرب فريق شوهوكو في Slam Dunk؟",
+  "options": [
+   "تاكينوري أكاغي",
+   "كيمينوبو كوغوري",
+   "هيكويتشي آيدا",
+   "ميتسويوشي أنزاي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "What is the name of Shohoku's coach in Slam Dunk?",
+  "options_en": [
+   "Takenori Akagi",
+   "Kiminobu Kogure",
+   "Hikoichi Aida",
+   "Mitsuyoshi Anzai"
+  ]
+ },
+ {
+  "q": "ما اسم لاعب الثلاثيات الذي عاد لفريق شوهوكو بعد أن كان منبوذًا؟",
+  "options": [
+   "هيساشي ميتسوي",
+   "ريوتا ميياغي",
+   "كايدي روكاوا",
+   "شينيتشي ماكي"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "Which three-point shooter rejoined Shohoku after becoming a delinquent?",
+  "options_en": [
+   "Hisashi Mitsui",
+   "Ryota Miyagi",
+   "Kaede Rukawa",
+   "Shinichi Maki"
+  ]
+ },
+ {
+  "q": "ما اسم نجم فريق ريونان الذي يشتهر بهواية الصيد؟",
+  "options": [
+   "شينيتشي ماكي",
+   "أكيرا سينداه",
+   "إيجي ساواكيتا",
+   "كايدي روكاوا"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is the name of Ryonan's star player who loves fishing?",
+  "options_en": [
+   "Shinichi Maki",
+   "Akira Sendoh",
+   "Eiji Sawakita",
+   "Kaede Rukawa"
+  ]
+ },
+ {
+  "q": "ما اسم كابتن فريق كاينان في Slam Dunk؟",
+  "options": [
+   "أكيرا سينداه",
+   "تاكينوري أكاغي",
+   "شينيتشي ماكي",
+   "كينجي فوجيما"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 9,
+  "q_en": "What is the name of Kainan's captain in Slam Dunk?",
+  "options_en": [
+   "Akira Sendoh",
+   "Takenori Akagi",
+   "Shinichi Maki",
+   "Kenji Fujima"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة الغامضة التي منحت لولوتش قوة الـ Geass؟",
+  "options": [
+   "كالين",
+   "نونالي",
+   "يوفيمينا",
+   "سي سي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "What is the name of the mysterious girl who gave Lelouch the power of Geass?",
+  "options_en": [
+   "Kallen",
+   "Nunnally",
+   "Euphemia",
+   "C.C."
+  ]
+ },
+ {
+  "q": "ما اسم صديق لولوتش القديم الذي ينضم إلى الجيش البريطاني؟",
+  "options": [
+   "سوزاكو كورورومي",
+   "ريفال",
+   "لويد أسبلوند",
+   "جينو"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "What is the name of Lelouch's old friend who joins the Britannian military?",
+  "options_en": [
+   "Suzaku Kururugi",
+   "Rivalz Cardemonde",
+   "Lloyd Asplund",
+   "Gino Weinberg"
+  ]
+ },
+ {
+  "q": "ما اسم مقاتلة المقاومة اليابانية ذات الشعر الأحمر في Code Geass؟",
+  "options": [
+   "ميليه آشفورد",
+   "كالين ستادفيلد",
+   "شيرلي فينيت",
+   "نينا أينشتاين"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the red-haired Japanese resistance pilot in Code Geass?",
+  "options_en": [
+   "Milly Ashford",
+   "Kallen Stadtfeld",
+   "Shirley Fenette",
+   "Nina Einstein"
+  ]
+ },
+ {
+  "q": "أي أمير بريطاني يشغل منصب رئيس الوزراء في Code Geass؟",
+  "options": [
+   "كلوفيس لا بريتانيا",
+   "أوديسيوس يو بريتانيا",
+   "شنايزل إل بريتانيا",
+   "لولوتش"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "Which Britannian prince serves as Prime Minister in Code Geass?",
+  "options_en": [
+   "Clovis la Britannia",
+   "Odysseus eu Britannia",
+   "Schneizel el Britannia",
+   "Lelouch vi Britannia"
+  ]
+ },
+ {
+  "q": "ما اسم الأميرة الرقيقة التي تتأثر بالـ Geass عن طريق الخطأ؟",
+  "options": [
+   "كورنيليا لي بريتانيا",
+   "نونالي",
+   "ميليه",
+   "يوفيمينا لي بريتانيا"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the gentle princess accidentally affected by Lelouch's Geass?",
+  "options_en": [
+   "Cornelia li Britannia",
+   "Nunnally vi Britannia",
+   "Milly Ashford",
+   "Euphemia li Britannia"
+  ]
+ },
+ {
+  "q": "من هي الأميرة المعروفة بلقب «ساحرة بريطانيا»؟",
+  "options": [
+   "كورنيليا لي بريتانيا",
+   "يوفيمينا لي بريتانيا",
+   "نونالي",
+   "كالين"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "Which princess is known as the \"Witch of Britannia\"?",
+  "options_en": [
+   "Cornelia li Britannia",
+   "Euphemia li Britannia",
+   "Nunnally vi Britannia",
+   "Kallen Stadtfeld"
+  ]
+ },
+ {
+  "q": "ما اسم المقامرة الشابة ذات الذاكرة المفقودة في طاقم Cowboy Bebop؟",
+  "options": [
+   "إدوارد",
+   "فاي فالنتين",
+   "جوليا",
+   "جودي"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the young gambler with amnesia in the Cowboy Bebop crew?",
+  "options_en": [
+   "Edward",
+   "Faye Valentine",
+   "Julia",
+   "Judy"
+  ]
+ },
+ {
+  "q": "ما اسم الهاكر الصغيرة الغريبة في طاقم Cowboy Bebop؟",
+  "options": [
+   "فاي فالنتين",
+   "جوليا",
+   "إدوارد",
+   "جيت بلاك"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the quirky young hacker in the Cowboy Bebop crew?",
+  "options_en": [
+   "Faye Valentine",
+   "Julia",
+   "Edward",
+   "Jet Black"
+  ]
+ },
+ {
+  "q": "من هي المرأة التي كانت سبب صراع سبايك وفيشيوس؟",
+  "options": [
+   "فاي فالنتين",
+   "إدوارد",
+   "جودي",
+   "جوليا"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 8,
+  "q_en": "Who is the woman at the center of the conflict between Spike and Vicious?",
+  "options_en": [
+   "Faye Valentine",
+   "Edward",
+   "Judy",
+   "Julia"
+  ]
+ },
+ {
+  "q": "ما اسم سفينة جيت الصغيرة التي يستخدمها في الصيد؟",
+  "options": [
+   "هامرهيد",
+   "سوردفيش 2",
+   "ريد تيل",
+   "بيبوب"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "What is the name of Jet's own small ship that he uses for bounty hunting?",
+  "options_en": [
+   "Hammerhead",
+   "Swordfish II",
+   "Red Tail",
+   "Bebop"
+  ]
+ },
+ {
+  "q": "ما اسم سفينة سبايك سبيغل الصغيرة؟",
+  "options": [
+   "هامرهيد",
+   "سوردفيش 2",
+   "ريد تيل",
+   "بيبوب"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "What is the name of Spike Spiegel's small fighter ship?",
+  "options_en": [
+   "Hammerhead",
+   "Swordfish II",
+   "Red Tail",
+   "Bebop"
+  ]
+ },
+ {
+  "q": "من هو بطل Mobile Suit Gundam Wing؟",
+  "options": [
+   "كيرا ياماتو",
+   "أمورو راي",
+   "هييرو يوي",
+   "سيتسونا إف سيي"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "Who is the main protagonist of Mobile Suit Gundam Wing?",
+  "options_en": [
+   "Kira Yamato",
+   "Amuro Ray",
+   "Heero Yuy",
+   "Setsuna F. Seiei"
+  ]
+ },
+ {
+  "q": "من هو بطل Mobile Suit Gundam SEED؟",
+  "options": [
+   "هييرو يوي",
+   "أمورو راي",
+   "سيتسونا إف سيي",
+   "كيرا ياماتو"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "Who is the protagonist of Mobile Suit Gundam SEED?",
+  "options_en": [
+   "Heero Yuy",
+   "Amuro Ray",
+   "Setsuna F. Seiei",
+   "Kira Yamato"
+  ]
+ },
+ {
+  "q": "من هو بطل Mobile Suit Gundam 00؟",
+  "options": [
+   "سيتسونا إف سيي",
+   "هييرو يوي",
+   "كيرا ياماتو",
+   "دوو ماكسويل"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 7,
+  "q_en": "Who is the protagonist of Mobile Suit Gundam 00?",
+  "options_en": [
+   "Setsuna F. Seiei",
+   "Heero Yuy",
+   "Kira Yamato",
+   "Duo Maxwell"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة التي تعيش معها كونان وهي صديقة طفولة شينيتشي؟",
+  "options": [
+   "أي هايبارا",
+   "ران موري",
+   "سونوكو سوزوكي",
+   "أيومي يوشيدا"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of Shinichi's childhood friend with whom Conan lives?",
+  "options_en": [
+   "Ai Haibara",
+   "Ran Mouri",
+   "Sonoko Suzuki",
+   "Ayumi Yoshida"
+  ]
+ },
+ {
+  "q": "ما اسم والد ران موري (المحقق النائم) في Detective Conan؟",
+  "options": [
+   "الدكتور أغاسا",
+   "غينتا كوجيما",
+   "كوغورو موري",
+   "المفتش ميغوري"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "What is the name of Ran's father, the bumbling detective?",
+  "options_en": [
+   "Dr. Agasa",
+   "Genta Kojima",
+   "Kogoro Mouri",
+   "Inspector Megure"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة العلمية التي كانت عضوة سابقة في المنظمة السوداء؟",
+  "options": [
+   "ران موري",
+   "سونوكو سوزوكي",
+   "أيومي يوشيدا",
+   "أي هايبارا"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the girl scientist who was a former member of the Black Organization?",
+  "options_en": [
+   "Ran Mouri",
+   "Sonoko Suzuki",
+   "Ayumi Yoshida",
+   "Ai Haibara"
+  ]
+ },
+ {
+  "q": "ما اسم عالمة الأعصاب الشابة في Steins;Gate؟",
+  "options": [
+   "كوريسو ماكيسي",
+   "مايوري شينا",
+   "سوزوها أمان",
+   "موئيكا كيريو"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "What is the name of the young neuroscientist in Steins;Gate?",
+  "options_en": [
+   "Kurisu Makise",
+   "Mayuri Shiina",
+   "Suzuha Amane",
+   "Moeka Kiryu"
+  ]
+ },
+ {
+  "q": "ما اسم صديقة طفولة أوكابي رنتارو في Steins;Gate؟",
+  "options": [
+   "كوريسو ماكيسي",
+   "مايوري شينا",
+   "روكا أوروشيبارا",
+   "فيريس نيان نيان"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "What is the name of Rintaro Okabe's childhood friend in Steins;Gate?",
+  "options_en": [
+   "Kurisu Makise",
+   "Mayuri Shiina",
+   "Ruka Urushibara",
+   "Faris NyanNyan"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة القادمة من المستقبل التي تعمل في متجر الإلكترونيات في Steins;Gate؟",
+  "options": [
+   "كوريسو ماكيسي",
+   "مايوري شينا",
+   "سوزوها أمان",
+   "فيريس نيان نيان"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the time traveler from the future who works at the electronics shop in Steins;Gate?",
+  "options_en": [
+   "Kurisu Makise",
+   "Mayuri Shiina",
+   "Suzuha Amane",
+   "Faris NyanNyan"
+  ]
+ },
+ {
+  "q": "ما اسم بطلة فيلم Your Name؟",
+  "options": [
+   "يوتسوها ميازومي",
+   "ميكي أوكوديرا",
+   "ساياكا ناتوري",
+   "ميتسوها ميازومي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the heroine of the film Your Name?",
+  "options_en": [
+   "Yotsuha Miyamizu",
+   "Miki Okudera",
+   "Sayaka Natori",
+   "Mitsuha Miyamizu"
+  ]
+ },
+ {
+  "q": "ما اسم أخت ميتسوها الصغرى في Your Name؟",
+  "options": [
+   "يوتسوها ميازومي",
+   "ميكي أوكوديرا",
+   "ساياكا ناتوري",
+   "هيتوها ميازومي"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "What is the name of Mitsuha's younger sister in Your Name?",
+  "options_en": [
+   "Yotsuha Miyamizu",
+   "Miki Okudera",
+   "Sayaka Natori",
+   "Hitoha Miyamizu"
+  ]
+ },
+ {
+  "q": "ما اسم قائد المرتزقة الذي قتل والد ثورفين في Vinland Saga؟",
+  "options": [
+   "كنوت",
+   "أسكيلاد",
+   "ثوركيل",
+   "فلوكي"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the mercenary leader who killed Thorfinn's father in Vinland Saga?",
+  "options_en": [
+   "Canute",
+   "Askeladd",
+   "Thorkell",
+   "Floki"
+  ]
+ },
+ {
+  "q": "ما اسم الأمير الدنماركي الذي يصبح ملكًا في Vinland Saga؟",
+  "options": [
+   "سوين",
+   "ثورز",
+   "كنوت",
+   "هارالد"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "What is the name of the Danish prince who becomes king in Vinland Saga?",
+  "options_en": [
+   "Sweyn",
+   "Thors",
+   "Canute",
+   "Harald"
+  ]
+ },
+ {
+  "q": "ما اسم المفتش الذي يطارد لوبين الثالث؟",
+  "options": [
+   "جيغن",
+   "غوموان",
+   "فوجيكو",
+   "زينيغاتا"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the inspector who relentlessly chases Lupin III?",
+  "options_en": [
+   "Jigen",
+   "Goemon",
+   "Fujiko",
+   "Zenigata"
+  ]
+ },
+ {
+  "q": "ما اسم الرامي الماهر في فريق لوبين الثالث الذي يرتدي قبعة؟",
+  "options": [
+   "دايسكي جيغن",
+   "غوموان إيشيكاوا",
+   "زينيغاتا",
+   "فوجيكو مين"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the sharpshooter in Lupin III's crew who always wears a hat?",
+  "options_en": [
+   "Daisuke Jigen",
+   "Goemon Ishikawa",
+   "Inspector Zenigata",
+   "Fujiko Mine"
+  ]
+ },
+ {
+  "q": "ما اسم الساموراي المنتمي لفريق لوبين الثالث؟",
+  "options": [
+   "دايسكي جيغن",
+   "غوموان إيشيكاوا",
+   "زينيغاتا",
+   "فوجيكو"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the samurai in Lupin III's crew?",
+  "options_en": [
+   "Daisuke Jigen",
+   "Goemon Ishikawa",
+   "Zenigata",
+   "Fujiko Mine"
+  ]
+ },
+ {
+  "q": "ما اسم رئيس القسم 9 في Ghost in the Shell؟",
+  "options": [
+   "باتو",
+   "توغوزا",
+   "دايسكي أراماكي",
+   "إيشيكاوا"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 6,
+  "q_en": "What is the name of the chief of Section 9 in Ghost in the Shell?",
+  "options_en": [
+   "Batou",
+   "Togusa",
+   "Daisuke Aramaki",
+   "Ishikawa"
+  ]
+ },
+ {
+  "q": "ما اسم العضو الضخم السابق في الجيش في القسم 9 في Ghost in the Shell؟",
+  "options": [
+   "توغوزا",
+   "أراماكي",
+   "إيشيكاوا",
+   "باتو"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the burly former Ranger in Section 9 of Ghost in the Shell?",
+  "options_en": [
+   "Togusa",
+   "Aramaki",
+   "Ishikawa",
+   "Batou"
+  ]
+ },
+ {
+  "q": "من هو العضو شبه البشري الذي لا يملك سوى القليل من التعديلات الآلية في القسم 9؟",
+  "options": [
+   "توغوزا",
+   "باتو",
+   "أراماكي",
+   "إيشيكاوا"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 10,
+  "q_en": "Which Section 9 member is nearly unmodified and has few cybernetic enhancements?",
+  "options_en": [
+   "Togusa",
+   "Batou",
+   "Aramaki",
+   "Ishikawa"
+  ]
+ },
+ {
+  "q": "من هو الشريك الرئيسي لكوروكو في فريق سيرين؟",
+  "options": [
+   "دايكي أومينيه",
+   "تايغا كاغامي",
+   "ريوتا كيسي",
+   "سيجورو أكاشي"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "Who is Kuroko's main partner on the Seirin team?",
+  "options_en": [
+   "Daiki Aomine",
+   "Taiga Kagami",
+   "Ryota Kise",
+   "Seijuro Akashi"
+  ]
+ },
+ {
+  "q": "من هو أحد أفراد «جيل المعجزات» الذي يلعب بأسلوب عنيف ويرتدي الأزرق؟",
+  "options": [
+   "ريوتا كيسي",
+   "شينتارو ميدوريما",
+   "دايكي أومينيه",
+   "أتسوشي موراساكيبارا"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "Which member of the \"Generation of Miracles\" is a hard-hitting player associated with blue?",
+  "options_en": [
+   "Ryota Kise",
+   "Shintaro Midorima",
+   "Daiki Aomine",
+   "Atsushi Murasakibara"
+  ]
+ },
+ {
+  "q": "من هو قائد «جيل المعجزات» في Kuroko's Basketball؟",
+  "options": [
+   "دايكي أومينيه",
+   "شينتارو ميدوريما",
+   "ريوتا كيسي",
+   "سيجورو أكاشي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "Who is the captain of the \"Generation of Miracles\" in Kuroko's Basketball?",
+  "options_en": [
+   "Daiki Aomine",
+   "Shintaro Midorima",
+   "Ryota Kise",
+   "Seijuro Akashi"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة من عرق الياتو القوية التي تعمل مع غينتوكي في Gintama؟",
+  "options": [
+   "كاغورا",
+   "أوتاي شيمورا",
+   "تسوكويو",
+   "ساتشان"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the powerful Yato girl who works with Gintoki in Gintama?",
+  "options_en": [
+   "Kagura",
+   "Otae Shimura",
+   "Tsukuyo",
+   "Sacchan"
+  ]
+ },
+ {
+  "q": "ما اسم نائب قائد الشينسينغومي المشهور بحبه للمايونيز في Gintama؟",
+  "options": [
+   "سوغو أوكيتا",
+   "توشيرو هيجيكاتا",
+   "إيساو كوندو",
+   "شينباتشي شيمورا"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the Shinsengumi vice-commander famous for his love of mayonnaise in Gintama?",
+  "options_en": [
+   "Sogo Okita",
+   "Toshiro Hijikata",
+   "Isao Kondo",
+   "Shinpachi Shimura"
+  ]
+ },
+ {
+  "q": "ما اسم القائد الأسطوري لـ«تومان» في Tokyo Revengers؟",
+  "options": [
+   "ريوغوجي كين",
+   "كيسوكي باجي",
+   "مانجيرو سانو (مايكي)",
+   "هاروتشيو سانزو"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the legendary leader of Tokyo Manji Gang in Tokyo Revengers?",
+  "options_en": [
+   "Ken Ryuguji",
+   "Keisuke Baji",
+   "Manjiro Sano (Mikey)",
+   "Haruchiyo Sanzu"
+  ]
+ },
+ {
+  "q": "ما اسم نائب قائد تومان الملقب بـ«دراكن»؟",
+  "options": [
+   "كيسوكي باجي",
+   "ميتسويا تاكاشي",
+   "شينيتشيرو",
+   "كين ريوغوجي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the real name of Tokyo Manji Gang's vice-commander nicknamed \"Draken\"?",
+  "options_en": [
+   "Keisuke Baji",
+   "Takashi Mitsuya",
+   "Shinichiro Sano",
+   "Ken Ryuguji"
+  ]
+ },
+ {
+  "q": "ما اسم نصف الجنية ذات الشعر الفضي في Re:Zero؟",
+  "options": [
+   "إميليا",
+   "ريم",
+   "بياتريس",
+   "كروش كارستن"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the silver-haired half-elf in Re:Zero?",
+  "options_en": [
+   "Emilia",
+   "Rem",
+   "Beatrice",
+   "Crusch Karsten"
+  ]
+ },
+ {
+  "q": "ما اسم أخت رام التوأم في Re:Zero؟",
+  "options": [
+   "إميليا",
+   "ريم",
+   "بياتريس",
+   "فيلت"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of Ram's twin sister in Re:Zero?",
+  "options_en": [
+   "Emilia",
+   "Rem",
+   "Beatrice",
+   "Felt"
+  ]
+ },
+ {
+  "q": "ما اسم الروح الصغيرة التي تعيش في مكتبة مانشن روزوال في Re:Zero؟",
+  "options": [
+   "إميليا",
+   "ريم",
+   "بياتريس",
+   "بيك"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the small spirit who guards the forbidden library in the Roswaal mansion in Re:Zero?",
+  "options_en": [
+   "Emilia",
+   "Rem",
+   "Beatrice",
+   "Puck"
+  ]
+ },
+ {
+  "q": "ما اسم المخلوق الأبيض الذي يعقد الصفقات مع الفتيات في Madoka Magica؟",
+  "options": [
+   "بيك",
+   "موتا",
+   "لونا",
+   "كيوبي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the white creature who makes contracts with girls in Madoka Magica?",
+  "options_en": [
+   "Puck",
+   "Muta",
+   "Luna",
+   "Kyubey"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة الساحرة الأكبر التي تعتبر معلمة في Madoka Magica؟",
+  "options": [
+   "ماми تومو",
+   "هومورا أكيمي",
+   "سايا ميكي",
+   "كيوكو ساكورا"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the older magical girl who acts as a mentor in Madoka Magica?",
+  "options_en": [
+   "Mami Tomoe",
+   "Homura Akemi",
+   "Sayaka Miki",
+   "Kyoko Sakura"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة الساحرة ذات الشعر الأسود الطويل التي تسافر عبر الزمن في Madoka Magica؟",
+  "options": [
+   "مادوكا كانامي",
+   "هومورا أكيمي",
+   "سايا ميكي",
+   "كيوكو ساكورا"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the long-haired magical girl who travels through time in Madoka Magica?",
+  "options_en": [
+   "Madoka Kaname",
+   "Homura Akemi",
+   "Sayaka Miki",
+   "Kyoko Sakura"
+  ]
+ },
+ {
+  "q": "ما اسم منافس يوغي الرئيسي الذي يمتلك وحش Blue-Eyes White Dragon؟",
+  "options": [
+   "جوي وييلر",
+   "ماكسيميليون بيغاسوس",
+   "سيتو كايبا",
+   "ماريك إشتار"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "Who is Yugi's main rival who owns the Blue-Eyes White Dragon?",
+  "options_en": [
+   "Joey Wheeler",
+   "Maximillion Pegasus",
+   "Seto Kaiba",
+   "Marik Ishtar"
+  ]
+ },
+ {
+  "q": "ما اسم وحش الساحر الأشهر الذي يستخدمه يوغي موتو؟",
+  "options": [
+   "التنين الأبيض ذو العيون الزرقاء",
+   "إكسوديا",
+   "التنين الأسود ذو العيون الحمراء",
+   "الساحر الأسود"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 2,
+  "q_en": "What is the name of Yugi Muto's signature spellcaster monster?",
+  "options_en": [
+   "Blue-Eyes White Dragon",
+   "Exodia the Forbidden One",
+   "Red-Eyes Black Dragon",
+   "Dark Magician"
+  ]
+ },
+ {
+  "q": "ما اسم صديقة يوغي في المدرسة التي تقدّر قيمة الصداقة؟",
+  "options": [
+   "تيا غاردنر",
+   "ماي فالنتاين",
+   "سيرينيتي ويلر",
+   "إيشيزو إشتار"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of Yugi's school friend who greatly values friendship?",
+  "options_en": [
+   "Tea Gardner",
+   "Mai Valentine",
+   "Serenity Wheeler",
+   "Ishizu Ishtar"
+  ]
+ },
+ {
+  "q": "ما اسم ديجيمون تاي كاميا الشريك؟",
+  "options": [
+   "غابيمون",
+   "أغومون",
+   "باتامون",
+   "غاتومون"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of Tai Kamiya's partner Digimon?",
+  "options_en": [
+   "Gabumon",
+   "Agumon",
+   "Patamon",
+   "Gatomon"
+  ]
+ },
+ {
+  "q": "ما اسم ديجيمون ياماتو إيشيدا الشريك؟",
+  "options": [
+   "أغومون",
+   "باتامون",
+   "غابيمون",
+   "بيوكومون"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of Matt Ishida's (Yamato's) partner Digimon?",
+  "options_en": [
+   "Agumon",
+   "Patamon",
+   "Gabumon",
+   "Biyomon"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة اللطيفة التي يحبها نوبيتا في Doraemon؟",
+  "options": [
+   "دورامي",
+   "جايان",
+   "سونيو",
+   "شيزوكا"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the kind girl Nobita likes in Doraemon?",
+  "options_en": [
+   "Dorami",
+   "Gian",
+   "Suneo",
+   "Shizuka"
+  ]
+ },
+ {
+  "q": "ما اسم الفتى القوي صاحب الصوت الغنائي السيئ في Doraemon؟",
+  "options": [
+   "جايان",
+   "سونيو",
+   "ديكيسوغي",
+   "نوبيتا"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the tough boy with a terrible singing voice in Doraemon?",
+  "options_en": [
+   "Gian",
+   "Suneo",
+   "Dekisugi",
+   "Nobita"
+  ]
+ },
+ {
+  "q": "ما اسم بطل Captain Tsubasa؟",
+  "options": [
+   "كوجيرو هيوغا",
+   "تسوباسا أوزورا",
+   "جينزو واكاباياشي",
+   "تارو ميساكي"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the hero of Captain Tsubasa?",
+  "options_en": [
+   "Kojiro Hyuga",
+   "Tsubasa Ozora",
+   "Genzo Wakabayashi",
+   "Taro Misaki"
+  ]
+ },
+ {
+  "q": "ما اسم حارس المرمى المرموق في فريق توهو في Captain Tsubasa؟",
+  "options": [
+   "كوجيرو هيوغا",
+   "تارو ميساكي",
+   "جينزو واكاباياشي",
+   "هيكارو ماتسوياما"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the renowned goalkeeper of Toho Academy in Captain Tsubasa?",
+  "options_en": [
+   "Kojiro Hyuga",
+   "Taro Misaki",
+   "Genzo Wakabayashi",
+   "Hikaru Matsuyama"
+  ]
+ },
+ {
+  "q": "ما اسم الصديق الصغير القوي في Yu Yu Hakusho الذي يستخدم النار السوداء؟",
+  "options": [
+   "كوراما",
+   "كازوما كوابارا",
+   "توغورو",
+   "هيي"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the small powerful fighter in Yu Yu Hakusho who wields the Black Dragon technique?",
+  "options_en": [
+   "Kurama",
+   "Kazuma Kuwabara",
+   "Toguro",
+   "Hiei"
+  ]
+ },
+ {
+  "q": "ما اسم القطة التي ترافق أوساغي في Sailor Moon؟",
+  "options": [
+   "أرتيميس",
+   "لونا",
+   "جيجي",
+   "كيوبي"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the cat who accompanies Usagi in Sailor Moon?",
+  "options_en": [
+   "Artemis",
+   "Luna",
+   "Jiji",
+   "Kyubey"
+  ]
+ },
+ {
+  "q": "من هو الشاب الغامض الذي يرمي الورود ويساعد سايلور مون؟",
+  "options": [
+   "كونزايت",
+   "نيفريت",
+   "تاكسيدو ماسك",
+   "جاديات"
+  ],
+  "answer": 2,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "Who is the mysterious rose-throwing man who helps Sailor Moon?",
+  "options_en": [
+   "Kunzite",
+   "Nephrite",
+   "Tuxedo Mask",
+   "Jadeite"
+  ]
+ },
+ {
+  "q": "ما اسم تلميذة فريرين في Frieren: Beyond Journey's End؟",
+  "options": [
+   "ستارك",
+   "أوبيل",
+   "لاوين",
+   "فيرن"
+  ],
+  "answer": 3,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "What is the name of Frieren's apprentice in Frieren: Beyond Journey's End?",
+  "options_en": [
+   "Stark",
+   "Ubel",
+   "Lawine",
+   "Fern"
+  ]
+ },
+ {
+  "q": "ما اسم البطل الذي هزم ملك الشياطين في Frieren: Beyond Journey's End؟",
+  "options": [
+   "هيمل",
+   "هاينه",
+   "آيزن",
+   "ستارك"
+  ],
+  "answer": 0,
+  "category": "characters",
+  "base_difficulty": 3,
+  "q_en": "Which hero defeated the Demon King in Frieren: Beyond Journey's End?",
+  "options_en": [
+   "Himmel",
+   "Heiter",
+   "Eisen",
+   "Stark"
+  ]
+ },
+ {
+  "q": "ما اسم زعيم عصابة الدراجات النارية في فيلم Akira؟",
+  "options": [
+   "تيتسو",
+   "كانيدا",
+   "كي",
+   "الكولونيل شيكيشيما"
+  ],
+  "answer": 1,
+  "category": "characters",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the biker gang leader in the film Akira?",
+  "options_en": [
+   "Tetsuo",
+   "Kaneda",
+   "Kei",
+   "Colonel Shikishima"
+  ]
+ }
+]

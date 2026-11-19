@@ -1,0 +1,909 @@
+{
+ "tf": [
+  [
+   "فيلم Spirited Away فاز بجائزة الأوسكار لأفضل فيلم رسوم متحركة.",
+   "Spirited Away won the Academy Award for Best Animated Feature.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "بوكيمون بيكاتشو من النوع الكهربائي.",
+   "Pikachu is an Electric-type Pokémon.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "اسم البطلة في Sailor Moon هو أوساغي تسوكينو.",
+   "The heroine of Sailor Moon is Usagi Tsukino.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "زوجة غوكو في Dragon Ball هي تشي تشي.",
+   "Goku's wife in Dragon Ball is Chi-Chi.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "يُلقَّب أوسامو تيزوكا بـ«إله المانغا».",
+   "Osamu Tezuka is nicknamed the \"God of Manga\".",
+   true,
+   "",
+   ""
+  ],
+  [
+   "مؤلفة Fullmetal Alchemist هي هيرومو أراكاوا.",
+   "Fullmetal Alchemist was written by Hiromu Arakawa.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "أنمي Little Witch Academia من إنتاج استوديو Trigger.",
+   "Little Witch Academia was produced by Studio Trigger.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "أنمي K-On! من إنتاج Kyoto Animation.",
+   "K-On! was produced by Kyoto Animation.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "فيلم Wolf Children من إخراج مامورو هوسودا.",
+   "Wolf Children was directed by Mamoru Hosoda.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "فيلم Howl's Moving Castle مأخوذ عن رواية للكاتبة ديانا وين جونز.",
+   "Howl's Moving Castle is based on a novel by Diana Wynne Jones.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "مؤلف Chainsaw Man هو تاتسوكي فوجيموتو.",
+   "Chainsaw Man was written by Tatsuki Fujimoto.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "أنمي Slam Dunk يدور حول كرة السلة.",
+   "Slam Dunk is about basketball.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "هدف غون في Hunter x Hunter أن يجد والده جينغ.",
+   "Gon's goal in Hunter x Hunter is to find his father, Ging.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "إيرين ييغر هو بطل Attack on Titan.",
+   "Eren Yeager is the protagonist of Attack on Titan.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "زينيتسو في Demon Slayer يستخدم تنفس الرعد.",
+   "Zenitsu in Demon Slayer uses Thunder Breathing.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "مؤلف Bleach هو تايتو كوبو.",
+   "Bleach was written by Tite Kubo.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "جيسي وجيمس من فريق روكيت في Pokémon.",
+   "Jessie and James are members of Team Rocket in Pokémon.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "أنمي Mob Psycho 100 أنتجه استوديو Bones.",
+   "Mob Psycho 100 was produced by Bones.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "مؤلف Naruto هو ماساشي كيشيموتو.",
+   "Naruto was written by Masashi Kishimoto.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "رسم تاكيشي أوباتا مانغا Death Note.",
+   "Takeshi Obata drew the Death Note manga.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "ساسكي ينتمي إلى عشيرة أوتشيها.",
+   "Sasuke belongs to the Uchiha clan.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "توتورو هو الشخصية الرمزية لاستوديو Ghibli.",
+   "Totoro is the mascot of Studio Ghibli.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "هيديآكي أنّو هو مخرج Neon Genesis Evangelion.",
+   "Hideaki Anno directed Neon Genesis Evangelion.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "مؤلف Demon Slayer هو كويوهارو غوتوغي.",
+   "Demon Slayer was written by Koyoharu Gotouge.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "نوبيتا هو صديق دورايمون.",
+   "Nobita is Doraemon's friend.",
+   true,
+   "",
+   ""
+  ],
+  [
+   "شارماندر من النوع المائي.",
+   "Charmander is a Water-type Pokémon.",
+   false,
+   "شارماندر من النوع الناري.",
+   "Charmander is a Fire-type Pokémon."
+  ],
+  [
+   "مؤلفة Sailor Moon هي روميكو تاكاهاشي.",
+   "Sailor Moon was written by Rumiko Takahashi.",
+   false,
+   "مؤلفتها ناوكو تاكيوتشي.",
+   "It was written by Naoko Takeuchi."
+  ],
+  [
+   "أنمي Astro Boy من إبداع هاياو ميازاكي.",
+   "Astro Boy was created by Hayao Miyazaki.",
+   false,
+   "مبدعه أوسامو تيزوكا.",
+   "It was created by Osamu Tezuka."
+  ],
+  [
+   "مؤلف Dragon Ball هو إييتشيرو أودا.",
+   "Dragon Ball was written by Eiichiro Oda.",
+   false,
+   "مؤلفه أكيرا تورياما.",
+   "Its author is Akira Toriyama."
+  ],
+  [
+   "فيلم Princess Mononoke من إخراج إيساو تاكاهاتا.",
+   "Princess Mononoke was directed by Isao Takahata.",
+   false,
+   "أخرجه هاياو ميازاكي.",
+   "It was directed by Hayao Miyazaki."
+  ],
+  [
+   "مؤلف Spy x Family هو كوهي هوريكوشي.",
+   "Spy x Family was written by Kohei Horikoshi.",
+   false,
+   "مؤلفه تاتسويا إندو.",
+   "Its author is Tatsuya Endo."
+  ],
+  [
+   "مؤلف Jujutsu Kaisen هو تاتسوكي فوجيموتو.",
+   "Jujutsu Kaisen was written by Tatsuki Fujimoto.",
+   false,
+   "مؤلفه غيغي أكوتامي.",
+   "Its author is Gege Akutami."
+  ],
+  [
+   "أنمي Captain Tsubasa يدور حول البيسبول.",
+   "Captain Tsubasa is about baseball.",
+   false,
+   "يدور حول كرة القدم.",
+   "It is about soccer."
+  ],
+  [
+   "أنمي Haikyuu!! يدور حول التنس.",
+   "Haikyuu!! is about tennis.",
+   false,
+   "يدور حول الكرة الطائرة.",
+   "It is about volleyball."
+  ],
+  [
+   "دورايمون هو كلب آلي من المستقبل.",
+   "Doraemon is a robot dog from the future.",
+   false,
+   "هو قط آلي من المستقبل.",
+   "He is a robot cat from the future."
+  ],
+  [
+   "مجلة Weekly Shonen Jump تصدرها دار Kodansha.",
+   "Weekly Shonen Jump is published by Kodansha.",
+   false,
+   "تصدرها دار Shueisha.",
+   "It is published by Shueisha."
+  ],
+  [
+   "مبتكر One Punch Man الأصلي هو يوسوكي موراتا.",
+   "The original creator of One Punch Man is Yusuke Murata.",
+   false,
+   "المبتكر الأصلي هو ONE، وموراتا رسم نسخة المانغا.",
+   "The original creator is ONE; Murata drew the manga version."
+  ],
+  [
+   "أخت تانجيرو الصغرى في Demon Slayer هي كاناو.",
+   "Tanjiro's younger sister in Demon Slayer is Kanao.",
+   false,
+   "أخته الصغرى هي نيزوكو.",
+   "His younger sister is Nezuko."
+  ],
+  [
+   "والد غون في Hunter x Hunter هو نيتيرو.",
+   "Gon's father in Hunter x Hunter is Netero.",
+   false,
+   "والده هو جينغ فريكس.",
+   "His father is Ging Freecss."
+  ],
+  [
+   "رفيق آش الأساسي في Pokémon هو إيفي.",
+   "Ash's main partner in Pokémon is Eevee.",
+   false,
+   "رفيقه الأساسي بيكاتشو.",
+   "His main partner is Pikachu."
+  ],
+  [
+   "فيلم Kiki's Delivery Service من إخراج ماكوتو شينكاي.",
+   "Kiki's Delivery Service was directed by Makoto Shinkai.",
+   false,
+   "أخرجه هاياو ميازاكي.",
+   "It was directed by Hayao Miyazaki."
+  ],
+  [
+   "فيلم Grave of the Fireflies من إخراج هاياو ميازاكي.",
+   "Grave of the Fireflies was directed by Hayao Miyazaki.",
+   false,
+   "أخرجه إيساو تاكاهاتا.",
+   "It was directed by Isao Takahata."
+  ],
+  [
+   "مؤلف Attack on Titan هو تسوغومي أوهبا.",
+   "Attack on Titan was written by Tsugumi Ohba.",
+   false,
+   "مؤلفه هاجيمي إيساياما.",
+   "Its author is Hajime Isayama."
+  ],
+  [
+   "فيلم Your Name أنتجه استوديو Ghibli.",
+   "Your Name was produced by Studio Ghibli.",
+   false,
+   "أنتجه استوديو CoMix Wave Films.",
+   "It was produced by CoMix Wave Films."
+  ],
+  [
+   "كاكاشي يملك عين البياكوغان.",
+   "Kakashi has the Byakugan eye.",
+   false,
+   "يملك عين الشارينغان.",
+   "He has the Sharingan eye."
+  ],
+  [
+   "قائد طاقم قبعة القش هو زورو.",
+   "The captain of the Straw Hat Pirates is Zoro.",
+   false,
+   "القائد هو لوفي.",
+   "The captain is Luffy."
+  ],
+  [
+   "لعبة Pokémon بدأت كلعبة بطاقات.",
+   "Pokémon began as a trading card game.",
+   false,
+   "بدأت كألعاب فيديو عام 1996.",
+   "It began as video games in 1996."
+  ],
+  [
+   "ريي أيانامي تقود الوحدة 01 في Evangelion.",
+   "Rei Ayanami pilots Unit-01 in Evangelion.",
+   false,
+   "تقود الوحدة 00، وشينجي يقود الوحدة 01.",
+   "She pilots Unit-00; Shinji pilots Unit-01."
+  ],
+  [
+   "مؤلف Slam Dunk هو إييتشيرو أودا.",
+   "Slam Dunk was written by Eiichiro Oda.",
+   false,
+   "مؤلفه تاكيهيكو إينوؤه.",
+   "Its author is Takehiko Inoue."
+  ],
+  [
+   "يقع مقر استوديو Ghibli في أوساكا.",
+   "Studio Ghibli is based in Osaka.",
+   false,
+   "مقره في كوغاني بطوكيو.",
+   "It is based in Koganei, Tokyo."
+  ]
+ ],
+ "songs": [
+  [
+   "Fly Me to the Moon",
+   "Neon Genesis Evangelion"
+  ],
+  [
+   "The Real Folk Blues",
+   "Cowboy Bebop"
+  ],
+  [
+   "Cry Baby",
+   "Tokyo Revengers"
+  ],
+  [
+   "Lost in Paradise",
+   "Jujutsu Kaisen"
+  ],
+  [
+   "Hero's Come Back!!",
+   "Naruto Shippuden"
+  ],
+  [
+   "Crazy Noisy Bizarre Town",
+   "JoJo's Bizarre Adventure: Diamond Is Unbreakable"
+  ],
+  [
+   "Sono Chi no Sadame",
+   "JoJo's Bizarre Adventure"
+  ],
+  [
+   "We Gotta Power",
+   "Dragon Ball Z"
+  ],
+  [
+   "Mezase Pokémon Master",
+   "Pokémon"
+  ],
+  [
+   "Moonlight Densetsu",
+   "Sailor Moon"
+  ],
+  [
+   "Kimi no Shiranai Monogatari",
+   "Bakemonogatari"
+  ],
+  [
+   "Only My Railgun",
+   "A Certain Scientific Railgun"
+  ],
+  [
+   "Hare Hare Yukai",
+   "The Melancholy of Haruhi Suzumiya"
+  ],
+  [
+   "Sorairo Days",
+   "Gurren Lagann"
+  ],
+  [
+   "Tonari no Totoro",
+   "My Neighbor Totoro"
+  ],
+  [
+   "Always With Me",
+   "Spirited Away"
+  ],
+  [
+   "Colors",
+   "Code Geass"
+  ],
+  [
+   "Wind",
+   "Naruto"
+  ],
+  [
+   "99",
+   "Mob Psycho 100"
+  ],
+  [
+   "Dango Daikazoku",
+   "Clannad"
+  ],
+  [
+   "Kaibutsu",
+   "Beastars"
+  ],
+  [
+   "Ready Steady Go",
+   "Fullmetal Alchemist"
+  ],
+  [
+   "Rewrite",
+   "Fullmetal Alchemist: Brotherhood"
+  ],
+  [
+   "Melissa",
+   "Fullmetal Alchemist"
+  ],
+  [
+   "Dragon Soul",
+   "Dragon Ball Kai"
+  ],
+  [
+   "Suzume",
+   "Suzume"
+  ],
+  [
+   "My Dearest",
+   "Guilty Crown"
+  ],
+  [
+   "Imagination",
+   "Haikyuu!!"
+  ],
+  [
+   "Fly High!!",
+   "Haikyuu!!"
+  ],
+  [
+   "Hacking to the Gate",
+   "Steins;Gate"
+  ],
+  [
+   "Good Morning World!",
+   "Dr. Stone"
+  ],
+  [
+   "Magia",
+   "Puella Magi Madoka Magica"
+  ],
+  [
+   "Dan Dan Kokoro Hikarete Ku",
+   "Dragon Ball GT"
+  ],
+  [
+   "Yume wo Kanaete Doraemon",
+   "Doraemon"
+  ],
+  [
+   "Boku no Sensou",
+   "Attack on Titan"
+  ]
+ ],
+ "anime": [
+  [
+   "Astro Boy",
+   1963
+  ],
+  [
+   "Star of the Giants",
+   1968
+  ],
+  [
+   "Sazae-san",
+   1969
+  ],
+  [
+   "Ashita no Joe",
+   1970
+  ],
+  [
+   "Lupin the Third",
+   1971
+  ],
+  [
+   "Mazinger Z",
+   1972
+  ],
+  [
+   "Space Battleship Yamato",
+   1974
+  ],
+  [
+   "Candy Candy",
+   1976
+  ],
+  [
+   "Yatterman",
+   1977
+  ],
+  [
+   "Galaxy Express 999",
+   1978
+  ],
+  [
+   "Urusei Yatsura",
+   1981
+  ],
+  [
+   "Macross",
+   1982
+  ],
+  [
+   "Fist of the North Star",
+   1984
+  ],
+  [
+   "Touch",
+   1985
+  ],
+  [
+   "Kimagure Orange Road",
+   1987
+  ],
+  [
+   "My Neighbor Totoro",
+   1988
+  ],
+  [
+   "Chibi Maruko-chan",
+   1990
+  ],
+  [
+   "Dragon Quest: The Adventure of Dai",
+   1991
+  ],
+  [
+   "Mobile Fighter G Gundam",
+   1994
+  ],
+  [
+   "Inuyasha",
+   2000
+  ],
+  [
+   "Fruits Basket",
+   2001
+  ],
+  [
+   "Fullmetal Alchemist",
+   2003
+  ],
+  [
+   "Mushishi",
+   2005
+  ],
+  [
+   "Gintama",
+   2006
+  ],
+  [
+   "Gurren Lagann",
+   2007
+  ],
+  [
+   "Toradora!",
+   2008
+  ],
+  [
+   "Durarara!!",
+   2010
+  ],
+  [
+   "Made in Abyss",
+   2017
+  ],
+  [
+   "Violet Evergarden",
+   2018
+  ],
+  [
+   "Dandadan",
+   2024
+  ]
+ ],
+ "chars": [
+  [
+   "صبي يقسم على إبادة العمالقة بعد سقوط سور مدينته.",
+   "A boy who vows to wipe out the Titans after his city's wall falls.",
+   "Eren Yeager"
+  ],
+  [
+   "فتاة هادئة ماهرة القتال تلبس وشاحًا أحمر أهداها إياه من أنقذها.",
+   "A calm, skilled fighter who always wears a red scarf given to her by the boy who saved her.",
+   "Mikasa Ackerman"
+  ],
+  [
+   "ناجٍ من عشيرة منكوبة يسعى للانتقام من أخيه الأكبر.",
+   "The survivor of a fallen clan who seeks revenge on his older brother.",
+   "Sasuke Uchiha"
+  ],
+  [
+   "أمير محارب فخور من عرق السايان يسعى دائمًا لتجاوز غريمه.",
+   "A proud warrior prince of the Saiyans who constantly tries to surpass his rival.",
+   "Vegeta"
+  ],
+  [
+   "فتى يصطاد السمك ويدخل عالم الصيادين ليجد والده.",
+   "A fisher boy who enters the world of Hunters to find his father.",
+   "Gon Freecss"
+  ],
+  [
+   "فتاة بتسريحة ذيلين على شكل كرتين تتحول لمحاربة باسم القمر.",
+   "A girl with twin odango pigtails who transforms into a warrior in the name of the Moon.",
+   "Usagi Tsukino"
+  ],
+  [
+   "مدرّب مبتدئ يحلم بأن يصبح أفضل مدرب بوكيمون، ويرافقه بيكاتشو.",
+   "A young trainer who dreams of becoming a Pokémon Master, always with Pikachu.",
+   "Ash Ketchum"
+  ],
+  [
+   "مخلوق غابات ضخم رمادي فروي يظهر لطفلتين ويستقل حافلة على شكل قطة.",
+   "A giant gray furry forest spirit who befriends two sisters and rides a Catbus.",
+   "Totoro"
+  ],
+  [
+   "فتاة صغيرة تعمل في حمّام للأرواح لتنقذ والديها اللذين تحوّلا إلى خنزيرين.",
+   "A young girl who works in a spirit bathhouse to save her parents, who were turned into pigs.",
+   "Chihiro Ogino"
+  ],
+  [
+   "ساحر وسيم متقلب المزاج يعيش في قلعة متحركة.",
+   "A handsome, moody wizard who lives in a moving castle.",
+   "Howl Pendragon"
+  ],
+  [
+   "روبوت أزرق عديم الأذنين يملك جيبًا سحريًا ويأتي من المستقبل.",
+   "A blue earless robot with a magical pocket who comes from the future.",
+   "Doraemon"
+  ],
+  [
+   "فتى روبوت يطير، صنعه عالم فقد ابنه.",
+   "A flying boy robot built by a scientist who lost his son.",
+   "Astro Boy"
+  ],
+  [
+   "نينجا شاب بحاجبين كثيفين وبدلة خضراء يعتمد على التايجتسو فقط ويتدرّب على يد معلمه غاي.",
+   "A young ninja with thick eyebrows and a green jumpsuit who relies on pure taijutsu and trains under Might Guy.",
+   "Rock Lee"
+  ],
+  [
+   "ملاحة طاقم القراصنة ذات الشعر البرتقالي وتحب المال والخرائط.",
+   "The orange-haired navigator of a pirate crew who loves money and maps.",
+   "Nami"
+  ],
+  [
+   "طاهٍ في طاقم القراصنة يقاتل بقدميه فقط.",
+   "A pirate-crew cook who fights using only his legs.",
+   "Sanji"
+  ],
+  [
+   "رنّة صغيرة صارت طبيبة الطاقم بعد أن أكلت فاكهة شيطان.",
+   "A little reindeer who became the crew's doctor after eating a Devil Fruit.",
+   "Tony Tony Chopper"
+  ],
+  [
+   "فتى هادئ يمتلك قوى نفسية هائلة ويحاول العيش بشكل عادي.",
+   "A quiet boy with immense psychic powers who tries to live a normal life.",
+   "Shigeo Kageyama (Mob)"
+  ],
+  [
+   "فتاة بذراعين اصطناعيتين تعمل كاتبة رسائل لتفهم معنى كلمة أحبك.",
+   "A girl with prosthetic arms who works as a letter writer to understand the words \"I love you\".",
+   "Violet Evergarden"
+  ],
+  [
+   "فتى روحه محبوسة داخل درع معدني ضخم.",
+   "A boy whose soul is bound to a huge suit of armor.",
+   "Alphonse Elric"
+  ],
+  [
+   "عقيد خيميائي يشعل النيران بإشارة من أصابعه ويطمح ليصبح القائد الأعلى.",
+   "An alchemist colonel who ignites flames with a snap of his fingers and aims to become the leader.",
+   "Roy Mustang"
+  ],
+  [
+   "موظف ياباني يعاد تجسيده في عالم آخر على هيئة كائن هلامي.",
+   "A Japanese office worker reincarnated in another world as a slime.",
+   "Rimuru Tempest"
+  ],
+  [
+   "فتاة خجولة بشعر وردي تعزف الغيتار وتخاف من الناس.",
+   "A shy pink-haired girl who plays guitar and is afraid of people.",
+   "Hitori Gotoh (Bocchi)"
+  ],
+  [
+   "فتى بلا سحر يملك سيفًا مضادًا للسحر ويصرخ بأحلامه.",
+   "A boy with no magic who wields an anti-magic sword and shouts his dreams.",
+   "Asta"
+  ],
+  [
+   "لاعب كرة طائرة قصير القامة يقفز عاليًا ويتميز بالسرعة.",
+   "A short volleyball player known for his incredible jumps and speed.",
+   "Shoyo Hinata"
+  ],
+  [
+   "قناص بأنف طويل يكذب كثيرًا وحكاياته مبالغ فيها.",
+   "A long-nosed sniper who tells tall tales and often lies.",
+   "Usopp"
+  ],
+  [
+   "مقاتل أصفر الشعر جبان يصبح قويًا عندما ينام.",
+   "A cowardly yellow-haired swordsman who becomes powerful while asleep.",
+   "Zenitsu Agatsuma"
+  ],
+  [
+   "طالب رياضي يبتلع إصبعًا ملعونًا ويصبح وعاءً لملك اللعنات.",
+   "A high-school athlete who swallows a cursed finger and becomes the vessel of the King of Curses.",
+   "Yuji Itadori"
+  ],
+  [
+   "شينيغامي أسود طويل يعشق التفاح ويضحك كثيرًا.",
+   "A tall black shinigami who loves apples and laughs a lot.",
+   "Ryuk"
+  ],
+  [
+   "لاعب ألعاب ببدلة سوداء يقاتل بسيفين في عالم افتراضي.",
+   "A gamer in a black coat who fights with dual swords in a virtual world.",
+   "Kirito"
+  ],
+  [
+   "طالب جامعي يتحول إلى نصف غول بعد حادث ويرتدي قناعًا.",
+   "A university student who becomes half-ghoul after an accident and wears a mask.",
+   "Ken Kaneki"
+  ]
+ ],
+ "quotes": [
+  [
+   "Those who break the rules are scum, but those who abandon their friends are worse than scum.",
+   "من يكسر القواعد حقير، لكن من يتخلى عن أصدقائه أحقر منه.",
+   "Naruto"
+  ],
+  [
+   "I'm not gonna run away, I never go back on my word! That's my nindo: my ninja way!",
+   "لن أهرب، ولن أتراجع عن كلمتي أبدًا! هذا هو طريقي كنينجا!",
+   "Naruto"
+  ],
+  [
+   "It's over 9000!",
+   "إنها أكثر من 9000!",
+   "Dragon Ball Z"
+  ],
+  [
+   "You're gonna carry that weight.",
+   "ستظل تحمل هذا الثقل.",
+   "Cowboy Bebop"
+  ],
+  [
+   "Not even my father has ever hit me!",
+   "ولا حتى أبي ضربني من قبل!",
+   "Mobile Suit Gundam"
+  ],
+  [
+   "People die when they are killed.",
+   "الناس يموتون عندما يُقتَلون.",
+   "Fate/stay night"
+  ],
+  [
+   "I mustn't run away.",
+   "يجب ألا أهرب.",
+   "Neon Genesis Evangelion"
+  ],
+  [
+   "Congratulations!",
+   "تهانينا!",
+   "Neon Genesis Evangelion"
+  ],
+  [
+   "Set your heart ablaze.",
+   "أشعل قلبك.",
+   "Demon Slayer"
+  ],
+  [
+   "Link Start!",
+   "ابدأ الاتصال!",
+   "Sword Art Online"
+  ],
+  [
+   "Pikachu, I choose you!",
+   "بيكاتشو، أنا أختارك!",
+   "Pokémon"
+  ],
+  [
+   "Gotta catch 'em all!",
+   "يجب أن أمسك بهم جميعًا!",
+   "Pokémon"
+  ],
+  [
+   "There is always only one truth!",
+   "الحقيقة دائمًا واحدة فقط!",
+   "Detective Conan"
+  ],
+  [
+   "This is exhilarating!",
+   "هذا مثير للحماس!",
+   "Dr. Stone"
+  ],
+  [
+   "Coach Anzai... I want to play basketball.",
+   "أيها المدرب أنزاي... أريد أن ألعب كرة السلة.",
+   "Slam Dunk"
+  ],
+  [
+   "Waku waku!",
+   "واكو واكو! (متحمسة!)",
+   "Spy x Family"
+  ],
+  [
+   "Once you've met someone, you never really forget them.",
+   "حين تلتقي بشخص ما فإنك لا تنساه حقًا أبدًا.",
+   "Spirited Away"
+  ],
+  [
+   "A heart's a heavy burden.",
+   "القلب حمل ثقيل.",
+   "Howl's Moving Castle"
+  ],
+  [
+   "Humankind cannot gain anything without first giving something in return. To obtain, something of equal value must be lost.",
+   "لا يستطيع البشر أن يكسبوا شيئًا دون أن يقدموا شيئًا في المقابل؛ فللحصول على شيء يجب أن يُفقد ما يعادله قيمة.",
+   "Fullmetal Alchemist"
+  ],
+  [
+   "In the name of the moon, I'll punish you!",
+   "باسم القمر سأعاقبك!",
+   "Sailor Moon"
+  ],
+  [
+   "I am Justice!",
+   "أنا العدالة!",
+   "Death Note"
+  ],
+  [
+   "Yare yare daze.",
+   "يا للمتاعب...",
+   "JoJo's Bizarre Adventure"
+  ],
+  [
+   "Kamehameha!",
+   "كاميهاميها!",
+   "Dragon Ball"
+  ],
+  [
+   "I am the Prince of all Saiyans!",
+   "أنا أمير السايان جميعًا!",
+   "Dragon Ball Z"
+  ],
+  [
+   "Who the hell do you think I am?!",
+   "من تظنني بحق الجحيم؟!",
+   "Gurren Lagann"
+  ]
+ ],
+ "quote_extra": [
+  "Toradora!",
+  "Clannad",
+  "Mob Psycho 100",
+  "Vinland Saga",
+  "Blue Lock",
+  "Samurai Champloo",
+  "Fruits Basket",
+  "Inuyasha",
+  "Trigun",
+  "Violet Evergarden"
+ ]
+}

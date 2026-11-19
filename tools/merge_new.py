@@ -33,9 +33,12 @@ def norm(s: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"[^\w؀-ۿ ]+", " ", (s or "").lower())).strip()
 
 
+_BAD_RE = re.compile(r"(?<![A-Za-z\u0600-\u06FF])(?:" + "|".join(re.escape(b) for b in BANNED) + r")(?![A-Za-z\u0600-\u06FF])", re.I)
+
+
 def bad_words(*texts) -> bool:
-    blob = " ".join(map(str, texts)).lower()
-    return any(b in blob for b in BANNED)
+    """كلمة كاملة فقط (حتى لا تُرفض أسماء يابانية مثل «إيتشيمارو» بسبب «إيتشي»)."""
+    return bool(_BAD_RE.search(" ".join(map(str, texts))))
 
 
 def check_question(d: dict) -> str | None:
@@ -72,7 +75,9 @@ def main() -> None:
     # ── الأسئلة ──
     qpath = ROOT / "data" / "questions.json"
     qs = json.loads(qpath.read_text(encoding="utf-8"))
-    seen = {norm(q["q"]) for q in qs} | {norm(q.get("q_en") or "") for q in qs}
+    ex = src / "exclude.json"
+    excluded = {norm(x) for x in json.loads(ex.read_text(encoding="utf-8")).get("q_en", [])} if ex.exists() else set()
+    seen = {norm(q["q"]) for q in qs} | {norm(q.get("q_en") or "") for q in qs} | excluded
     nid = max(q["id"] for q in qs) + 1
     added, rejected = 0, {}
     for f in sorted(src.glob("q_*.json")):

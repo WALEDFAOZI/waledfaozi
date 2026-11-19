@@ -88,6 +88,21 @@ CREATE TABLE IF NOT EXISTS extra_content(
 CREATE TABLE IF NOT EXISTS group_chats(
   chat_id INTEGER PRIMARY KEY, title TEXT, lang TEXT NOT NULL DEFAULT 'ar', created_at REAL NOT NULL
 );
+CREATE TABLE IF NOT EXISTS xp_log(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, xp INTEGER NOT NULL, kind TEXT NOT NULL, at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_xp_log_user ON xp_log(tg_id, at);
+CREATE INDEX IF NOT EXISTS idx_xp_log_at ON xp_log(at);
+CREATE TABLE IF NOT EXISTS achievements(
+  tg_id INTEGER NOT NULL, key TEXT NOT NULL, at REAL NOT NULL, PRIMARY KEY(tg_id, key)
+);
+CREATE TABLE IF NOT EXISTS user_stats(
+  tg_id INTEGER NOT NULL, key TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(tg_id, key)
+);
+CREATE TABLE IF NOT EXISTS teams(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE COLLATE NOCASE, leader INTEGER NOT NULL,
+  hidden INTEGER NOT NULL DEFAULT 0, created_at REAL NOT NULL
+);
 CREATE TABLE IF NOT EXISTS channel_links(
   chat_id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, title TEXT, added_at REAL NOT NULL
 );
@@ -138,7 +153,9 @@ MIGRATIONS = {
               "invited_by": "INTEGER", "invite_credited": "INTEGER NOT NULL DEFAULT 0",
               "streak": "INTEGER NOT NULL DEFAULT 0", "best_streak": "INTEGER NOT NULL DEFAULT 0",
               "streak_day": "INTEGER NOT NULL DEFAULT 0", "remind": "INTEGER NOT NULL DEFAULT 0",
-              "last_remind_day": "INTEGER NOT NULL DEFAULT 0"},
+              "last_remind_day": "INTEGER NOT NULL DEFAULT 0", "xp": "INTEGER NOT NULL DEFAULT 0",
+              "freezes": "INTEGER NOT NULL DEFAULT 0", "team_id": "INTEGER"},
+    "duels": {"target": "INTEGER"},
     "sessions": {
         "mode": "TEXT NOT NULL DEFAULT 'full'", "counted": "INTEGER NOT NULL DEFAULT 1",
         "challenge_of": "INTEGER", "duel_id": "INTEGER", "msg_kind": "TEXT NOT NULL DEFAULT 'text'", "category": "TEXT",
@@ -449,21 +466,42 @@ class DB:
         n = r["n"] or 0
         return (round(100 * (r["ok"] or 0) / n) if n else 0), n
 
+    FREEZE_CAP = 3
+
     def mark_streak(self, tg_id: int, day: int) -> tuple[int, bool]:
-        """يسجّل نشاط اليوم: متتالية الأيام. يرجع (السلسلة, هل زادت اليوم)."""
+        """يسجّل نشاط اليوم: متتالية الأيام. يرجع (السلسلة, هل زادت اليوم).
+        فاتك يوم واحد وعندك «تجميد» → يُستهلك وتستمر السلسلة. كل 7 أيام متتالية = تجميد جديد (حتى 3)."""
         u = self.get_user(tg_id)
         if u["streak_day"] == day:
             return u["streak"], False
-        streak = u["streak"] + 1 if u["streak_day"] == day - 1 else 1
+        used = False
+        if u["streak_day"] == day - 1:
+            streak = u["streak"] + 1
+        elif u["streak_day"] == day - 2 and u["freezes"] > 0 and u["streak"] > 0:
+            streak, used = u["streak"] + 1, True
+        else:
+            streak = 1
+        gain = 1 if (streak % 7 == 0 and streak > 0) else 0
         with self.conn:
-            self.conn.execute("UPDATE users SET streak=?, streak_day=?, best_streak=MAX(best_streak, ?) WHERE tg_id=?",
-                              (streak, day, streak, tg_id))
+            self.conn.execute(
+                "UPDATE users SET streak=?, streak_day=?, best_streak=MAX(best_streak, ?), "
+                "freezes=MIN(?, MAX(0, freezes - ? + ?)) WHERE tg_id=?",
+                (streak, day, streak, self.FREEZE_CAP, int(used), gain, tg_id))
+        self._last_freeze = (used, gain)
         return streak, True
 
+    def last_freeze_event(self) -> tuple[bool, int]:
+        """(هل استُهلك تجميد، كم تجميدًا كُسب) في آخر mark_streak."""
+        return getattr(self, "_last_freeze", (False, 0))
+
     def current_streak(self, tg_id: int, day: int) -> int:
-        """السلسلة الفعّالة (إن فاتك أمس تُعدّ صفرًا)."""
+        """السلسلة الفعّالة: حيّة إن لعبت أمس، أو قبل أمس وعندك تجميد يغطي اليوم الفائت."""
         u = self.get_user(tg_id)
-        return u["streak"] if u and u["streak_day"] >= day - 1 else 0
+        if not u:
+            return 0
+        if u["streak_day"] >= day - 1 or (u["streak_day"] == day - 2 and u["freezes"] > 0):
+            return u["streak"]
+        return 0
 
     def set_remind(self, tg_id: int, on: bool) -> None:
         with self.conn:
@@ -478,10 +516,130 @@ class DB:
         with self.conn:
             self.conn.execute("UPDATE users SET last_remind_day=? WHERE tg_id=?", (day, tg_id))
 
-    # ── مواجهة مع صديق ──────────────────────────────────────
-    def create_duel(self, creator: int) -> int:
+    # ── الخبرة والمستويات والإنجازات ────────────────────────
+    def add_xp(self, tg_id: int, amount: int, kind: str) -> int:
         with self.conn:
-            return self.conn.execute("INSERT INTO duels(creator,created_at) VALUES(?,?)", (creator, time.time())).lastrowid
+            self.conn.execute("UPDATE users SET xp=xp+? WHERE tg_id=?", (amount, tg_id))
+            self.conn.execute("INSERT INTO xp_log(tg_id,xp,kind,at) VALUES(?,?,?,?)", (tg_id, amount, kind, time.time()))
+        return self.get_user(tg_id)["xp"]
+
+    def xp_today(self, tg_id: int, prefix: str) -> int:
+        return self.conn.execute("SELECT COALESCE(SUM(xp),0) n FROM xp_log WHERE tg_id=? AND kind LIKE ? AND at>=?",
+                                 (tg_id, prefix + "%", day_start())).fetchone()["n"]
+
+    def weekly_xp(self, tg_id: int, since: float) -> int:
+        return self.conn.execute("SELECT COALESCE(SUM(xp),0) n FROM xp_log WHERE tg_id=? AND at>=?",
+                                 (tg_id, since)).fetchone()["n"]
+
+    def bump_stat(self, tg_id: int, key: str, n: int = 1) -> int:
+        with self.conn:
+            self.conn.execute("INSERT INTO user_stats(tg_id,key,n) VALUES(?,?,?) "
+                              "ON CONFLICT(tg_id,key) DO UPDATE SET n=n+excluded.n", (tg_id, key, n))
+        return self.stat(tg_id, key)
+
+    def max_stat(self, tg_id: int, key: str, v: int) -> int:
+        with self.conn:
+            self.conn.execute("INSERT INTO user_stats(tg_id,key,n) VALUES(?,?,?) "
+                              "ON CONFLICT(tg_id,key) DO UPDATE SET n=MAX(n,excluded.n)", (tg_id, key, v))
+        return self.stat(tg_id, key)
+
+    def stat(self, tg_id: int, key: str) -> int:
+        r = self.conn.execute("SELECT n FROM user_stats WHERE tg_id=? AND key=?", (tg_id, key)).fetchone()
+        return r["n"] if r else 0
+
+    def unlock(self, tg_id: int, key: str) -> bool:
+        with self.conn:
+            cur = self.conn.execute("INSERT OR IGNORE INTO achievements(tg_id,key,at) VALUES(?,?,?)", (tg_id, key, time.time()))
+        return cur.rowcount > 0
+
+    def achievements_of(self, tg_id: int) -> dict[str, float]:
+        return {r["key"]: r["at"] for r in self.conn.execute("SELECT key, at FROM achievements WHERE tg_id=?", (tg_id,))}
+
+    # ── العشائر (فرق) ───────────────────────────────────────
+    TEAM_MAX = 30
+
+    def create_team(self, name: str, leader: int) -> int | None:
+        u = self.get_user(leader)
+        if not u or u["team_id"] or self.is_admin(leader):
+            return None
+        try:
+            with self.conn:
+                tid = self.conn.execute("INSERT INTO teams(name,leader,created_at) VALUES(?,?,?)",
+                                        (name, leader, time.time())).lastrowid
+                self.conn.execute("UPDATE users SET team_id=? WHERE tg_id=?", (tid, leader))
+        except sqlite3.IntegrityError:
+            return None                                         # الاسم مستخدم
+        return tid
+
+    def get_team(self, tid: int):
+        return self.conn.execute("SELECT * FROM teams WHERE id=?", (tid,)).fetchone()
+
+    def team_size(self, tid: int) -> int:
+        return self.conn.execute("SELECT COUNT(*) n FROM users WHERE team_id=?", (tid,)).fetchone()["n"]
+
+    def join_team(self, uid: int, tid: int) -> str:
+        t = self.get_team(tid)
+        u = self.get_user(uid)
+        if not t or t["hidden"] or not u:
+            return "gone"
+        if self.is_admin(uid):
+            return "admin"
+        if u["team_id"]:
+            return "already" if u["team_id"] == tid else "in_other"
+        if self.team_size(tid) >= self.TEAM_MAX:
+            return "full"
+        with self.conn:
+            self.conn.execute("UPDATE users SET team_id=? WHERE tg_id=?", (tid, uid))
+        return "ok"
+
+    def leave_team(self, uid: int) -> None:
+        u = self.get_user(uid)
+        if not u or not u["team_id"]:
+            return
+        tid = u["team_id"]
+        with self.conn:
+            self.conn.execute("UPDATE users SET team_id=NULL WHERE tg_id=?", (uid,))
+            t = self.get_team(tid)
+            if t and t["leader"] == uid:                         # القيادة تنتقل لأعلى عضو خبرة
+                nxt = self.conn.execute("SELECT tg_id FROM users WHERE team_id=? ORDER BY xp DESC LIMIT 1", (tid,)).fetchone()
+                if nxt:
+                    self.conn.execute("UPDATE teams SET leader=? WHERE id=?", (nxt["tg_id"], tid))
+
+    def team_members(self, tid: int, since: float = 0.0, limit: int = 10) -> list[dict]:
+        return [dict(r) for r in self.conn.execute(
+            """SELECT u.tg_id, u.name, u.xp, COALESCE((SELECT SUM(x.xp) FROM xp_log x WHERE x.tg_id=u.tg_id AND x.at>=?),0) AS wxp
+               FROM users u WHERE u.team_id=? ORDER BY wxp DESC, u.xp DESC LIMIT ?""", (since, tid, limit))]
+
+    def team_board(self, since: float | None = None, limit: int = 10) -> list[dict]:
+        """ترتيب العشائر بمجموع خبرة أعضائها (أسبوعي إن أُعطي since، وإلا كل الأوقات)."""
+        if since is None:
+            sql = ("SELECT t.id, t.name, COUNT(u.tg_id) members, COALESCE(SUM(u.xp),0) pts FROM teams t JOIN users u ON u.team_id=t.id "
+                   "WHERE t.hidden=0 GROUP BY t.id ORDER BY pts DESC, t.id ASC LIMIT ?")
+            args = (limit,)
+        else:
+            sql = ("SELECT t.id, t.name, COUNT(u.tg_id) members, "
+                   "COALESCE(SUM((SELECT SUM(x.xp) FROM xp_log x WHERE x.tg_id=u.tg_id AND x.at>=?)),0) pts "
+                   "FROM teams t JOIN users u ON u.team_id=t.id WHERE t.hidden=0 GROUP BY t.id ORDER BY pts DESC, t.id ASC LIMIT ?")
+            args = (since, limit)
+        return [dict(r) for r in self.conn.execute(sql, args)]
+
+    def team_rank(self, tid: int, since: float | None) -> int | None:
+        for i, r in enumerate(self.team_board(since, 100000), 1):
+            if r["id"] == tid:
+                return i
+        return None
+
+    def hide_team(self, tid: int, hidden: bool = True) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE teams SET hidden=? WHERE id=?", (int(hidden), tid))
+            if hidden:
+                self.conn.execute("UPDATE users SET team_id=NULL WHERE team_id=?", (tid,))
+
+    # ── مواجهة مع صديق ──────────────────────────────────────
+    def create_duel(self, creator: int, target: int | None = None) -> int:
+        with self.conn:
+            return self.conn.execute("INSERT INTO duels(creator,created_at,target) VALUES(?,?,?)",
+                                     (creator, time.time(), target)).lastrowid
 
     def get_duel(self, did: int):
         return self.conn.execute("SELECT * FROM duels WHERE id=?", (did,)).fetchone()

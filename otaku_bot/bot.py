@@ -15,7 +15,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (BufferedInputFile, CallbackQuery, FSInputFile, InlineKeyboardButton,
                            InlineKeyboardMarkup, InputMediaPhoto, Message)
 
-from . import card
+from . import card, progress
 from .config import LEVELS, ROOT
 from .ctx import Ctx
 from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
@@ -343,18 +343,29 @@ def build_router(ctx: Ctx) -> Router:
         else:
             rank = db.daily_rank(day, mode, tg_id)
             text = t(L, "dy_res_d", c=correct, n=total, s=f"{secs:.0f}", rank=rank if rank else "—")
+        used, gained = db.last_freeze_event()
         text += "\n\n" + t(L, "dy_streak_now", n=streak)
+        if used:
+            text += "\n" + t(L, "dy_freeze_used")
+        if gained and grew:
+            text += "\n" + t(L, "dy_freeze_gain", n=db.get_user(tg_id)["freezes"])
         if grew and streak in STREAK_MILESTONES:
             text += "\n" + t(L, "dy_streak_ms", n=streak)
+        ps = progress.record(db, tg_id, mode, correct=correct, total=total)
+        db.max_stat(tg_id, "best_streak", streak)
+        ps = progress.merge(ps, progress.bonus(db, tg_id, "streak", 0))
+        if ps.xp:
+            text += "\n" + t(L, "pg_xp_gain", xp=ps.xp)
         await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=kb(
             [btn(t(L, "dy_btn_lb"), "dy:lb"), btn(t(L, "btn_daily"), "dy:m")], *chan_row(L), [btn(t(L, "btn_menu"), "menu")]))
+        await progress.send_notice(bot, tg_id, L, ps)
 
     def dy_menu_view(uid: int, L: str):
         day = db.today()
         u = db.get_user(uid)
         text = t(L, "dy_menu", streak=db.current_streak(uid, day), best=u["best_streak"],
                  q=t(L, "dy_done" if db.played_today(uid, "dq") else "dy_todo"),
-                 d=t(L, "dy_done" if db.played_today(uid, "daily") else "dy_todo"))
+                 d=t(L, "dy_done" if db.played_today(uid, "daily") else "dy_todo")) + "\n" + t(L, "dy_freezes", n=u["freezes"])
         return text, kb([btn(t(L, "dy_btn_q"), "dy:q"), btn(t(L, "dy_btn_d"), "dy:d")],
                         [btn(t(L, "dy_btn_lb"), "dy:lb")],
                         [btn(t(L, "dy_rm_on" if u["remind"] else "dy_rm_off"), "dy:rm")],
@@ -403,6 +414,16 @@ def build_router(ctx: Ctx) -> Router:
                 pass
 
     # ── مواجهة مع صديق (نفس الأسئلة، كلٌّ في وقته) ───────────────
+    @r.callback_query(F.data.regexp(r"^du:re:\d+$"))
+    async def cb_duel_rematch(c: CallbackQuery):
+        """ثأر: مواجهة جديدة ضد الخصم السابق، ويصله تحدٍّ مباشر بعد أن تنتهي."""
+        await c.answer()
+        other = int(c.data.split(":")[2])
+        if other == c.from_user.id or not db.get_user(other):
+            return
+        did = db.create_duel(c.from_user.id, target=other)
+        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="duel", duel_id=did)
+
     @r.callback_query(F.data == "du:new")
     async def cb_duel_new(c: CallbackQuery):
         await c.answer()
@@ -430,25 +451,42 @@ def build_router(ctx: Ctx) -> Router:
         d = db.get_duel(did)
         if not d:
             return
+        ps = progress.record(db, tg_id, "duel", correct=correct, won=False)
         if tg_id == d["creator"]:
             link = f"https://t.me/{await bot_username(bot)}?start=du_{did}"
-            await bot.send_message(chat_id, t(L, "du_wait", c=correct, n=n), parse_mode="HTML", reply_markup=kb(
+            await bot.send_message(chat_id, t(L, "du_wait", c=correct, n=n) + "\n" + t(L, "pg_xp_gain", xp=ps.xp),
+                                   parse_mode="HTML", reply_markup=kb(
                 [btn(t(L, "du_share_btn"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(t(L, 'du_share_text'))}")],
                 [btn(t(L, "btn_menu"), "menu")]))
+            await progress.send_notice(bot, tg_id, L, ps)
+            if d["target"]:                                       # ثأر: ادعُ الخصم السابق مباشرة
+                Lt = lang(d["target"])
+                try:
+                    await bot.send_message(d["target"], t(Lt, "du_rematch_invite", name=esc(pub(db.get_user(tg_id)))),
+                                           parse_mode="HTML", reply_markup=kb([btn(t(Lt, "du_accept"), f"du:acc:{did}")]))
+                except TelegramAPIError:
+                    pass
             return
         a_sess = db.get_session(d["creator_sid"])
         sa, sb = int(a_sess["score"] or 0), correct
         db.duel_done(did)
         ua, ub = db.get_user(d["creator"]), db.get_user(tg_id)
+        win_id = d["creator"] if sa > sb else tg_id if sb > sa else None
+        wps = progress.bonus(db, win_id, "duel_win", 25, "duel_wins") if win_id else progress.Summary()
         for uid, Lx in ((d["creator"], lang(d["creator"])), (tg_id, L)):
             winner = pub(ua) if sa > sb else pub(ub) if sb > sa else None
             verdict = t(Lx, "du_win", w=esc(winner)) if winner else t(Lx, "du_draw")
+            other = tg_id if uid == d["creator"] else d["creator"]
             try:
                 await bot.send_message(uid, t(Lx, "du_result", a=esc(pub(ua)), sa=sa, b=esc(pub(ub)), sb=sb, n=n, v=verdict),
-                                       parse_mode="HTML", reply_markup=kb([btn(t(Lx, "du_btn"), "du:new")],
+                                       parse_mode="HTML", reply_markup=kb([btn(t(Lx, "du_rematch"), f"du:re:{other}")],
+                                                                          [btn(t(Lx, "du_btn"), "du:new")],
                                                                           [btn(t(Lx, "btn_menu"), "menu")]))
             except TelegramAPIError:
                 pass
+        await progress.send_notice(bot, tg_id, L, ps if win_id != tg_id else progress.merge(ps, wps))
+        if win_id and win_id != tg_id:
+            await progress.send_notice(bot, win_id, lang(win_id), wps)
 
     # ── الدعوات ─────────────────────────────────────────────
     async def credit_invite(bot: Bot, tg_id: int) -> None:
@@ -461,8 +499,10 @@ def build_router(ctx: Ctx) -> Router:
         text = t(Li, "iv_joined", n=n)
         if new and new != old:
             text += "\n" + t(Li, "iv_badge_up", b=badge_label(new, Li))
+        ps = progress.record(db, inv, "invite")
+        text += "\n" + t(Li, "pg_xp_gain", xp=ps.xp) + ("\n" + progress.notice(ps, Li) if ps.notable else "")
         try:
-            await bot.send_message(inv, text)
+            await bot.send_message(inv, text, parse_mode="HTML")
         except TelegramAPIError:
             pass
 
@@ -513,6 +553,9 @@ def build_router(ctx: Ctx) -> Router:
             text += "\n<i>" + t(L, "sd_line_low" if streak < 5 else "sd_line_mid" if streak < 20 else "sd_line_high") + "</i>"
             if streak == len(answers) == db.session_len(sid):
                 text += "\n" + t(L, "sudden_perfect")
+            ps = progress.record(db, tg_id, "sudden", streak=streak)
+            if ps.xp:
+                text += "\n" + t(L, "pg_xp_gain", xp=ps.xp)
             await drop_quiz_message()
             try:
                 png = await asyncio.to_thread(card.make_sudden_card, name, streak, lvl, best, L, "@" + username)
@@ -521,6 +564,7 @@ def build_router(ctx: Ctx) -> Router:
             except Exception as e:  # noqa: BLE001
                 log.warning("sudden card failed: %s", e)
                 await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=kb(again))
+            await progress.send_notice(bot, tg_id, L, ps)
             return
 
         if mode in ("daily", "dq"):
@@ -584,6 +628,11 @@ def build_router(ctx: Ctx) -> Router:
             rows.append([btn(t(L, "btn_report"), f"rp:{sid}:0")])
         rows += chan_row(L)
         markup = kb(*rows)
+        ps = progress.Summary()
+        if mode != "full" or not suspicious:
+            ps = progress.record(db, tg_id, "full" if mode == "full" else "quick", score=score, correct=correct)
+            if ps.xp:
+                parts.append(t(L, "pg_xp_gain", xp=ps.xp))
         caption = "\n".join(parts)
         await drop_quiz_message()
         try:
@@ -595,6 +644,7 @@ def build_router(ctx: Ctx) -> Router:
         except Exception as e:  # noqa: BLE001  (الخط غير متوفر أو أي خطأ في الصورة → نص فقط)
             log.warning("card failed: %s", e)
             await bot.send_message(chat_id, caption, reply_markup=markup, parse_mode="HTML")
+        await progress.send_notice(bot, tg_id, L, ps)
 
     # ── بدء الاختبار ────────────────────────────────────────
     async def begin(bot: Bot, chat_id: int, tg_id: int, name: str, mode: str = "full",

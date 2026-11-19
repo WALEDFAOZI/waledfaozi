@@ -600,3 +600,29 @@ T["en"].update({
     "fb_dup": "You've sent this already 😉", "fb_ok": "Thanks! Your message reached the team 💙",
     "fb_reply": "💬 <b>Reply from the team</b>\n\n{text}",
 })
+
+T["ar"].update({
+    "pg_level": "⭐ المستوى <b>{lv}</b> — {rank}\n{bar} {xp}/{nxt} XP",
+    "pg_levelup": "🆙 ارتقيت إلى المستوى <b>{lv}</b> — {rank}!",
+    "pg_ach_new": "🏅 إنجاز جديد: {icon} <b>{name}</b> (+25 XP)",
+    "pg_ach_head": "🏅 <b>إنجازاتي</b> ({n}/{total})", "pg_xp_gain": "⭐ +{xp} XP",
+    "btn_achs": "🏅 إنجازاتي",
+})
+T["en"].update({
+    "pg_level": "⭐ Level <b>{lv}</b> — {rank}\n{bar} {xp}/{nxt} XP",
+    "pg_levelup": "🆙 You reached level <b>{lv}</b> — {rank}!",
+    "pg_ach_new": "🏅 New achievement: {icon} <b>{name}</b> (+25 XP)",
+    "pg_ach_head": "🏅 <b>My achievements</b> ({n}/{total})", "pg_xp_gain": "⭐ +{xp} XP",
+    "btn_achs": "🏅 My achievements",
+})
+
+T["ar"].update({
+    "dy_freezes": "🧊 تجميد السلسلة: {n} (يحمي سلسلتك إن فاتك يوم)",
+    "dy_freeze_used": "🧊 استُهلك تجميد لإنقاذ سلسلتك!", "dy_freeze_gain": "🧊 كسبت تجميدًا جديدًا (عندك {n})!",
+    "du_rematch": "🔁 ثأر", "du_rematch_invite": "🔁 <b>{name}</b> يطلب ثأرًا منك! 7 أسئلة جديدة، تقبل؟",
+})
+T["en"].update({
+    "dy_freezes": "🧊 Streak freezes: {n} (protects your streak if you miss a day)",
+    "dy_freeze_used": "🧊 A freeze was used to save your streak!", "dy_freeze_gain": "🧊 You earned a new freeze (you have {n})!",
+    "du_rematch": "🔁 Rematch", "du_rematch_invite": "🔁 <b>{name}</b> wants a rematch! 7 new questions, accept?",
+})

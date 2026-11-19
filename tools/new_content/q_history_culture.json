@@ -1,0 +1,2757 @@
+[
+ {
+  "q": "أي استوديو شعاره الرسمي هو شخصية توتورو؟",
+  "options": [
+   "Studio Ghibli",
+   "Toei Animation",
+   "Madhouse",
+   "Kyoto Animation"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 1,
+  "q_en": "Which studio uses Totoro as its official logo?",
+  "options_en": [
+   "Studio Ghibli",
+   "Toei Animation",
+   "Madhouse",
+   "Kyoto Animation"
+  ]
+ },
+ {
+  "q": "في أي بلد تأسس استوديو غيبلي؟",
+  "options": [
+   "كوريا الجنوبية",
+   "اليابان",
+   "الصين",
+   "الولايات المتحدة"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 1,
+  "q_en": "In which country was Studio Ghibli founded?",
+  "options_en": [
+   "South Korea",
+   "Japan",
+   "China",
+   "The United States"
+  ]
+ },
+ {
+  "q": "بأي لغة تُنتَج مسلسلات الأنمي الأصلية في الغالب؟",
+  "options": [
+   "الكورية",
+   "الصينية",
+   "اليابانية",
+   "الإنجليزية"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 1,
+  "q_en": "In which language are original anime series mostly produced?",
+  "options_en": [
+   "Korean",
+   "Chinese",
+   "Japanese",
+   "English"
+  ]
+ },
+ {
+  "q": "من ابتكر مانغا Dragon Ball؟",
+  "options": [
+   "إييتشيرو أودا",
+   "ماساشي كيشيموتو",
+   "تيتي كوبو",
+   "أكيرا توريياما"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 1,
+  "q_en": "Who created the Dragon Ball manga?",
+  "options_en": [
+   "Eiichiro Oda",
+   "Masashi Kishimoto",
+   "Tite Kubo",
+   "Akira Toriyama"
+  ]
+ },
+ {
+  "q": "من شارك هاياو ميازاكي في تأسيس استوديو غيبلي كأحد المؤسسين المخرجين؟",
+  "options": [
+   "إيساو تاكاهاتا",
+   "ساتوشي كون",
+   "ريتارو",
+   "ماساكي يوآسا"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 2,
+  "q_en": "Which director co-founded Studio Ghibli alongside Hayao Miyazaki?",
+  "options_en": [
+   "Isao Takahata",
+   "Satoshi Kon",
+   "Rintaro",
+   "Masaaki Yuasa"
+  ]
+ },
+ {
+  "q": "على أي جهاز صدرت ألعاب Pokémon الأولى عام 1996؟",
+  "options": [
+   "Nintendo 64",
+   "Game Boy",
+   "Super Nintendo",
+   "Sega Genesis"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 1,
+  "q_en": "On which device were the first Pokémon games released in 1996?",
+  "options_en": [
+   "Nintendo 64",
+   "Game Boy",
+   "Super Nintendo",
+   "Sega Genesis"
+  ]
+ },
+ {
+  "q": "من يُلقَّب بـ«إله المانغا» في اليابان؟",
+  "options": [
+   "أكيرا توريياما",
+   "هاياو ميازاكي",
+   "أوسامو تيزوكا",
+   "غو ناغاي"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 1,
+  "q_en": "Who is nicknamed the «God of Manga» in Japan?",
+  "options_en": [
+   "Akira Toriyama",
+   "Hayao Miyazaki",
+   "Osamu Tezuka",
+   "Go Nagai"
+  ]
+ },
+ {
+  "q": "من أي قرن يأتي دورايمون في القصة الأصلية؟",
+  "options": [
+   "القرن 19",
+   "القرن 25",
+   "القرن 30",
+   "القرن 22"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 2,
+  "q_en": "From which century does Doraemon come in the original story?",
+  "options_en": [
+   "The 19th century",
+   "The 25th century",
+   "The 30th century",
+   "The 22nd century"
+  ]
+ },
+ {
+  "q": "في أي سنة توفي مؤلف Dragon Ball أكيرا توريياما؟",
+  "options": [
+   "2024",
+   "2020",
+   "2021",
+   "2022"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 2,
+  "q_en": "In what year did Dragon Ball creator Akira Toriyama pass away?",
+  "options_en": [
+   "2024",
+   "2020",
+   "2021",
+   "2022"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم The Boy and the Heron؟",
+  "options": [
+   "2019",
+   "2023",
+   "2021",
+   "2025"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 2,
+  "q_en": "In what year was the film The Boy and the Heron released?",
+  "options_en": [
+   "2019",
+   "2023",
+   "2021",
+   "2025"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Solo Leveling؟",
+  "options": [
+   "2020",
+   "2021",
+   "2024",
+   "2022"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 2,
+  "q_en": "In what year did the anime Solo Leveling begin airing?",
+  "options_en": [
+   "2020",
+   "2021",
+   "2024",
+   "2022"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Dandadan؟",
+  "options": [
+   "2021",
+   "2022",
+   "2023",
+   "2024"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 2,
+  "q_en": "In what year did the anime Dandadan begin airing?",
+  "options_en": [
+   "2021",
+   "2022",
+   "2023",
+   "2024"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم Suzume؟",
+  "options": [
+   "2022",
+   "2018",
+   "2019",
+   "2020"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 3,
+  "q_en": "In what year was the film Suzume released?",
+  "options_en": [
+   "2022",
+   "2018",
+   "2019",
+   "2020"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Cyberpunk: Edgerunners؟",
+  "options": [
+   "2019",
+   "2022",
+   "2020",
+   "2021"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 3,
+  "q_en": "In what year did the anime Cyberpunk: Edgerunners begin airing?",
+  "options_en": [
+   "2019",
+   "2022",
+   "2020",
+   "2021"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ نشر مانغا Demon Slayer (Kimetsu no Yaiba)؟",
+  "options": [
+   "2012",
+   "2013",
+   "2016",
+   "2014"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 3,
+  "q_en": "In what year did the manga Demon Slayer (Kimetsu no Yaiba) begin serialization?",
+  "options_en": [
+   "2012",
+   "2013",
+   "2016",
+   "2014"
+  ]
+ },
+ {
+  "q": "أي دار نشر تصدر مجلة Weekly Shonen Jump؟",
+  "options": [
+   "Kodansha",
+   "Shogakukan",
+   "Kadokawa",
+   "Shueisha"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 2,
+  "q_en": "Which publisher releases Weekly Shonen Jump magazine?",
+  "options_en": [
+   "Kodansha",
+   "Shogakukan",
+   "Kadokawa",
+   "Shueisha"
+  ]
+ },
+ {
+  "q": "من ابتكر لعبة وسلسلة Pokémon؟",
+  "options": [
+   "ساتوشي تاجيري",
+   "شيغيرو مياموتو",
+   "هيديو كوجيما",
+   "ماساهيرو ساكوراي"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 3,
+  "q_en": "Who created the Pokémon game and franchise?",
+  "options_en": [
+   "Satoshi Tajiri",
+   "Shigeru Miyamoto",
+   "Hideo Kojima",
+   "Masahiro Sakurai"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم Jujutsu Kaisen 0؟",
+  "options": [
+   "2019",
+   "2021",
+   "2020",
+   "2022"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 3,
+  "q_en": "In what year was the film Jujutsu Kaisen 0 released?",
+  "options_en": [
+   "2019",
+   "2021",
+   "2020",
+   "2022"
+  ]
+ },
+ {
+  "q": "أي استوديو تأسس عام 2012 وأنتج الموسم الأول من Attack on Titan؟",
+  "options": [
+   "Studio Pierrot",
+   "Bones",
+   "Wit Studio",
+   "Gainax"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 3,
+  "q_en": "Which studio, founded in 2012, produced Season 1 of Attack on Titan?",
+  "options_en": [
+   "Studio Pierrot",
+   "Bones",
+   "Wit Studio",
+   "Gainax"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Naruto Shippuden؟",
+  "options": [
+   "2005",
+   "2009",
+   "2010",
+   "2007"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 3,
+  "q_en": "In what year did the anime Naruto Shippuden begin airing?",
+  "options_en": [
+   "2005",
+   "2009",
+   "2010",
+   "2007"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Blue Lock؟",
+  "options": [
+   "2022",
+   "2019",
+   "2020",
+   "2021"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 4,
+  "q_en": "In what year did the anime Blue Lock begin airing?",
+  "options_en": [
+   "2022",
+   "2019",
+   "2020",
+   "2021"
+  ]
+ },
+ {
+  "q": "أي دار نشر تصدر مجلة Weekly Shonen Magazine؟",
+  "options": [
+   "Shueisha",
+   "Kodansha",
+   "Square Enix",
+   "Akita Shoten"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 4,
+  "q_en": "Which publisher releases Weekly Shonen Magazine?",
+  "options_en": [
+   "Shueisha",
+   "Kodansha",
+   "Square Enix",
+   "Akita Shoten"
+  ]
+ },
+ {
+  "q": "أي دار نشر تصدر مجلة Weekly Shonen Sunday؟",
+  "options": [
+   "Shueisha",
+   "Kodansha",
+   "Shogakukan",
+   "Hakusensha"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 4,
+  "q_en": "Which publisher releases Weekly Shonen Sunday?",
+  "options_en": [
+   "Shueisha",
+   "Kodansha",
+   "Shogakukan",
+   "Hakusensha"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ نشر مانغا Attack on Titan؟",
+  "options": [
+   "2006",
+   "2011",
+   "2013",
+   "2009"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 4,
+  "q_en": "In what year did the manga Attack on Titan begin serialization?",
+  "options_en": [
+   "2006",
+   "2011",
+   "2013",
+   "2009"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم Grave of the Fireflies؟",
+  "options": [
+   "1988",
+   "1984",
+   "1986",
+   "1990"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 4,
+  "q_en": "In what year was the film Grave of the Fireflies released?",
+  "options_en": [
+   "1988",
+   "1984",
+   "1986",
+   "1990"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Fullmetal Alchemist (النسخة الأولى)؟",
+  "options": [
+   "1999",
+   "2001",
+   "2003",
+   "2006"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 4,
+  "q_en": "In what year did the anime Fullmetal Alchemist (the original series) begin airing?",
+  "options_en": [
+   "1999",
+   "2001",
+   "2003",
+   "2006"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Vinland Saga؟",
+  "options": [
+   "2019",
+   "2016",
+   "2017",
+   "2021"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 4,
+  "q_en": "In what year did the anime Vinland Saga begin airing?",
+  "options_en": [
+   "2019",
+   "2016",
+   "2017",
+   "2021"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Madoka Magica؟",
+  "options": [
+   "2008",
+   "2009",
+   "2013",
+   "2011"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 5,
+  "q_en": "In what year did the anime Madoka Magica begin airing?",
+  "options_en": [
+   "2008",
+   "2009",
+   "2013",
+   "2011"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم Ghost in the Shell (الفيلم الأصلي)؟",
+  "options": [
+   "1995",
+   "1990",
+   "1992",
+   "1998"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 5,
+  "q_en": "In what year was the film Ghost in the Shell (the original film) released?",
+  "options_en": [
+   "1995",
+   "1990",
+   "1992",
+   "1998"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم One Piece Film: Red؟",
+  "options": [
+   "2019",
+   "2022",
+   "2020",
+   "2023"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 5,
+  "q_en": "In what year was the film One Piece Film: Red released?",
+  "options_en": [
+   "2019",
+   "2022",
+   "2020",
+   "2023"
+  ]
+ },
+ {
+  "q": "أي فيلم تجاوز Spirited Away ليصبح الأعلى إيرادًا في تاريخ اليابان عام 2020؟",
+  "options": [
+   "Your Name",
+   "Weathering with You",
+   "Demon Slayer: Mugen Train",
+   "Howl's Moving Castle"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 5,
+  "q_en": "Which film surpassed Spirited Away as Japan's highest-grossing film in 2020?",
+  "options_en": [
+   "Your Name",
+   "Weathering with You",
+   "Demon Slayer: Mugen Train",
+   "Howl's Moving Castle"
+  ]
+ },
+ {
+  "q": "ما أول فيلم أنتجه استوديو غيبلي رسميًا بعد تأسيسه؟",
+  "options": [
+   "Nausicaä of the Valley of the Wind",
+   "My Neighbor Totoro",
+   "Grave of the Fireflies",
+   "Castle in the Sky"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 5,
+  "q_en": "What was the first film officially produced by Studio Ghibli after its founding?",
+  "options_en": [
+   "Nausicaä of the Valley of the Wind",
+   "My Neighbor Totoro",
+   "Grave of the Fireflies",
+   "Castle in the Sky"
+  ]
+ },
+ {
+  "q": "ما الاسم الياباني الأصلي لأنمي Astro Boy؟",
+  "options": [
+   "Tetsuwan Atom",
+   "Tetsujin 28",
+   "Mach GoGoGo",
+   "Jungle Taitei"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 5,
+  "q_en": "What is the original Japanese title of Astro Boy?",
+  "options_en": [
+   "Tetsuwan Atom",
+   "Tetsujin 28",
+   "Mach GoGoGo",
+   "Jungle Taitei"
+  ]
+ },
+ {
+  "q": "في أي سنة توفي أوسامو تيزوكا؟",
+  "options": [
+   "1979",
+   "1989",
+   "1984",
+   "1994"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 5,
+  "q_en": "In what year did Osamu Tezuka pass away?",
+  "options_en": [
+   "1979",
+   "1989",
+   "1984",
+   "1994"
+  ]
+ },
+ {
+  "q": "أي استوديو صنع فيلم Your Name؟",
+  "options": [
+   "Studio Ghibli",
+   "Madhouse",
+   "CoMix Wave Films",
+   "Bones"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 4,
+  "q_en": "Which studio produced the film Your Name?",
+  "options_en": [
+   "Studio Ghibli",
+   "Madhouse",
+   "CoMix Wave Films",
+   "Bones"
+  ]
+ },
+ {
+  "q": "في أي سنة أُطلقت منصة Crunchyroll؟",
+  "options": [
+   "1999",
+   "2003",
+   "2011",
+   "2006"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 5,
+  "q_en": "In what year was Crunchyroll launched?",
+  "options_en": [
+   "1999",
+   "2003",
+   "2011",
+   "2006"
+  ]
+ },
+ {
+  "q": "في أي سنة أُقيم أول معرض Comiket في اليابان؟",
+  "options": [
+   "1975",
+   "1965",
+   "1985",
+   "1995"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 5,
+  "q_en": "In what year was the first Comiket held in Japan?",
+  "options_en": [
+   "1975",
+   "1965",
+   "1985",
+   "1995"
+  ]
+ },
+ {
+  "q": "في أي سنة افتُتح متحف غيبلي في ميتاكا؟",
+  "options": [
+   "1995",
+   "2001",
+   "1998",
+   "2005"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 6,
+  "q_en": "In what year did the Ghibli Museum in Mitaka open?",
+  "options_en": [
+   "1995",
+   "2001",
+   "1998",
+   "2005"
+  ]
+ },
+ {
+  "q": "في أي سنة وُلد هاياو ميازاكي؟",
+  "options": [
+   "1931",
+   "1936",
+   "1941",
+   "1951"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 6,
+  "q_en": "In what year was Hayao Miyazaki born?",
+  "options_en": [
+   "1931",
+   "1936",
+   "1941",
+   "1951"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم Arrietty (The Secret World of Arrietty)؟",
+  "options": [
+   "2010",
+   "2007",
+   "2009",
+   "2012"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 6,
+  "q_en": "In what year was the film Arrietty (The Secret World of Arrietty) released?",
+  "options_en": [
+   "2010",
+   "2007",
+   "2009",
+   "2012"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم The Girl Who Leapt Through Time؟",
+  "options": [
+   "2003",
+   "2006",
+   "2008",
+   "2010"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 6,
+  "q_en": "In what year was the film The Girl Who Leapt Through Time released?",
+  "options_en": [
+   "2003",
+   "2006",
+   "2008",
+   "2010"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ نشر مانغا Hunter x Hunter؟",
+  "options": [
+   "1994",
+   "1996",
+   "2002",
+   "1998"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 6,
+  "q_en": "In what year did the manga Hunter x Hunter begin serialization?",
+  "options_en": [
+   "1994",
+   "1996",
+   "2002",
+   "1998"
+  ]
+ },
+ {
+  "q": "في أي سنة توفي مؤلف Berserk كينتارو ميورا؟",
+  "options": [
+   "2018",
+   "2019",
+   "2023",
+   "2021"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 6,
+  "q_en": "In what year did Berserk author Kentaro Miura pass away?",
+  "options_en": [
+   "2018",
+   "2019",
+   "2023",
+   "2021"
+  ]
+ },
+ {
+  "q": "أي شركة أسسها أوسامو تيزوكا عام 1961؟",
+  "options": [
+   "Mushi Production",
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Gainax"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 6,
+  "q_en": "Which company did Osamu Tezuka found in 1961?",
+  "options_en": [
+   "Mushi Production",
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Gainax"
+  ]
+ },
+ {
+  "q": "ماذا يعني اسم Ghibli المأخوذ من اسم طائرة إيطالية؟",
+  "options": [
+   "طائر الغابة",
+   "ريح صحراوية حارة",
+   "قمر الصيف",
+   "نهر الجبال"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 6,
+  "q_en": "What does the name Ghibli, taken from an Italian aircraft, mean?",
+  "options_en": [
+   "A forest bird",
+   "A hot desert wind",
+   "A summer moon",
+   "A mountain river"
+  ]
+ },
+ {
+  "q": "في أي سنة أُقيم أول معرض Anime Expo في الولايات المتحدة؟",
+  "options": [
+   "1985",
+   "1996",
+   "1992",
+   "2000"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 6,
+  "q_en": "In what year was the first Anime Expo held in the United States?",
+  "options_en": [
+   "1985",
+   "1996",
+   "1992",
+   "2000"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم The Tale of the Princess Kaguya؟",
+  "options": [
+   "2010",
+   "2011",
+   "2013",
+   "2015"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 7,
+  "q_en": "In what year was the film The Tale of the Princess Kaguya released?",
+  "options_en": [
+   "2010",
+   "2011",
+   "2013",
+   "2015"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم Paprika؟",
+  "options": [
+   "2003",
+   "2004",
+   "2008",
+   "2006"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 7,
+  "q_en": "In what year was the film Paprika released?",
+  "options_en": [
+   "2003",
+   "2004",
+   "2008",
+   "2006"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم The End of Evangelion؟",
+  "options": [
+   "1997",
+   "1994",
+   "1999",
+   "2001"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 7,
+  "q_en": "In what year was the film The End of Evangelion released?",
+  "options_en": [
+   "1997",
+   "1994",
+   "1999",
+   "2001"
+  ]
+ },
+ {
+  "q": "أي مهرجان سينمائي منح Spirited Away جائزة الدب الذهبي عام 2002؟",
+  "options": [
+   "مهرجان كان",
+   "مهرجان برلين",
+   "مهرجان البندقية",
+   "مهرجان صندانس"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 7,
+  "q_en": "Which film festival awarded Spirited Away the Golden Bear in 2002?",
+  "options_en": [
+   "Cannes Film Festival",
+   "Berlin Film Festival",
+   "Venice Film Festival",
+   "Sundance Film Festival"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ نشر مانغا Doraemon؟",
+  "options": [
+   "1964",
+   "1973",
+   "1979",
+   "1969"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 7,
+  "q_en": "In what year did the manga Doraemon begin serialization?",
+  "options_en": [
+   "1964",
+   "1973",
+   "1979",
+   "1969"
+  ]
+ },
+ {
+  "q": "في أي سنة توفي المخرج ساتوشي كون؟",
+  "options": [
+   "2006",
+   "2008",
+   "2013",
+   "2010"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 7,
+  "q_en": "In what year did director Satoshi Kon pass away?",
+  "options_en": [
+   "2006",
+   "2008",
+   "2013",
+   "2010"
+  ]
+ },
+ {
+  "q": "في أي سنة توفي المخرج إيساو تاكاهاتا؟",
+  "options": [
+   "2018",
+   "2014",
+   "2016",
+   "2020"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 7,
+  "q_en": "In what year did director Isao Takahata pass away?",
+  "options_en": [
+   "2018",
+   "2014",
+   "2016",
+   "2020"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Trigger؟",
+  "options": [
+   "2007",
+   "2011",
+   "2009",
+   "2014"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 7,
+  "q_en": "In what year was the studio Trigger founded?",
+  "options_en": [
+   "2007",
+   "2011",
+   "2009",
+   "2014"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو MAPPA؟",
+  "options": [
+   "2005",
+   "2008",
+   "2011",
+   "2014"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 7,
+  "q_en": "In what year was the studio MAPPA founded?",
+  "options_en": [
+   "2005",
+   "2008",
+   "2011",
+   "2014"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ نشر مانغا Astro Boy؟",
+  "options": [
+   "1946",
+   "1958",
+   "1963",
+   "1952"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 8,
+  "q_en": "In what year did the manga Astro Boy begin serialization?",
+  "options_en": [
+   "1946",
+   "1958",
+   "1963",
+   "1952"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ نشر مانغا Fullmetal Alchemist؟",
+  "options": [
+   "2001",
+   "1997",
+   "1999",
+   "2004"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 8,
+  "q_en": "In what year did the manga Fullmetal Alchemist begin serialization?",
+  "options_en": [
+   "2001",
+   "1997",
+   "1999",
+   "2004"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Gainax؟",
+  "options": [
+   "1976",
+   "1990",
+   "1984",
+   "1996"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 8,
+  "q_en": "In what year was the studio Gainax founded?",
+  "options_en": [
+   "1976",
+   "1990",
+   "1984",
+   "1996"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Kyoto Animation؟",
+  "options": [
+   "1975",
+   "1987",
+   "1993",
+   "1981"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 8,
+  "q_en": "In what year was the studio Kyoto Animation founded?",
+  "options_en": [
+   "1975",
+   "1987",
+   "1993",
+   "1981"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Production I.G؟",
+  "options": [
+   "1987",
+   "1980",
+   "1992",
+   "1998"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 8,
+  "q_en": "In what year was the studio Production I.G founded?",
+  "options_en": [
+   "1987",
+   "1980",
+   "1992",
+   "1998"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Bones؟",
+  "options": [
+   "1990",
+   "1998",
+   "2003",
+   "2006"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 8,
+  "q_en": "In what year was the studio Bones founded?",
+  "options_en": [
+   "1990",
+   "1998",
+   "2003",
+   "2006"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Madhouse؟",
+  "options": [
+   "1965",
+   "1979",
+   "1972",
+   "1985"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 8,
+  "q_en": "In what year was the studio Madhouse founded?",
+  "options_en": [
+   "1965",
+   "1979",
+   "1972",
+   "1985"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Studio Pierrot؟",
+  "options": [
+   "1972",
+   "1984",
+   "1990",
+   "1979"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 8,
+  "q_en": "In what year was the studio Studio Pierrot founded?",
+  "options_en": [
+   "1972",
+   "1984",
+   "1990",
+   "1979"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو ufotable؟",
+  "options": [
+   "2000",
+   "1994",
+   "2004",
+   "2008"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 8,
+  "q_en": "In what year was the studio ufotable founded?",
+  "options_en": [
+   "2000",
+   "1994",
+   "2004",
+   "2008"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم Tokyo Godfathers؟",
+  "options": [
+   "2000",
+   "2003",
+   "2005",
+   "2007"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 9,
+  "q_en": "In what year was the film Tokyo Godfathers released?",
+  "options_en": [
+   "2000",
+   "2003",
+   "2005",
+   "2007"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر فيلم Metropolis (من إخراج ريتارو)؟",
+  "options": [
+   "1998",
+   "2003",
+   "2001",
+   "2005"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 9,
+  "q_en": "In what year was the film Metropolis (directed by Rintaro) released?",
+  "options_en": [
+   "1998",
+   "2003",
+   "2001",
+   "2005"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Ranma ½؟",
+  "options": [
+   "1985",
+   "1992",
+   "1995",
+   "1989"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 9,
+  "q_en": "In what year did the anime Ranma ½ begin airing?",
+  "options_en": [
+   "1985",
+   "1992",
+   "1995",
+   "1989"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Sally the Witch (أول أنمي ساحرات)؟",
+  "options": [
+   "1966",
+   "1962",
+   "1969",
+   "1972"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 9,
+  "q_en": "In what year did the anime Sally the Witch (first magical girl anime) begin airing?",
+  "options_en": [
+   "1966",
+   "1962",
+   "1969",
+   "1972"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Gatchaman؟",
+  "options": [
+   "1968",
+   "1972",
+   "1975",
+   "1978"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 9,
+  "q_en": "In what year did the anime Gatchaman begin airing?",
+  "options_en": [
+   "1968",
+   "1972",
+   "1975",
+   "1978"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ نشر مانغا Berserk؟",
+  "options": [
+   "1985",
+   "1993",
+   "1989",
+   "1996"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 9,
+  "q_en": "In what year did the manga Berserk begin serialization?",
+  "options_en": [
+   "1985",
+   "1993",
+   "1989",
+   "1996"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ نشر مانغا Nausicaä of the Valley of the Wind؟",
+  "options": [
+   "1978",
+   "1986",
+   "1989",
+   "1982"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 9,
+  "q_en": "In what year did the manga Nausicaä of the Valley of the Wind begin serialization?",
+  "options_en": [
+   "1978",
+   "1986",
+   "1989",
+   "1982"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ نشر مانغا Akira؟",
+  "options": [
+   "1982",
+   "1978",
+   "1986",
+   "1989"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 9,
+  "q_en": "In what year did the manga Akira begin serialization?",
+  "options_en": [
+   "1982",
+   "1978",
+   "1986",
+   "1989"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأت مجلة Shonen Jump بالصدور لأول مرة؟",
+  "options": [
+   "1959",
+   "1968",
+   "1975",
+   "1982"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 10,
+  "q_en": "In what year did Shonen Jump magazine first start publication?",
+  "options_en": [
+   "1959",
+   "1968",
+   "1975",
+   "1982"
+  ]
+ },
+ {
+  "q": "ما اسم أول أنمي يُصنَّف كـ OVA (إنتاج مباشر للفيديو) عام 1983؟",
+  "options": [
+   "Megazone 23",
+   "Gundam 0080",
+   "Dallos",
+   "Area 88"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 10,
+  "q_en": "What is generally considered the first OVA (original video animation), released in 1983?",
+  "options_en": [
+   "Megazone 23",
+   "Gundam 0080",
+   "Dallos",
+   "Area 88"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ نشر مانغا Sazae-san؟",
+  "options": [
+   "1940",
+   "1952",
+   "1958",
+   "1946"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 10,
+  "q_en": "In what year did the manga Sazae-san begin serialization?",
+  "options_en": [
+   "1940",
+   "1952",
+   "1958",
+   "1946"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ نشر مانغا Jungle Emperor (Kimba)؟",
+  "options": [
+   "1950",
+   "1946",
+   "1954",
+   "1958"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 10,
+  "q_en": "In what year did the manga Jungle Emperor (Kimba) begin serialization?",
+  "options_en": [
+   "1950",
+   "1946",
+   "1954",
+   "1958"
+  ]
+ },
+ {
+  "q": "في أي سنة نشر هوكوساي أولى مجلدات «Hokusai Manga»؟",
+  "options": [
+   "1714",
+   "1814",
+   "1868",
+   "1914"
+  ],
+  "answer": 1,
+  "category": "history",
+  "base_difficulty": 10,
+  "q_en": "In what year did Hokusai begin publishing his «Hokusai Manga» volumes?",
+  "options_en": [
+   "1714",
+   "1814",
+   "1868",
+   "1914"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Tatsunoko Production؟",
+  "options": [
+   "1955",
+   "1968",
+   "1962",
+   "1975"
+  ],
+  "answer": 2,
+  "category": "history",
+  "base_difficulty": 10,
+  "q_en": "In what year was the studio Tatsunoko Production founded?",
+  "options_en": [
+   "1955",
+   "1968",
+   "1962",
+   "1975"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Mach GoGoGo (Speed Racer)؟",
+  "options": [
+   "1963",
+   "1970",
+   "1973",
+   "1967"
+  ],
+  "answer": 3,
+  "category": "history",
+  "base_difficulty": 10,
+  "q_en": "In what year did the anime Mach GoGoGo (Speed Racer) begin airing?",
+  "options_en": [
+   "1963",
+   "1970",
+   "1973",
+   "1967"
+  ]
+ },
+ {
+  "q": "في أي سنة بدأ عرض أنمي Heidi, Girl of the Alps؟",
+  "options": [
+   "1974",
+   "1969",
+   "1977",
+   "1980"
+  ],
+  "answer": 0,
+  "category": "history",
+  "base_difficulty": 10,
+  "q_en": "In what year did the anime Heidi, Girl of the Alps begin airing?",
+  "options_en": [
+   "1974",
+   "1969",
+   "1977",
+   "1980"
+  ]
+ },
+ {
+  "q": "ماذا تعني كلمة «ساكورا» باليابانية؟",
+  "options": [
+   "زهر الكرز",
+   "جبل",
+   "نجمة",
+   "مطر"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 1,
+  "q_en": "What does the Japanese word «sakura» mean?",
+  "options_en": [
+   "Cherry blossom",
+   "Mountain",
+   "Star",
+   "Rain"
+  ]
+ },
+ {
+  "q": "ما اسم اللباس الياباني التقليدي الشهير الذي يُربط بحزام عريض يُسمّى أوبي؟",
+  "options": [
+   "Sombrero",
+   "Kimono",
+   "Sari",
+   "Hanbok"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 1,
+  "q_en": "What is the famous traditional Japanese garment tied with a wide sash called an obi?",
+  "options_en": [
+   "Sombrero",
+   "Kimono",
+   "Sari",
+   "Hanbok"
+  ]
+ },
+ {
+  "q": "ما اسم المحارب الياباني النبيل القديم الذي يحمل الكاتانا؟",
+  "options": [
+   "Kunoichi",
+   "Otaku",
+   "Samurai",
+   "Kappa"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the ancient Japanese noble warrior who carried a katana?",
+  "options_en": [
+   "Kunoichi",
+   "Otaku",
+   "Samurai",
+   "Kappa"
+  ]
+ },
+ {
+  "q": "ما اسم الطبق الياباني المكوَّن من أرز بالخل مع السمك أو الخضار؟",
+  "options": [
+   "Tempura",
+   "Udon",
+   "Miso",
+   "Sushi"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 1,
+  "q_en": "Which Japanese dish is made of vinegared rice with fish or vegetables?",
+  "options_en": [
+   "Tempura",
+   "Udon",
+   "Miso",
+   "Sushi"
+  ]
+ },
+ {
+  "q": "ما أعلى جبل في اليابان؟",
+  "options": [
+   "جبل فوجي",
+   "جبل آسو",
+   "جبل تاكاو",
+   "جبل أونتاكي"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 1,
+  "q_en": "What is the highest mountain in Japan?",
+  "options_en": [
+   "Mount Fuji",
+   "Mount Aso",
+   "Mount Takao",
+   "Mount Ontake"
+  ]
+ },
+ {
+  "q": "ما اسم فن طيّ الورق الياباني؟",
+  "options": [
+   "Ikebana",
+   "Origami",
+   "Kendo",
+   "Shodo"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 2,
+  "q_en": "What is the Japanese art of paper folding called?",
+  "options_en": [
+   "Ikebana",
+   "Origami",
+   "Kendo",
+   "Shodo"
+  ]
+ },
+ {
+  "q": "ما اسم رياضة المصارعة اليابانية التقليدية؟",
+  "options": [
+   "Judo",
+   "Kendo",
+   "Sumo",
+   "Karate"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 2,
+  "q_en": "What is the traditional Japanese wrestling sport called?",
+  "options_en": [
+   "Judo",
+   "Kendo",
+   "Sumo",
+   "Karate"
+  ]
+ },
+ {
+  "q": "ماذا تعني كلمة «سوغوي»؟",
+  "options": [
+   "متعب",
+   "بعيد",
+   "صغير",
+   "مذهل / رائع"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 2,
+  "q_en": "What does «sugoi» mean?",
+  "options_en": [
+   "Tired",
+   "Far",
+   "Small",
+   "Amazing / great"
+  ]
+ },
+ {
+  "q": "ماذا تعني كلمة «ياتا» (Yatta)؟",
+  "options": [
+   "أنا جائع",
+   "فعلتها!",
+   "انتظر",
+   "آسف"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 2,
+  "q_en": "What does «Yatta!» mean?",
+  "options_en": [
+   "I'm hungry",
+   "I did it!",
+   "Wait",
+   "Sorry"
+  ]
+ },
+ {
+  "q": "ماذا تعني كلمة «غانبّاتي»؟",
+  "options": [
+   "استرح",
+   "توقّف",
+   "اجتهد / بذل أقصى جهدك",
+   "اهرب"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 3,
+  "q_en": "What does «ganbatte» mean?",
+  "options_en": [
+   "Take a rest",
+   "Stop",
+   "Do your best",
+   "Run away"
+  ]
+ },
+ {
+  "q": "ماذا تعني اللاحقة «-سان» في اليابانية؟",
+  "options": [
+   "سيد / سيدة (لاحقة مهذبة عامة)",
+   "أخ أكبر",
+   "معلّم",
+   "صديق حميم"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 2,
+  "q_en": "What does the suffix «-san» mean in Japanese?",
+  "options_en": [
+   "Mr. / Ms. (a general polite suffix)",
+   "Older brother",
+   "Teacher",
+   "Close friend"
+  ]
+ },
+ {
+  "q": "ماذا تعني اللاحقة «-ساما» في اليابانية؟",
+  "options": [
+   "لاحقة للأطفال الصغار",
+   "لاحقة احترام عالٍ جدًا",
+   "لاحقة للأعداء",
+   "لاحقة للحيوانات"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 3,
+  "q_en": "What does the suffix «-sama» mean in Japanese?",
+  "options_en": [
+   "A suffix for small children",
+   "A suffix of very high respect",
+   "A suffix for enemies",
+   "A suffix for animals"
+  ]
+ },
+ {
+  "q": "ماذا تعني كلمة «أوتاكو» في أصلها الياباني؟",
+  "options": [
+   "شخص شديد الولع بهواية معيّنة",
+   "فنان مانغا",
+   "طاهٍ ماهر",
+   "مخرج سينمائي"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 3,
+  "q_en": "What does the word «otaku» originally mean in Japanese?",
+  "options_en": [
+   "A person obsessively devoted to a hobby",
+   "A manga artist",
+   "A skilled chef",
+   "A film director"
+  ]
+ },
+ {
+  "q": "بماذا يُسمّى «هانامي» في اليابان؟",
+  "options": [
+   "مهرجان الألعاب النارية",
+   "التنزّه لمشاهدة أزهار الكرز",
+   "حفل الشاي",
+   "سباق الدراجات"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 3,
+  "q_en": "What is «hanami» in Japan?",
+  "options_en": [
+   "Fireworks festival",
+   "Viewing cherry blossoms",
+   "Tea ceremony",
+   "Bicycle race"
+  ]
+ },
+ {
+  "q": "ماذا تعني كلمة «ماتسوري»؟",
+  "options": [
+   "مدرسة",
+   "قطار",
+   "مهرجان",
+   "معبد صغير"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 3,
+  "q_en": "What does «matsuri» mean?",
+  "options_en": [
+   "A school",
+   "A train",
+   "A festival",
+   "A small temple"
+  ]
+ },
+ {
+  "q": "ما هو «اليوكاتا»؟",
+  "options": [
+   "زيّ المدرسة الشتوي",
+   "قبعة تقليدية",
+   "حذاء خشبي",
+   "كيمونو صيفي خفيف"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 3,
+  "q_en": "What is a «yukata»?",
+  "options_en": [
+   "A winter school uniform",
+   "A traditional hat",
+   "A wooden shoe",
+   "A light summer kimono"
+  ]
+ },
+ {
+  "q": "ما هي «التاتامي» في البيوت اليابانية؟",
+  "options": [
+   "حصير أرضيات منسوج من القش",
+   "نوع من الأبواب المنزلقة",
+   "مصباح ورقي",
+   "وسادة للجلوس"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 5,
+  "q_en": "What is «tatami» in Japanese homes?",
+  "options_en": [
+   "Woven straw floor mats",
+   "A type of sliding door",
+   "A paper lantern",
+   "A sitting cushion"
+  ]
+ },
+ {
+  "q": "ما هو «الكوتاتسو» الذي يظهر كثيرًا في الأنمي؟",
+  "options": [
+   "آلة موسيقية",
+   "طاولة منخفضة مدفّأة بغطاء",
+   "سيف خشبي",
+   "نوع من الحلوى"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 5,
+  "q_en": "What is the «kotatsu» often seen in anime?",
+  "options_en": [
+   "A musical instrument",
+   "A low heated table with a blanket",
+   "A wooden sword",
+   "A type of sweet"
+  ]
+ },
+ {
+  "q": "ما هو «الجينكان» (Genkan) في البيت الياباني؟",
+  "options": [
+   "مدخل البيت حيث تُخلع الأحذية",
+   "غرفة الطعام",
+   "سطح البيت",
+   "غرفة النوم"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 5,
+  "q_en": "What is the «genkan» in a Japanese home?",
+  "options_en": [
+   "The entrance area where shoes are removed",
+   "The dining room",
+   "The roof",
+   "The bedroom"
+  ]
+ },
+ {
+  "q": "ما هو «الكيتسونه» في الأساطير اليابانية؟",
+  "options": [
+   "روح الدب",
+   "روح الأفعى",
+   "روح الثعلب",
+   "روح الغراب"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 4,
+  "q_en": "What is a «kitsune» in Japanese folklore?",
+  "options_en": [
+   "A bear spirit",
+   "A snake spirit",
+   "A fox spirit",
+   "A crow spirit"
+  ]
+ },
+ {
+  "q": "ما معنى «كايجو» (Kaiju)؟",
+  "options": [
+   "روبوت عملاق",
+   "ساحر شاب",
+   "وحش عملاق",
+   "بطل خارق"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 4,
+  "q_en": "What does «kaiju» mean?",
+  "options_en": [
+   "A giant robot",
+   "A young wizard",
+   "A giant monster",
+   "A superhero"
+  ]
+ },
+ {
+  "q": "ما هو «التوكوساتسو»؟",
+  "options": [
+   "أنمي ثلاثي الأبعاد",
+   "مانغا قصيرة",
+   "لعبة ورقية",
+   "أعمال حية بمؤثرات خاصة مثل Ultraman"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 6,
+  "q_en": "What is «tokusatsu»?",
+  "options_en": [
+   "3D anime",
+   "Short manga",
+   "A card game",
+   "Live-action works with special effects like Ultraman"
+  ]
+ },
+ {
+  "q": "ما المقصود بـ«VTuber»؟",
+  "options": [
+   "ممثل صوتي مسنّ",
+   "منشئ محتوى يستخدم شخصية افتراضية",
+   "مخرج أنمي",
+   "مصمم ألعاب"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 3,
+  "q_en": "What is a «VTuber»?",
+  "options_en": [
+   "A veteran voice actor",
+   "A creator who uses a virtual avatar",
+   "An anime director",
+   "A game designer"
+  ]
+ },
+ {
+  "q": "ما هي «المانهوا»؟",
+  "options": [
+   "القصص المصورة الصينية",
+   "القصص المصورة الكورية",
+   "القصص المصورة اليابانية",
+   "القصص المصورة الأمريكية"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 5,
+  "q_en": "What is «manhua»?",
+  "options_en": [
+   "Chinese comics",
+   "Korean comics",
+   "Japanese comics",
+   "American comics"
+  ]
+ },
+ {
+  "q": "ما اسم القصص المصورة الكورية؟",
+  "options": [
+   "Manhua",
+   "Manhwa",
+   "Gekiga",
+   "Doujinshi"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 4,
+  "q_en": "What are Korean comics called?",
+  "options_en": [
+   "Manhua",
+   "Manhwa",
+   "Gekiga",
+   "Doujinshi"
+  ]
+ },
+ {
+  "q": "ما هو «التانكوبون» (Tankobon)؟",
+  "options": [
+   "مجلة مانغا أسبوعية",
+   "فريق من الرسامين",
+   "مجلد مانغا مستقل يجمع الفصول",
+   "ملصق ترويجي"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 6,
+  "q_en": "What is a «tankobon»?",
+  "options_en": [
+   "A weekly manga magazine",
+   "A team of artists",
+   "A standalone manga volume collecting chapters",
+   "A promotional poster"
+  ]
+ },
+ {
+  "q": "ما هي مانغا «الونشوت» (One-shot)؟",
+  "options": [
+   "مانغا بلا حوار",
+   "مانغا ملونة بالكامل",
+   "مانغا من 100 فصل",
+   "مانغا قصيرة من فصل واحد"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 5,
+  "q_en": "What is a manga «one-shot»?",
+  "options_en": [
+   "A manga without dialogue",
+   "A fully colored manga",
+   "A 100-chapter manga",
+   "A short manga of a single chapter"
+  ]
+ },
+ {
+  "q": "ما هي «اليونكوما» (Yonkoma)؟",
+  "options": [
+   "مانغا من أربعة مربعات رأسية",
+   "مانغا من فصل واحد",
+   "رواية خفيفة",
+   "مجلة أسبوعية"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 7,
+  "q_en": "What is «yonkoma»?",
+  "options_en": [
+   "A four-panel vertical manga",
+   "A single-chapter manga",
+   "A light novel",
+   "A weekly magazine"
+  ]
+ },
+ {
+  "q": "ما اتجاه قراءة المانغا اليابانية التقليدية؟",
+  "options": [
+   "من اليسار إلى اليمين",
+   "من اليمين إلى اليسار",
+   "من الأعلى إلى الأسفل فقط",
+   "بشكل دائري"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 2,
+  "q_en": "What is the traditional reading direction of Japanese manga?",
+  "options_en": [
+   "Left to right",
+   "Right to left",
+   "Top to bottom only",
+   "In a circle"
+  ]
+ },
+ {
+  "q": "كيف تُطبع معظم صفحات المانغا الأسبوعية في المجلات؟",
+  "options": [
+   "بالألوان الكاملة",
+   "بالأحمر فقط",
+   "بالأبيض والأسود",
+   "بالأزرق فقط"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 4,
+  "q_en": "How are most weekly manga pages printed in magazines?",
+  "options_en": [
+   "In full color",
+   "In red only",
+   "In black and white",
+   "In blue only"
+  ]
+ },
+ {
+  "q": "ما هي أنظمة الكتابة اليابانية الثلاثة الرئيسية؟",
+  "options": [
+   "هانغول وكانجي وروماجي",
+   "هيراغانا وكاتاكانا وهانزي",
+   "كانجي وأبجدية لاتينية فقط",
+   "هيراغانا وكاتاكانا وكانجي"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 4,
+  "q_en": "What are the three main Japanese writing systems?",
+  "options_en": [
+   "Hangul, kanji and romaji",
+   "Hiragana, katakana and hanja",
+   "Kanji and the Latin alphabet only",
+   "Hiragana, katakana and kanji"
+  ]
+ },
+ {
+  "q": "ما فائدة «الفوريغانا» (Furigana)؟",
+  "options": [
+   "حروف صغيرة فوق الكانجي لتوضيح النطق",
+   "رموز تعبّر عن الصوت فقط",
+   "شعار المجلة",
+   "اسم الرسام"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 7,
+  "q_en": "What is «furigana» used for?",
+  "options_en": [
+   "Small characters above kanji showing pronunciation",
+   "Sound effect symbols only",
+   "A magazine logo",
+   "The artist's name"
+  ]
+ },
+ {
+  "q": "لأي غرض تُستخدم «الكاتاكانا» غالبًا؟",
+  "options": [
+   "الأفعال فقط",
+   "الأرقام فقط",
+   "الكلمات الأجنبية والأسماء المستعارة والمؤثرات",
+   "الشعر القديم فقط"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 6,
+  "q_en": "What is «katakana» mostly used for?",
+  "options_en": [
+   "Verbs only",
+   "Numbers only",
+   "Foreign loanwords, names and sound effects",
+   "Ancient poetry only"
+  ]
+ },
+ {
+  "q": "ماذا يعني ظهور قطرة عرق كبيرة على رأس الشخصية في الأنمي؟",
+  "options": [
+   "البرد الشديد",
+   "الغضب القاتل",
+   "النعاس",
+   "الحرج أو التوتر"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 4,
+  "q_en": "In anime, what does a big sweat drop on a character's head usually show?",
+  "options_en": [
+   "Extreme cold",
+   "Deadly anger",
+   "Sleepiness",
+   "Embarrassment or nervousness"
+  ]
+ },
+ {
+  "q": "ما هو «الكاوموجي» (Kaomoji)؟",
+  "options": [
+   "وجوه تعبيرية تُكتب بالرموز مثل (＾▽＾)",
+   "لقب لبطل الأنمي",
+   "نوع من الأقنعة",
+   "حركة قتال"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 8,
+  "q_en": "What is «kaomoji»?",
+  "options_en": [
+   "Emoticons made with characters such as (＾▽＾)",
+   "A nickname for an anime hero",
+   "A type of mask",
+   "A fighting move"
+  ]
+ },
+ {
+  "q": "متى تبدأ السنة الدراسية في اليابان عادةً؟",
+  "options": [
+   "في يناير",
+   "في أبريل",
+   "في سبتمبر",
+   "في ديسمبر"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 5,
+  "q_en": "When does the school year usually begin in Japan?",
+  "options_en": [
+   "In January",
+   "In April",
+   "In September",
+   "In December"
+  ]
+ },
+ {
+  "q": "ما هو «البونكاساي» (Bunkasai) في المدارس اليابانية؟",
+  "options": [
+   "امتحان القبول",
+   "رحلة العطلة",
+   "مهرجان ثقافي مدرسي",
+   "حفل التخرج"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 6,
+  "q_en": "What is the «bunkasai» in Japanese schools?",
+  "options_en": [
+   "An entrance exam",
+   "A holiday trip",
+   "A school cultural festival",
+   "A graduation ceremony"
+  ]
+ },
+ {
+  "q": "ما هي «البوكاتسو» (Bukatsu) في المدارس اليابانية؟",
+  "options": [
+   "زيّ مدرسي صيفي",
+   "وجبة غداء",
+   "امتحان نهائي",
+   "أنشطة النوادي المدرسية"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 7,
+  "q_en": "What is «bukatsu» in Japanese schools?",
+  "options_en": [
+   "A summer uniform",
+   "A lunch meal",
+   "A final exam",
+   "School club activities"
+  ]
+ },
+ {
+  "q": "ما هو «التاناباتا» (Tanabata)؟",
+  "options": [
+   "مهرجان النجوم تُعلّق فيه أمنيات على شرائط ورقية",
+   "مهرجان الثلج",
+   "مهرجان الحصاد",
+   "مهرجان الأقنعة"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 7,
+  "q_en": "What is «Tanabata»?",
+  "options_en": [
+   "A star festival where wishes are hung on paper strips",
+   "A snow festival",
+   "A harvest festival",
+   "A mask festival"
+  ]
+ },
+ {
+  "q": "ما هو «المانزاي» (Manzai) في الكوميديا اليابانية؟",
+  "options": [
+   "مسرح الدمى",
+   "حكايات صامتة",
+   "حوار كوميدي بين ممثلين: بوكي وتسوكومي",
+   "مبارزات بالسيوف"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 8,
+  "q_en": "What is «manzai» in Japanese comedy?",
+  "options_en": [
+   "Puppet theater",
+   "Silent storytelling",
+   "Comic dialogue between a boke and a tsukkomi duo",
+   "Sword duels"
+  ]
+ },
+ {
+  "q": "ما هو «الراكوغو» (Rakugo)؟",
+  "options": [
+   "رقصة قتالية",
+   "عرض بالدمى",
+   "غناء جماعي",
+   "فن سرد قصص كوميدية بالجلوس منفردًا"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 9,
+  "q_en": "What is «rakugo»?",
+  "options_en": [
+   "A martial dance",
+   "A puppet show",
+   "Group singing",
+   "Comic storytelling by a single seated performer"
+  ]
+ },
+ {
+  "q": "ما هو «الإيكيبانا» (Ikebana)؟",
+  "options": [
+   "فن الخط الياباني",
+   "فن تنسيق الزهور الياباني",
+   "فن صناعة السيوف",
+   "فن الرسم على الحرير"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 8,
+  "q_en": "What is «ikebana»?",
+  "options_en": [
+   "Japanese calligraphy",
+   "The Japanese art of flower arrangement",
+   "Sword-making",
+   "Silk painting"
+  ]
+ },
+ {
+  "q": "ما معنى «الدايميو» (Daimyo)؟",
+  "options": [
+   "حدّاد سيوف",
+   "جندي مشاة",
+   "سيد إقطاعي حاكم لإقليم",
+   "راهب متجوّل"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 8,
+  "q_en": "What does «daimyo» mean?",
+  "options_en": [
+   "A swordsmith",
+   "A foot soldier",
+   "A feudal lord ruling a domain",
+   "A wandering monk"
+  ]
+ },
+ {
+  "q": "ما هو «حفل الشاي الياباني» المعروف بـ«تشانويو»؟",
+  "options": [
+   "سباق لشرب الشاي",
+   "بيع الشاي في الأسواق",
+   "مسابقة لمعرفة أنواع الشاي",
+   "طقس منظّم لإعداد الشاي الأخضر وتقديمه"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 6,
+  "q_en": "What is the Japanese tea ceremony known as «chanoyu»?",
+  "options_en": [
+   "A tea-drinking race",
+   "Selling tea at markets",
+   "A tea tasting contest",
+   "A formal ritual of preparing and serving matcha"
+  ]
+ },
+ {
+  "q": "ما هو «التايياكي»؟",
+  "options": [
+   "سمك مقلي بالخل",
+   "حساء سمك",
+   "لفائف أرز",
+   "كعكة على شكل سمكة بحشوة فاصوليا حمراء"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 7,
+  "q_en": "What is «taiyaki»?",
+  "options_en": [
+   "Fish fried in vinegar",
+   "Fish soup",
+   "Rice rolls",
+   "A fish-shaped cake with sweet red-bean filling"
+  ]
+ },
+ {
+  "q": "ما هو «الأوكونوميياكي»؟",
+  "options": [
+   "فطيرة مالحة مقلية على سطح ساخن",
+   "حلوى زهرة الكرز",
+   "شاي بارد",
+   "خبز حلو"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 7,
+  "q_en": "What is «okonomiyaki»?",
+  "options_en": [
+   "A savory pancake cooked on a griddle",
+   "A cherry blossom sweet",
+   "Cold tea",
+   "Sweet bread"
+  ]
+ },
+ {
+  "q": "ما هي «الغاشابون» (Gashapon)؟",
+  "options": [
+   "ألعاب فيديو قديمة",
+   "آلات بيع ألعاب صغيرة داخل كبسولات",
+   "مجلات مانغا مستعملة",
+   "بطاقات لعب نادرة فقط"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 6,
+  "q_en": "What are «gashapon»?",
+  "options_en": [
+   "Old video games",
+   "Vending machines selling small toys in capsules",
+   "Used manga magazines",
+   "Only rare playing cards"
+  ]
+ },
+ {
+  "q": "ما هي «اليورو-كارا» (Yuru-chara)؟",
+  "options": [
+   "أبطال أنمي قتالي",
+   "نجوم موسيقى",
+   "شخصيات تعويذة محلية لطيفة مثل Kumamon",
+   "رسامون محترفون"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 8,
+  "q_en": "What are «yuru-chara»?",
+  "options_en": [
+   "Action anime heroes",
+   "Music stars",
+   "Cute local mascot characters such as Kumamon",
+   "Professional illustrators"
+  ]
+ },
+ {
+  "q": "ما هو «التشونيبيو» (Chuunibyou)؟",
+  "options": [
+   "حب الدراسة الزائد",
+   "الخجل الشديد",
+   "الشعور بالنعاس الدائم",
+   "خيالات العظمة لدى المراهق وكأنه يملك قوى خاصة"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 8,
+  "q_en": "What is «chuunibyou»?",
+  "options_en": [
+   "Excessive love of studying",
+   "Extreme shyness",
+   "Constant sleepiness",
+   "A teen's delusions of grandeur and special powers"
+  ]
+ },
+ {
+  "q": "ما هو «الهيكيكوموري» (Hikikomori)؟",
+  "options": [
+   "شخص ينسحب من المجتمع ويلازم بيته",
+   "بطل رياضي",
+   "سائح أجنبي",
+   "حارس معبد"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 6,
+  "q_en": "What is a «hikikomori»?",
+  "options_en": [
+   "A person who withdraws from society and stays home",
+   "A sports champion",
+   "A foreign tourist",
+   "A temple guard"
+  ]
+ },
+ {
+  "q": "ما هو «الكودومو» (Kodomo) كفئة أنمي ومانغا؟",
+  "options": [
+   "أعمال للمراهقين الذكور",
+   "أعمال موجَّهة للأطفال الصغار",
+   "أعمال للبالغين",
+   "أعمال قتالية دموية"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 7,
+  "q_en": "What is «kodomo» as an anime and manga demographic?",
+  "options_en": [
+   "Works for teenage boys",
+   "Works aimed at young children",
+   "Works for adults",
+   "Gory action works"
+  ]
+ },
+ {
+  "q": "ما هو «الجيكيغا» (Gekiga) في تاريخ المانغا؟",
+  "options": [
+   "مانغا الكوميديا الخفيفة",
+   "مانغا تعليمية للأطفال",
+   "مانغا درامية جادة موجّهة للبالغين",
+   "مانغا رياضية فقط"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 9,
+  "q_en": "What is «gekiga» in manga history?",
+  "options_en": [
+   "Light comedy manga",
+   "Educational manga for children",
+   "Serious dramatic manga aimed at adults",
+   "Sports manga only"
+  ]
+ },
+ {
+  "q": "من صاغ مصطلح «جيكيغا» عام 1957؟",
+  "options": [
+   "أوسامو تيزوكا",
+   "شيغيرو ميزوكي",
+   "ريوكو تاكاهاشي",
+   "يوشيهيرو تاتسومي"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 10,
+  "q_en": "Who coined the term «gekiga» in 1957?",
+  "options_en": [
+   "Osamu Tezuka",
+   "Shigeru Mizuki",
+   "Rumiko Takahashi",
+   "Yoshihiro Tatsumi"
+  ]
+ },
+ {
+  "q": "ما هي «الساكوغا» (Sakuga) في الأنمي؟",
+  "options": [
+   "مشاهد حركة عالية الجودة والإتقان",
+   "حلقات الإعادة",
+   "الأغاني الافتتاحية",
+   "شعارات الاستوديو"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 9,
+  "q_en": "What is «sakuga» in anime?",
+  "options_en": [
+   "High-quality, well-animated action scenes",
+   "Recap episodes",
+   "Opening songs",
+   "Studio logos"
+  ]
+ },
+ {
+  "q": "ما هي «الجينغا» (Genga) في إنتاج الأنمي؟",
+  "options": [
+   "خلفيات المدن فقط",
+   "الرسومات الرئيسية التي تحدد الحركة",
+   "الألوان النهائية",
+   "الأصوات والمؤثرات"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 9,
+  "q_en": "What is «genga» in anime production?",
+  "options_en": [
+   "City backgrounds only",
+   "The key drawings that define the motion",
+   "The final colors",
+   "Voices and effects"
+  ]
+ },
+ {
+  "q": "ما هو «الإيكونتي» (E-conte) في الأنمي؟",
+  "options": [
+   "عقد الممثل الصوتي",
+   "بطاقة ترويجية",
+   "لوحة قصة مصورة تُخطّط المشاهد",
+   "جدول البث"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 9,
+  "q_en": "What is an «e-conte» in anime production?",
+  "options_en": [
+   "A voice actor's contract",
+   "A promotional card",
+   "A storyboard that plans the scenes",
+   "A broadcast schedule"
+  ]
+ },
+ {
+  "q": "ما هو «النيمو» (Name / ネーム) في صناعة المانغا؟",
+  "options": [
+   "لقب المانغاكا",
+   "عنوان المجلد",
+   "توقيع على الغلاف",
+   "مسودة تخطيطية أولية للفصل يُعرضها المانغاكا على المحرر"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 10,
+  "q_en": "What is a «name» (ネーム) in manga production?",
+  "options_en": [
+   "The mangaka's pen name",
+   "The volume title",
+   "A signature on the cover",
+   "A rough draft of a chapter shown to the editor"
+  ]
+ },
+ {
+  "q": "ما هو «الكوور» (Cour) في الأنمي؟",
+  "options": [
+   "فترة بث تبلغ نحو ثلاثة أشهر (12-13 حلقة)",
+   "حلقة خاصة طويلة",
+   "اسم الأغنية الختامية",
+   "تأخير بث الحلقة"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 9,
+  "q_en": "What is a «cour» in anime?",
+  "options_en": [
+   "A roughly three-month run (12-13 episodes)",
+   "A long special episode",
+   "The ending song's name",
+   "An episode delay"
+  ]
+ },
+ {
+  "q": "كم موسمًا للأنمي يُعرض في اليابان خلال السنة عادةً؟",
+  "options": [
+   "2",
+   "4",
+   "6",
+   "12"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 5,
+  "q_en": "How many seasonal anime broadcast seasons are there in a year in Japan?",
+  "options_en": [
+   "2",
+   "4",
+   "6",
+   "12"
+  ]
+ },
+ {
+  "q": "ما المدة المعتادة لحلقة أنمي تلفزيونية قياسية؟",
+  "options": [
+   "نحو 10 دقائق",
+   "نحو 60 دقيقة",
+   "نحو 24 دقيقة",
+   "نحو 90 دقيقة"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 4,
+  "q_en": "What is the usual length of a standard TV anime episode?",
+  "options_en": [
+   "About 10 minutes",
+   "About 60 minutes",
+   "About 24 minutes",
+   "About 90 minutes"
+  ]
+ },
+ {
+  "q": "ما المبادئ الثلاثة الشهيرة لمجلة Weekly Shonen Jump؟",
+  "options": [
+   "الحب والمال والشهرة",
+   "الصبر والحظ والسرعة",
+   "القوة والسحر والانتقام",
+   "الصداقة والجهد والانتصار"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 8,
+  "q_en": "What are the three famous principles of Weekly Shonen Jump?",
+  "options_en": [
+   "Love, money and fame",
+   "Patience, luck and speed",
+   "Power, magic and revenge",
+   "Friendship, effort and victory"
+  ]
+ },
+ {
+  "q": "ما هي «الزيارة السياحية لأماكن ظهرت في الأنمي» والتي تُسمّى بالياباني؟",
+  "options": [
+   "سيتشي جونريي",
+   "هانامي",
+   "غاشابون",
+   "كاراوكي"
+  ],
+  "answer": 0,
+  "category": "culture",
+  "base_difficulty": 10,
+  "q_en": "What is the Japanese term for visiting real-world locations featured in anime?",
+  "options_en": [
+   "Seichi junrei",
+   "Hanami",
+   "Gashapon",
+   "Karaoke"
+  ]
+ },
+ {
+  "q": "ما هو «الكاميشيباي» (Kamishibai)؟",
+  "options": [
+   "مسرح ظلال إلكتروني",
+   "سرد قصص بلوحات ورقية يعرضها راوٍ متجوّل",
+   "لعبة ورقية للمسابقات",
+   "فن تقطيع الورق الثلاثي"
+  ],
+  "answer": 1,
+  "category": "culture",
+  "base_difficulty": 10,
+  "q_en": "What is «kamishibai»?",
+  "options_en": [
+   "An electronic shadow theater",
+   "Storytelling with picture cards by a traveling narrator",
+   "A paper game for contests",
+   "Three-dimensional paper cutting"
+  ]
+ },
+ {
+  "q": "من هم «البنشي» (Benshi) في السينما اليابانية القديمة؟",
+  "options": [
+   "مصورون سينمائيون",
+   "مغنّو الأوبرا",
+   "راوون يعلّقون مباشرة على الأفلام الصامتة",
+   "مصمّمو الأزياء"
+  ],
+  "answer": 2,
+  "category": "culture",
+  "base_difficulty": 10,
+  "q_en": "Who were the «benshi» in early Japanese cinema?",
+  "options_en": [
+   "Cinematographers",
+   "Opera singers",
+   "Live narrators who commented on silent films",
+   "Costume designers"
+  ]
+ },
+ {
+  "q": "من ابتكر كلمة «كوسبلاي» (Cosplay) عام 1984؟",
+  "options": [
+   "أوسامو تيزوكا",
+   "يوشيكازو ياسوهيكو",
+   "تومينو يوشيوكي",
+   "نوبواكي تاكاهاشي"
+  ],
+  "answer": 3,
+  "category": "culture",
+  "base_difficulty": 10,
+  "q_en": "Who coined the Japanese term «cosplay» in 1984?",
+  "options_en": [
+   "Osamu Tezuka",
+   "Yoshikazu Yasuhiko",
+   "Yoshiyuki Tomino",
+   "Nobuyuki Takahashi"
+  ]
+ }
+]

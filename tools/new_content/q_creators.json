@@ -1,0 +1,2187 @@
+[
+ {
+  "q": "من ألّف موسيقى أنمي Sword Art Online؟",
+  "options": [
+   "شيرو ساغيسو",
+   "هيرويوكي ساوانو",
+   "يوكي كاجيورا",
+   "يوكي هاياشي"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 5,
+  "q_en": "Who composed the music for the anime Sword Art Online?",
+  "options_en": [
+   "Shiro Sagisu",
+   "Hiroyuki Sawano",
+   "Yuki Kajiura",
+   "Yuki Hayashi"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى أنمي My Hero Academia؟",
+  "options": [
+   "يوكي كاجيورا",
+   "تاكو إيواساكي",
+   "كينسوكي أوشيو",
+   "يوكي هاياشي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 4,
+  "q_en": "Who composed the music for the anime My Hero Academia?",
+  "options_en": [
+   "Yuki Kajiura",
+   "Taku Iwasaki",
+   "Kensuke Ushio",
+   "Yuki Hayashi"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى فيلم Ghost in the Shell (1995)؟",
+  "options": [
+   "يوكو كانو",
+   "كينجي كاواي",
+   "جو هيسايشي",
+   "هيرويوكي ساوانو"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 5,
+  "q_en": "Who composed the music for the film Ghost in the Shell (1995)?",
+  "options_en": [
+   "Yoko Kanno",
+   "Kenji Kawai",
+   "Joe Hisaishi",
+   "Hiroyuki Sawano"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى سلسلة Dragon Ball الأصلية وDragon Ball Z؟",
+  "options": [
+   "كوهي تاناكا",
+   "ياسوهارو تاكاناشي",
+   "شونسوكي كيكوتشي",
+   "توشيو ماسودا"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 9,
+  "q_en": "Who composed the music for the original Dragon Ball and Dragon Ball Z series?",
+  "options_en": [
+   "Kohei Tanaka",
+   "Yasuharu Takanashi",
+   "Shunsuke Kikuchi",
+   "Toshio Masuda"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى أنمي Chainsaw Man؟",
+  "options": [
+   "هيرويوكي ساوانو",
+   "كينسوكي أوشيو",
+   "يوكي هاياشي",
+   "يوكي كاجيورا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 4,
+  "q_en": "Who composed the music for the anime Chainsaw Man?",
+  "options_en": [
+   "Hiroyuki Sawano",
+   "Kensuke Ushio",
+   "Yuki Hayashi",
+   "Yuki Kajiura"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى أنمي Psycho-Pass؟",
+  "options": [
+   "كينجي كاواي",
+   "شيرو ساغيسو",
+   "يوغو كانو",
+   "أكيرا سينجو"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who composed the music for the anime Psycho-Pass?",
+  "options_en": [
+   "Kenji Kawai",
+   "Shiro Sagisu",
+   "Yugo Kanno",
+   "Akira Senju"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى أنمي Tokyo Ghoul؟",
+  "options": [
+   "كينسوكي أوشيو",
+   "يوغو كانو",
+   "ياسوهارو تاكاناشي",
+   "يوتاكا يامادا"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 9,
+  "q_en": "Who composed the music for the anime Tokyo Ghoul?",
+  "options_en": [
+   "Kensuke Ushio",
+   "Yugo Kanno",
+   "Yasuharu Takanashi",
+   "Yutaka Yamada"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى أنمي The Vision of Escaflowne؟",
+  "options": [
+   "كينجي كاواي",
+   "يوكو كانو",
+   "شيرو ساغيسو",
+   "جو هيسايشي"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who composed the music for the anime The Vision of Escaflowne?",
+  "options_en": [
+   "Kenji Kawai",
+   "Yoko Kanno",
+   "Shiro Sagisu",
+   "Joe Hisaishi"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى أنمي Mob Psycho 100؟",
+  "options": [
+   "تاكو إيواساكي",
+   "كينسوكي أوشيو",
+   "كونيوكي تاكاهاشي",
+   "يوتاكا يامادا"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 9,
+  "q_en": "Who composed the music for the anime Mob Psycho 100?",
+  "options_en": [
+   "Taku Iwasaki",
+   "Kensuke Ushio",
+   "Kuniyuki Takahashi",
+   "Yutaka Yamada"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى أنمي Gurren Lagann؟",
+  "options": [
+   "هيرويوكي ساوانو",
+   "كونيوكي تاكاهاشي",
+   "ياسوهارو تاكاناشي",
+   "تاكو إيواساكي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 9,
+  "q_en": "Who composed the music for the anime Gurren Lagann?",
+  "options_en": [
+   "Hiroyuki Sawano",
+   "Kuniyuki Takahashi",
+   "Yasuharu Takanashi",
+   "Taku Iwasaki"
+  ]
+ },
+ {
+  "q": "مع أي مخرج ياباني تعاون جو هيسايشي في أفلام مثل Hana-bi وKikujiro؟",
+  "options": [
+   "هيروكازو كوري إيدا",
+   "تاكيشي كيتانو",
+   "أكيرا كوروساوا",
+   "شوهي إيمامورا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "With which Japanese director did Joe Hisaishi collaborate on films such as Hana-bi and Kikujiro?",
+  "options_en": [
+   "Hirokazu Kore-eda",
+   "Takeshi Kitano",
+   "Akira Kurosawa",
+   "Shohei Imamura"
+  ]
+ },
+ {
+  "q": "من هو مؤلف موسيقى سلسلة ألعاب Final Fantasy الأشهر؟",
+  "options": [
+   "هيرويوكي ساوانو",
+   "ياسونوري ميتسودا",
+   "كوجي كوندو",
+   "نوبو أويماتسو"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 3,
+  "q_en": "Who is the composer best known for the Final Fantasy game series music?",
+  "options_en": [
+   "Hiroyuki Sawano",
+   "Yasunori Mitsuda",
+   "Koji Kondo",
+   "Nobuo Uematsu"
+  ]
+ },
+ {
+  "q": "من هو ملحّن لعبة Chrono Trigger الرئيسي؟",
+  "options": [
+   "شونسوكي كيكوتشي",
+   "كوجي كوندو",
+   "ياسونوري ميتسودا",
+   "نوبو أويماتسو"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who was the main composer of the game Chrono Trigger?",
+  "options_en": [
+   "Shunsuke Kikuchi",
+   "Koji Kondo",
+   "Yasunori Mitsuda",
+   "Nobuo Uematsu"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى Mobile Suit Gundam Unicorn؟",
+  "options": [
+   "يوكي كاجيورا",
+   "يوكو كانو",
+   "هيرويوكي ساوانو",
+   "أكيرا سينجو"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who composed the music for Mobile Suit Gundam Unicorn?",
+  "options_en": [
+   "Yuki Kajiura",
+   "Yoko Kanno",
+   "Hiroyuki Sawano",
+   "Akira Senju"
+  ]
+ },
+ {
+  "q": "من أخرج مسلسل Paranoia Agent؟",
+  "options": [
+   "مامورو أوشي",
+   "كاتسوهيرو أوتومو",
+   "ماساكي يوآسا",
+   "ساتوشي كون"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 4,
+  "q_en": "Who directed the series Paranoia Agent?",
+  "options_en": [
+   "Mamoru Oshii",
+   "Katsuhiro Otomo",
+   "Masaaki Yuasa",
+   "Satoshi Kon"
+  ]
+ },
+ {
+  "q": "من أخرجت أنمي K-On!؟",
+  "options": [
+   "ناوكو ياماده",
+   "مامورو هوسودا",
+   "كونيهيكو إيكوهارا",
+   "تاتسويوكي ناغاي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 4,
+  "q_en": "Who directed the anime K-On!?",
+  "options_en": [
+   "Naoko Yamada",
+   "Mamoru Hosoda",
+   "Kunihiko Ikuhara",
+   "Tatsuyuki Nagai"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Ping Pong the Animation؟",
+  "options": [
+   "ماساكي يوآسا",
+   "هيرويوكي إيمايشي",
+   "شينيتشيرو واتانابي",
+   "تيتسورو أراكي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who directed the anime Ping Pong the Animation?",
+  "options_en": [
+   "Masaaki Yuasa",
+   "Hiroyuki Imaishi",
+   "Shinichiro Watanabe",
+   "Tetsuro Araki"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي The Tatami Galaxy؟",
+  "options": [
+   "يوزورو تاتشيكاوا",
+   "ماساكي يوآسا",
+   "ساتوشي كون",
+   "أكيوكي شينبو"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 9,
+  "q_en": "Who directed the anime The Tatami Galaxy?",
+  "options_en": [
+   "Yuzuru Tachikawa",
+   "Masaaki Yuasa",
+   "Satoshi Kon",
+   "Akiyuki Shinbo"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Space Dandy؟",
+  "options": [
+   "هيديآكي أنو",
+   "شينيتشيرو واتانابي",
+   "هيرويوكي إيمايشي",
+   "ماساكي يوآسا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 5,
+  "q_en": "Who directed the anime Space Dandy?",
+  "options_en": [
+   "Hideaki Anno",
+   "Shinichiro Watanabe",
+   "Hiroyuki Imaishi",
+   "Masaaki Yuasa"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم The Castle of Cagliostro؟",
+  "options": [
+   "كاتسوهيرو أوتومو",
+   "إيساو تاكاهاتا",
+   "مامورو أوشي",
+   "هاياو ميازاكي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 4,
+  "q_en": "Who directed the film The Castle of Cagliostro?",
+  "options_en": [
+   "Katsuhiro Otomo",
+   "Isao Takahata",
+   "Mamoru Oshii",
+   "Hayao Miyazaki"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم My Neighbor Totoro؟",
+  "options": [
+   "هاياو ميازاكي",
+   "ماكوتو شينكاي",
+   "إيساو تاكاهاتا",
+   "مامورو هوسودا"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 1,
+  "q_en": "Who directed the film My Neighbor Totoro?",
+  "options_en": [
+   "Hayao Miyazaki",
+   "Makoto Shinkai",
+   "Isao Takahata",
+   "Mamoru Hosoda"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Princess Mononoke؟",
+  "options": [
+   "غورو ميازاكي",
+   "هاياو ميازاكي",
+   "يوشيفومي كوندو",
+   "إيساو تاكاهاتا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 1,
+  "q_en": "Who directed the film Princess Mononoke?",
+  "options_en": [
+   "Goro Miyazaki",
+   "Hayao Miyazaki",
+   "Yoshifumi Kondo",
+   "Isao Takahata"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Howl's Moving Castle؟",
+  "options": [
+   "ماكوتو شينكاي",
+   "غورو ميازاكي",
+   "هيروماسا يونيباياشي",
+   "هاياو ميازاكي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 1,
+  "q_en": "Who directed the film Howl's Moving Castle?",
+  "options_en": [
+   "Makoto Shinkai",
+   "Goro Miyazaki",
+   "Hiromasa Yonebayashi",
+   "Hayao Miyazaki"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Ponyo؟",
+  "options": [
+   "هيروماسا يونيباياشي",
+   "هاياو ميازاكي",
+   "إيساو تاكاهاتا",
+   "مامورو هوسودا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 1,
+  "q_en": "Who directed the film Ponyo?",
+  "options_en": [
+   "Hiromasa Yonebayashi",
+   "Hayao Miyazaki",
+   "Isao Takahata",
+   "Mamoru Hosoda"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Nausicaä of the Valley of the Wind؟",
+  "options": [
+   "كاتسوهيرو أوتومو",
+   "هاياو ميازاكي",
+   "إيساو تاكاهاتا",
+   "مامورو أوشي"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 2,
+  "q_en": "Who directed the film Nausicaä of the Valley of the Wind?",
+  "options_en": [
+   "Katsuhiro Otomo",
+   "Hayao Miyazaki",
+   "Isao Takahata",
+   "Mamoru Oshii"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Castle in the Sky (Laputa)؟",
+  "options": [
+   "غورو ميازاكي",
+   "إيساو تاكاهاتا",
+   "يوشيفومي كوندو",
+   "هاياو ميازاكي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 2,
+  "q_en": "Who directed the film Castle in the Sky (Laputa)?",
+  "options_en": [
+   "Goro Miyazaki",
+   "Isao Takahata",
+   "Yoshifumi Kondo",
+   "Hayao Miyazaki"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Porco Rosso؟",
+  "options": [
+   "هاياو ميازاكي",
+   "إيساو تاكاهاتا",
+   "مامورو هوسودا",
+   "يوشيفومي كوندو"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 2,
+  "q_en": "Who directed the film Porco Rosso?",
+  "options_en": [
+   "Hayao Miyazaki",
+   "Isao Takahata",
+   "Mamoru Hosoda",
+   "Yoshifumi Kondo"
+  ]
+ },
+ {
+  "q": "من أخرج الفيلم الغيبلي Pom Poko؟",
+  "options": [
+   "إيساو تاكاهاتا",
+   "هاياو ميازاكي",
+   "يوشيفومي كوندو",
+   "هيروماسا يونيباياشي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who directed the Ghibli film Pom Poko?",
+  "options_en": [
+   "Isao Takahata",
+   "Hayao Miyazaki",
+   "Yoshifumi Kondo",
+   "Hiromasa Yonebayashi"
+  ]
+ },
+ {
+  "q": "من أخرج مسلسل Heidi, Girl of the Alps (1974)؟",
+  "options": [
+   "رينتارو",
+   "هاياو ميازاكي",
+   "ياسوهيرو إيماغاوا",
+   "إيساو تاكاهاتا"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who directed the series Heidi, Girl of the Alps (1974)?",
+  "options_en": [
+   "Rintaro",
+   "Hayao Miyazaki",
+   "Yasuhiro Imagawa",
+   "Isao Takahata"
+  ]
+ },
+ {
+  "q": "من أخرج المسلسل التلفزيوني Future Boy Conan (1978)؟",
+  "options": [
+   "إيساو تاكاهاتا",
+   "هاياو ميازاكي",
+   "يوشيوكي تومينو",
+   "رينتارو"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who directed the TV series Future Boy Conan (1978)?",
+  "options_en": [
+   "Isao Takahata",
+   "Hayao Miyazaki",
+   "Yoshiyuki Tomino",
+   "Rintaro"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Weathering with You؟",
+  "options": [
+   "هاياو ميازاكي",
+   "مامورو هوسودا",
+   "ناوكو ياماده",
+   "ماكوتو شينكاي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 2,
+  "q_en": "Who directed the film Weathering with You?",
+  "options_en": [
+   "Hayao Miyazaki",
+   "Mamoru Hosoda",
+   "Naoko Yamada",
+   "Makoto Shinkai"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم The Garden of Words؟",
+  "options": [
+   "ماكوتو شينكاي",
+   "ناوكو ياماده",
+   "مامورو هوسودا",
+   "هيروماسا يونيباياشي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 4,
+  "q_en": "Who directed the film The Garden of Words?",
+  "options_en": [
+   "Makoto Shinkai",
+   "Naoko Yamada",
+   "Mamoru Hosoda",
+   "Hiromasa Yonebayashi"
+  ]
+ },
+ {
+  "q": "من أخرج أول فيلم Digimon Adventure القصير (1999)؟",
+  "options": [
+   "سيجي كيشي",
+   "ماكوتو شينكاي",
+   "مامورو هوسودا",
+   "كونيهيكو يوياما"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 10,
+  "q_en": "Who directed the short film Digimon Adventure (1999)?",
+  "options_en": [
+   "Seiji Kishi",
+   "Makoto Shinkai",
+   "Mamoru Hosoda",
+   "Kunihiko Yuyama"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Metropolis (2001) المقتبس من مانغا تيزوكا؟",
+  "options": [
+   "كاتسوهيرو أوتومو",
+   "ساتوشي كون",
+   "رينتارو",
+   "مامورو أوشي"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who directed the film Metropolis (2001), based on Tezuka's manga?",
+  "options_en": [
+   "Katsuhiro Otomo",
+   "Satoshi Kon",
+   "Rintaro",
+   "Mamoru Oshii"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Steamboy؟",
+  "options": [
+   "مامورو أوشي",
+   "رينتارو",
+   "كاتسوهيرو أوتومو",
+   "ساتوشي كون"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who directed the film Steamboy?",
+  "options_en": [
+   "Mamoru Oshii",
+   "Rintaro",
+   "Katsuhiro Otomo",
+   "Satoshi Kon"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Revolutionary Girl Utena؟",
+  "options": [
+   "هيديآكي أنو",
+   "أكيتارو دايتشي",
+   "كونيهيكو إيكوهارا",
+   "أكيوكي شينبو"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who directed the anime Revolutionary Girl Utena?",
+  "options_en": [
+   "Hideaki Anno",
+   "Akitaro Daichi",
+   "Kunihiko Ikuhara",
+   "Akiyuki Shinbo"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Kabaneri of the Iron Fortress؟",
+  "options": [
+   "تيتسورو أراكي",
+   "يوزورو تاتشيكاوا",
+   "غورو تانيغوتشي",
+   "تاتسويوكي ناغاي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who directed the anime Kabaneri of the Iron Fortress?",
+  "options_en": [
+   "Tetsuro Araki",
+   "Yuzuru Tachikawa",
+   "Goro Taniguchi",
+   "Tatsuyuki Nagai"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Toradora!؟",
+  "options": [
+   "أكيوكي شينبو",
+   "كيوهي إيشيغورو",
+   "تيتسورو أراكي",
+   "تاتسويوكي ناغاي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 4,
+  "q_en": "Who directed the anime Toradora!?",
+  "options_en": [
+   "Akiyuki Shinbo",
+   "Kyohei Ishiguro",
+   "Tetsuro Araki",
+   "Tatsuyuki Nagai"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Your Lie in April؟",
+  "options": [
+   "كيوهي إيشيغورو",
+   "تاتسويوكي ناغاي",
+   "ناوكو ياماده",
+   "تسوتومو ميزوشيما"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who directed the anime Your Lie in April?",
+  "options_en": [
+   "Kyohei Ishiguro",
+   "Tatsuyuki Nagai",
+   "Naoko Yamada",
+   "Tsutomu Mizushima"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم In This Corner of the World؟",
+  "options": [
+   "سوناو كاتابوتشي",
+   "ماكوتو شينكاي",
+   "إيساو تاكاهاتا",
+   "مامورو هوسودا"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who directed the film In This Corner of the World?",
+  "options_en": [
+   "Sunao Katabuchi",
+   "Makoto Shinkai",
+   "Isao Takahata",
+   "Mamoru Hosoda"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Mobile Fighter G Gundam؟",
+  "options": [
+   "ياسوهيرو إيماغاوا",
+   "سيجي ميزوشيما",
+   "غورو تانيغوتشي",
+   "رينتارو"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 10,
+  "q_en": "Who directed the anime Mobile Fighter G Gundam?",
+  "options_en": [
+   "Yasuhiro Imagawa",
+   "Seiji Mizushima",
+   "Goro Taniguchi",
+   "Rintaro"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Fruits Basket الأصلي (2001)؟",
+  "options": [
+   "تسوتومو ميزوشيما",
+   "كونيهيكو إيكوهارا",
+   "أكيتارو دايتشي",
+   "جونيتشي ساتو"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 10,
+  "q_en": "Who directed the original Fruits Basket anime (2001)?",
+  "options_en": [
+   "Tsutomu Mizushima",
+   "Kunihiko Ikuhara",
+   "Akitaro Daichi",
+   "Junichi Sato"
+  ]
+ },
+ {
+  "q": "من أخرج الموسم الأول من أنمي Sailor Moon (1992)؟",
+  "options": [
+   "رينتارو",
+   "أكيتارو دايتشي",
+   "جونيتشي ساتو",
+   "كونيهيكو إيكوهارا"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 9,
+  "q_en": "Who directed the first season of the Sailor Moon anime (1992)?",
+  "options_en": [
+   "Rintaro",
+   "Akitaro Daichi",
+   "Junichi Sato",
+   "Kunihiko Ikuhara"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Pokémon التلفزيوني وأول أفلامه؟",
+  "options": [
+   "سيجي كيشي",
+   "توموهيكو إيتو",
+   "كونيهيكو يوياما",
+   "مامورو هوسودا"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who directed the Pokémon TV anime and its first films?",
+  "options_en": [
+   "Seiji Kishi",
+   "Tomohiko Ito",
+   "Kunihiko Yuyama",
+   "Mamoru Hosoda"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Eden of the East؟",
+  "options": [
+   "كينجي كاميياما",
+   "مامورو أوشي",
+   "تيتسورو أراكي",
+   "ساتوشي كون"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 9,
+  "q_en": "Who directed the anime Eden of the East?",
+  "options_en": [
+   "Kenji Kamiyama",
+   "Mamoru Oshii",
+   "Tetsuro Araki",
+   "Satoshi Kon"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Angel Beats!؟",
+  "options": [
+   "كيوهي إيشيغورو",
+   "تاتسويوكي ناغاي",
+   "توموهيكو إيتو",
+   "سيجي كيشي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who directed the anime Angel Beats!?",
+  "options_en": [
+   "Kyohei Ishiguro",
+   "Tatsuyuki Nagai",
+   "Tomohiko Ito",
+   "Seiji Kishi"
+  ]
+ },
+ {
+  "q": "من أخرج الموسم الأول من أنمي Sword Art Online؟",
+  "options": [
+   "توموهيكو إيتو",
+   "تيتسورو أراكي",
+   "سيجي كيشي",
+   "تاتسويوكي ناغاي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 5,
+  "q_en": "Who directed the first season of the anime Sword Art Online?",
+  "options_en": [
+   "Tomohiko Ito",
+   "Tetsuro Araki",
+   "Seiji Kishi",
+   "Tatsuyuki Nagai"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Fullmetal Alchemist (2003)؟",
+  "options": [
+   "غورو تانيغوتشي",
+   "سيجي ميزوشيما",
+   "تيتسورو أراكي",
+   "ياسوهيرو إيري"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who directed the anime Fullmetal Alchemist (2003)?",
+  "options_en": [
+   "Goro Taniguchi",
+   "Seiji Mizushima",
+   "Tetsuro Araki",
+   "Yasuhiro Irie"
+  ]
+ },
+ {
+  "q": "من أخرج أنمي Fullmetal Alchemist: Brotherhood؟",
+  "options": [
+   "ياسوهيرو إيري",
+   "سيجي ميزوشيما",
+   "يوزورو تاتشيكاوا",
+   "تاتسويوكي ناغاي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who directed the anime Fullmetal Alchemist: Brotherhood?",
+  "options_en": [
+   "Yasuhiro Irie",
+   "Seiji Mizushima",
+   "Yuzuru Tachikawa",
+   "Tatsuyuki Nagai"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Royal Space Force: The Wings of Honneamise؟",
+  "options": [
+   "هيرويوكي ياماغا",
+   "مامورو أوشي",
+   "هيديآكي أنو",
+   "كازويا تسوروماكي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 10,
+  "q_en": "Who directed the film Royal Space Force: The Wings of Honneamise?",
+  "options_en": [
+   "Hiroyuki Yamaga",
+   "Mamoru Oshii",
+   "Hideaki Anno",
+   "Kazuya Tsurumaki"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Urusei Yatsura 2: Beautiful Dreamer؟",
+  "options": [
+   "رينتارو",
+   "كاتسوهيرو أوتومو",
+   "ساتوشي كون",
+   "مامورو أوشي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 9,
+  "q_en": "Who directed the film Urusei Yatsura 2: Beautiful Dreamer?",
+  "options_en": [
+   "Rintaro",
+   "Katsuhiro Otomo",
+   "Satoshi Kon",
+   "Mamoru Oshii"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Godzilla الأصلي عام 1954؟",
+  "options": [
+   "أكيرا كوروساوا",
+   "شوهي إيمامورا",
+   "تاكيشي كيتانو",
+   "إيشيرو هوندا"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 6,
+  "q_en": "Who directed the original Godzilla film in 1954?",
+  "options_en": [
+   "Akira Kurosawa",
+   "Shohei Imamura",
+   "Takeshi Kitano",
+   "Ishiro Honda"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Seven Samurai؟",
+  "options": [
+   "تاكيشي كيتانو",
+   "أكيرا كوروساوا",
+   "هيروكازو كوري إيدا",
+   "إيشيرو هوندا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 3,
+  "q_en": "Who directed the film Seven Samurai?",
+  "options_en": [
+   "Takeshi Kitano",
+   "Akira Kurosawa",
+   "Hirokazu Kore-eda",
+   "Ishiro Honda"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم Godzilla Minus One؟",
+  "options": [
+   "إيشيرو هوندا",
+   "هيروكازو كوري إيدا",
+   "هيديآكي أنو",
+   "تاكاشي ياماساكي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 6,
+  "q_en": "Who directed the film Godzilla Minus One?",
+  "options_en": [
+   "Ishiro Honda",
+   "Hirokazu Kore-eda",
+   "Hideaki Anno",
+   "Takashi Yamazaki"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Ranma ½؟",
+  "options": [
+   "أكيرا توريياما",
+   "ريوكو إيكيدا",
+   "تشيكا أومينو",
+   "روميكو تاكاهاشي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 2,
+  "q_en": "Who is the author of the manga Ranma ½?",
+  "options_en": [
+   "Akira Toriyama",
+   "Riyoko Ikeda",
+   "Chica Umino",
+   "Rumiko Takahashi"
+  ]
+ },
+ {
+  "q": "من هي مؤلفة مانغا Maison Ikkoku؟",
+  "options": [
+   "تشيكا أومينو",
+   "أكيكو هيغاشيمورا",
+   "ريوكو إيكيدا",
+   "روميكو تاكاهاشي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who is the author of the manga Maison Ikkoku?",
+  "options_en": [
+   "Chica Umino",
+   "Akiko Higashimura",
+   "Riyoko Ikeda",
+   "Rumiko Takahashi"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Dr. Slump؟",
+  "options": [
+   "إييتشيرو أودا",
+   "ماساشي كيشيموتو",
+   "تيتي كوبو",
+   "أكيرا توريياما"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 3,
+  "q_en": "Who is the author of the manga Dr. Slump?",
+  "options_en": [
+   "Eiichiro Oda",
+   "Masashi Kishimoto",
+   "Tite Kubo",
+   "Akira Toriyama"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Black Jack؟",
+  "options": [
+   "أوسامو تيزوكا",
+   "ماساموني شيرو",
+   "ليجي ماتسوموتو",
+   "ميتسوتيرو يوكوياما"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 3,
+  "q_en": "Who is the author of the manga Black Jack?",
+  "options_en": [
+   "Osamu Tezuka",
+   "Masamune Shirow",
+   "Leiji Matsumoto",
+   "Mitsuteru Yokoyama"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Phoenix (Hi no Tori)؟",
+  "options": [
+   "أوسامو تيزوكا",
+   "ميتسوتيرو يوكوياما",
+   "ميتسورو أداتشي",
+   "ليجي ماتسوموتو"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who is the author of the manga Phoenix (Hi no Tori)?",
+  "options_en": [
+   "Osamu Tezuka",
+   "Mitsuteru Yokoyama",
+   "Mitsuru Adachi",
+   "Leiji Matsumoto"
+  ]
+ },
+ {
+  "q": "من هي مؤلفة مانغا Sazae-san؟",
+  "options": [
+   "ريوكو إيكيدا",
+   "تشيكا أومينو",
+   "ماتشيكو هاسيغاوا",
+   "أكيكو هيغاشيمورا"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who is the author of the manga Sazae-san?",
+  "options_en": [
+   "Riyoko Ikeda",
+   "Chica Umino",
+   "Machiko Hasegawa",
+   "Akiko Higashimura"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Tetsujin 28-go؟",
+  "options": [
+   "ميتسوتيرو يوكوياما",
+   "ليجي ماتسوموتو",
+   "أوسامو تيزوكا",
+   "ميتسورو أداتشي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who is the author of the manga Tetsujin 28-go?",
+  "options_en": [
+   "Mitsuteru Yokoyama",
+   "Leiji Matsumoto",
+   "Osamu Tezuka",
+   "Mitsuru Adachi"
+  ]
+ },
+ {
+  "q": "من هو مبتكر Captain Harlock؟",
+  "options": [
+   "أوسامو تيزوكا",
+   "ليجي ماتسوموتو",
+   "ميتسوتيرو يوكوياما",
+   "ماساموني شيرو"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 4,
+  "q_en": "Who is the creator of Captain Harlock?",
+  "options_en": [
+   "Osamu Tezuka",
+   "Leiji Matsumoto",
+   "Mitsuteru Yokoyama",
+   "Masamune Shirow"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Ghost in the Shell الأصلية؟",
+  "options": [
+   "كاتسوهيرو أوتومو",
+   "ناوكي أوراساوا",
+   "ماساموني شيرو",
+   "يوكيتو كيشيرو"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 4,
+  "q_en": "Who is the author of the original Ghost in the Shell manga?",
+  "options_en": [
+   "Katsuhiro Otomo",
+   "Naoki Urasawa",
+   "Masamune Shirow",
+   "Yukito Kishiro"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Touch؟",
+  "options": [
+   "شويتشي شيغينو",
+   "ميتسورو أداتشي",
+   "تاكيهيكو إينوي",
+   "تاكيشي كونومي"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who is the author of the manga Touch?",
+  "options_en": [
+   "Shuichi Shigeno",
+   "Mitsuru Adachi",
+   "Takehiko Inoue",
+   "Takeshi Konomi"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا 20th Century Boys؟",
+  "options": [
+   "ميتسورو أداتشي",
+   "تاكيهيكو إينوي",
+   "هيرومو أراكاوا",
+   "ناوكي أوراساوا"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 5,
+  "q_en": "Who is the author of the manga 20th Century Boys?",
+  "options_en": [
+   "Mitsuru Adachi",
+   "Takehiko Inoue",
+   "Hiromu Arakawa",
+   "Naoki Urasawa"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Vagabond؟",
+  "options": [
+   "ميتسورو أداتشي",
+   "تاكيهيكو إينوي",
+   "تاكيشي أوباتا",
+   "ناوكي أوراساوا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 4,
+  "q_en": "Who is the author of the manga Vagabond?",
+  "options_en": [
+   "Mitsuru Adachi",
+   "Takehiko Inoue",
+   "Takeshi Obata",
+   "Naoki Urasawa"
+  ]
+ },
+ {
+  "q": "من هي مؤلفة مانغا Silver Spoon؟",
+  "options": [
+   "تشيكا أومينو",
+   "هيرومو أراكاوا",
+   "توموكو نينوميا",
+   "أكيكو هيغاشيمورا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who is the author of the manga Silver Spoon?",
+  "options_en": [
+   "Chica Umino",
+   "Hiromu Arakawa",
+   "Tomoko Ninomiya",
+   "Akiko Higashimura"
+  ]
+ },
+ {
+  "q": "من كتب قصة مانغا Hikaru no Go؟",
+  "options": [
+   "يومي هوتا",
+   "تسوغومي أوبا",
+   "كافكا أساغيري",
+   "كايو شيراي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who wrote the story of the manga Hikaru no Go?",
+  "options_en": [
+   "Yumi Hotta",
+   "Tsugumi Ohba",
+   "Kafka Asagiri",
+   "Kaiu Shirai"
+  ]
+ },
+ {
+  "q": "من رسم مانغا Hikaru no Go؟",
+  "options": [
+   "بوساكا ديميزو",
+   "تاكيشي أوباتا",
+   "تاتسوكي فوجيموتو",
+   "تاكيهيكو إينوي"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 6,
+  "q_en": "Who illustrated the manga Hikaru no Go?",
+  "options_en": [
+   "Posuka Demizu",
+   "Takeshi Obata",
+   "Tatsuki Fujimoto",
+   "Takehiko Inoue"
+  ]
+ },
+ {
+  "q": "من كتب قصة مانغا The Promised Neverland؟",
+  "options": [
+   "تسوغومي أوبا",
+   "كايو شيراي",
+   "كي سانبي",
+   "يومي هوتا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 6,
+  "q_en": "Who wrote the story of the manga The Promised Neverland?",
+  "options_en": [
+   "Tsugumi Ohba",
+   "Kaiu Shirai",
+   "Kei Sanbe",
+   "Yumi Hotta"
+  ]
+ },
+ {
+  "q": "من رسم مانغا The Promised Neverland؟",
+  "options": [
+   "كامومي شيراهاما",
+   "يوشيتوكي أويما",
+   "بوساكا ديميزو",
+   "تاكيشي أوباتا"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who illustrated the manga The Promised Neverland?",
+  "options_en": [
+   "Kamome Shirahama",
+   "Yoshitoki Oima",
+   "Posuka Demizu",
+   "Takeshi Obata"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Erased (Boku dake ga Inai Machi)؟",
+  "options": [
+   "توموهيتو أودا",
+   "كازو كاتو",
+   "كي سانبي",
+   "تاتسوكي فوجيموتو"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who is the author of the manga Erased (Boku dake ga Inai Machi)?",
+  "options_en": [
+   "Tomohito Oda",
+   "Kazue Kato",
+   "Kei Sanbe",
+   "Tatsuki Fujimoto"
+  ]
+ },
+ {
+  "q": "من هي مؤلفة مانغا Witch Hat Atelier؟",
+  "options": [
+   "تشيكا أومينو",
+   "كامومي شيراهاما",
+   "توموكو نينوميا",
+   "أكيكو هيغاشيمورا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who is the author of the manga Witch Hat Atelier?",
+  "options_en": [
+   "Chica Umino",
+   "Kamome Shirahama",
+   "Tomoko Ninomiya",
+   "Akiko Higashimura"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Komi Can't Communicate؟",
+  "options": [
+   "كي سانبي",
+   "يوشيتوكي أويما",
+   "تاتسوكي فوجيموتو",
+   "توموهيتو أودا"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who is the author of the manga Komi Can't Communicate?",
+  "options_en": [
+   "Kei Sanbe",
+   "Yoshitoki Oima",
+   "Tatsuki Fujimoto",
+   "Tomohito Oda"
+  ]
+ },
+ {
+  "q": "من هي مؤلفة مانغا A Silent Voice؟",
+  "options": [
+   "كازو كاتو",
+   "تشيكا أومينو",
+   "يوشيتوكي أويما",
+   "ريوكو إيكيدا"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 5,
+  "q_en": "Who is the author of the manga A Silent Voice?",
+  "options_en": [
+   "Kazue Kato",
+   "Chica Umino",
+   "Yoshitoki Oima",
+   "Riyoko Ikeda"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Initial D؟",
+  "options": [
+   "شويتشي شيغينو",
+   "ميتسورو أداتشي",
+   "تاكيشي كونومي",
+   "تاكيهيكو إينوي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 5,
+  "q_en": "Who is the author of the manga Initial D?",
+  "options_en": [
+   "Shuichi Shigeno",
+   "Mitsuru Adachi",
+   "Takeshi Konomi",
+   "Takehiko Inoue"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا The Prince of Tennis؟",
+  "options": [
+   "هيرويوكي تاكي",
+   "ميتسورو أداتشي",
+   "تاكيشي كونومي",
+   "تاكيهيكو إينوي"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 5,
+  "q_en": "Who is the author of the manga The Prince of Tennis?",
+  "options_en": [
+   "Hiroyuki Takei",
+   "Mitsuru Adachi",
+   "Takeshi Konomi",
+   "Takehiko Inoue"
+  ]
+ },
+ {
+  "q": "من هي مؤلفة مانغا The Rose of Versailles؟",
+  "options": [
+   "تشيكا أومينو",
+   "روميكو تاكاهاشي",
+   "توموكو نينوميا",
+   "ريوكو إيكيدا"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who is the author of the manga The Rose of Versailles?",
+  "options_en": [
+   "Chica Umino",
+   "Rumiko Takahashi",
+   "Tomoko Ninomiya",
+   "Riyoko Ikeda"
+  ]
+ },
+ {
+  "q": "من هي مؤلفة مانغا Nodame Cantabile؟",
+  "options": [
+   "أكيكو هيغاشيمورا",
+   "توموكو نينوميا",
+   "ريوكو إيكيدا",
+   "تشيكا أومينو"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who is the author of the manga Nodame Cantabile?",
+  "options_en": [
+   "Akiko Higashimura",
+   "Tomoko Ninomiya",
+   "Riyoko Ikeda",
+   "Chica Umino"
+  ]
+ },
+ {
+  "q": "من هي مؤلفة مانغا March Comes in Like a Lion؟",
+  "options": [
+   "توموكو نينوميا",
+   "تشيكا أومينو",
+   "أكيكو هيغاشيمورا",
+   "هيرومو أراكاوا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who is the author of the manga March Comes in Like a Lion?",
+  "options_en": [
+   "Tomoko Ninomiya",
+   "Chica Umino",
+   "Akiko Higashimura",
+   "Hiromu Arakawa"
+  ]
+ },
+ {
+  "q": "من هي مؤلفة مانغا Princess Jellyfish (Kuragehime)؟",
+  "options": [
+   "أكيكو هيغاشيمورا",
+   "تشيكا أومينو",
+   "توموكو نينوميا",
+   "ريوكو إيكيدا"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 10,
+  "q_en": "Who is the author of the manga Princess Jellyfish (Kuragehime)?",
+  "options_en": [
+   "Akiko Higashimura",
+   "Chica Umino",
+   "Tomoko Ninomiya",
+   "Riyoko Ikeda"
+  ]
+ },
+ {
+  "q": "من هو مؤلف مانغا Tekkonkinkreet؟",
+  "options": [
+   "ناوكي أوراساوا",
+   "يوكيتو كيشيرو",
+   "ماساموني شيرو",
+   "تايو ماتسوموتو"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 10,
+  "q_en": "Who is the author of the manga Tekkonkinkreet?",
+  "options_en": [
+   "Naoki Urasawa",
+   "Yukito Kishiro",
+   "Masamune Shirow",
+   "Taiyo Matsumoto"
+  ]
+ },
+ {
+  "q": "من هو مؤلف رواية Legend of the Galactic Heroes الأصلية؟",
+  "options": [
+   "ناغارو تانيغاوا",
+   "يوشيكي تاناكا",
+   "كينوكو ناسو",
+   "كافكا أساغيري"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 9,
+  "q_en": "Who wrote the original novels of Legend of the Galactic Heroes?",
+  "options_en": [
+   "Nagaru Tanigawa",
+   "Yoshiki Tanaka",
+   "Kinoko Nasu",
+   "Kafka Asagiri"
+  ]
+ },
+ {
+  "q": "من هو مؤلف روايات The Melancholy of Haruhi Suzumiya؟",
+  "options": [
+   "كافكا أساغيري",
+   "كينوكو ناسو",
+   "ناغارو تانيغاوا",
+   "يوشيكي تاناكا"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 6,
+  "q_en": "Who wrote the novels of The Melancholy of Haruhi Suzumiya?",
+  "options_en": [
+   "Kafka Asagiri",
+   "Kinoko Nasu",
+   "Nagaru Tanigawa",
+   "Yoshiki Tanaka"
+  ]
+ },
+ {
+  "q": "من كتب قصة مانغا Bungo Stray Dogs؟",
+  "options": [
+   "تسوغومي أوبا",
+   "ناغارو تانيغاوا",
+   "كافكا أساغيري",
+   "كينوكو ناسو"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who wrote the story of the manga Bungo Stray Dogs?",
+  "options_en": [
+   "Tsugumi Ohba",
+   "Nagaru Tanigawa",
+   "Kafka Asagiri",
+   "Kinoko Nasu"
+  ]
+ },
+ {
+  "q": "من هو الكاتب الأصلي لسلسلة Fate/stay night؟",
+  "options": [
+   "كافكا أساغيري",
+   "كينوكو ناسو",
+   "غين أوروبوتشي",
+   "ناغارو تانيغاوا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who is the original writer of Fate/stay night?",
+  "options_en": [
+   "Kafka Asagiri",
+   "Kinoko Nasu",
+   "Gen Urobuchi",
+   "Nagaru Tanigawa"
+  ]
+ },
+ {
+  "q": "من كتب سيناريو أنمي Puella Magi Madoka Magica؟",
+  "options": [
+   "جون مايدا",
+   "إيتشيرو أوكوتشي",
+   "غين أوروبوتشي",
+   "ماري أوكادا"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 6,
+  "q_en": "Who wrote the script of the anime Puella Magi Madoka Magica?",
+  "options_en": [
+   "Jun Maeda",
+   "Ichiro Okouchi",
+   "Gen Urobuchi",
+   "Mari Okada"
+  ]
+ },
+ {
+  "q": "من كتبت سيناريو أنمي Anohana: The Flower We Saw That Day؟",
+  "options": [
+   "كيكو نوبوموتو",
+   "جون مايدا",
+   "غين أوروبوتشي",
+   "ماري أوكادا"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who wrote the script of the anime Anohana: The Flower We Saw That Day?",
+  "options_en": [
+   "Keiko Nobumoto",
+   "Jun Maeda",
+   "Gen Urobuchi",
+   "Mari Okada"
+  ]
+ },
+ {
+  "q": "من كتب سيناريو أنمي Code Geass؟",
+  "options": [
+   "إيتشيرو أوكوتشي",
+   "ماري أوكادا",
+   "جون مايدا",
+   "غين أوروبوتشي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 10,
+  "q_en": "Who wrote the script of the anime Code Geass?",
+  "options_en": [
+   "Ichiro Okouchi",
+   "Mari Okada",
+   "Jun Maeda",
+   "Gen Urobuchi"
+  ]
+ },
+ {
+  "q": "من كانت كاتبة السيناريو الرئيسية لأنمي Cowboy Bebop؟",
+  "options": [
+   "ماري أوكادا",
+   "جون مايدا",
+   "كيكو نوبوموتو",
+   "إيتشيرو أوكوتشي"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 10,
+  "q_en": "Who was the head writer of the anime Cowboy Bebop?",
+  "options_en": [
+   "Mari Okada",
+   "Jun Maeda",
+   "Keiko Nobumoto",
+   "Ichiro Okouchi"
+  ]
+ },
+ {
+  "q": "من كتب سيناريو أنمي Angel Beats!؟",
+  "options": [
+   "إيتشيرو أوكوتشي",
+   "غين أوروبوتشي",
+   "ماري أوكادا",
+   "جون مايدا"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who wrote the script of the anime Angel Beats!?",
+  "options_en": [
+   "Ichiro Okouchi",
+   "Gen Urobuchi",
+   "Mari Okada",
+   "Jun Maeda"
+  ]
+ },
+ {
+  "q": "من صمّم شخصيات أنمي Serial Experiments Lain؟",
+  "options": [
+   "هاروهيكو ميكيموتو",
+   "يوشيتوشي آبي",
+   "يوشيكازو ياسوهيكو",
+   "يوشيتاكا أمانو"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 9,
+  "q_en": "Who designed the characters of the anime Serial Experiments Lain?",
+  "options_en": [
+   "Haruhiko Mikimoto",
+   "Yoshitoshi ABe",
+   "Yoshikazu Yasuhiko",
+   "Yoshitaka Amano"
+  ]
+ },
+ {
+  "q": "من هو الفنان الذي صمّم شخصيات سلسلة Final Fantasy الأوائل ورسم Vampire Hunter D؟",
+  "options": [
+   "أكيرا توريياما",
+   "يوشيتوشي آبي",
+   "يوشيتاكا أمانو",
+   "تيتسويا نومورا"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 6,
+  "q_en": "Which artist designed early Final Fantasy artwork and illustrated Vampire Hunter D?",
+  "options_en": [
+   "Akira Toriyama",
+   "Yoshitoshi ABe",
+   "Yoshitaka Amano",
+   "Tetsuya Nomura"
+  ]
+ },
+ {
+  "q": "من صمّم شخصيات Mobile Suit Gundam الأصلي؟",
+  "options": [
+   "شوجي كاواموري",
+   "يوشيكازو ياسوهيكو",
+   "يوشيتاكا أمانو",
+   "هاروهيكو ميكيموتو"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who designed the characters of the original Mobile Suit Gundam?",
+  "options_en": [
+   "Shoji Kawamori",
+   "Yoshikazu Yasuhiko",
+   "Yoshitaka Amano",
+   "Haruhiko Mikimoto"
+  ]
+ },
+ {
+  "q": "من هو مبتكر ومصمم ميكا سلسلة Macross؟",
+  "options": [
+   "شوجي كاواموري",
+   "ياسوهيرو إيماغاوا",
+   "يوشيكازو ياسوهيكو",
+   "هاروهيكو ميكيموتو"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who is the creator and mecha designer of the Macross series?",
+  "options_en": [
+   "Shoji Kawamori",
+   "Yasuhiro Imagawa",
+   "Yoshikazu Yasuhiko",
+   "Haruhiko Mikimoto"
+  ]
+ },
+ {
+  "q": "من صمّم شخصيات Macross الأصلي؟",
+  "options": [
+   "شوجي كاواموري",
+   "يوشيتوشي آبي",
+   "هاروهيكو ميكيموتو",
+   "يوشيكازو ياسوهيكو"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 10,
+  "q_en": "Who designed the characters of the original Macross?",
+  "options_en": [
+   "Shoji Kawamori",
+   "Yoshitoshi ABe",
+   "Haruhiko Mikimoto",
+   "Yoshikazu Yasuhiko"
+  ]
+ },
+ {
+  "q": "من هو مبتكر شخصية ماريو؟",
+  "options": [
+   "شيغيرو ميياموتو",
+   "كوجي كوندو",
+   "أكيرا توريياما",
+   "نوبو أويماتسو"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 1,
+  "q_en": "Who created the character Mario?",
+  "options_en": [
+   "Shigeru Miyamoto",
+   "Koji Kondo",
+   "Akira Toriyama",
+   "Nobuo Uematsu"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى معظم أفلام ستوديو Ghibli؟",
+  "options": [
+   "يوكي كاجيورا",
+   "جو هيسايشي",
+   "هيرويوكي ساوانو",
+   "يوكو كانو"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 1,
+  "q_en": "Who composed the music for most Studio Ghibli films?",
+  "options_en": [
+   "Yuki Kajiura",
+   "Joe Hisaishi",
+   "Hiroyuki Sawano",
+   "Yoko Kanno"
+  ]
+ },
+ {
+  "q": "من هي المؤدية الصوتية اليابانية لشخصية غوكو في Dragon Ball؟",
+  "options": [
+   "جونكو تاكيوتشي",
+   "رومي بارك",
+   "مايومي تاناكا",
+   "ماساكو نوزاوا"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 2,
+  "q_en": "Who is the Japanese voice actor of Goku in Dragon Ball?",
+  "options_en": [
+   "Junko Takeuchi",
+   "Romi Park",
+   "Mayumi Tanaka",
+   "Masako Nozawa"
+  ]
+ },
+ {
+  "q": "من يؤدي صوت لوفي في النسخة اليابانية من One Piece؟",
+  "options": [
+   "ماساكو نوزاوا",
+   "جونكو تاكيوتشي",
+   "أكيمي أوكامورا",
+   "مايومي تاناكا"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 3,
+  "q_en": "Who voices Luffy in the Japanese version of One Piece?",
+  "options_en": [
+   "Masako Nozawa",
+   "Junko Takeuchi",
+   "Akemi Okamura",
+   "Mayumi Tanaka"
+  ]
+ },
+ {
+  "q": "من يؤدي صوت ناروتو في النسخة اليابانية؟",
+  "options": [
+   "مايومي تاناكا",
+   "جونكو تاكيوتشي",
+   "مينامي تاكاياما",
+   "ماساكو نوزاوا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 3,
+  "q_en": "Who voices Naruto in the Japanese version?",
+  "options_en": [
+   "Mayumi Tanaka",
+   "Junko Takeuchi",
+   "Minami Takayama",
+   "Masako Nozawa"
+  ]
+ },
+ {
+  "q": "من أدّى صوت إدوارد إلريك في النسخة اليابانية من Fullmetal Alchemist؟",
+  "options": [
+   "ميغومي هاياشيبارا",
+   "مينامي تاكاياما",
+   "ري كوغيميا",
+   "رومي بارك"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 5,
+  "q_en": "Who voiced Edward Elric in the Japanese Fullmetal Alchemist?",
+  "options_en": [
+   "Megumi Hayashibara",
+   "Minami Takayama",
+   "Rie Kugimiya",
+   "Romi Park"
+  ]
+ },
+ {
+  "q": "من يؤدي صوت كونان إيدوغاوا في النسخة اليابانية من Detective Conan؟",
+  "options": [
+   "ميغومي هاياشيبارا",
+   "ري كوغيميا",
+   "رومي بارك",
+   "مينامي تاكاياما"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 3,
+  "q_en": "Who voices Conan Edogawa in the Japanese Detective Conan?",
+  "options_en": [
+   "Megumi Hayashibara",
+   "Rie Kugimiya",
+   "Romi Park",
+   "Minami Takayama"
+  ]
+ },
+ {
+  "q": "من أدّى صوت L في النسخة اليابانية من Death Note؟",
+  "options": [
+   "هيروشي كاميا",
+   "توموكازو سوغيتا",
+   "كابّي ياماغوتشي",
+   "مامورو ميانو"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 6,
+  "q_en": "Who voiced L in the Japanese Death Note?",
+  "options_en": [
+   "Hiroshi Kamiya",
+   "Tomokazu Sugita",
+   "Kappei Yamaguchi",
+   "Mamoru Miyano"
+  ]
+ },
+ {
+  "q": "من يؤدي صوت إيرين ييغر في النسخة اليابانية من Attack on Titan؟",
+  "options": [
+   "مامورو ميانو",
+   "هيروشي كاميا",
+   "جون فوكوياما",
+   "يوكي كاجي"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 2,
+  "q_en": "Who voices Eren Yeager in the Japanese Attack on Titan?",
+  "options_en": [
+   "Mamoru Miyano",
+   "Hiroshi Kamiya",
+   "Jun Fukuyama",
+   "Yuki Kaji"
+  ]
+ },
+ {
+  "q": "من أدّى صوت سبايك سبيغل في النسخة اليابانية من Cowboy Bebop؟",
+  "options": [
+   "كابّي ياماغوتشي",
+   "أكيو أوتسوكا",
+   "كازويا ناكاي",
+   "كويتشي ياماديرا"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 5,
+  "q_en": "Who voiced Spike Spiegel in the Japanese Cowboy Bebop?",
+  "options_en": [
+   "Kappei Yamaguchi",
+   "Akio Otsuka",
+   "Kazuya Nakai",
+   "Koichi Yamadera"
+  ]
+ },
+ {
+  "q": "من أدّت صوت فاي فالنتين في النسخة اليابانية من Cowboy Bebop؟",
+  "options": [
+   "كوتونو ميتسوإيشي",
+   "ميغومي هاياشيبارا",
+   "أتسوكو تاناكا",
+   "يوكو ميامورا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 6,
+  "q_en": "Who voiced Faye Valentine in the Japanese Cowboy Bebop?",
+  "options_en": [
+   "Kotono Mitsuishi",
+   "Megumi Hayashibara",
+   "Atsuko Tanaka",
+   "Yuko Miyamura"
+  ]
+ },
+ {
+  "q": "من تؤدي صوت بيكاتشو في النسخة اليابانية من Pokémon؟",
+  "options": [
+   "إيكوي أوتاني",
+   "أكيمي أوكامورا",
+   "ريكا ماتسوموتو",
+   "جونكو تاكيوتشي"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 2,
+  "q_en": "Who voices Pikachu in the Japanese Pokémon?",
+  "options_en": [
+   "Ikue Otani",
+   "Akemi Okamura",
+   "Rica Matsumoto",
+   "Junko Takeuchi"
+  ]
+ },
+ {
+  "q": "من أدّت صوت موتوكو كوساناغي في النسخة اليابانية من Ghost in the Shell (1995)؟",
+  "options": [
+   "أتسوكو تاناكا",
+   "يوكو ميامورا",
+   "كوتونو ميتسوإيشي",
+   "ميغومي هاياشيبارا"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 7,
+  "q_en": "Who voiced Motoko Kusanagi in the Japanese Ghost in the Shell (1995)?",
+  "options_en": [
+   "Atsuko Tanaka",
+   "Yuko Miyamura",
+   "Kotono Mitsuishi",
+   "Megumi Hayashibara"
+  ]
+ },
+ {
+  "q": "من أدّى صوت باتو في النسخة اليابانية من Ghost in the Shell (1995)؟",
+  "options": [
+   "كازويا ناكاي",
+   "أكيو أوتسوكا",
+   "كابّي ياماغوتشي",
+   "كويتشي ياماديرا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 8,
+  "q_en": "Who voiced Batou in the Japanese Ghost in the Shell (1995)?",
+  "options_en": [
+   "Kazuya Nakai",
+   "Akio Otsuka",
+   "Kappei Yamaguchi",
+   "Koichi Yamadera"
+  ]
+ },
+ {
+  "q": "من أدّى صوت لولوش لامبيروج في النسخة اليابانية من Code Geass؟",
+  "options": [
+   "يوكي كاجي",
+   "مامورو ميانو",
+   "جون فوكوياما",
+   "هيروشي كاميا"
+  ],
+  "answer": 2,
+  "category": "creators",
+  "base_difficulty": 5,
+  "q_en": "Who voiced Lelouch Lamperouge in the Japanese Code Geass?",
+  "options_en": [
+   "Yuki Kaji",
+   "Mamoru Miyano",
+   "Jun Fukuyama",
+   "Hiroshi Kamiya"
+  ]
+ },
+ {
+  "q": "من كان الصوت الياباني الأصلي لدوريمون (1979-2005)؟",
+  "options": [
+   "ماساكو نوزاوا",
+   "نوبويو أوياما",
+   "نوريكو أوهارا",
+   "كوتونو ميتسوإيشي"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 6,
+  "q_en": "Who was the original Japanese voice of Doraemon (1979-2005)?",
+  "options_en": [
+   "Masako Nozawa",
+   "Nobuyo Oyama",
+   "Noriko Ohara",
+   "Kotono Mitsuishi"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم The Boy and the Heron؟",
+  "options": [
+   "ماكوتو شينكاي",
+   "هاياو ميازاكي",
+   "غورو ميازاكي",
+   "إيساو تاكاهاتا"
+  ],
+  "answer": 1,
+  "category": "creators",
+  "base_difficulty": 1,
+  "q_en": "Who directed the film The Boy and the Heron?",
+  "options_en": [
+   "Makoto Shinkai",
+   "Hayao Miyazaki",
+   "Goro Miyazaki",
+   "Isao Takahata"
+  ]
+ },
+ {
+  "q": "من أخرج فيلم The Wind Rises؟",
+  "options": [
+   "هاياو ميازاكي",
+   "هيروماسا يونيباياشي",
+   "مامورو هوسودا",
+   "إيساو تاكاهاتا"
+  ],
+  "answer": 0,
+  "category": "creators",
+  "base_difficulty": 2,
+  "q_en": "Who directed the film The Wind Rises?",
+  "options_en": [
+   "Hayao Miyazaki",
+   "Hiromasa Yonebayashi",
+   "Mamoru Hosoda",
+   "Isao Takahata"
+  ]
+ },
+ {
+  "q": "من هو مبتكر سلسلة The Legend of Zelda مع تاكاشي تيزوكا؟",
+  "options": [
+   "نوبو أويماتسو",
+   "أكيرا توريياما",
+   "كوجي كوندو",
+   "شيغيرو ميياموتو"
+  ],
+  "answer": 3,
+  "category": "creators",
+  "base_difficulty": 2,
+  "q_en": "Who created The Legend of Zelda series with Takashi Tezuka?",
+  "options_en": [
+   "Nobuo Uematsu",
+   "Akira Toriyama",
+   "Koji Kondo",
+   "Shigeru Miyamoto"
+  ]
+ }
+]

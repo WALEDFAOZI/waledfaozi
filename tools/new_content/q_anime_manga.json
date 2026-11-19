@@ -1,0 +1,2928 @@
+[
+ {
+  "q": "ما الطعام المفضل لدى ناروتو أوزوماكي؟",
+  "options": [
+   "الرامن",
+   "السوشي",
+   "الكاري",
+   "التمبورا"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "What is Naruto Uzumaki's favorite food?",
+  "options_en": [
+   "Ramen",
+   "Sushi",
+   "Curry",
+   "Tempura"
+  ]
+ },
+ {
+  "q": "ما الطعام المفضل لدى دوريمون؟",
+  "options": [
+   "التاكوياكي",
+   "الدوراياكي",
+   "الأونيغيري",
+   "الموتشي"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "What is Doraemon's favorite food?",
+  "options_en": [
+   "Takoyaki",
+   "Dorayaki",
+   "Onigiri",
+   "Mochi"
+  ]
+ },
+ {
+  "q": "إلى أي عرق ينتمي غوكو في Dragon Ball؟",
+  "options": [
+   "الناميك",
+   "البشر الأرضيون",
+   "السايان",
+   "الأندرويد"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "Which race does Goku belong to in Dragon Ball?",
+  "options_en": [
+   "Namekian",
+   "Earthling",
+   "Saiyan",
+   "Android"
+  ]
+ },
+ {
+  "q": "ما عمل سانجي على متن سفينة طاقم قبعة القش في One Piece؟",
+  "options": [
+   "الطبيب",
+   "الملّاح",
+   "صانع السفن",
+   "الطبّاخ"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "What is Sanji's role on the Straw Hat crew in One Piece?",
+  "options_en": [
+   "Doctor",
+   "Navigator",
+   "Shipwright",
+   "Cook"
+  ]
+ },
+ {
+  "q": "بماذا يتنافس الأبطال في أنمي Beyblade؟",
+  "options": [
+   "أقراص دوّارة",
+   "بطاقات",
+   "سيارات صغيرة",
+   "كرات مطاطية"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "What do the heroes battle with in the anime Beyblade?",
+  "options_en": [
+   "Spinning tops",
+   "Cards",
+   "Toy cars",
+   "Rubber balls"
+  ]
+ },
+ {
+  "q": "ما الذي يحب الشينيغامي ريوك أكله في Death Note؟",
+  "options": [
+   "الموز",
+   "التفاح",
+   "الخبز",
+   "السمك"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "What does the Shinigami Ryuk love to eat in Death Note?",
+  "options_en": [
+   "Bananas",
+   "Apples",
+   "Bread",
+   "Fish"
+  ]
+ },
+ {
+  "q": "ماذا تعني كلمة Pokémon في اليابانية؟",
+  "options": [
+   "حيوانات برية",
+   "كائنات صغيرة",
+   "وحوش الجيب",
+   "وحوش البطاقات"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "What does the name Pokémon stand for in Japanese?",
+  "options_en": [
+   "Wild Animals",
+   "Tiny Beings",
+   "Pocket Monsters",
+   "Card Monsters"
+  ]
+ },
+ {
+  "q": "ما اسم كلب عائلة فورجر في Spy x Family؟",
+  "options": [
+   "ماكس",
+   "روكي",
+   "شيرو",
+   "بوند"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the Forger family's dog in Spy x Family?",
+  "options_en": [
+   "Max",
+   "Rocky",
+   "Shiro",
+   "Bond"
+  ]
+ },
+ {
+  "q": "ما اسم القطة التي ترافق أوساغي في Sailor Moon؟",
+  "options": [
+   "لونا",
+   "ديانا",
+   "ميمي",
+   "نيكو"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the cat who guides Usagi in Sailor Moon?",
+  "options_en": [
+   "Luna",
+   "Diana",
+   "Mimi",
+   "Niko"
+  ]
+ },
+ {
+  "q": "ما اسم الفريق الشرير الذي يطارد آش وبيكاتشو في Pokémon؟",
+  "options": [
+   "Team Magma",
+   "Team Rocket",
+   "Team Aqua",
+   "Team Galactic"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the villain team that chases Ash and Pikachu in Pokémon?",
+  "options_en": [
+   "Team Magma",
+   "Team Rocket",
+   "Team Aqua",
+   "Team Galactic"
+  ]
+ },
+ {
+  "q": "ما المهنة التي كانت تمارسها عائلة تانجيرو كامادو في Demon Slayer؟",
+  "options": [
+   "صيد السمك",
+   "الحدادة",
+   "بيع الفحم",
+   "الزراعة"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "What was the trade of Tanjiro Kamado's family in Demon Slayer?",
+  "options_en": [
+   "Fishing",
+   "Blacksmithing",
+   "Selling charcoal",
+   "Farming"
+  ]
+ },
+ {
+  "q": "من الذي منح إيزوكو ميدوريا قوة «One For All» في My Hero Academia؟",
+  "options": [
+   "إندفور",
+   "هوكس",
+   "إريزر هيد",
+   "أول مايت"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "Who passed the power \"One For All\" to Izuku Midoriya in My Hero Academia?",
+  "options_en": [
+   "Endeavor",
+   "Hawks",
+   "Eraser Head",
+   "All Might"
+  ]
+ },
+ {
+  "q": "عن من يبحث غون فريكس في بداية Hunter x Hunter؟",
+  "options": [
+   "والده جينغ",
+   "أخوه الأكبر",
+   "معلّمه",
+   "صديقه كيلوا"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "Who is Gon Freecss searching for at the start of Hunter x Hunter?",
+  "options_en": [
+   "His father Ging",
+   "His older brother",
+   "His teacher",
+   "His friend Killua"
+  ]
+ },
+ {
+  "q": "ماذا ابتلع إيتادوري يوجي في بداية Jujutsu Kaisen؟",
+  "options": [
+   "عينًا ملعونة",
+   "إصبع سوكونا",
+   "قلب وحش",
+   "حجرًا سحريًا"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "What does Yuji Itadori swallow at the start of Jujutsu Kaisen?",
+  "options_en": [
+   "A cursed eye",
+   "Sukuna's finger",
+   "A monster's heart",
+   "A magic stone"
+  ]
+ },
+ {
+  "q": "ما اسم الحافلة القطة الضخمة في My Neighbor Totoro؟",
+  "options": [
+   "Neko Train",
+   "Cat Taxi",
+   "Catbus",
+   "Furry Bus"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "What is the giant cat-shaped bus called in My Neighbor Totoro?",
+  "options_en": [
+   "Neko Train",
+   "Cat Taxi",
+   "Catbus",
+   "Furry Bus"
+  ]
+ },
+ {
+  "q": "ماذا تحمل نيزوكو في فمها في Demon Slayer؟",
+  "options": [
+   "منديلًا",
+   "سيفًا صغيرًا",
+   "حبلًا",
+   "أنبوب خيزران"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "What does Nezuko hold in her mouth in Demon Slayer?",
+  "options_en": [
+   "A handkerchief",
+   "A small sword",
+   "A rope",
+   "A bamboo tube"
+  ]
+ },
+ {
+  "q": "كيف يتحول شينيتشي كودو إلى طفل في Detective Conan؟",
+  "options": [
+   "يبتلع دواءً غامضًا من منظمة شريرة",
+   "تصيبه لعنة",
+   "يقع حادث في مختبر",
+   "يستخدم آلة زمن"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "How does Shinichi Kudo turn into a child in Detective Conan?",
+  "options_en": [
+   "A mysterious drug from an organization",
+   "A curse",
+   "A lab accident",
+   "A time machine"
+  ]
+ },
+ {
+  "q": "ما اسم أسلوب القتال الذي يستخدم فيه زورو ثلاثة سيوف في One Piece؟",
+  "options": [
+   "Nitoryu",
+   "Santoryu",
+   "Ittoryu",
+   "Shiryu"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "What is the name of Zoro's three-sword fighting style in One Piece?",
+  "options_en": [
+   "Nitoryu",
+   "Santoryu",
+   "Ittoryu",
+   "Shiryu"
+  ]
+ },
+ {
+  "q": "ماذا يعني اسم Digimon؟",
+  "options": [
+   "وحوش البطاقات",
+   "حيوانات الجيب",
+   "وحوش رقمية",
+   "أبطال العالم"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "What does the name Digimon stand for?",
+  "options_en": [
+   "Card Monsters",
+   "Pocket Pets",
+   "Digital Monsters",
+   "World Heroes"
+  ]
+ },
+ {
+  "q": "ما لقب فيجيتا في Dragon Ball؟",
+  "options": [
+   "ملك الأرض",
+   "إمبراطور الفضاء",
+   "قائد النخبة",
+   "أمير السايان"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "What is Vegeta's title in Dragon Ball?",
+  "options_en": [
+   "King of Earth",
+   "Emperor of Space",
+   "Elite Commander",
+   "Prince of all Saiyans"
+  ]
+ },
+ {
+  "q": "ما اسم الساحرة التي تسرق اسم تشيهيرو في Spirited Away؟",
+  "options": [
+   "يوبابا",
+   "زينيبا",
+   "كاماجي",
+   "لين"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "Which character takes Chihiro's name in Spirited Away?",
+  "options_en": [
+   "Yubaba",
+   "Zeniba",
+   "Kamaji",
+   "Lin"
+  ]
+ },
+ {
+  "q": "ما الاسم الجديد الذي تحصل عليه تشيهيرو في الحمّام؟",
+  "options": [
+   "هاكو",
+   "سِن",
+   "ريكو",
+   "ميكا"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "What new name is Chihiro given at the bathhouse in Spirited Away?",
+  "options_en": [
+   "Haku",
+   "Sen",
+   "Riko",
+   "Mika"
+  ]
+ },
+ {
+  "q": "في أي قرن كان يعيش دوريمون قبل مجيئه إلى زمن نوبيتا؟",
+  "options": [
+   "القرن الثلاثين",
+   "القرن الخامس والعشرين",
+   "القرن الثاني والعشرين",
+   "القرن التاسع عشر"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "In which century did Doraemon live before coming to Nobita's time?",
+  "options_en": [
+   "30th century",
+   "25th century",
+   "22nd century",
+   "19th century"
+  ]
+ },
+ {
+  "q": "من أي بلدة يبدأ آش رحلته في Pokémon؟",
+  "options": [
+   "مدينة فيريديان",
+   "مدينة سيرولين",
+   "مدينة ليفندر",
+   "بلدة بالِت"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "Which town does Ash begin his journey from in Pokémon?",
+  "options_en": [
+   "Viridian City",
+   "Cerulean City",
+   "Lavender Town",
+   "Pallet Town"
+  ]
+ },
+ {
+  "q": "من أي قرية جاء غارا في Naruto؟",
+  "options": [
+   "قرية الرمل",
+   "قرية الصخور",
+   "قرية الضباب",
+   "قرية السحاب"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "Which village does Gaara come from in Naruto?",
+  "options_en": [
+   "The Hidden Sand Village",
+   "The Hidden Stone Village",
+   "The Hidden Mist Village",
+   "The Hidden Cloud Village"
+  ]
+ },
+ {
+  "q": "ما اسم الكوكب الأصلي للناميك في Dragon Ball؟",
+  "options": [
+   "Vegeta",
+   "Namek",
+   "Kanassa",
+   "Yardrat"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "What is the home planet of the Namekians in Dragon Ball?",
+  "options_en": [
+   "Vegeta",
+   "Namek",
+   "Kanassa",
+   "Yardrat"
+  ]
+ },
+ {
+  "q": "ما القدرة التي يستخدمها لولوش لإصدار الأوامر للآخرين في Code Geass؟",
+  "options": [
+   "Chakra",
+   "Nen",
+   "Geass",
+   "Quirk"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "What power does Lelouch use to command others in Code Geass?",
+  "options_en": [
+   "Chakra",
+   "Nen",
+   "Geass",
+   "Quirk"
+  ]
+ },
+ {
+  "q": "ما الهوية المقنعة التي يتخذها لولوش في Code Geass؟",
+  "options": [
+   "ريد",
+   "إل",
+   "كيرا",
+   "زيرو"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "What masked identity does Lelouch adopt in Code Geass?",
+  "options_en": [
+   "Red",
+   "L",
+   "Kira",
+   "Zero"
+  ]
+ },
+ {
+  "q": "من الفتاة التي ربّتها الذئاب في Princess Mononoke؟",
+  "options": [
+   "سان",
+   "أشيتاكا",
+   "الليدي إبوشي",
+   "كايا"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "Who is the girl raised by wolves in Princess Mononoke?",
+  "options_en": [
+   "San",
+   "Ashitaka",
+   "Lady Eboshi",
+   "Kaya"
+  ]
+ },
+ {
+  "q": "ما اسم القطة السوداء المرافقة لكيكي في Kiki's Delivery Service؟",
+  "options": [
+   "لونا",
+   "جيجي",
+   "كورو",
+   "نيكو"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "What is the name of Kiki's black cat in Kiki's Delivery Service?",
+  "options_en": [
+   "Luna",
+   "Jiji",
+   "Kuro",
+   "Niko"
+  ]
+ },
+ {
+  "q": "ما اسم الكائن صاحب القناع الأبيض في Spirited Away؟",
+  "options": [
+   "Haku",
+   "Boh",
+   "No-Face",
+   "Kamaji"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "What is the white-masked spirit in Spirited Away called?",
+  "options_en": [
+   "Haku",
+   "Boh",
+   "No-Face",
+   "Kamaji"
+  ]
+ },
+ {
+  "q": "أي أسلوب تنفس يتعلمه تانجيرو أولًا في Demon Slayer؟",
+  "options": [
+   "تنفس الرعد",
+   "تنفس اللهب",
+   "تنفس الريح",
+   "تنفس الماء"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "Which breathing style does Tanjiro learn first in Demon Slayer?",
+  "options_en": [
+   "Thunder Breathing",
+   "Flame Breathing",
+   "Wind Breathing",
+   "Water Breathing"
+  ]
+ },
+ {
+  "q": "ما اسم التقنية الشهيرة بكهرباء اليد التي يتقنها كاكاشي في Naruto؟",
+  "options": [
+   "Chidori",
+   "Rasengan",
+   "Amaterasu",
+   "Kamui"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 3,
+  "q_en": "Which lightning technique is Kakashi famous for in Naruto?",
+  "options_en": [
+   "Chidori",
+   "Rasengan",
+   "Amaterasu",
+   "Kamui"
+  ]
+ },
+ {
+  "q": "ما عدد الحراس (Hashira) في فيلق قتلة الشياطين في Demon Slayer؟",
+  "options": [
+   "7",
+   "9",
+   "12",
+   "5"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "How many Hashira are there in the Demon Slayer Corps?",
+  "options_en": [
+   "7",
+   "9",
+   "12",
+   "5"
+  ]
+ },
+ {
+  "q": "من الذي درّب تانجيرو بعد مقتل عائلته في Demon Slayer؟",
+  "options": [
+   "جيو توميوكا",
+   "كيوجورو رينغوكو",
+   "ساكونجي أوروكودكي",
+   "سانيمي شينازوغاوا"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "Who trains Tanjiro after his family is killed in Demon Slayer?",
+  "options_en": [
+   "Giyu Tomioka",
+   "Kyojuro Rengoku",
+   "Sakonji Urokodaki",
+   "Sanemi Shinazugawa"
+  ]
+ },
+ {
+  "q": "ما اسم الجزيرة الطائرة في فيلم Castle in the Sky؟",
+  "options": [
+   "Grandine",
+   "Albion",
+   "Skypiea",
+   "Laputa"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "What is the floating island called in Castle in the Sky?",
+  "options_en": [
+   "Grandine",
+   "Albion",
+   "Skypiea",
+   "Laputa"
+  ]
+ },
+ {
+  "q": "ما مهنة بطل فيلم Porco Rosso؟",
+  "options": [
+   "طيّار",
+   "قبطان سفينة",
+   "رسّام",
+   "مصوّر"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "What is the profession of the hero of Porco Rosso?",
+  "options_en": [
+   "Pilot",
+   "Ship captain",
+   "Painter",
+   "Photographer"
+  ]
+ },
+ {
+  "q": "ما اسم شيطان النار الذي يحرّك القلعة في Howl's Moving Castle؟",
+  "options": [
+   "Ifrit",
+   "Calcifer",
+   "Ignis",
+   "Salamander"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "Which fire demon powers the castle in Howl's Moving Castle?",
+  "options_en": [
+   "Ifrit",
+   "Calcifer",
+   "Ignis",
+   "Salamander"
+  ]
+ },
+ {
+  "q": "من الأميرة التي ترافق طاقم قبعة القش في قوس Alabasta من One Piece؟",
+  "options": [
+   "روبين",
+   "هانكوك",
+   "فيفي",
+   "شيراهوشي"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "Which princess joins the Straw Hats in the Alabasta arc of One Piece?",
+  "options_en": [
+   "Robin",
+   "Hancock",
+   "Vivi",
+   "Shirahoshi"
+  ]
+ },
+ {
+  "q": "ما اسم منظمة المقاومة التي يقودها لولوش في Code Geass؟",
+  "options": [
+   "White Knights",
+   "Red Wolves",
+   "Blue Order",
+   "Black Knights"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "What is the name of Lelouch's resistance group in Code Geass?",
+  "options_en": [
+   "White Knights",
+   "Red Wolves",
+   "Blue Order",
+   "Black Knights"
+  ]
+ },
+ {
+  "q": "ما اسم أخت لولوش الصغرى في Code Geass؟",
+  "options": [
+   "نانالي",
+   "كوهارو",
+   "ميكاسا",
+   "ساكورا"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "What is the name of Lelouch's younger sister in Code Geass?",
+  "options_en": [
+   "Nunnally",
+   "Koharu",
+   "Mikasa",
+   "Sakura"
+  ]
+ },
+ {
+  "q": "ما اسم الشكل النهائي لتحرير السيف (Zanpakuto) في Bleach؟",
+  "options": [
+   "Shikai",
+   "Bankai",
+   "Hollowfication",
+   "Resurreccion"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "What is the final released form of a Zanpakuto called in Bleach?",
+  "options_en": [
+   "Shikai",
+   "Bankai",
+   "Hollowfication",
+   "Resurreccion"
+  ]
+ },
+ {
+  "q": "ما اسم والد لايت الذي يعمل في الشرطة في Death Note؟",
+  "options": [
+   "ناوومي ميسورا",
+   "تيرو ميكامي",
+   "سويتشيرو ياغامي",
+   "توتا ماتسودا"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "What is the name of Light Yagami's father, who works in the police in Death Note?",
+  "options_en": [
+   "Naomi Misora",
+   "Teru Mikami",
+   "Soichiro Yagami",
+   "Touta Matsuda"
+  ]
+ },
+ {
+  "q": "من استضاف بطولة «Cell Games» في Dragon Ball Z؟",
+  "options": [
+   "فريزا",
+   "بوو",
+   "رديتز",
+   "سيل"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "Who hosted the Cell Games in Dragon Ball Z?",
+  "options_en": [
+   "Frieza",
+   "Buu",
+   "Raditz",
+   "Cell"
+  ]
+ },
+ {
+  "q": "من المفتش الذي يطارد لوبين في Lupin III؟",
+  "options": [
+   "زينيغاتا",
+   "جيجن",
+   "غوئيمون",
+   "ماجيكا"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "Which inspector chases Lupin in Lupin III?",
+  "options_en": [
+   "Zenigata",
+   "Jigen",
+   "Goemon",
+   "Majika"
+  ]
+ },
+ {
+  "q": "ما اسم فريق ساكوراغي المدرسي في Slam Dunk؟",
+  "options": [
+   "Ryonan",
+   "Shohoku",
+   "Kainan",
+   "Shoyo"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "What is the name of Sakuragi's school team in Slam Dunk?",
+  "options_en": [
+   "Ryonan",
+   "Shohoku",
+   "Kainan",
+   "Shoyo"
+  ]
+ },
+ {
+  "q": "ما اسم القرية التي أسسها أوروتشيمارو في Naruto؟",
+  "options": [
+   "قرية الأمطار",
+   "قرية الشلال",
+   "قرية الصوت",
+   "قرية العشب"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "Which village did Orochimaru found in Naruto?",
+  "options_en": [
+   "Hidden Rain Village",
+   "Hidden Waterfall Village",
+   "Hidden Sound Village",
+   "Hidden Grass Village"
+  ]
+ },
+ {
+  "q": "من الذي أعطى كاكاشي عين الشارينغان في Naruto؟",
+  "options": [
+   "إيتاتشي أوتشيها",
+   "مادارا أوتشيها",
+   "شيسوي أوتشيها",
+   "أوبيتو أوتشيها"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "Who gave Kakashi his Sharingan eye in Naruto?",
+  "options_en": [
+   "Itachi Uchiha",
+   "Madara Uchiha",
+   "Shisui Uchiha",
+   "Obito Uchiha"
+  ]
+ },
+ {
+  "q": "ما اسم بلدة الأخوين إلريك الصغيرة في Fullmetal Alchemist؟",
+  "options": [
+   "Resembool",
+   "Rush Valley",
+   "Liore",
+   "Xing"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the Elric brothers' hometown in Fullmetal Alchemist?",
+  "options_en": [
+   "Resembool",
+   "Rush Valley",
+   "Liore",
+   "Xing"
+  ]
+ },
+ {
+  "q": "من هي معلمة الأخوين إلريك في الخيمياء؟",
+  "options": [
+   "ريزا هوكاي",
+   "إيزومي كيرتس",
+   "وينري روكبيل",
+   "أوليفييه أرمسترونغ"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "Who is the Elric brothers' alchemy teacher?",
+  "options_en": [
+   "Riza Hawkeye",
+   "Izumi Curtis",
+   "Winry Rockbell",
+   "Olivier Armstrong"
+  ]
+ },
+ {
+  "q": "ما اسم الجزيرة التي يعيش فيها الإلديون في بداية Attack on Titan؟",
+  "options": [
+   "Marley",
+   "Hizuru",
+   "Paradis",
+   "Shiganshina"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the island where the Eldians live in Attack on Titan?",
+  "options_en": [
+   "Marley",
+   "Hizuru",
+   "Paradis",
+   "Shiganshina"
+  ]
+ },
+ {
+  "q": "ما اسم اللعبة التي يدخلها غون وكيلوا في قوس مرتبط بوالد غون في Hunter x Hunter؟",
+  "options": [
+   "Greed Island",
+   "Heaven's Arena",
+   "Yorknew City",
+   "Dark Continent"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "What game do Gon and Killua enter in a Hunter x Hunter arc tied to Gon's father?",
+  "options_en": [
+   "Greed Island",
+   "Heaven's Arena",
+   "Yorknew City",
+   "Dark Continent"
+  ]
+ },
+ {
+  "q": "ما سلالة الكلب «آين» في Cowboy Bebop؟",
+  "options": [
+   "هاسكي",
+   "كورغي ويلزي",
+   "شيبا إينو",
+   "بيغل"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "What breed is Ein the dog in Cowboy Bebop?",
+  "options_en": [
+   "Husky",
+   "Welsh Corgi",
+   "Shiba Inu",
+   "Beagle"
+  ]
+ },
+ {
+  "q": "في أي حي في طوكيو تدور أحداث Steins;Gate؟",
+  "options": [
+   "Shibuya",
+   "Shinjuku",
+   "Akihabara",
+   "Ginza"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "In which Tokyo district is Steins;Gate set?",
+  "options_en": [
+   "Shibuya",
+   "Shinjuku",
+   "Akihabara",
+   "Ginza"
+  ]
+ },
+ {
+  "q": "ما اسم التنين الذي ربّى ناتسو في Fairy Tail؟",
+  "options": [
+   "Grandeeney",
+   "Metalicana",
+   "Weisslogia",
+   "Igneel"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the dragon who raised Natsu in Fairy Tail?",
+  "options_en": [
+   "Grandeeney",
+   "Metalicana",
+   "Weisslogia",
+   "Igneel"
+  ]
+ },
+ {
+  "q": "كيف تُسمى اليابان بعد احتلال بريطانيا لها في Code Geass؟",
+  "options": [
+   "Area 11",
+   "Zone 7",
+   "Sector 9",
+   "Region 3"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "What is Japan called after Britannia conquers it in Code Geass?",
+  "options_en": [
+   "Area 11",
+   "Zone 7",
+   "Sector 9",
+   "Region 3"
+  ]
+ },
+ {
+  "q": "من هو الطيار الرئيسي لـ RX-78-2 Gundam في أنمي Mobile Suit Gundam الأصلي؟",
+  "options": [
+   "شار أزنابل",
+   "أمورو راي",
+   "كاميل بيدان",
+   "سيتسونا إف. سييي"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "Who pilots the RX-78-2 Gundam in the original Mobile Suit Gundam?",
+  "options_en": [
+   "Char Aznable",
+   "Amuro Ray",
+   "Kamille Bidan",
+   "Setsuna F. Seiei"
+  ]
+ },
+ {
+  "q": "ما الذي يتنافس عليه السحرة في Fate/stay night؟",
+  "options": [
+   "Philosopher's Stone",
+   "Dragon Balls",
+   "Holy Grail",
+   "Infinity Stones"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "What do the mages compete for in Fate/stay night?",
+  "options_en": [
+   "Philosopher's Stone",
+   "Dragon Balls",
+   "Holy Grail",
+   "Infinity Stones"
+  ]
+ },
+ {
+  "q": "ما اسم المقهى الذي يعمل به كانيكي في Tokyo Ghoul؟",
+  "options": [
+   "Rabbit's Cafe",
+   "Ghoul Cafe",
+   "Kagune",
+   "Anteiku"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "What is the name of the café where Kaneki works in Tokyo Ghoul?",
+  "options_en": [
+   "Rabbit's Cafe",
+   "Ghoul Cafe",
+   "Kagune",
+   "Anteiku"
+  ]
+ },
+ {
+  "q": "ما عدد القديسين الذهبيين في Saint Seiya؟",
+  "options": [
+   "12",
+   "9",
+   "7",
+   "5"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 5,
+  "q_en": "How many Gold Saints are there in Saint Seiya?",
+  "options_en": [
+   "12",
+   "9",
+   "7",
+   "5"
+  ]
+ },
+ {
+  "q": "ما لقب شار أزنابل في Mobile Suit Gundam؟",
+  "options": [
+   "النسر الأسود",
+   "المذنّب الأحمر",
+   "الشبح الأزرق",
+   "الأمير الأبيض"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "What is Char Aznable's nickname in Mobile Suit Gundam?",
+  "options_en": [
+   "The Black Eagle",
+   "The Red Comet",
+   "The Blue Phantom",
+   "The White Prince"
+  ]
+ },
+ {
+  "q": "في أي عام فاز Spirited Away بأوسكار أفضل فيلم رسوم متحركة؟",
+  "options": [
+   "2001",
+   "2005",
+   "2003",
+   "2008"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "In what year did Spirited Away win the Oscar for Best Animated Feature?",
+  "options_en": [
+   "2001",
+   "2005",
+   "2003",
+   "2008"
+  ]
+ },
+ {
+  "q": "ما قدرة ماكوتو في فيلم The Girl Who Leapt Through Time؟",
+  "options": [
+   "قراءة الأفكار",
+   "الطيران",
+   "الاختفاء",
+   "القفز عبر الزمن"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 4,
+  "q_en": "What ability does Makoto gain in The Girl Who Leapt Through Time?",
+  "options_en": [
+   "Reading minds",
+   "Flying",
+   "Becoming invisible",
+   "Leaping through time"
+  ]
+ },
+ {
+  "q": "كم عدد فئات الخادمين (Servants) في حرب الكأس المقدسة في Fate/stay night؟",
+  "options": [
+   "7",
+   "5",
+   "9",
+   "12"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "How many Servant classes are there in the Holy Grail War of Fate/stay night?",
+  "options_en": [
+   "7",
+   "5",
+   "9",
+   "12"
+  ]
+ },
+ {
+  "q": "ما اسم القوس الذي يواجه فيه غون وكيلوا جيش الملكة النملة في Hunter x Hunter؟",
+  "options": [
+   "Greed Island arc",
+   "Chimera Ant arc",
+   "Yorknew City arc",
+   "Election arc"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "What is the arc where Gon and Killua face the Ant Queen's army in Hunter x Hunter?",
+  "options_en": [
+   "Greed Island arc",
+   "Chimera Ant arc",
+   "Yorknew City arc",
+   "Election arc"
+  ]
+ },
+ {
+  "q": "ما اسم الدولة على القارة الأخرى التي تعادي جزيرة Paradis في Attack on Titan؟",
+  "options": [
+   "Hizuru",
+   "Odiha",
+   "Marley",
+   "Sina"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "What is the name of the country on the continent that opposes Paradis in Attack on Titan?",
+  "options_en": [
+   "Hizuru",
+   "Odiha",
+   "Marley",
+   "Sina"
+  ]
+ },
+ {
+  "q": "أي أنمي يدور حول موغن وجين وفو؟",
+  "options": [
+   "Rurouni Kenshin",
+   "Gintama",
+   "Trigun",
+   "Samurai Champloo"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "Which anime follows Mugen, Jin and Fuu?",
+  "options_en": [
+   "Rurouni Kenshin",
+   "Gintama",
+   "Trigun",
+   "Samurai Champloo"
+  ]
+ },
+ {
+  "q": "ما لقب فاش ذا ستامبيد في Trigun؟",
+  "options": [
+   "Humanoid Typhoon",
+   "Gunsmoke King",
+   "Desert Ghost",
+   "Lone Wolf"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "What is Vash the Stampede's nickname in Trigun?",
+  "options_en": [
+   "Humanoid Typhoon",
+   "Gunsmoke King",
+   "Desert Ghost",
+   "Lone Wolf"
+  ]
+ },
+ {
+  "q": "ما اسم نظام الطاقة الذي يستخدمه أبطال Gurren Lagann؟",
+  "options": [
+   "Geass",
+   "Spiral Power",
+   "Cursed Energy",
+   "Chakra"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "What is the power that fuels Gurren Lagann called?",
+  "options_en": [
+   "Geass",
+   "Spiral Power",
+   "Cursed Energy",
+   "Chakra"
+  ]
+ },
+ {
+  "q": "ما اسم قرية لوفي الأصلية في One Piece؟",
+  "options": [
+   "Cocoyasi Village",
+   "Syrup Village",
+   "Foosha Village",
+   "Orange Town"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "What is the name of Luffy's home village in One Piece?",
+  "options_en": [
+   "Cocoyasi Village",
+   "Syrup Village",
+   "Foosha Village",
+   "Orange Town"
+  ]
+ },
+ {
+  "q": "ما اسم المنظمة الإجرامية التي كان ينتمي إليها سبايك سبيغل سابقًا في Cowboy Bebop؟",
+  "options": [
+   "Blue Snake Syndicate",
+   "Black Lotus",
+   "Golden Tiger",
+   "Red Dragon Syndicate"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "Which crime syndicate was Spike Spiegel formerly part of in Cowboy Bebop?",
+  "options_en": [
+   "Blue Snake Syndicate",
+   "Black Lotus",
+   "Golden Tiger",
+   "Red Dragon Syndicate"
+  ]
+ },
+ {
+  "q": "أي من خلفاء L يلعب بالألعاب ويرتدي ملابس بيضاء في Death Note؟",
+  "options": [
+   "نير",
+   "ميلو",
+   "ماتس",
+   "ليون"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "Which successor of L plays with toys and wears white clothes in Death Note?",
+  "options_en": [
+   "Near",
+   "Mello",
+   "Matt",
+   "Leon"
+  ]
+ },
+ {
+  "q": "ما اسم البوابة التي يراها الأخوان إلريك بعد فشل عملية التحويل البشري في Fullmetal Alchemist؟",
+  "options": [
+   "بوابة الزمن",
+   "بوابة الحقيقة",
+   "بوابة الجحيم",
+   "مرآة السحر"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "What do the Elric brothers see after their failed transmutation in Fullmetal Alchemist?",
+  "options_en": [
+   "Gate of Time",
+   "The Gate of Truth",
+   "Gate of Hell",
+   "Magic Mirror"
+  ]
+ },
+ {
+  "q": "ما اسم الحرب التي شارك فيها روي موستانغ في Fullmetal Alchemist؟",
+  "options": [
+   "Great Alchemy War",
+   "War of Amestris",
+   "Ishval Civil War",
+   "War of Xing"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "In which war did Roy Mustang fight in Fullmetal Alchemist?",
+  "options_en": [
+   "Great Alchemy War",
+   "War of Amestris",
+   "Ishval Civil War",
+   "War of Xing"
+  ]
+ },
+ {
+  "q": "ما اسم والد إيرين، الطبيب الذي أخفى سرًّا في قبو منزله في Attack on Titan؟",
+  "options": [
+   "كروغر",
+   "هانس",
+   "داريوس",
+   "جريشا"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "What is the name of Eren's father, the doctor who hid a secret in the basement in Attack on Titan?",
+  "options_en": [
+   "Kruger",
+   "Hannes",
+   "Darius",
+   "Grisha"
+  ]
+ },
+ {
+  "q": "من هي والدة ناروتو في Naruto؟",
+  "options": [
+   "كوشينا",
+   "ميكوتو",
+   "تسونادي",
+   "كونان"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "Who is Naruto's mother in Naruto?",
+  "options_en": [
+   "Kushina",
+   "Mikoto",
+   "Tsunade",
+   "Konan"
+  ]
+ },
+ {
+  "q": "كم سنة تقريبًا بقيت البشرية متحجرة في Dr. Stone؟",
+  "options": [
+   "1000",
+   "3700",
+   "500",
+   "10000"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 7,
+  "q_en": "Roughly how many years was humanity petrified in Dr. Stone?",
+  "options_en": [
+   "1000",
+   "3700",
+   "500",
+   "10000"
+  ]
+ },
+ {
+  "q": "ما اسم المشروع الذي يهدف لدمج أرواح البشر في Neon Genesis Evangelion؟",
+  "options": [
+   "Project Genesis",
+   "Project Ark",
+   "Human Instrumentality Project",
+   "Project Seed"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 7,
+  "q_en": "What is the project aimed at merging all human souls in Neon Genesis Evangelion?",
+  "options_en": [
+   "Project Genesis",
+   "Project Ark",
+   "Human Instrumentality Project",
+   "Project Seed"
+  ]
+ },
+ {
+  "q": "ما اسم التقويم الذي تدور فيه أحداث Mobile Suit Gundam الأصلي؟",
+  "options": [
+   "Cosmic Era",
+   "After Colony",
+   "Anno Domini",
+   "Universal Century"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 7,
+  "q_en": "Which calendar era is the original Mobile Suit Gundam set in?",
+  "options_en": [
+   "Cosmic Era",
+   "After Colony",
+   "Anno Domini",
+   "Universal Century"
+  ]
+ },
+ {
+  "q": "ماذا يسمى المستكشفون الذين ينزلون إلى الهاوية في Made in Abyss؟",
+  "options": [
+   "Cave Raiders",
+   "Sky Hunters",
+   "Deep Divers",
+   "Relic Seekers"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 7,
+  "q_en": "What are the explorers who descend into the Abyss called in Made in Abyss?",
+  "options_en": [
+   "Cave Raiders",
+   "Sky Hunters",
+   "Deep Divers",
+   "Relic Seekers"
+  ]
+ },
+ {
+  "q": "ما العمل الذي تتركه ميما كيريغوي في بداية Perfect Blue؟",
+  "options": [
+   "ممثلة سينما",
+   "مغنية في فرقة بوب",
+   "راقصة باليه",
+   "مقدمة برامج"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 7,
+  "q_en": "What career does Mima Kirigoe leave at the start of Perfect Blue?",
+  "options_en": [
+   "Film actress",
+   "Pop idol singer",
+   "Ballet dancer",
+   "TV host"
+  ]
+ },
+ {
+  "q": "في أي عام عُرض أول مسلسل تلفزيوني لـ Astro Boy؟",
+  "options": [
+   "1958",
+   "1968",
+   "1963",
+   "1972"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 7,
+  "q_en": "In what year did the first Astro Boy TV anime premiere?",
+  "options_en": [
+   "1958",
+   "1968",
+   "1963",
+   "1972"
+  ]
+ },
+ {
+  "q": "كم عدد الأطفال المختارين (DigiDestined) في Digimon Adventure الأول؟",
+  "options": [
+   "5",
+   "7",
+   "12",
+   "8"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 7,
+  "q_en": "How many DigiDestined children are there in the first Digimon Adventure?",
+  "options_en": [
+   "5",
+   "7",
+   "12",
+   "8"
+  ]
+ },
+ {
+  "q": "ما اسم الكائنات العملاقة الشبيهة بالحشرات في فيلم Nausicaä of the Valley of the Wind؟",
+  "options": [
+   "Ohmu",
+   "Mushi",
+   "Kodama",
+   "Titans"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 7,
+  "q_en": "What are the giant insect-like creatures in Nausicaä of the Valley of the Wind called?",
+  "options_en": [
+   "Ohmu",
+   "Mushi",
+   "Kodama",
+   "Titans"
+  ]
+ },
+ {
+  "q": "ما اسم الموسم الثاني من الأنمي الأصلي لـ Pokémon الذي تدور أحداثه في أرخبيل؟",
+  "options": [
+   "Indigo League",
+   "Orange Islands",
+   "Johto Journeys",
+   "Hoenn League"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "Which season of the original Pokémon anime takes place in an archipelago?",
+  "options_en": [
+   "Indigo League",
+   "Orange Islands",
+   "Johto Journeys",
+   "Hoenn League"
+  ]
+ },
+ {
+  "q": "ما اسم دار الأيتام التي نشأ فيها L وخلفاؤه في Death Note؟",
+  "options": [
+   "Rose Home",
+   "Hope House",
+   "Wammy's House",
+   "Kira Hall"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "What is the name of the orphanage where L and his successors grew up in Death Note?",
+  "options_en": [
+   "Rose Home",
+   "Hope House",
+   "Wammy's House",
+   "Kira Hall"
+  ]
+ },
+ {
+  "q": "إلى أي فرقة ينتمي كينباتشي زاراكي في Bleach؟",
+  "options": [
+   "الفرقة 6",
+   "الفرقة 3",
+   "الفرقة 10",
+   "الفرقة 11"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "Which division does Kenpachi Zaraki lead in Bleach?",
+  "options_en": [
+   "Squad 6",
+   "Squad 3",
+   "Squad 10",
+   "Squad 11"
+  ]
+ },
+ {
+  "q": "إلى أي نوع نين ينتمي هيسوكا في Hunter x Hunter؟",
+  "options": [
+   "التحويل",
+   "التعزيز",
+   "الإطلاق",
+   "الاستحضار"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "Which Nen type does Hisoka belong to in Hunter x Hunter?",
+  "options_en": [
+   "Transmutation",
+   "Enhancement",
+   "Emission",
+   "Conjuration"
+  ]
+ },
+ {
+  "q": "ما اسم الكوكب الذي تدور عليه أحداث Trigun؟",
+  "options": [
+   "Namek",
+   "Gunsmoke",
+   "Gaia",
+   "Arrakis"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "What is the name of the planet on which Trigun takes place?",
+  "options_en": [
+   "Namek",
+   "Gunsmoke",
+   "Gaia",
+   "Arrakis"
+  ]
+ },
+ {
+  "q": "ما اسم الطريق الطويل الذي يسلكه غوكو للوصول إلى الملك كاي بعد موته؟",
+  "options": [
+   "Serpent Bridge",
+   "Dragon Road",
+   "Snake Way",
+   "Spirit Path"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "What is the long road Goku takes to reach King Kai after dying called?",
+  "options_en": [
+   "Serpent Bridge",
+   "Dragon Road",
+   "Snake Way",
+   "Spirit Path"
+  ]
+ },
+ {
+  "q": "مع أي فيلم عُرض Grave of the Fireflies في السينما عام 1988؟",
+  "options": [
+   "Kiki's Delivery Service",
+   "Castle in the Sky",
+   "Nausicaä of the Valley of the Wind",
+   "My Neighbor Totoro"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "Which film was shown alongside Grave of the Fireflies in Japanese theaters in 1988?",
+  "options_en": [
+   "Kiki's Delivery Service",
+   "Castle in the Sky",
+   "Nausicaä of the Valley of the Wind",
+   "My Neighbor Totoro"
+  ]
+ },
+ {
+  "q": "كم عدد أجزاء جسد هياكيمارو المسروقة في Dororo؟",
+  "options": [
+   "48",
+   "12",
+   "24",
+   "100"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "How many body parts of Hyakkimaru were taken in Dororo?",
+  "options_en": [
+   "48",
+   "12",
+   "24",
+   "100"
+  ]
+ },
+ {
+  "q": "ما اسم مملكة القمر القديمة في Sailor Moon؟",
+  "options": [
+   "Golden Dynasty",
+   "Silver Millennium",
+   "Crystal Tokyo",
+   "Dark Kingdom"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "What is the ancient kingdom of the Moon called in Sailor Moon?",
+  "options_en": [
+   "Golden Dynasty",
+   "Silver Millennium",
+   "Crystal Tokyo",
+   "Dark Kingdom"
+  ]
+ },
+ {
+  "q": "ما اسم شريك كوشيرو إيزومي في Digimon Adventure؟",
+  "options": [
+   "Gomamon",
+   "Palmon",
+   "Tentomon",
+   "Patamon"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "Who is Koushiro Izumi's partner Digimon in Digimon Adventure?",
+  "options_en": [
+   "Gomamon",
+   "Palmon",
+   "Tentomon",
+   "Patamon"
+  ]
+ },
+ {
+  "q": "ما أسماء الحواسيب العملاقة الثلاثة MAGI في Neon Genesis Evangelion؟",
+  "options": [
+   "Alpha, Beta, Gamma",
+   "Apollo, Hermes, Ares",
+   "Helios, Selene, Eos",
+   "Melchior, Balthasar, Casper"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 9,
+  "q_en": "What are the three MAGI supercomputers called in Neon Genesis Evangelion?",
+  "options_en": [
+   "Alpha, Beta, Gamma",
+   "Apollo, Hermes, Ares",
+   "Helios, Selene, Eos",
+   "Melchior, Balthasar, Casper"
+  ]
+ },
+ {
+  "q": "ماذا تسمى حلقات Cowboy Bebop؟",
+  "options": [
+   "Sessions",
+   "Chapters",
+   "Bounties",
+   "Acts"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 9,
+  "q_en": "What are the episodes of Cowboy Bebop called?",
+  "options_en": [
+   "Sessions",
+   "Chapters",
+   "Bounties",
+   "Acts"
+  ]
+ },
+ {
+  "q": "كم حلقة لأنمي Death Note الأصلي؟",
+  "options": [
+   "26",
+   "37",
+   "52",
+   "24"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 9,
+  "q_en": "How many episodes does the original Death Note anime have?",
+  "options_en": [
+   "26",
+   "37",
+   "52",
+   "24"
+  ]
+ },
+ {
+  "q": "كم حلقة في Fullmetal Alchemist: Brotherhood؟",
+  "options": [
+   "51",
+   "26",
+   "64",
+   "100"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 9,
+  "q_en": "How many episodes does Fullmetal Alchemist: Brotherhood have?",
+  "options_en": [
+   "51",
+   "26",
+   "64",
+   "100"
+  ]
+ },
+ {
+  "q": "كم حلقة في Hunter x Hunter (نسخة 2011)؟",
+  "options": [
+   "62",
+   "100",
+   "200",
+   "148"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 9,
+  "q_en": "How many episodes does Hunter x Hunter (2011) have?",
+  "options_en": [
+   "62",
+   "100",
+   "200",
+   "148"
+  ]
+ },
+ {
+  "q": "ما الرقم الذي حصل عليه غون في اختبار الهنتر؟",
+  "options": [
+   "405",
+   "99",
+   "404",
+   "403"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 9,
+  "q_en": "What exam number does Gon have in the Hunter Exam?",
+  "options_en": [
+   "405",
+   "99",
+   "404",
+   "403"
+  ]
+ },
+ {
+  "q": "كم حلقة في المسلسل التلفزيوني Cowboy Bebop؟",
+  "options": [
+   "13",
+   "26",
+   "24",
+   "39"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 10,
+  "q_en": "How many episodes does the Cowboy Bebop TV series have?",
+  "options_en": [
+   "13",
+   "26",
+   "24",
+   "39"
+  ]
+ },
+ {
+  "q": "كم حلقة في الموسم الأول من Code Geass: Lelouch of the Rebellion؟",
+  "options": [
+   "12",
+   "26",
+   "25",
+   "50"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 10,
+  "q_en": "How many episodes does the first season of Code Geass: Lelouch of the Rebellion have?",
+  "options_en": [
+   "12",
+   "26",
+   "25",
+   "50"
+  ]
+ },
+ {
+  "q": "كم حلقة في المسلسل التلفزيوني الأول لـ Steins;Gate؟",
+  "options": [
+   "12",
+   "26",
+   "50",
+   "24"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 10,
+  "q_en": "How many episodes does the first Steins;Gate TV series have?",
+  "options_en": [
+   "12",
+   "26",
+   "50",
+   "24"
+  ]
+ },
+ {
+  "q": "في أي عام عُرض أول مسلسل تلفزيوني من Lupin III؟",
+  "options": [
+   "1971",
+   "1965",
+   "1978",
+   "1984"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 10,
+  "q_en": "In what year did the first Lupin III TV series premiere?",
+  "options_en": [
+   "1971",
+   "1965",
+   "1978",
+   "1984"
+  ]
+ },
+ {
+  "q": "في أي عام بدأ عرض أنمي Yu Yu Hakusho؟",
+  "options": [
+   "1985",
+   "1992",
+   "1999",
+   "2003"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 10,
+  "q_en": "In what year did the Yu Yu Hakusho anime begin airing?",
+  "options_en": [
+   "1985",
+   "1992",
+   "1999",
+   "2003"
+  ]
+ },
+ {
+  "q": "في أي عام بدأ عرض أنمي Slam Dunk؟",
+  "options": [
+   "1989",
+   "1998",
+   "1993",
+   "1990"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 10,
+  "q_en": "In what year did the Slam Dunk anime begin airing?",
+  "options_en": [
+   "1989",
+   "1998",
+   "1993",
+   "1990"
+  ]
+ },
+ {
+  "q": "في أي عام عُرض مسلسل Heidi, Girl of the Alps الياباني؟",
+  "options": [
+   "1968",
+   "1981",
+   "1990",
+   "1974"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 10,
+  "q_en": "In what year did the Japanese series Heidi, Girl of the Alps first air?",
+  "options_en": [
+   "1968",
+   "1981",
+   "1990",
+   "1974"
+  ]
+ },
+ {
+  "q": "من أي بلد تنحدر المانغا؟",
+  "options": [
+   "اليابان",
+   "كوريا",
+   "الصين",
+   "تايلاند"
+  ],
+  "answer": 0,
+  "category": "manga",
+  "base_difficulty": 1,
+  "q_en": "Which country is manga from?",
+  "options_en": [
+   "Japan",
+   "Korea",
+   "China",
+   "Thailand"
+  ]
+ },
+ {
+  "q": "في أي اتجاه تُقرأ المانغا اليابانية التقليدية؟",
+  "options": [
+   "من اليسار إلى اليمين",
+   "من اليمين إلى اليسار",
+   "من الأعلى فقط",
+   "بشكل دائري"
+  ],
+  "answer": 1,
+  "category": "manga",
+  "base_difficulty": 1,
+  "q_en": "In which direction is traditional Japanese manga read?",
+  "options_en": [
+   "Left to right",
+   "Right to left",
+   "Top only",
+   "In a circle"
+  ]
+ },
+ {
+  "q": "أي دار نشر تصدر مجلة Weekly Shonen Jump؟",
+  "options": [
+   "Kodansha",
+   "Shogakukan",
+   "Shueisha",
+   "Square Enix"
+  ],
+  "answer": 2,
+  "category": "manga",
+  "base_difficulty": 3,
+  "q_en": "Which publisher puts out Weekly Shonen Jump?",
+  "options_en": [
+   "Kodansha",
+   "Shogakukan",
+   "Shueisha",
+   "Square Enix"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Dragon Ball؟",
+  "options": [
+   "Weekly Shonen Magazine",
+   "Weekly Shonen Sunday",
+   "Monthly Shonen Gangan",
+   "Weekly Shonen Jump"
+  ],
+  "answer": 3,
+  "category": "manga",
+  "base_difficulty": 3,
+  "q_en": "In which magazine was the Dragon Ball manga serialized?",
+  "options_en": [
+   "Weekly Shonen Magazine",
+   "Weekly Shonen Sunday",
+   "Monthly Shonen Gangan",
+   "Weekly Shonen Jump"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Bleach؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Magazine",
+   "Weekly Shonen Sunday",
+   "Monthly Afternoon"
+  ],
+  "answer": 0,
+  "category": "manga",
+  "base_difficulty": 3,
+  "q_en": "In which magazine was the Bleach manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Magazine",
+   "Weekly Shonen Sunday",
+   "Monthly Afternoon"
+  ]
+ },
+ {
+  "q": "أي دار نشر تصدر مجلة Weekly Shonen Magazine؟",
+  "options": [
+   "Shueisha",
+   "Kodansha",
+   "Shogakukan",
+   "Kadokawa"
+  ],
+  "answer": 1,
+  "category": "manga",
+  "base_difficulty": 4,
+  "q_en": "Which publisher puts out Weekly Shonen Magazine?",
+  "options_en": [
+   "Shueisha",
+   "Kodansha",
+   "Shogakukan",
+   "Kadokawa"
+  ]
+ },
+ {
+  "q": "من مؤلف مانغا Spy x Family؟",
+  "options": [
+   "كوهي هوريكوشي",
+   "تاتسوكي فوجيموتو",
+   "تاتسويا إندو",
+   "غيغي أكوتامي"
+  ],
+  "answer": 2,
+  "category": "manga",
+  "base_difficulty": 5,
+  "q_en": "Who created the Spy x Family manga?",
+  "options_en": [
+   "Kohei Horikoshi",
+   "Tatsuki Fujimoto",
+   "Tatsuya Endo",
+   "Gege Akutami"
+  ]
+ },
+ {
+  "q": "من مؤلف مانغا Gintama؟",
+  "options": [
+   "نوبوهيرو واتسوكي",
+   "هاروتشي فورودات",
+   "تيتي كوبو",
+   "هيديأكي سوراتشي"
+  ],
+  "answer": 3,
+  "category": "manga",
+  "base_difficulty": 6,
+  "q_en": "Who created the Gintama manga?",
+  "options_en": [
+   "Nobuhiro Watsuki",
+   "Haruichi Furudate",
+   "Tite Kubo",
+   "Hideaki Sorachi"
+  ]
+ },
+ {
+  "q": "من مؤلف مانغا Haikyu!!؟",
+  "options": [
+   "هاروتشي فورودات",
+   "تاكيهيكو إينوئي",
+   "كويوهارو غوتوغي",
+   "تيتي كوبو"
+  ],
+  "answer": 0,
+  "category": "manga",
+  "base_difficulty": 6,
+  "q_en": "Who created the Haikyu!! manga?",
+  "options_en": [
+   "Haruichi Furudate",
+   "Takehiko Inoue",
+   "Koyoharu Gotouge",
+   "Tite Kubo"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Kingdom؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Weekly Young Jump",
+   "Weekly Shonen Sunday",
+   "Bessatsu Shonen Magazine"
+  ],
+  "answer": 1,
+  "category": "manga",
+  "base_difficulty": 6,
+  "q_en": "In which magazine was the Kingdom manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Weekly Young Jump",
+   "Weekly Shonen Sunday",
+   "Bessatsu Shonen Magazine"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Soul Eater؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Sunday",
+   "Monthly Shonen Gangan",
+   "Weekly Young Magazine"
+  ],
+  "answer": 2,
+  "category": "manga",
+  "base_difficulty": 7,
+  "q_en": "In which magazine was the Soul Eater manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Sunday",
+   "Monthly Shonen Gangan",
+   "Weekly Young Magazine"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Vagabond؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Sunday",
+   "Monthly Shonen Gangan",
+   "Weekly Morning"
+  ],
+  "answer": 3,
+  "category": "manga",
+  "base_difficulty": 7,
+  "q_en": "In which magazine was the Vagabond manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Sunday",
+   "Monthly Shonen Gangan",
+   "Weekly Morning"
+  ]
+ },
+ {
+  "q": "من مؤلف مانغا 20th Century Boys؟",
+  "options": [
+   "ناوكي أوراساوا",
+   "ماكوتو يوكيمورا",
+   "هيرومو أراكاوا",
+   "تيتي كوبو"
+  ],
+  "answer": 0,
+  "category": "manga",
+  "base_difficulty": 7,
+  "q_en": "Who created the 20th Century Boys manga?",
+  "options_en": [
+   "Naoki Urasawa",
+   "Makoto Yukimura",
+   "Hiromu Arakawa",
+   "Tite Kubo"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Nana؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Cookie",
+   "Nakayoshi",
+   "Weekly Young Jump"
+  ],
+  "answer": 1,
+  "category": "manga",
+  "base_difficulty": 8,
+  "q_en": "In which magazine was the Nana manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Cookie",
+   "Nakayoshi",
+   "Weekly Young Jump"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Akira؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Sunday",
+   "Weekly Young Magazine",
+   "Monthly Shonen Gangan"
+  ],
+  "answer": 2,
+  "category": "manga",
+  "base_difficulty": 8,
+  "q_en": "In which magazine was the Akira manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Sunday",
+   "Weekly Young Magazine",
+   "Monthly Shonen Gangan"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Black Jack؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Magazine",
+   "Monthly Shonen Gangan",
+   "Weekly Shonen Champion"
+  ],
+  "answer": 3,
+  "category": "manga",
+  "base_difficulty": 8,
+  "q_en": "In which magazine was the Black Jack manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Magazine",
+   "Monthly Shonen Gangan",
+   "Weekly Shonen Champion"
+  ]
+ },
+ {
+  "q": "في أي عام صدرت مجلتا Weekly Shonen Magazine وWeekly Shonen Sunday الأسبوعيتان؟",
+  "options": [
+   "1959",
+   "1948",
+   "1968",
+   "1975"
+  ],
+  "answer": 0,
+  "category": "manga",
+  "base_difficulty": 9,
+  "q_en": "In what year were Weekly Shonen Magazine and Weekly Shonen Sunday launched?",
+  "options_en": [
+   "1959",
+   "1948",
+   "1968",
+   "1975"
+  ]
+ },
+ {
+  "q": "في أي عام بدأ نشر مانغا Hunter x Hunter؟",
+  "options": [
+   "1990",
+   "1998",
+   "2003",
+   "1995"
+  ],
+  "answer": 1,
+  "category": "manga",
+  "base_difficulty": 9,
+  "q_en": "In what year did the Hunter x Hunter manga begin serialization?",
+  "options_en": [
+   "1990",
+   "1998",
+   "2003",
+   "1995"
+  ]
+ },
+ {
+  "q": "في أي عام انتهى نشر مانغا Fullmetal Alchemist؟",
+  "options": [
+   "2006",
+   "2013",
+   "2010",
+   "2008"
+  ],
+  "answer": 2,
+  "category": "manga",
+  "base_difficulty": 9,
+  "q_en": "In what year did the Fullmetal Alchemist manga end its serialization?",
+  "options_en": [
+   "2006",
+   "2013",
+   "2010",
+   "2008"
+  ]
+ },
+ {
+  "q": "في أي عام انتهى نشر مانغا Dragon Ball؟",
+  "options": [
+   "1989",
+   "2001",
+   "1992",
+   "1995"
+  ],
+  "answer": 3,
+  "category": "manga",
+  "base_difficulty": 10,
+  "q_en": "In what year did the Dragon Ball manga end its serialization?",
+  "options_en": [
+   "1989",
+   "2001",
+   "1992",
+   "1995"
+  ]
+ },
+ {
+  "q": "في أي عام انتهى نشر مانغا Death Note؟",
+  "options": [
+   "2006",
+   "2004",
+   "2009",
+   "2011"
+  ],
+  "answer": 0,
+  "category": "manga",
+  "base_difficulty": 10,
+  "q_en": "In what year did the Death Note manga end its serialization?",
+  "options_en": [
+   "2006",
+   "2004",
+   "2009",
+   "2011"
+  ]
+ },
+ {
+  "q": "إلى أي بوكيمون يتطور بيكاتشو؟",
+  "options": [
+   "Pichu",
+   "Raichu",
+   "Raikou",
+   "Jolteon"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "Which Pokémon does Pikachu evolve into?",
+  "options_en": [
+   "Pichu",
+   "Raichu",
+   "Raikou",
+   "Jolteon"
+  ]
+ },
+ {
+  "q": "من أي دولة جاء لينغ ياو في Fullmetal Alchemist؟",
+  "options": [
+   "Creta",
+   "Aerugo",
+   "Xing",
+   "Drachma"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 6,
+  "q_en": "Which country does Ling Yao come from in Fullmetal Alchemist?",
+  "options_en": [
+   "Creta",
+   "Aerugo",
+   "Xing",
+   "Drachma"
+  ]
+ },
+ {
+  "q": "ما اسم إله الغابة الذي يتحول ليلًا إلى عملاق في Princess Mononoke؟",
+  "options": [
+   "Moro",
+   "Okkoto",
+   "Nago",
+   "Shishigami"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 7,
+  "q_en": "What is the Forest Spirit that becomes a giant at night in Princess Mononoke called?",
+  "options_en": [
+   "Moro",
+   "Okkoto",
+   "Nago",
+   "Shishigami"
+  ]
+ },
+ {
+  "q": "أي فرقة كان إيزن ساسوكي كابتنها في Bleach؟",
+  "options": [
+   "الفرقة 5",
+   "الفرقة 3",
+   "الفرقة 9",
+   "الفرقة 12"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "Which squad was Aizen the captain of in Bleach?",
+  "options_en": [
+   "Squad 5",
+   "Squad 3",
+   "Squad 9",
+   "Squad 12"
+  ]
+ },
+ {
+  "q": "من هو الملاك الأخير الذي يصادقه شينجي في Neon Genesis Evangelion؟",
+  "options": [
+   "ري أيانامي",
+   "كاورو ناغيسا",
+   "توجي سوزوهارا",
+   "كنسكي أيدا"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 8,
+  "q_en": "Which Angel befriends Shinji in Neon Genesis Evangelion?",
+  "options_en": [
+   "Rei Ayanami",
+   "Kaworu Nagisa",
+   "Toji Suzuhara",
+   "Kensuke Aida"
+  ]
+ },
+ {
+  "q": "ما عنوان الحلقة الأولى (Session #1) من Cowboy Bebop؟",
+  "options": [
+   "Stray Dog Strut",
+   "Honky Tonk Women",
+   "Asteroid Blues",
+   "Ganymede Elegy"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 9,
+  "q_en": "What is the title of the first episode (Session #1) of Cowboy Bebop?",
+  "options_en": [
+   "Stray Dog Strut",
+   "Honky Tonk Women",
+   "Asteroid Blues",
+   "Ganymede Elegy"
+  ]
+ },
+ {
+  "q": "كم حلقة في أنمي Mobile Suit Gundam الأصلي (1979)؟",
+  "options": [
+   "26",
+   "52",
+   "39",
+   "43"
+  ],
+  "answer": 3,
+  "category": "anime",
+  "base_difficulty": 9,
+  "q_en": "How many episodes does the original Mobile Suit Gundam (1979) anime have?",
+  "options_en": [
+   "26",
+   "52",
+   "39",
+   "43"
+  ]
+ },
+ {
+  "q": "كم حلقة في أنمي Samurai Champloo؟",
+  "options": [
+   "26",
+   "13",
+   "24",
+   "39"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 10,
+  "q_en": "How many episodes does the Samurai Champloo anime have?",
+  "options_en": [
+   "26",
+   "13",
+   "24",
+   "39"
+  ]
+ },
+ {
+  "q": "بأي لغة تُكتب المانغا الأصلية؟",
+  "options": [
+   "الكورية",
+   "اليابانية",
+   "الصينية",
+   "الإنجليزية"
+  ],
+  "answer": 1,
+  "category": "manga",
+  "base_difficulty": 1,
+  "q_en": "In which language is original manga written?",
+  "options_en": [
+   "Korean",
+   "Japanese",
+   "Chinese",
+   "English"
+  ]
+ },
+ {
+  "q": "ما معنى كلمة Weekly في اسم مجلة Weekly Shonen Jump؟",
+  "options": [
+   "شهرية",
+   "يومية",
+   "أسبوعية",
+   "سنوية"
+  ],
+  "answer": 2,
+  "category": "manga",
+  "base_difficulty": 1,
+  "q_en": "What does \"Weekly\" mean in the name Weekly Shonen Jump?",
+  "options_en": [
+   "Published monthly",
+   "Published daily",
+   "Published every week",
+   "Published yearly"
+  ]
+ },
+ {
+  "q": "ما اللون السائد في صفحات المانغا المطبوعة؟",
+  "options": [
+   "ملوّنة بالكامل",
+   "أحمر وأبيض",
+   "أزرق وأبيض",
+   "أبيض وأسود"
+  ],
+  "answer": 3,
+  "category": "manga",
+  "base_difficulty": 2,
+  "q_en": "What are most printed manga pages colored?",
+  "options_en": [
+   "Full color",
+   "Red and white",
+   "Blue and white",
+   "Black and white"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Demon Slayer؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Magazine",
+   "Weekly Shonen Sunday",
+   "Monthly Afternoon"
+  ],
+  "answer": 0,
+  "category": "manga",
+  "base_difficulty": 3,
+  "q_en": "In which magazine was the Demon Slayer manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Magazine",
+   "Weekly Shonen Sunday",
+   "Monthly Afternoon"
+  ]
+ },
+ {
+  "q": "أي دار نشر تصدر مجلة Weekly Shonen Sunday؟",
+  "options": [
+   "Kodansha",
+   "Shogakukan",
+   "Shueisha",
+   "Akita Shoten"
+  ],
+  "answer": 1,
+  "category": "manga",
+  "base_difficulty": 4,
+  "q_en": "Which publisher puts out Weekly Shonen Sunday?",
+  "options_en": [
+   "Kodansha",
+   "Shogakukan",
+   "Shueisha",
+   "Akita Shoten"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Haikyu!!؟",
+  "options": [
+   "Weekly Shonen Magazine",
+   "Weekly Shonen Sunday",
+   "Weekly Shonen Jump",
+   "Weekly Young Jump"
+  ],
+  "answer": 2,
+  "category": "manga",
+  "base_difficulty": 4,
+  "q_en": "In which magazine was the Haikyu!! manga serialized?",
+  "options_en": [
+   "Weekly Shonen Magazine",
+   "Weekly Shonen Sunday",
+   "Weekly Shonen Jump",
+   "Weekly Young Jump"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Tokyo Revengers؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Sunday",
+   "Weekly Young Jump",
+   "Weekly Shonen Magazine"
+  ],
+  "answer": 3,
+  "category": "manga",
+  "base_difficulty": 5,
+  "q_en": "In which magazine was the Tokyo Revengers manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Weekly Shonen Sunday",
+   "Weekly Young Jump",
+   "Weekly Shonen Magazine"
+  ]
+ },
+ {
+  "q": "من مؤلف مانغا Rurouni Kenshin؟",
+  "options": [
+   "نوبوهيرو واتسوكي",
+   "كازوكي تاكاهاشي",
+   "هيديأكي سوراتشي",
+   "ماساشي كيشيموتو"
+  ],
+  "answer": 0,
+  "category": "manga",
+  "base_difficulty": 6,
+  "q_en": "Who created the Rurouni Kenshin manga?",
+  "options_en": [
+   "Nobuhiro Watsuki",
+   "Kazuki Takahashi",
+   "Hideaki Sorachi",
+   "Masashi Kishimoto"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Golden Kamuy؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Weekly Young Jump",
+   "Weekly Shonen Magazine",
+   "Monthly Afternoon"
+  ],
+  "answer": 1,
+  "category": "manga",
+  "base_difficulty": 7,
+  "q_en": "In which magazine was the Golden Kamuy manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Weekly Young Jump",
+   "Weekly Shonen Magazine",
+   "Monthly Afternoon"
+  ]
+ },
+ {
+  "q": "من مؤلفة مانغا Fruits Basket؟",
+  "options": [
+   "ناوكو تاكيوتشي",
+   "هيرومو أراكاوا",
+   "ناتسوكي تاكايا",
+   "ريوكو يوكي"
+  ],
+  "answer": 2,
+  "category": "manga",
+  "base_difficulty": 7,
+  "q_en": "Who created the Fruits Basket manga?",
+  "options_en": [
+   "Naoko Takeuchi",
+   "Hiromu Arakawa",
+   "Natsuki Takaya",
+   "Ai Yazawa"
+  ]
+ },
+ {
+  "q": "ماذا يُسمى المحرر المسؤول عن متابعة المانغاكا في دار النشر؟",
+  "options": [
+   "Sensei",
+   "Assistant",
+   "Kohai",
+   "Tanto"
+  ],
+  "answer": 3,
+  "category": "manga",
+  "base_difficulty": 8,
+  "q_en": "What is the editor who works with a mangaka at the publisher called?",
+  "options_en": [
+   "Sensei",
+   "Assistant",
+   "Kohai",
+   "Tanto"
+  ]
+ },
+ {
+  "q": "ما اسم الفتاة اللطيفة التي يحبها نوبيتا في Doraemon؟",
+  "options": [
+   "شيزوكا",
+   "ميكا",
+   "ساكورا",
+   "يوكي"
+  ],
+  "answer": 0,
+  "category": "anime",
+  "base_difficulty": 2,
+  "q_en": "Which kind girl does Nobita like in Doraemon?",
+  "options_en": [
+   "Shizuka",
+   "Mika",
+   "Sakura",
+   "Yuki"
+  ]
+ },
+ {
+  "q": "كم حلقة في أنمي Trigun (1998)؟",
+  "options": [
+   "13",
+   "26",
+   "24",
+   "39"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 9,
+  "q_en": "How many episodes does the Trigun (1998) anime have?",
+  "options_en": [
+   "13",
+   "26",
+   "24",
+   "39"
+  ]
+ },
+ {
+  "q": "ماذا تُسمّى القصص المصوّرة الكورية؟",
+  "options": [
+   "Manhua",
+   "Manga",
+   "Manhwa",
+   "Bande dessinée"
+  ],
+  "answer": 2,
+  "category": "manga",
+  "base_difficulty": 2,
+  "q_en": "What are Korean comics called?",
+  "options_en": [
+   "Manhua",
+   "Manga",
+   "Manhwa",
+   "Bande dessinée"
+  ]
+ },
+ {
+  "q": "من مؤلف مانغا Black Jack؟",
+  "options": [
+   "فوجيكو إف فوجيو",
+   "ناوكي أوراساوا",
+   "أكيرا تورياما",
+   "أوسامو تيزوكا"
+  ],
+  "answer": 3,
+  "category": "manga",
+  "base_difficulty": 5,
+  "q_en": "Who created the Black Jack manga?",
+  "options_en": [
+   "Fujiko F. Fujio",
+   "Naoki Urasawa",
+   "Akira Toriyama",
+   "Osamu Tezuka"
+  ]
+ },
+ {
+  "q": "في أي عام انتهى نشر مانغا Slam Dunk؟",
+  "options": [
+   "1996",
+   "1992",
+   "2000",
+   "1999"
+  ],
+  "answer": 0,
+  "category": "manga",
+  "base_difficulty": 10,
+  "q_en": "In what year did the Slam Dunk manga end its serialization?",
+  "options_en": [
+   "1996",
+   "1992",
+   "2000",
+   "1999"
+  ]
+ },
+ {
+  "q": "ما اسم ابن غوكو الأكبر في Dragon Ball؟",
+  "options": [
+   "غوتن",
+   "غوهان",
+   "ترانكس",
+   "كوريلين"
+  ],
+  "answer": 1,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "What is the name of Goku's eldest son in Dragon Ball?",
+  "options_en": [
+   "Goten",
+   "Gohan",
+   "Trunks",
+   "Krillin"
+  ]
+ },
+ {
+  "q": "ما الاسم الحقيقي للبطل «ديكو» في My Hero Academia؟",
+  "options": [
+   "كاتسوكي باكوغو",
+   "شوتو تودوروكي",
+   "إيزوكو ميدوريا",
+   "تينيا إيدا"
+  ],
+  "answer": 2,
+  "category": "anime",
+  "base_difficulty": 1,
+  "q_en": "What is the real name of the hero \"Deku\" in My Hero Academia?",
+  "options_en": [
+   "Katsuki Bakugo",
+   "Shoto Todoroki",
+   "Izuku Midoriya",
+   "Tenya Iida"
+  ]
+ }
+]

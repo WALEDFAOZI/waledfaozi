@@ -1,19 +1,345 @@
+A Certain Scientific Railgun
 A Cruel Angel's Thesis
+ASCII Media Works
+ASIAN KUNG-FU GENERATION
+Acts
+Ado
+Aerugo
+After Colony
+Afterglow
+Akihabara
+Akita Shoten
+Albion
+Alpha, Beta, Gamma
+Alphonse Elric
+Amaterasu
+Anno Domini
+Anteiku
+Apollo, Hermes, Ares
+Aqours
+Aqua Timez
+Area 11
+Area 88
+Arrakis
+Ash Ketchum
+Ashita no Joe
+Assistant
 Asterisk
+Asteroid Blues
+Ayumi Hamasaki
+BURNOUT SYNDROMES
+Bandai Namco
+Bandai Namco Filmworks
+Bandai Namco Pictures
+Bande dessinée
+Beastars
+Black Knights
+Black Lotus
 Blue Bird
+Blue Order
+Blue Snake Syndicate
+Boh
+Bounties
+Calcifer
+Candy Candy
+Cat Taxi
+Catbus
+Cave Raiders
 Cha-La Head-Cha-La
+Chakra
+Chapters
+Chata
+Chibi Maruko-chan
+Chihiro Ogino
+Chimera Ant arc
+Cocoyasi Village
+Cookie
+Cosmic Era
+Creepy Nuts
+Creta
+Crypton Future Media
+Crystal Tokyo
+Cursed Energy
+DALI
+Dallos
+Dark Continent
+Dark Kingdom
+Deep Divers
+Dengeki Daioh
 Departure!
+Desert Ghost
+Dororo
+Drachma
+Dragon Ball GT
+Dragon Ball Kai
+Dragon Balls
+Dragon Quest: The Adventure of Dai
+Dragon Road
+Durarara!!
+Election arc
+FLOW
+FUNKIST
+Field of View
+Fly Me to the Moon
+Foosha Village
+Fujimi Shobo
+Funimation
+Furry Bus
+Futabasha
+Gaia
+Game Boy
+Ganymede Elegy
+Geass
+Geinoh Yamashirogumi
+Ghoul Cafe
+Ginza
+Golden Dynasty
+Golden Tiger
+Gomamon
+Grandeeney
+Grandine
+Great Alchemy War
+Greed Island
+Greed Island arc
+Guilty Crown
+Gundam 0080
+Gunsmoke
+Gunsmoke King
 Gurenge
+Haku
+Hakusensha
+Hanbok
 Haruka Kanata
+Heaven's Arena
+Helios, Selene, Eos
+Hikaru Nara
+Hikaru Utada
+Hitori Gotoh (Bocchi)
+Hizuru
+Hoenn League
+Hollowfication
+Holy Grail
+Honky Tonk Women
+Hope House
+Hotei
+Houbunsha
+Howl Pendragon
+Human Instrumentality Project
+Humanoid Typhoon
+Hōkago Tea Time
+Ifrit
+Igneel
+Ignis
+Ikebana
+Indigo League
+Infinity Stones
+Ishval Civil War
+Ittoryu
+JAM Project
+JoJo's Bizarre Adventure: Diamond Is Unbreakable
+Johto Journeys
+Jolteon
+Judo
+Jungle Taitei
+Kadokawa
+Kagune
+Kainan
+Kamaji
+Kamui
+Kanako Ito
+Kanassa
+Kappa
+Karate
+Kendo
+Kessoku Band
+Khara
+Kimagure Orange Road
+Kimono
+Kira Hall
+Kodama
+Kodansha
+Kohai
+Kouji Wada
+Kunoichi
 L
+L'Arc-en-Ciel
+LaLa
+Liella!
+Liore
+Lone Wolf
+Lupin the Third
+MOB CHOIR
+Maaya Sakamoto
+Mach GoGoGo
+Mai Yamane
+Make-Up
+Manga
+Manhua
+Manhwa
+Marley
+May'n
+Megazone 23
+Megumi Nakajima
+Melchior, Balthasar, Casper
+Metalicana
+Miso
+Mobile Fighter G Gundam
+Monthly Afternoon
+Morning Musume
+Moro
+Mushi
+Mushi Production
+Nago
+Namco Animation
+Namek
+Nausicaä of the Valley of the Wind
+Neko Train
 Nexus
 Nightmare
+Nijigasaki
+Nintendo 64
+Nippon Animation
+Nitoryu
+No-Face
+OLM
+Odiha
+Ohmu
+Okkoto
+Orange Islands
+Orange Town
+Origa
+Origami
+Otaku
+P.A.Works
+Palmon
+Paradis
+Patamon
+Philosopher's Stone
+Pichu
+Polygon Pictures
+Poppin'Party
+Project Ark
+Project Genesis
+Project Seed
+Quirk
+Rabbit's Cafe
+Raichu
+Raikou
+Red Dragon Syndicate
+Red Wolves
+Region 3
+Relic Seekers
+Resembool
+Resurreccion
+Rica Matsumoto
+Rie fu
+Rose Home
+Roselia
+Rush Valley
+Ryonan
+Ryuk
 R★O★C★K★S
 SHIELD
 SIU
+SPYAIR
+Salamander
+Samurai
+Santoryu
+Sari
+Satelight
+Seatbelts
+Sector 9
+Sega
+Sega Genesis
 Sengoku
+Sensei
+Serpent Bridge
+Sessions
+Seven Seas
+Shibuya
+Shiganshina
+Shigeo Kageyama (Mob)
+Shikai
+Shin-Ei Animation
+Shinjuku
+Shiryu
+Shishigami
+Shodo
+Shogakukan
+Shohoku
+Shoko Nakagawa
+Shoyo
+Shueisha
+Sick Hack
+Silver Link
+Silver Millennium
+Sina
+Sky Hunters
+Skypiea
+Snake Way
+Sombrero
+Spiral Power
+Spirit Path
+Square Enix
+Star of the Giants
+Stray Dog Strut
+Studio Colorido
+Studio Ponoc
+Sumo
+Sunrise Beyond
+Super Nintendo
+Sushi
+Syrup Village
+T.M.Revolution
+TMS Entertainment (Tokyo Movie Shinsha)
 Tank!
+Tanto
+Tatsunoko Production
+Tatsuya Kitani
+Team Aqua
+Team Galactic
+Team Magma
+Team Rocket
+Tempura
+Tentomon
+Tetsujin 28
+Tetsuwan Atom
+The Melancholy of Haruhi Suzumiya
+The Pillows
+Topcraft
+Touch
+UVERworld
+Udon
+Universal Century
 Unravel
+Urusei Yatsura
+VIZ Media
+WANDS
+Wammy's House
+War of Amestris
+War of Xing
 We Are!
+Weekly Morning
+Weekly Shonen Champion
+Weekly Young Magazine
+Weisslogia
+White Knights
+Xing
+Yamaha
+Yardrat
+Yatterman
+Yellow Magic Orchestra
+Yen Press
+Yorknew City
+Yorknew City arc
+Yui
+Yuji Itadori
+ZAQ
+ZARD
+Zenitsu Agatsuma
+Zone 7
+supercell
 the WORLD
+ufotable
 xxxHOLiC
+μ's

@@ -1,0 +1,2852 @@
+[
+ {
+  "q": "أي استوديو أنتج Howl's Moving Castle؟",
+  "options": [
+   "Studio Ghibli",
+   "Madhouse",
+   "Kyoto Animation",
+   "Toei Animation"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 1,
+  "q_en": "Which studio produced Howl's Moving Castle?",
+  "options_en": [
+   "Studio Ghibli",
+   "Madhouse",
+   "Kyoto Animation",
+   "Toei Animation"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Princess Mononoke؟",
+  "options": [
+   "Sunrise",
+   "Studio Ghibli",
+   "Bones",
+   "Production I.G"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 1,
+  "q_en": "Which studio produced Princess Mononoke?",
+  "options_en": [
+   "Sunrise",
+   "Studio Ghibli",
+   "Bones",
+   "Production I.G"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Ponyo؟",
+  "options": [
+   "CoMix Wave Films",
+   "Studio Pierrot",
+   "Studio Ghibli",
+   "Gainax"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 1,
+  "q_en": "Which studio produced Ponyo?",
+  "options_en": [
+   "CoMix Wave Films",
+   "Studio Pierrot",
+   "Studio Ghibli",
+   "Gainax"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Kiki's Delivery Service؟",
+  "options": [
+   "Toei Animation",
+   "Madhouse",
+   "Sunrise",
+   "Studio Ghibli"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 1,
+  "q_en": "Which studio produced Kiki's Delivery Service?",
+  "options_en": [
+   "Toei Animation",
+   "Madhouse",
+   "Sunrise",
+   "Studio Ghibli"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Castle in the Sky؟",
+  "options": [
+   "Studio Ghibli",
+   "Toei Animation",
+   "Sunrise",
+   "Madhouse"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 1,
+  "q_en": "Which studio produced Castle in the Sky?",
+  "options_en": [
+   "Studio Ghibli",
+   "Toei Animation",
+   "Sunrise",
+   "Madhouse"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Grave of the Fireflies؟",
+  "options": [
+   "Madhouse",
+   "Studio Ghibli",
+   "Toei Animation",
+   "TMS Entertainment"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 2,
+  "q_en": "Which studio produced Grave of the Fireflies?",
+  "options_en": [
+   "Madhouse",
+   "Studio Ghibli",
+   "Toei Animation",
+   "TMS Entertainment"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج The Boy and the Heron؟",
+  "options": [
+   "Studio Ponoc",
+   "Science SARU",
+   "Studio Ghibli",
+   "CoMix Wave Films"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 1,
+  "q_en": "Which studio produced The Boy and the Heron?",
+  "options_en": [
+   "Studio Ponoc",
+   "Science SARU",
+   "Studio Ghibli",
+   "CoMix Wave Films"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج A Silent Voice؟",
+  "options": [
+   "Madhouse",
+   "Studio Colorido",
+   "Production I.G",
+   "Kyoto Animation"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 2,
+  "q_en": "Which studio produced A Silent Voice?",
+  "options_en": [
+   "Madhouse",
+   "Studio Colorido",
+   "Production I.G",
+   "Kyoto Animation"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج The Melancholy of Haruhi Suzumiya؟",
+  "options": [
+   "Kyoto Animation",
+   "Shaft",
+   "Gainax",
+   "Doga Kobo"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 3,
+  "q_en": "Which studio produced The Melancholy of Haruhi Suzumiya?",
+  "options_en": [
+   "Kyoto Animation",
+   "Shaft",
+   "Gainax",
+   "Doga Kobo"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Fullmetal Alchemist (2003)؟",
+  "options": [
+   "Madhouse",
+   "Bones",
+   "Sunrise",
+   "Studio Pierrot"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 4,
+  "q_en": "Which studio produced Fullmetal Alchemist (2003)?",
+  "options_en": [
+   "Madhouse",
+   "Bones",
+   "Sunrise",
+   "Studio Pierrot"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Paprika؟",
+  "options": [
+   "Production I.G",
+   "Studio 4°C",
+   "Madhouse",
+   "Gainax"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 5,
+  "q_en": "Which studio produced Paprika?",
+  "options_en": [
+   "Production I.G",
+   "Studio 4°C",
+   "Madhouse",
+   "Gainax"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Tokyo Godfathers؟",
+  "options": [
+   "Production I.G",
+   "Studio 4°C",
+   "Bones",
+   "Madhouse"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio produced Tokyo Godfathers?",
+  "options_en": [
+   "Production I.G",
+   "Studio 4°C",
+   "Bones",
+   "Madhouse"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Mobile Suit Gundam؟",
+  "options": [
+   "Sunrise",
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Madhouse"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 2,
+  "q_en": "Which studio produced Mobile Suit Gundam?",
+  "options_en": [
+   "Sunrise",
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Madhouse"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Cowboy Bebop؟",
+  "options": [
+   "Madhouse",
+   "Sunrise",
+   "Bones",
+   "Production I.G"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 2,
+  "q_en": "Which studio produced Cowboy Bebop?",
+  "options_en": [
+   "Madhouse",
+   "Sunrise",
+   "Bones",
+   "Production I.G"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Love Live! School Idol Project؟",
+  "options": [
+   "A-1 Pictures",
+   "Kyoto Animation",
+   "Sunrise",
+   "P.A.Works"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 3,
+  "q_en": "Which studio produced Love Live! School Idol Project?",
+  "options_en": [
+   "A-1 Pictures",
+   "Kyoto Animation",
+   "Sunrise",
+   "P.A.Works"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Tiger & Bunny؟",
+  "options": [
+   "Bones",
+   "Production I.G",
+   "Madhouse",
+   "Sunrise"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "Which studio produced Tiger & Bunny?",
+  "options_en": [
+   "Bones",
+   "Production I.G",
+   "Madhouse",
+   "Sunrise"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Yu Yu Hakusho (1992)؟",
+  "options": [
+   "Studio Pierrot",
+   "Toei Animation",
+   "Madhouse",
+   "Sunrise"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 4,
+  "q_en": "Which studio produced Yu Yu Hakusho (1992)?",
+  "options_en": [
+   "Studio Pierrot",
+   "Toei Animation",
+   "Madhouse",
+   "Sunrise"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Mazinger Z؟",
+  "options": [
+   "Sunrise",
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Madhouse"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "Which studio produced Mazinger Z?",
+  "options_en": [
+   "Sunrise",
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Madhouse"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Anohana: The Flower We Saw That Day؟",
+  "options": [
+   "Kyoto Animation",
+   "P.A.Works",
+   "A-1 Pictures",
+   "Doga Kobo"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 5,
+  "q_en": "Which studio produced Anohana: The Flower We Saw That Day?",
+  "options_en": [
+   "Kyoto Animation",
+   "P.A.Works",
+   "A-1 Pictures",
+   "Doga Kobo"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Your Lie in April؟",
+  "options": [
+   "Kyoto Animation",
+   "P.A.Works",
+   "Shaft",
+   "A-1 Pictures"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 3,
+  "q_en": "Which studio produced Your Lie in April?",
+  "options_en": [
+   "Kyoto Animation",
+   "P.A.Works",
+   "Shaft",
+   "A-1 Pictures"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج الموسم الأول من Vinland Saga؟",
+  "options": [
+   "Wit Studio",
+   "MAPPA",
+   "Madhouse",
+   "Bones"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 4,
+  "q_en": "Which studio produced the first season of Vinland Saga?",
+  "options_en": [
+   "Wit Studio",
+   "MAPPA",
+   "Madhouse",
+   "Bones"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Ranking of Kings؟",
+  "options": [
+   "MAPPA",
+   "Wit Studio",
+   "Bones",
+   "Trigger"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "Which studio produced Ranking of Kings?",
+  "options_en": [
+   "MAPPA",
+   "Wit Studio",
+   "Bones",
+   "Trigger"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Fate/stay night: Unlimited Blade Works (2014)؟",
+  "options": [
+   "Studio Deen",
+   "Bones",
+   "ufotable",
+   "A-1 Pictures"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 4,
+  "q_en": "Which studio produced Fate/stay night: Unlimited Blade Works (2014)?",
+  "options_en": [
+   "Studio Deen",
+   "Bones",
+   "ufotable",
+   "A-1 Pictures"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Sayonara Zetsubou Sensei؟",
+  "options": [
+   "Sunrise",
+   "Doga Kobo",
+   "Gainax",
+   "Shaft"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio produced Sayonara Zetsubou Sensei?",
+  "options_en": [
+   "Sunrise",
+   "Doga Kobo",
+   "Gainax",
+   "Shaft"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Little Witch Academia؟",
+  "options": [
+   "Trigger",
+   "Gainax",
+   "Studio Pierrot",
+   "Bones"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 4,
+  "q_en": "Which studio produced Little Witch Academia?",
+  "options_en": [
+   "Trigger",
+   "Gainax",
+   "Studio Pierrot",
+   "Bones"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Gurren Lagann؟",
+  "options": [
+   "Studio Pierrot",
+   "Gainax",
+   "Bones",
+   "Sunrise"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 2,
+  "q_en": "Which studio produced Gurren Lagann?",
+  "options_en": [
+   "Studio Pierrot",
+   "Gainax",
+   "Bones",
+   "Sunrise"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Royal Space Force: The Wings of Honneamise؟",
+  "options": [
+   "Madhouse",
+   "Sunrise",
+   "Gainax",
+   "Bones"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio produced Royal Space Force: The Wings of Honneamise?",
+  "options_en": [
+   "Madhouse",
+   "Sunrise",
+   "Gainax",
+   "Bones"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Nadia: The Secret of Blue Water؟",
+  "options": [
+   "Toei Animation",
+   "Sunrise",
+   "TMS Entertainment",
+   "Gainax"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio produced Nadia: The Secret of Blue Water?",
+  "options_en": [
+   "Toei Animation",
+   "Sunrise",
+   "TMS Entertainment",
+   "Gainax"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Yuri!!! on Ice؟",
+  "options": [
+   "MAPPA",
+   "Bones",
+   "Kyoto Animation",
+   "A-1 Pictures"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 2,
+  "q_en": "Which studio produced Yuri!!! on Ice?",
+  "options_en": [
+   "MAPPA",
+   "Bones",
+   "Kyoto Animation",
+   "A-1 Pictures"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Knights of Sidonia؟",
+  "options": [
+   "Orange",
+   "Polygon Pictures",
+   "Sunrise",
+   "Trigger"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio produced Knights of Sidonia?",
+  "options_en": [
+   "Orange",
+   "Polygon Pictures",
+   "Sunrise",
+   "Trigger"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Re:Zero − Starting Life in Another World؟",
+  "options": [
+   "Wit Studio",
+   "Lerche",
+   "White Fox",
+   "Studio Deen"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 3,
+  "q_en": "Which studio produced Re:Zero − Starting Life in Another World?",
+  "options_en": [
+   "Wit Studio",
+   "Lerche",
+   "White Fox",
+   "Studio Deen"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج 5 Centimeters per Second؟",
+  "options": [
+   "Studio Colorido",
+   "Madhouse",
+   "Studio Chizu",
+   "CoMix Wave Films"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 3,
+  "q_en": "Which studio produced 5 Centimeters per Second?",
+  "options_en": [
+   "Studio Colorido",
+   "Madhouse",
+   "Studio Chizu",
+   "CoMix Wave Films"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج The Boy and the Beast؟",
+  "options": [
+   "Studio Chizu",
+   "CoMix Wave Films",
+   "Madhouse",
+   "Studio Colorido"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 5,
+  "q_en": "Which studio produced The Boy and the Beast?",
+  "options_en": [
+   "Studio Chizu",
+   "CoMix Wave Films",
+   "Madhouse",
+   "Studio Colorido"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Belle (2021)؟",
+  "options": [
+   "CoMix Wave Films",
+   "Studio Chizu",
+   "Madhouse",
+   "Science SARU"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 3,
+  "q_en": "Which studio produced Belle (2021)?",
+  "options_en": [
+   "CoMix Wave Films",
+   "Studio Chizu",
+   "Madhouse",
+   "Science SARU"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Penguin Highway؟",
+  "options": [
+   "Madhouse",
+   "Bones",
+   "Studio Colorido",
+   "Science SARU"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio produced Penguin Highway?",
+  "options_en": [
+   "Madhouse",
+   "Bones",
+   "Studio Colorido",
+   "Science SARU"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Tekkonkinkreet؟",
+  "options": [
+   "Madhouse",
+   "Production I.G",
+   "Bones",
+   "Studio 4°C"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio produced Tekkonkinkreet?",
+  "options_en": [
+   "Madhouse",
+   "Production I.G",
+   "Bones",
+   "Studio 4°C"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج الأنمي Pokémon؟",
+  "options": [
+   "OLM",
+   "Toei Animation",
+   "Sunrise",
+   "Madhouse"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "Which studio produced the Pokémon anime?",
+  "options_en": [
+   "OLM",
+   "Toei Animation",
+   "Sunrise",
+   "Madhouse"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Doraemon (1979)؟",
+  "options": [
+   "Toei Animation",
+   "Shin-Ei Animation",
+   "TMS Entertainment",
+   "Sunrise"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 4,
+  "q_en": "Which studio produced Doraemon (1979)?",
+  "options_en": [
+   "Toei Animation",
+   "Shin-Ei Animation",
+   "TMS Entertainment",
+   "Sunrise"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Detective Conan؟",
+  "options": [
+   "Toei Animation",
+   "Sunrise",
+   "TMS Entertainment",
+   "Madhouse"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 3,
+  "q_en": "Which studio produced Detective Conan?",
+  "options_en": [
+   "Toei Animation",
+   "Sunrise",
+   "TMS Entertainment",
+   "Madhouse"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Lupin III: The Castle of Cagliostro؟",
+  "options": [
+   "Toei Animation",
+   "Mushi Production",
+   "Madhouse",
+   "TMS Entertainment (Tokyo Movie Shinsha)"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio produced Lupin III: The Castle of Cagliostro?",
+  "options_en": [
+   "Toei Animation",
+   "Mushi Production",
+   "Madhouse",
+   "TMS Entertainment (Tokyo Movie Shinsha)"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Speed Racer (Mach GoGoGo)؟",
+  "options": [
+   "Tatsunoko Production",
+   "Toei Animation",
+   "Mushi Production",
+   "Sunrise"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "Which studio produced Speed Racer (Mach GoGoGo)?",
+  "options_en": [
+   "Tatsunoko Production",
+   "Toei Animation",
+   "Mushi Production",
+   "Sunrise"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Gatchaman؟",
+  "options": [
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Sunrise",
+   "Madhouse"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio produced Gatchaman?",
+  "options_en": [
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Sunrise",
+   "Madhouse"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Astro Boy (1963)؟",
+  "options": [
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Mushi Production",
+   "Sunrise"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 4,
+  "q_en": "Which studio produced Astro Boy (1963)?",
+  "options_en": [
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Mushi Production",
+   "Sunrise"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Hakujaden (1958) أول فيلم أنمي ياباني طويل ملوّن؟",
+  "options": [
+   "Mushi Production",
+   "Tatsunoko Production",
+   "Nippon Animation",
+   "Toei Animation"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 9,
+  "q_en": "Which studio produced Hakujaden (1958), the first full-length Japanese color anime feature?",
+  "options_en": [
+   "Mushi Production",
+   "Tatsunoko Production",
+   "Nippon Animation",
+   "Toei Animation"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Nausicaä of the Valley of the Wind (1984)؟",
+  "options": [
+   "Topcraft",
+   "Studio Ghibli",
+   "Toei Animation",
+   "Madhouse"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 10,
+  "q_en": "Which studio produced Nausicaä of the Valley of the Wind (1984)?",
+  "options_en": [
+   "Topcraft",
+   "Studio Ghibli",
+   "Toei Animation",
+   "Madhouse"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Rurouni Kenshin (2023)؟",
+  "options": [
+   "MAPPA",
+   "Liden Films",
+   "Bones",
+   "Toei Animation"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio produced Rurouni Kenshin (2023)?",
+  "options_en": [
+   "MAPPA",
+   "Liden Films",
+   "Bones",
+   "Toei Animation"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Fate/stay night (2006)؟",
+  "options": [
+   "ufotable",
+   "Bones",
+   "Studio Deen",
+   "Kyoto Animation"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 5,
+  "q_en": "Which studio produced Fate/stay night (2006)?",
+  "options_en": [
+   "ufotable",
+   "Bones",
+   "Studio Deen",
+   "Kyoto Animation"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Ranma ½ (1989)؟",
+  "options": [
+   "Sunrise",
+   "Toei Animation",
+   "Madhouse",
+   "Studio Deen"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "Which studio produced Ranma ½ (1989)?",
+  "options_en": [
+   "Sunrise",
+   "Toei Animation",
+   "Madhouse",
+   "Studio Deen"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Angel Beats!؟",
+  "options": [
+   "P.A.Works",
+   "Kyoto Animation",
+   "J.C.Staff",
+   "A-1 Pictures"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 5,
+  "q_en": "Which studio produced Angel Beats!?",
+  "options_en": [
+   "P.A.Works",
+   "Kyoto Animation",
+   "J.C.Staff",
+   "A-1 Pictures"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Symphogear؟",
+  "options": [
+   "Bones",
+   "Satelight",
+   "Lerche",
+   "Silver Link"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio produced Symphogear?",
+  "options_en": [
+   "Bones",
+   "Satelight",
+   "Lerche",
+   "Silver Link"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Miss Hokusai؟",
+  "options": [
+   "Madhouse",
+   "Bones",
+   "Production I.G",
+   "Sunrise"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 8,
+  "q_en": "Which studio produced Miss Hokusai?",
+  "options_en": [
+   "Madhouse",
+   "Bones",
+   "Production I.G",
+   "Sunrise"
+  ]
+ },
+ {
+  "q": "أي استوديو أنتج Ghost in the Shell: Stand Alone Complex؟",
+  "options": [
+   "Sunrise",
+   "Bones",
+   "Madhouse",
+   "Production I.G"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 5,
+  "q_en": "Which studio produced Ghost in the Shell: Stand Alone Complex?",
+  "options_en": [
+   "Sunrise",
+   "Bones",
+   "Madhouse",
+   "Production I.G"
+  ]
+ },
+ {
+  "q": "من هما مؤسسا استوديو Studio Ghibli؟",
+  "options": [
+   "هاياو ميازاكي وإيساو تاكاهاتا",
+   "هاياو ميازاكي وماموره هوسودا",
+   "إيساو تاكاهاتا وهيدياكي آنو",
+   "ماكوتو شينكاي وهاياو ميازاكي"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 2,
+  "q_en": "Who were the two co-founders of Studio Ghibli?",
+  "options_en": [
+   "Hayao Miyazaki and Isao Takahata",
+   "Hayao Miyazaki and Mamoru Hosoda",
+   "Isao Takahata and Hideaki Anno",
+   "Makoto Shinkai and Hayao Miyazaki"
+  ]
+ },
+ {
+  "q": "ما الشخصية الظاهرة في شعار استوديو Studio Ghibli؟",
+  "options": [
+   "كيكي",
+   "توتورو",
+   "بونيو",
+   "كاونو"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 1,
+  "q_en": "Which character appears in the Studio Ghibli logo?",
+  "options_en": [
+   "Kiki",
+   "Totoro",
+   "Ponyo",
+   "No-Face"
+  ]
+ },
+ {
+  "q": "ما أول فيلم أنتجه استوديو Studio Ghibli رسميًا بعد تأسيسه؟",
+  "options": [
+   "My Neighbor Totoro",
+   "Kiki's Delivery Service",
+   "Castle in the Sky",
+   "Nausicaä of the Valley of the Wind"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 3,
+  "q_en": "What was the first film officially produced by Studio Ghibli after its founding?",
+  "options_en": [
+   "My Neighbor Totoro",
+   "Kiki's Delivery Service",
+   "Castle in the Sky",
+   "Nausicaä of the Valley of the Wind"
+  ]
+ },
+ {
+  "q": "الاسم «Ghibli» مستعار من كلمة إيطالية تعني ماذا؟",
+  "options": [
+   "القمر الساطع",
+   "غابة قديمة",
+   "نسيم البحر",
+   "ريح الصحراء الحارة"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 8,
+  "q_en": "The name \"Ghibli\" comes from an Italian word meaning what?",
+  "options_en": [
+   "a bright moon",
+   "an ancient forest",
+   "a sea breeze",
+   "a hot desert wind"
+  ]
+ },
+ {
+  "q": "في أي مدينة من طوكيو يقع متحف Ghibli Museum؟",
+  "options": [
+   "ميتاكا",
+   "هاتشيوجي",
+   "تاتشيكاوا",
+   "تشوفو"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "In which city in Tokyo is the Ghibli Museum located?",
+  "options_en": [
+   "Mitaka",
+   "Hachioji",
+   "Tachikawa",
+   "Chofu"
+  ]
+ },
+ {
+  "q": "في أي محافظة يابانية يقع Ghibli Park؟",
+  "options": [
+   "كيوتو",
+   "آيتشي",
+   "هوكايدو",
+   "أوكيناوا"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "In which Japanese prefecture is Ghibli Park located?",
+  "options_en": [
+   "Kyoto",
+   "Aichi",
+   "Hokkaido",
+   "Okinawa"
+  ]
+ },
+ {
+  "q": "من هو مؤسس استوديو Mushi Production؟",
+  "options": [
+   "هاياو ميازاكي",
+   "ليجي ماتسوموتو",
+   "أوسامو تيزوكا",
+   "ماساو مارياما"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 5,
+  "q_en": "Who founded Mushi Production?",
+  "options_en": [
+   "Hayao Miyazaki",
+   "Leiji Matsumoto",
+   "Osamu Tezuka",
+   "Masao Maruyama"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Mushi Production؟",
+  "options": [
+   "1955",
+   "1968",
+   "1972",
+   "1961"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 10,
+  "q_en": "In which year was Mushi Production founded?",
+  "options_en": [
+   "1955",
+   "1968",
+   "1972",
+   "1961"
+  ]
+ },
+ {
+  "q": "استوديو Sunrise تأسس على يد موظفين سابقين في أي استوديو؟",
+  "options": [
+   "Mushi Production",
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Nippon Animation"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 9,
+  "q_en": "Sunrise was formed by former staff of which studio?",
+  "options_en": [
+   "Mushi Production",
+   "Toei Animation",
+   "Tatsunoko Production",
+   "Nippon Animation"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Madhouse؟",
+  "options": [
+   "1965",
+   "1972",
+   "1980",
+   "1987"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 9,
+  "q_en": "In which year was Madhouse founded?",
+  "options_en": [
+   "1965",
+   "1972",
+   "1980",
+   "1987"
+  ]
+ },
+ {
+  "q": "أي مخرج من هؤلاء شارك في تأسيس استوديو Madhouse؟",
+  "options": [
+   "إيساو تاكاهاتا",
+   "هيدياكي آنو",
+   "أوسامو ديزاكي",
+   "مامورو أوشي"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 10,
+  "q_en": "Which of these directors co-founded Madhouse?",
+  "options_en": [
+   "Isao Takahata",
+   "Hideaki Anno",
+   "Osamu Dezaki",
+   "Mamoru Oshii"
+  ]
+ },
+ {
+  "q": "من هو مؤسس استوديو MAPPA (وهو أيضًا أحد مؤسسي Madhouse)؟",
+  "options": [
+   "هيروشي أوساكا",
+   "يوجي نونوكاوا",
+   "هيكارو كوندو",
+   "ماساو مارياما"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 8,
+  "q_en": "Who founded MAPPA (and also co-founded Madhouse)?",
+  "options_en": [
+   "Hiroshi Osaka",
+   "Yuji Nunokawa",
+   "Hikaru Kondo",
+   "Masao Maruyama"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو MAPPA؟",
+  "options": [
+   "2011",
+   "2001",
+   "2005",
+   "2016"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "In which year was MAPPA founded?",
+  "options_en": [
+   "2011",
+   "2001",
+   "2005",
+   "2016"
+  ]
+ },
+ {
+  "q": "استوديو Trigger أسسه موظفون سابقون في أي استوديو؟",
+  "options": [
+   "Bones",
+   "Gainax",
+   "Kyoto Animation",
+   "Madhouse"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "Trigger was founded by former staff of which studio?",
+  "options_en": [
+   "Bones",
+   "Gainax",
+   "Kyoto Animation",
+   "Madhouse"
+  ]
+ },
+ {
+  "q": "أي استوديو أسسه موظفون سابقون في Sunrise عام 1998؟",
+  "options": [
+   "MAPPA",
+   "Wit Studio",
+   "Bones",
+   "P.A.Works"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 9,
+  "q_en": "Which studio was founded in 1998 by former Sunrise staff?",
+  "options_en": [
+   "MAPPA",
+   "Wit Studio",
+   "Bones",
+   "P.A.Works"
+  ]
+ },
+ {
+  "q": "استوديو Production I.G انفصل أصلًا عن أي شركة؟",
+  "options": [
+   "Toei Animation",
+   "Madhouse",
+   "Sunrise",
+   "Tatsunoko Production"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 9,
+  "q_en": "Production I.G was originally spun off from which company?",
+  "options_en": [
+   "Toei Animation",
+   "Madhouse",
+   "Sunrise",
+   "Tatsunoko Production"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Production I.G؟",
+  "options": [
+   "1987",
+   "1975",
+   "1992",
+   "2000"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 10,
+  "q_en": "In which year was Production I.G founded?",
+  "options_en": [
+   "1987",
+   "1975",
+   "1992",
+   "2000"
+  ]
+ },
+ {
+  "q": "استوديو Wit Studio تأسس عام 2012 كشركة مرتبطة بأي استوديو؟",
+  "options": [
+   "Madhouse",
+   "Production I.G",
+   "Bones",
+   "Sunrise"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 9,
+  "q_en": "Wit Studio was founded in 2012 as a company linked to which studio?",
+  "options_en": [
+   "Madhouse",
+   "Production I.G",
+   "Bones",
+   "Sunrise"
+  ]
+ },
+ {
+  "q": "من هو مؤسس استوديو Studio Pierrot؟",
+  "options": [
+   "ماساو مارياما",
+   "هيروكي ساتو",
+   "يوجي نونوكاوا",
+   "أوسامو تيزوكا"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 10,
+  "q_en": "Who founded Studio Pierrot?",
+  "options_en": [
+   "Masao Maruyama",
+   "Hiroki Sato",
+   "Yuji Nunokawa",
+   "Osamu Tezuka"
+  ]
+ },
+ {
+  "q": "في أي سنة تأسس استوديو Tatsunoko Production؟",
+  "options": [
+   "1950",
+   "1970",
+   "1985",
+   "1962"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 10,
+  "q_en": "In which year was Tatsunoko Production founded?",
+  "options_en": [
+   "1950",
+   "1970",
+   "1985",
+   "1962"
+  ]
+ },
+ {
+  "q": "أي مخرج بارز شارك في تأسيس استوديو Gainax؟",
+  "options": [
+   "هيدياكي آنو",
+   "ماكوتو شينكاي",
+   "ماموره هوسودا",
+   "ساتوشي كون"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "Which prominent director co-founded Gainax?",
+  "options_en": [
+   "Hideaki Anno",
+   "Makoto Shinkai",
+   "Mamoru Hosoda",
+   "Satoshi Kon"
+  ]
+ },
+ {
+  "q": "أي استوديو أسسه هيدياكي آنو وأنتج Evangelion: 3.0+1.0؟",
+  "options": [
+   "Gainax",
+   "Khara",
+   "Trigger",
+   "Studio Colorido"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which studio, founded by Hideaki Anno, produced Evangelion: 3.0+1.0?",
+  "options_en": [
+   "Gainax",
+   "Khara",
+   "Trigger",
+   "Studio Colorido"
+  ]
+ },
+ {
+  "q": "من أسس استوديو Studio Chizu مع المنتج يويتشيرو سايتو؟",
+  "options": [
+   "ماكوتو شينكاي",
+   "هيديتاكا أنو",
+   "ماموره هوسودا",
+   "ساتوشي كون"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "Who founded Studio Chizu together with producer Yuichiro Saito?",
+  "options_en": [
+   "Makoto Shinkai",
+   "Hideaki Anno",
+   "Mamoru Hosoda",
+   "Satoshi Kon"
+  ]
+ },
+ {
+  "q": "استوديو Studio Ponoc أسسه منتج سابق في Ghibli، ما اسمه؟",
+  "options": [
+   "توشيو سوزوكي",
+   "غورو ميازاكي",
+   "هيروماسا يونيباياشي",
+   "يوشياكي نيشيمورا"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 9,
+  "q_en": "Studio Ponoc was founded by a former Ghibli producer. What is his name?",
+  "options_en": [
+   "Toshio Suzuki",
+   "Goro Miyazaki",
+   "Hiromasa Yonebayashi",
+   "Yoshiaki Nishimura"
+  ]
+ },
+ {
+  "q": "في 2022 غيّر استوديو Sunrise اسمه إلى ماذا؟",
+  "options": [
+   "Bandai Namco Filmworks",
+   "Bandai Namco Pictures",
+   "Sunrise Beyond",
+   "Namco Animation"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 8,
+  "q_en": "In 2022 Sunrise changed its name to what?",
+  "options_en": [
+   "Bandai Namco Filmworks",
+   "Bandai Namco Pictures",
+   "Sunrise Beyond",
+   "Namco Animation"
+  ]
+ },
+ {
+  "q": "في أي محافظة يقع استوديو فرعي رئيسي لـ ufotable (غير طوكيو)؟",
+  "options": [
+   "هوكايدو",
+   "توكوشيما",
+   "أوكيناوا",
+   "ناغانو"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 9,
+  "q_en": "In which prefecture is ufotable's major studio outside Tokyo located?",
+  "options_en": [
+   "Hokkaido",
+   "Tokushima",
+   "Okinawa",
+   "Nagano"
+  ]
+ },
+ {
+  "q": "في أي مدينة يقع المقر الرئيسي لاستوديو Kyoto Animation؟",
+  "options": [
+   "كوبي",
+   "ناغويا",
+   "أوجي",
+   "هيروشيما"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 8,
+  "q_en": "In which city is Kyoto Animation's main studio based?",
+  "options_en": [
+   "Kobe",
+   "Nagoya",
+   "Uji",
+   "Hiroshima"
+  ]
+ },
+ {
+  "q": "ما الشخصية التي تُعد تميمة استوديو Toei Animation؟",
+  "options": [
+   "توتورو",
+   "دورايمون",
+   "أستر بوي",
+   "القط ذو الأحذية (بيرو)"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 9,
+  "q_en": "Which character is the mascot of Toei Animation?",
+  "options_en": [
+   "Totoro",
+   "Doraemon",
+   "Astro Boy",
+   "Puss in Boots (Pero)"
+  ]
+ },
+ {
+  "q": "في أي سنة عُرض فيلم Hakujaden (أول أنمي ياباني طويل ملوّن)؟",
+  "options": [
+   "1958",
+   "1948",
+   "1963",
+   "1970"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 10,
+  "q_en": "In which year was Hakujaden, the first full-length Japanese color anime, released?",
+  "options_en": [
+   "1958",
+   "1948",
+   "1963",
+   "1970"
+  ]
+ },
+ {
+  "q": "أي شركة تنشر مجلة Weekly Shonen Jump؟",
+  "options": [
+   "Kodansha",
+   "Shueisha",
+   "Shogakukan",
+   "Kadokawa"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 1,
+  "q_en": "Which company publishes Weekly Shonen Jump?",
+  "options_en": [
+   "Kodansha",
+   "Shueisha",
+   "Shogakukan",
+   "Kadokawa"
+  ]
+ },
+ {
+  "q": "أي شركة تنشر مجلة Weekly Shonen Magazine؟",
+  "options": [
+   "Shueisha",
+   "Shogakukan",
+   "Kodansha",
+   "Akita Shoten"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 2,
+  "q_en": "Which company publishes Weekly Shonen Magazine?",
+  "options_en": [
+   "Shueisha",
+   "Shogakukan",
+   "Kodansha",
+   "Akita Shoten"
+  ]
+ },
+ {
+  "q": "أي شركة تنشر مجلة Weekly Shonen Sunday؟",
+  "options": [
+   "Shueisha",
+   "Kodansha",
+   "Square Enix",
+   "Shogakukan"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 4,
+  "q_en": "Which company publishes Weekly Shonen Sunday?",
+  "options_en": [
+   "Shueisha",
+   "Kodansha",
+   "Square Enix",
+   "Shogakukan"
+  ]
+ },
+ {
+  "q": "أي شركة تنشر مجلة Weekly Shonen Champion؟",
+  "options": [
+   "Akita Shoten",
+   "Hakusensha",
+   "Square Enix",
+   "Futabasha"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 8,
+  "q_en": "Which company publishes Weekly Shonen Champion?",
+  "options_en": [
+   "Akita Shoten",
+   "Hakusensha",
+   "Square Enix",
+   "Futabasha"
+  ]
+ },
+ {
+  "q": "أي شركة تنشر سلسلة Dengeki Bunko للروايات الخفيفة؟",
+  "options": [
+   "Kodansha",
+   "ASCII Media Works",
+   "Shueisha",
+   "Fujimi Shobo"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 8,
+  "q_en": "Which company publishes the Dengeki Bunko light novel imprint?",
+  "options_en": [
+   "Kodansha",
+   "ASCII Media Works",
+   "Shueisha",
+   "Fujimi Shobo"
+  ]
+ },
+ {
+  "q": "أي شركة تنشر سلسلة Fantasia Bunko للروايات الخفيفة؟",
+  "options": [
+   "ASCII Media Works",
+   "Shogakukan",
+   "Fujimi Shobo",
+   "Houbunsha"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 10,
+  "q_en": "Which company publishes the Fantasia Bunko light novel imprint?",
+  "options_en": [
+   "ASCII Media Works",
+   "Shogakukan",
+   "Fujimi Shobo",
+   "Houbunsha"
+  ]
+ },
+ {
+  "q": "في أي سنة صدر العدد الأول من Weekly Shonen Jump؟",
+  "options": [
+   "1959",
+   "1975",
+   "1982",
+   "1968"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "In which year was the first issue of Weekly Shonen Jump published?",
+  "options_en": [
+   "1959",
+   "1975",
+   "1982",
+   "1968"
+  ]
+ },
+ {
+  "q": "ما الناشر الأمريكي المملوك مشتركًا لـ Shueisha وShogakukan؟",
+  "options": [
+   "VIZ Media",
+   "Funimation",
+   "Yen Press",
+   "Seven Seas"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "Which US publisher is jointly owned by Shueisha and Shogakukan?",
+  "options_en": [
+   "VIZ Media",
+   "Funimation",
+   "Yen Press",
+   "Seven Seas"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Kaguya-sama: Love is War؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Weekly Young Jump",
+   "Weekly Shonen Sunday",
+   "Dengeki Daioh"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 7,
+  "q_en": "In which magazine was the Kaguya-sama: Love is War manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Weekly Young Jump",
+   "Weekly Shonen Sunday",
+   "Dengeki Daioh"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Ouran High School Host Club؟",
+  "options": [
+   "Nakayoshi",
+   "Ribon",
+   "LaLa",
+   "Weekly Shonen Magazine"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 8,
+  "q_en": "In which magazine was the Ouran High School Host Club manga serialized?",
+  "options_en": [
+   "Nakayoshi",
+   "Ribon",
+   "LaLa",
+   "Weekly Shonen Magazine"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Yotsuba&!؟",
+  "options": [
+   "Weekly Shonen Jump",
+   "Hana to Yume",
+   "Monthly Shonen Gangan",
+   "Dengeki Daioh"
+  ],
+  "answer": 3,
+  "category": "studios",
+  "base_difficulty": 8,
+  "q_en": "In which magazine was the Yotsuba&! manga serialized?",
+  "options_en": [
+   "Weekly Shonen Jump",
+   "Hana to Yume",
+   "Monthly Shonen Gangan",
+   "Dengeki Daioh"
+  ]
+ },
+ {
+  "q": "في أي مجلة نُشرت مانغا Nana؟",
+  "options": [
+   "Cookie",
+   "Nakayoshi",
+   "Weekly Shonen Jump",
+   "LaLa"
+  ],
+  "answer": 0,
+  "category": "studios",
+  "base_difficulty": 9,
+  "q_en": "In which magazine was the Nana manga serialized?",
+  "options_en": [
+   "Cookie",
+   "Nakayoshi",
+   "Weekly Shonen Jump",
+   "LaLa"
+  ]
+ },
+ {
+  "q": "أي شركة تنشر مجلة Monthly Shonen Gangan؟",
+  "options": [
+   "Shueisha",
+   "Square Enix",
+   "Akita Shoten",
+   "Hakusensha"
+  ],
+  "answer": 1,
+  "category": "studios",
+  "base_difficulty": 6,
+  "q_en": "Which company publishes Monthly Shonen Gangan?",
+  "options_en": [
+   "Shueisha",
+   "Square Enix",
+   "Akita Shoten",
+   "Hakusensha"
+  ]
+ },
+ {
+  "q": "في أي سنة اشترت شركة Toei شركة Japan Animated Films وأعادت تسميتها Toei Doga؟",
+  "options": [
+   "1948",
+   "1962",
+   "1956",
+   "1970"
+  ],
+  "answer": 2,
+  "category": "studios",
+  "base_difficulty": 10,
+  "q_en": "In which year did Toei acquire Japan Animated Films and rename it Toei Doga?",
+  "options_en": [
+   "1948",
+   "1962",
+   "1956",
+   "1970"
+  ]
+ },
+ {
+  "q": "من غنّى «Cry Baby» افتتاحية Tokyo Revengers؟",
+  "options": [
+   "Official HIGE DANdism",
+   "Eve",
+   "King Gnu",
+   "Aimer"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 3,
+  "q_en": "Who sang \"Cry Baby\", the opening of Tokyo Revengers?",
+  "options_en": [
+   "Official HIGE DANdism",
+   "Eve",
+   "King Gnu",
+   "Aimer"
+  ]
+ },
+ {
+  "q": "من غنّى «Homura» أغنية فيلم Demon Slayer: Mugen Train؟",
+  "options": [
+   "Aimer",
+   "LiSA",
+   "Eir Aoi",
+   "YOASOBI"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 5,
+  "q_en": "Who sang \"Homura\", the theme of the film Demon Slayer: Mugen Train?",
+  "options_en": [
+   "Aimer",
+   "LiSA",
+   "Eir Aoi",
+   "YOASOBI"
+  ]
+ },
+ {
+  "q": "من غنّى «Ao no Sumika» افتتاحية Jujutsu Kaisen الموسم الثاني؟",
+  "options": [
+   "Eve",
+   "Kenshi Yonezu",
+   "Tatsuya Kitani",
+   "Aimer"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 8,
+  "q_en": "Who sang \"Ao no Sumika\", the opening of Jujutsu Kaisen Season 2?",
+  "options_en": [
+   "Eve",
+   "Kenshi Yonezu",
+   "Tatsuya Kitani",
+   "Aimer"
+  ]
+ },
+ {
+  "q": "من غنّى «Butter-Fly» افتتاحية Digimon Adventure؟",
+  "options": [
+   "Hironobu Kageyama",
+   "Hiroshi Kitadani",
+   "Takayoshi Tanimoto",
+   "Kouji Wada"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 1,
+  "q_en": "Who sang \"Butter-Fly\", the opening of Digimon Adventure?",
+  "options_en": [
+   "Hironobu Kageyama",
+   "Hiroshi Kitadani",
+   "Takayoshi Tanimoto",
+   "Kouji Wada"
+  ]
+ },
+ {
+  "q": "من غنّى «We Gotta Power» أغنية Dragon Ball Z؟",
+  "options": [
+   "Hironobu Kageyama",
+   "Kouji Wada",
+   "Hiroshi Kitadani",
+   "Masatoshi Ono"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 7,
+  "q_en": "Who sang \"We Gotta Power\" from Dragon Ball Z?",
+  "options_en": [
+   "Hironobu Kageyama",
+   "Kouji Wada",
+   "Hiroshi Kitadani",
+   "Masatoshi Ono"
+  ]
+ },
+ {
+  "q": "من غنّى «Moonlight Densetsu» افتتاحية Sailor Moon؟",
+  "options": [
+   "Kalafina",
+   "DALI",
+   "Make-Up",
+   "Field of View"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 2,
+  "q_en": "Who sang \"Moonlight Densetsu\", the opening of Sailor Moon?",
+  "options_en": [
+   "Kalafina",
+   "DALI",
+   "Make-Up",
+   "Field of View"
+  ]
+ },
+ {
+  "q": "من غنّى «Pegasus Fantasy» افتتاحية Saint Seiya؟",
+  "options": [
+   "DALI",
+   "WANDS",
+   "Make-Up",
+   "Field of View"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 1,
+  "q_en": "Who sang \"Pegasus Fantasy\", the opening of Saint Seiya?",
+  "options_en": [
+   "DALI",
+   "WANDS",
+   "Make-Up",
+   "Field of View"
+  ]
+ },
+ {
+  "q": "من غنّت «Dango Daikazoku» أغنية خاتمة Clannad؟",
+  "options": [
+   "Yui",
+   "Aimer",
+   "Eir Aoi",
+   "Chata"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "Who sang \"Dango Daikazoku\", the ending song of Clannad?",
+  "options_en": [
+   "Yui",
+   "Aimer",
+   "Eir Aoi",
+   "Chata"
+  ]
+ },
+ {
+  "q": "من غنّى «Colors» افتتاحية Code Geass؟",
+  "options": [
+   "FLOW",
+   "ASIAN KUNG-FU GENERATION",
+   "SPYAIR",
+   "Orange Range"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "Who sang \"Colors\", the opening of Code Geass?",
+  "options_en": [
+   "FLOW",
+   "ASIAN KUNG-FU GENERATION",
+   "SPYAIR",
+   "Orange Range"
+  ]
+ },
+ {
+  "q": "من غنّت «Life is Like a Boat» خاتمة Bleach الأولى؟",
+  "options": [
+   "Aqua Timez",
+   "Rie fu",
+   "Yui",
+   "Aimer"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 7,
+  "q_en": "Who sang \"Life is Like a Boat\", the first ending of Bleach?",
+  "options_en": [
+   "Aqua Timez",
+   "Rie fu",
+   "Yui",
+   "Aimer"
+  ]
+ },
+ {
+  "q": "من غنّى «Yuusha» افتتاحية Frieren: Beyond Journey's End؟",
+  "options": [
+   "Eve",
+   "Aimer",
+   "YOASOBI",
+   "Kenshi Yonezu"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 3,
+  "q_en": "Who sang \"Yuusha\", the opening of Frieren: Beyond Journey's End?",
+  "options_en": [
+   "Eve",
+   "Aimer",
+   "YOASOBI",
+   "Kenshi Yonezu"
+  ]
+ },
+ {
+  "q": "من غنّى «Bling-Bang-Bang-Born» افتتاحية Mashle: Magic and Muscles؟",
+  "options": [
+   "YOASOBI",
+   "Official HIGE DANdism",
+   "King Gnu",
+   "Creepy Nuts"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 3,
+  "q_en": "Who sang \"Bling-Bang-Bang-Born\", the opening of Mashle: Magic and Muscles?",
+  "options_en": [
+   "YOASOBI",
+   "Official HIGE DANdism",
+   "King Gnu",
+   "Creepy Nuts"
+  ]
+ },
+ {
+  "q": "في أي أنمي تُسمع افتتاحية «Otonoke» لفرقة Creepy Nuts؟",
+  "options": [
+   "Dandadan",
+   "Mashle: Magic and Muscles",
+   "Jujutsu Kaisen",
+   "Blue Lock"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 5,
+  "q_en": "In which anime is the opening \"Otonoke\" by Creepy Nuts heard?",
+  "options_en": [
+   "Dandadan",
+   "Mashle: Magic and Muscles",
+   "Jujutsu Kaisen",
+   "Blue Lock"
+  ]
+ },
+ {
+  "q": "من غنّى «Brave Shine» افتتاحية Fate/stay night: Unlimited Blade Works؟",
+  "options": [
+   "LiSA",
+   "Aimer",
+   "Eir Aoi",
+   "Kalafina"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "Who sang \"Brave Shine\", the opening of Fate/stay night: Unlimited Blade Works?",
+  "options_en": [
+   "LiSA",
+   "Aimer",
+   "Eir Aoi",
+   "Kalafina"
+  ]
+ },
+ {
+  "q": "في أي أنمي تُسمع افتتاحية «Kaibutsu» لفرقة YOASOBI؟",
+  "options": [
+   "Tokyo Ghoul",
+   "Mob Psycho 100",
+   "Beastars",
+   "Dororo"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 5,
+  "q_en": "In which anime is the opening \"Kaibutsu\" by YOASOBI heard?",
+  "options_en": [
+   "Tokyo Ghoul",
+   "Mob Psycho 100",
+   "Beastars",
+   "Dororo"
+  ]
+ },
+ {
+  "q": "من غنّى «Resonance» افتتاحية Soul Eater؟",
+  "options": [
+   "FLOW",
+   "UVERworld",
+   "L'Arc-en-Ciel",
+   "T.M.Revolution"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 7,
+  "q_en": "Who sang \"Resonance\", the opening of Soul Eater?",
+  "options_en": [
+   "FLOW",
+   "UVERworld",
+   "L'Arc-en-Ciel",
+   "T.M.Revolution"
+  ]
+ },
+ {
+  "q": "من غنّى «Inner Universe» افتتاحية Ghost in the Shell: Stand Alone Complex؟",
+  "options": [
+   "Origa",
+   "Maaya Sakamoto",
+   "Mai Yamane",
+   "Yoko Takahashi"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 7,
+  "q_en": "Who sang \"Inner Universe\", the opening of Ghost in the Shell: Stand Alone Complex?",
+  "options_en": [
+   "Origa",
+   "Maaya Sakamoto",
+   "Mai Yamane",
+   "Yoko Takahashi"
+  ]
+ },
+ {
+  "q": "من غنّى «Sorairo Days» افتتاحية Gurren Lagann؟",
+  "options": [
+   "Eir Aoi",
+   "Shoko Nakagawa",
+   "Yui",
+   "Kanako Ito"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 9,
+  "q_en": "Who sang \"Sorairo Days\", the opening of Gurren Lagann?",
+  "options_en": [
+   "Eir Aoi",
+   "Shoko Nakagawa",
+   "Yui",
+   "Kanako Ito"
+  ]
+ },
+ {
+  "q": "من غنّت «The Real Folk Blues» خاتمة Cowboy Bebop؟",
+  "options": [
+   "Maaya Sakamoto",
+   "Megumi Hayashibara",
+   "Mai Yamane",
+   "Origa"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 9,
+  "q_en": "Who sang \"The Real Folk Blues\", the ending of Cowboy Bebop?",
+  "options_en": [
+   "Maaya Sakamoto",
+   "Megumi Hayashibara",
+   "Mai Yamane",
+   "Origa"
+  ]
+ },
+ {
+  "q": "من غنّى «Hacking to the Gate» افتتاحية Steins;Gate؟",
+  "options": [
+   "Eir Aoi",
+   "Aimer",
+   "ZAQ",
+   "Kanako Ito"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 7,
+  "q_en": "Who sang \"Hacking to the Gate\", the opening of Steins;Gate?",
+  "options_en": [
+   "Eir Aoi",
+   "Aimer",
+   "ZAQ",
+   "Kanako Ito"
+  ]
+ },
+ {
+  "q": "من غنّت «Magia» في Puella Magi Madoka Magica؟",
+  "options": [
+   "Kalafina",
+   "ClariS",
+   "Aimer",
+   "supercell"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "Who sang \"Magia\" in Puella Magi Madoka Magica?",
+  "options_en": [
+   "Kalafina",
+   "ClariS",
+   "Aimer",
+   "supercell"
+  ]
+ },
+ {
+  "q": "من غنّى «Connect» افتتاحية Puella Magi Madoka Magica؟",
+  "options": [
+   "Kalafina",
+   "ClariS",
+   "LiSA",
+   "Aimer"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "Who sang \"Connect\", the opening of Puella Magi Madoka Magica?",
+  "options_en": [
+   "Kalafina",
+   "ClariS",
+   "LiSA",
+   "Aimer"
+  ]
+ },
+ {
+  "q": "من غنّى «Snow Fairy» افتتاحية Fairy Tail؟",
+  "options": [
+   "FLOW",
+   "UVERworld",
+   "FUNKIST",
+   "SPYAIR"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "Who sang \"Snow Fairy\", the opening of Fairy Tail?",
+  "options_en": [
+   "FLOW",
+   "UVERworld",
+   "FUNKIST",
+   "SPYAIR"
+  ]
+ },
+ {
+  "q": "من غنّى «Imagination» افتتاحية Haikyuu!!؟",
+  "options": [
+   "FLOW",
+   "UVERworld",
+   "BURNOUT SYNDROMES",
+   "SPYAIR"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "Who sang \"Imagination\", the opening of Haikyuu!!?",
+  "options_en": [
+   "FLOW",
+   "UVERworld",
+   "BURNOUT SYNDROMES",
+   "SPYAIR"
+  ]
+ },
+ {
+  "q": "من غنّى «99» افتتاحية Mob Psycho 100؟",
+  "options": [
+   "MOB CHOIR",
+   "JAM Project",
+   "Creepy Nuts",
+   "SPYAIR"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 5,
+  "q_en": "Who sang \"99\", the opening of Mob Psycho 100?",
+  "options_en": [
+   "MOB CHOIR",
+   "JAM Project",
+   "Creepy Nuts",
+   "SPYAIR"
+  ]
+ },
+ {
+  "q": "من غنّى «The Hero!!» افتتاحية One Punch Man؟",
+  "options": [
+   "FLOW",
+   "JAM Project",
+   "MOB CHOIR",
+   "SPYAIR"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 3,
+  "q_en": "Who sang \"The Hero!!\", the opening of One Punch Man?",
+  "options_en": [
+   "FLOW",
+   "JAM Project",
+   "MOB CHOIR",
+   "SPYAIR"
+  ]
+ },
+ {
+  "q": "من غنّت «Mezase Pokémon Master» افتتاحية Pokémon اليابانية الأولى؟",
+  "options": [
+   "Megumi Hayashibara",
+   "Maaya Sakamoto",
+   "Rica Matsumoto",
+   "Yui"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "Who sang \"Mezase Pokémon Master\", the first Japanese opening of Pokémon?",
+  "options_en": [
+   "Megumi Hayashibara",
+   "Maaya Sakamoto",
+   "Rica Matsumoto",
+   "Yui"
+  ]
+ },
+ {
+  "q": "من أدّت الغناء لشخصية Uta في فيلم One Piece Film: Red؟",
+  "options": [
+   "Aimer",
+   "LiSA",
+   "Eve",
+   "Ado"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 3,
+  "q_en": "Who provided the singing voice of Uta in One Piece Film: Red?",
+  "options_en": [
+   "Aimer",
+   "LiSA",
+   "Eve",
+   "Ado"
+  ]
+ },
+ {
+  "q": "ما اسم أغنية الخاتمة الشهيرة لأنمي Neon Genesis Evangelion؟",
+  "options": [
+   "Fly Me to the Moon",
+   "Tank!",
+   "Hikaru Nara",
+   "Unravel"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 4,
+  "q_en": "What is the famous ending song of Neon Genesis Evangelion?",
+  "options_en": [
+   "Fly Me to the Moon",
+   "Tank!",
+   "Hikaru Nara",
+   "Unravel"
+  ]
+ },
+ {
+  "q": "في أي أنمي تظهر أغنية الخاتمة «Hare Hare Yukai»؟",
+  "options": [
+   "K-On!",
+   "The Melancholy of Haruhi Suzumiya",
+   "Lucky Star",
+   "Clannad"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 2,
+  "q_en": "In which anime does the ending song \"Hare Hare Yukai\" appear?",
+  "options_en": [
+   "K-On!",
+   "The Melancholy of Haruhi Suzumiya",
+   "Lucky Star",
+   "Clannad"
+  ]
+ },
+ {
+  "q": "من غنّى «Dan Dan Kokoro Hikarete Ku» افتتاحية Dragon Ball GT؟",
+  "options": [
+   "WANDS",
+   "Make-Up",
+   "Field of View",
+   "DALI"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 10,
+  "q_en": "Who sang \"Dan Dan Kokoro Hikarete Ku\", the opening of Dragon Ball GT?",
+  "options_en": [
+   "WANDS",
+   "Make-Up",
+   "Field of View",
+   "DALI"
+  ]
+ },
+ {
+  "q": "أي فرقة غنّت «Sekai ga Owaru made wa...» إحدى افتتاحيات Slam Dunk؟",
+  "options": [
+   "Field of View",
+   "Make-Up",
+   "ZARD",
+   "WANDS"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 10,
+  "q_en": "Which group sang \"Sekai ga Owaru made wa...\", an opening of Slam Dunk?",
+  "options_en": [
+   "Field of View",
+   "Make-Up",
+   "ZARD",
+   "WANDS"
+  ]
+ },
+ {
+  "q": "من غنّت «One Last Kiss» لفيلم Evangelion: 3.0+1.0؟",
+  "options": [
+   "Hikaru Utada",
+   "Aimer",
+   "Ayumi Hamasaki",
+   "Yui"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 4,
+  "q_en": "Who sang \"One Last Kiss\" for Evangelion: 3.0+1.0?",
+  "options_en": [
+   "Hikaru Utada",
+   "Aimer",
+   "Ayumi Hamasaki",
+   "Yui"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى Puella Magi Madoka Magica؟",
+  "options": [
+   "يوكو كانو",
+   "يوكي كاجيورا",
+   "جو هيسايشي",
+   "هيرويوكي ساوانو"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 5,
+  "q_en": "Who composed the music for Puella Magi Madoka Magica?",
+  "options_en": [
+   "Yoko Kanno",
+   "Yuki Kajiura",
+   "Joe Hisaishi",
+   "Hiroyuki Sawano"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى Sword Art Online؟",
+  "options": [
+   "جو هيسايشي",
+   "شيرو ساغيسو",
+   "يوكي كاجيورا",
+   "كوهي تاناكا"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "Who composed the music for Sword Art Online?",
+  "options_en": [
+   "Joe Hisaishi",
+   "Shiro Sagisu",
+   "Yuki Kajiura",
+   "Kohei Tanaka"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى Kill la Kill؟",
+  "options": [
+   "يوكو كانو",
+   "كينجي كاواي",
+   "شيرو ساغيسو",
+   "هيرويوكي ساوانو"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "Who composed the music for Kill la Kill?",
+  "options_en": [
+   "Yoko Kanno",
+   "Kenji Kawai",
+   "Shiro Sagisu",
+   "Hiroyuki Sawano"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى Mobile Suit Gundam Unicorn؟",
+  "options": [
+   "هيرويوكي ساوانو",
+   "يوكي كاجيورا",
+   "يوكو كانو",
+   "شيرو ساغيسو"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 8,
+  "q_en": "Who composed the music for Mobile Suit Gundam Unicorn?",
+  "options_en": [
+   "Hiroyuki Sawano",
+   "Yuki Kajiura",
+   "Yoko Kanno",
+   "Shiro Sagisu"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى Ghost in the Shell (1995)؟",
+  "options": [
+   "يوكو كانو",
+   "كينجي كاواي",
+   "جو هيسايشي",
+   "هيرويوكي ساوانو"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 7,
+  "q_en": "Who composed the music for Ghost in the Shell (1995)?",
+  "options_en": [
+   "Yoko Kanno",
+   "Kenji Kawai",
+   "Joe Hisaishi",
+   "Hiroyuki Sawano"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى The Vision of Escaflowne؟",
+  "options": [
+   "جو هيسايشي",
+   "كينجي كاواي",
+   "يوكو كانو",
+   "يوكي كاجيورا"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 9,
+  "q_en": "Who composed the music for The Vision of Escaflowne?",
+  "options_en": [
+   "Joe Hisaishi",
+   "Kenji Kawai",
+   "Yoko Kanno",
+   "Yuki Kajiura"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى Fullmetal Alchemist (2003)؟",
+  "options": [
+   "شيرو ساغيسو",
+   "يوكو كانو",
+   "كوهي تاناكا",
+   "ميتشيرو أوشيما"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 10,
+  "q_en": "Who composed the music for Fullmetal Alchemist (2003)?",
+  "options_en": [
+   "Shiro Sagisu",
+   "Yoko Kanno",
+   "Kohei Tanaka",
+   "Michiru Oshima"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى A Silent Voice؟",
+  "options": [
+   "كينسوكي أوشيو",
+   "جو هيسايشي",
+   "يوكي كاجيورا",
+   "شيرو ساغيسو"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 8,
+  "q_en": "Who composed the music for A Silent Voice?",
+  "options_en": [
+   "Kensuke Ushio",
+   "Joe Hisaishi",
+   "Yuki Kajiura",
+   "Shiro Sagisu"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى Chainsaw Man؟",
+  "options": [
+   "هيرويوكي ساوانو",
+   "كينسوكي أوشيو",
+   "يوكو كانو",
+   "كينجي كاواي"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 7,
+  "q_en": "Who composed the music for Chainsaw Man?",
+  "options_en": [
+   "Hiroyuki Sawano",
+   "Kensuke Ushio",
+   "Yoko Kanno",
+   "Kenji Kawai"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى Frieren: Beyond Journey's End؟",
+  "options": [
+   "جو هيسايشي",
+   "يوكي كاجيورا",
+   "إيفان كول",
+   "كينسوكي أوشيو"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "Who composed the music for Frieren: Beyond Journey's End?",
+  "options_en": [
+   "Joe Hisaishi",
+   "Yuki Kajiura",
+   "Evan Call",
+   "Kensuke Ushio"
+  ]
+ },
+ {
+  "q": "من ألّف موسيقى Samurai Champloo؟",
+  "options": [
+   "يوكو كانو",
+   "جو هيسايشي",
+   "شيرو ساغيسو",
+   "نوجاباس"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 7,
+  "q_en": "Who composed the music for Samurai Champloo?",
+  "options_en": [
+   "Yoko Kanno",
+   "Joe Hisaishi",
+   "Shiro Sagisu",
+   "Nujabes"
+  ]
+ },
+ {
+  "q": "من أنتج الموسيقى التصويرية لفيلم Akira (1988)؟",
+  "options": [
+   "Geinoh Yamashirogumi",
+   "Seatbelts",
+   "Yellow Magic Orchestra",
+   "Hotei"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 10,
+  "q_en": "Who performed and produced the soundtrack of the film Akira (1988)?",
+  "options_en": [
+   "Geinoh Yamashirogumi",
+   "Seatbelts",
+   "Yellow Magic Orchestra",
+   "Hotei"
+  ]
+ },
+ {
+  "q": "ما اسم الفرقة في أنمي Bocchi the Rock!؟",
+  "options": [
+   "Hōkago Tea Time",
+   "Kessoku Band",
+   "Sick Hack",
+   "Poppin'Party"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 3,
+  "q_en": "What is the name of the band in Bocchi the Rock!?",
+  "options_en": [
+   "Hōkago Tea Time",
+   "Kessoku Band",
+   "Sick Hack",
+   "Poppin'Party"
+  ]
+ },
+ {
+  "q": "ما اسم الفرقة في أنمي K-On!؟",
+  "options": [
+   "Kessoku Band",
+   "Afterglow",
+   "Hōkago Tea Time",
+   "Roselia"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 1,
+  "q_en": "What is the name of the band in K-On!?",
+  "options_en": [
+   "Kessoku Band",
+   "Afterglow",
+   "Hōkago Tea Time",
+   "Roselia"
+  ]
+ },
+ {
+  "q": "ما اسم مجموعة الآيدول في Love Live! School Idol Project؟",
+  "options": [
+   "Aqours",
+   "Poppin'Party",
+   "Morning Musume",
+   "μ's"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 4,
+  "q_en": "What is the name of the idol group in Love Live! School Idol Project?",
+  "options_en": [
+   "Aqours",
+   "Poppin'Party",
+   "Morning Musume",
+   "μ's"
+  ]
+ },
+ {
+  "q": "ما اسم مجموعة الآيدول في Love Live! Sunshine!!؟",
+  "options": [
+   "Aqours",
+   "μ's",
+   "Nijigasaki",
+   "Liella!"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 6,
+  "q_en": "What is the name of the idol group in Love Live! Sunshine!!?",
+  "options_en": [
+   "Aqours",
+   "μ's",
+   "Nijigasaki",
+   "Liella!"
+  ]
+ },
+ {
+  "q": "أي شركة طوّرت مغنية الفوكالويد Hatsune Miku؟",
+  "options": [
+   "Yamaha",
+   "Crypton Future Media",
+   "Sega",
+   "Bandai Namco"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 7,
+  "q_en": "Which company developed the vocaloid Hatsune Miku?",
+  "options_en": [
+   "Yamaha",
+   "Crypton Future Media",
+   "Sega",
+   "Bandai Namco"
+  ]
+ },
+ {
+  "q": "من هي صاحبة الصوت الأصلي لـ Hatsune Miku؟",
+  "options": [
+   "ميغومي هاياشيبارا",
+   "مايا ساكاموتو",
+   "ساكي فوجيتا",
+   "ميناكو سوتو"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 8,
+  "q_en": "Who provided the original voice for Hatsune Miku?",
+  "options_en": [
+   "Megumi Hayashibara",
+   "Maaya Sakamoto",
+   "Saki Fujita",
+   "Minako Sato"
+  ]
+ },
+ {
+  "q": "من تغنّي بصوت الشخصية شيريل نوم في Macross Frontier؟",
+  "options": [
+   "Megumi Nakajima",
+   "LiSA",
+   "Aimer",
+   "May'n"
+  ],
+  "answer": 3,
+  "category": "music",
+  "base_difficulty": 9,
+  "q_en": "Who provides the singing voice of Sheryl Nome in Macross Frontier?",
+  "options_en": [
+   "Megumi Nakajima",
+   "LiSA",
+   "Aimer",
+   "May'n"
+  ]
+ },
+ {
+  "q": "ما الآلة الموسيقية التي تعزفها كاوري في Your Lie in April؟",
+  "options": [
+   "الكمان",
+   "البيانو",
+   "الفلوت",
+   "التشيلو"
+  ],
+  "answer": 0,
+  "category": "music",
+  "base_difficulty": 3,
+  "q_en": "Which instrument does Kaori play in Your Lie in April?",
+  "options_en": [
+   "Violin",
+   "Piano",
+   "Flute",
+   "Cello"
+  ]
+ },
+ {
+  "q": "ما الآلة التي تعزفها هيتوري غوتو في Bocchi the Rock!؟",
+  "options": [
+   "الطبول",
+   "الغيتار",
+   "البيانو",
+   "الكمان"
+  ],
+  "answer": 1,
+  "category": "music",
+  "base_difficulty": 1,
+  "q_en": "Which instrument does Hitori Gotoh play in Bocchi the Rock!?",
+  "options_en": [
+   "Drums",
+   "Guitar",
+   "Piano",
+   "Violin"
+  ]
+ },
+ {
+  "q": "أي فرقة بنوعية روك بديل ظهرت موسيقاها في أنمي FLCL؟",
+  "options": [
+   "Seatbelts",
+   "Asian Kung-Fu Generation",
+   "The Pillows",
+   "L'Arc-en-Ciel"
+  ],
+  "answer": 2,
+  "category": "music",
+  "base_difficulty": 7,
+  "q_en": "Which rock band's music is featured in the anime FLCL?",
+  "options_en": [
+   "Seatbelts",
+   "Asian Kung-Fu Generation",
+   "The Pillows",
+   "L'Arc-en-Ciel"
+  ]
+ }
+]
