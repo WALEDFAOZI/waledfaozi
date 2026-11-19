@@ -420,7 +420,7 @@ def build_router(ctx: Ctx) -> Router:
         text = t(L, "du_share_first") + ("\n" + t(L, "du_rematch_sent") if invited else "")
         await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=kb(
             [btn(t(L, "du_share_btn"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(t(L, 'du_share_text'))}")],
-            [btn(t(L, "du_go"), f"du:go:{did}")], [btn(t(L, "btn_menu"), "menu")]))
+            [btn(t(L, "du_go"), f"du:go:{did}")], [btn(t(L, "sw_btn"), "sw:new")], [btn(t(L, "btn_menu"), "menu")]))
 
     async def start_targeted_duel(c: CallbackQuery, other: int, tie: bool) -> None:
         """مواجهة موجّهة لشخص محدد (ثأر أو تعادل): يصله الدعوة فورًا، والمضيف يبدأ متى شاء."""
