@@ -626,3 +626,39 @@ T["en"].update({
     "dy_freeze_used": "🧊 A freeze was used to save your streak!", "dy_freeze_gain": "🧊 You earned a new freeze (you have {n})!",
     "du_rematch": "🔁 Rematch", "du_rematch_invite": "🔁 <b>{name}</b> wants a rematch! 7 new questions, accept?",
 })
+
+T["ar"].update({
+    "tm_none": "🛡 <b>العشائر</b>\nانضم لعشيرة أو أنشئ عشيرتك! تتنافس العشائر بمجموع خبرة أعضائها كل أسبوع، ويراها الجميع في الترتيب.\n<i>الحد الأقصى 30 عضوًا للعشيرة.</i>",
+    "tm_create": "➕ أنشئ عشيرة", "tm_join_list": "🔍 انضم لعشيرة", "tm_rank_btn": "🏆 ترتيب العشائر", "tm_leave": "🚪 غادر العشيرة",
+    "tm_invite": "📤 ادعُ لعشيرتك", "tm_invite_text": "انضم لعشيرتي «{name}» في بوت تقييم الأوتاكو ⚔️",
+    "tm_view": "🛡 <b>{name}</b>\n👥 الأعضاء: {n}/{mx} · القائد: {leader}\n⭐ خبرة العشيرة هذا الأسبوع: <b>{wxp}</b> · ترتيبها: <b>#{rank}</b>\n\n<b>أفضل الأعضاء هذا الأسبوع</b>\n{rows}",
+    "tm_ask_name": "اكتب اسم عشيرتك (من {a} إلى {b} حرفًا، بدون روابط):", "tm_name_len": "الاسم من {a} إلى {b} حرفًا من فضلك.",
+    "tm_name_bad": "الاسم غير مناسب، جرّب اسمًا آخر.", "tm_taken": "هذا الاسم مستخدم، اختر اسمًا آخر.",
+    "tm_created": "🎉 تم إنشاء عشيرة <b>{name}</b>! ادعُ أصدقاءك بالزر التالي.", "tm_cant": "لا يمكنك إنشاء عشيرة الآن (أنت في عشيرة أصلًا).",
+    "tm_admin_no": "الأدمن لا ينضم للعشائر (حفاظًا على الخصوصية).", "tm_none_yet": "ما فيه عشائر متاحة بعد. كن أول من ينشئ عشيرة!",
+    "tm_pick": "🔍 اختر عشيرة للانضمام:", "tm_joined": "🎉 انضممت للعشيرة!",
+    "tm_join_gone": "هذه العشيرة غير متاحة.", "tm_join_admin": "الأدمن لا ينضم للعشائر.", "tm_join_already": "أنت فيها أصلًا ✅",
+    "tm_join_in_other": "أنت في عشيرة أخرى، غادرها أولًا.", "tm_join_full": "العشيرة ممتلئة (30 عضوًا).",
+    "tm_leave_ask": "متأكد من مغادرة العشيرة؟", "tm_leave_yes": "نعم، غادر", "tm_left": "غادرت العشيرة.",
+    "tm_start_invite": "\n\n🛡 دُعيت للانضمام لعشيرة <b>{name}</b> ({n}/{mx}).",
+    "btn_teams": "🛡 عشيرتي", "lbm_teams": "🛡 ترتيب العشائر", "lbt_team_head": "🛡 <b>ترتيب العشائر · {p}</b>\n<i>مجموع خبرة الأعضاء</i>",
+})
+T["en"].update({
+    "tm_none": "🛡 <b>Clans</b>\nJoin a clan or create your own! Clans compete by their members' total XP every week, visible to everyone in the rankings.\n<i>Max 30 members per clan.</i>",
+    "tm_create": "➕ Create a clan", "tm_join_list": "🔍 Join a clan", "tm_rank_btn": "🏆 Clan ranking", "tm_leave": "🚪 Leave clan",
+    "tm_invite": "📤 Invite to your clan", "tm_invite_text": "Join my clan “{name}” in the Otaku Rating bot ⚔️",
+    "tm_view": "🛡 <b>{name}</b>\n👥 Members: {n}/{mx} · Leader: {leader}\n⭐ Clan XP this week: <b>{wxp}</b> · Rank: <b>#{rank}</b>\n\n<b>Top members this week</b>\n{rows}",
+    "tm_ask_name": "Write your clan's name ({a} to {b} characters, no links):", "tm_name_len": "The name must be {a} to {b} characters.",
+    "tm_name_bad": "That name isn't allowed, try another.", "tm_taken": "That name is taken, pick another.",
+    "tm_created": "🎉 Clan <b>{name}</b> created! Invite your friends with the next button.", "tm_cant": "You can't create a clan now (you're already in one).",
+    "tm_admin_no": "Admins don't join clans (privacy).", "tm_none_yet": "No clans available yet. Be the first to create one!",
+    "tm_pick": "🔍 Pick a clan to join:", "tm_joined": "🎉 You joined the clan!",
+    "tm_join_gone": "That clan isn't available.", "tm_join_admin": "Admins don't join clans.", "tm_join_already": "You're already in it ✅",
+    "tm_join_in_other": "You're in another clan, leave it first.", "tm_join_full": "The clan is full (30 members).",
+    "tm_leave_ask": "Sure you want to leave the clan?", "tm_leave_yes": "Yes, leave", "tm_left": "You left the clan.",
+    "tm_start_invite": "\n\n🛡 You're invited to join the clan <b>{name}</b> ({n}/{mx}).",
+    "btn_teams": "🛡 My clan", "lbm_teams": "🛡 Clan ranking", "lbt_team_head": "🛡 <b>Clan ranking · {p}</b>\n<i>Total member XP</i>",
+})
+
+T["ar"]["pg_ach_count"] = "🏅 الإنجازات: {n}/{total}"
+T["en"]["pg_ach_count"] = "🏅 Achievements: {n}/{total}"

@@ -19,6 +19,7 @@ from aiogram.exceptions import TelegramAPIError, TelegramBadRequest, TelegramFor
 from aiogram.filters import Command, CommandObject
 from aiogram.types import CallbackQuery, ChatMemberUpdated, Message, ReplyParameters
 
+from . import progress
 from .bot import btn, esc, kb
 from .ctx import Ctx
 from .games import load_games, order_rounds, quote_rounds, char_rounds, song_rounds, tf_rounds
@@ -445,6 +446,7 @@ def build_group_router(ctx: Ctx) -> Router:
                 if g.scope == "channel":
                     db.upsert_user(p.id, p.name)
                 db.add_group_result(g.chat_id, p.id, p.points, g.kind, p.id in champ_ids)
+                progress.record(db, p.id, "group", correct=p.correct, won=p.id in champ_ids)
 
     async def run(bot: Bot, g: Game) -> None:
         try:

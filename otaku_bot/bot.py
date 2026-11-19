@@ -756,6 +756,12 @@ def build_router(ctx: Ctx) -> Router:
                 extra = t(L, "challenge_banner", name=esc(pub(friend)), score=f"{s['score']:.1f}",
                           title=esc(title_for(s["score"], L)))
                 top = [[btn(t(L, "btn_accept"), f"cc:{s['id']}")]]
+        if arg.startswith("tm_") and arg[3:].isdigit():
+            tm = db.get_team(int(arg[3:]))
+            me_u = db.get_user(m.from_user.id)
+            if tm and not tm["hidden"] and not db.is_admin(m.from_user.id) and me_u and not me_u["team_id"]:
+                extra = t(L, "tm_start_invite", name=esc(tm["name"]), n=db.team_size(tm["id"]), mx=db.TEAM_MAX)
+                top = [[btn(t(L, "tm_join_list"), f"tm:j:{tm['id']}")]]
         if arg.startswith("du_") and arg[3:].isdigit():
             d = db.get_duel(int(arg[3:]))
             cs = db.get_session(d["creator_sid"]) if d and d["creator_sid"] else None
@@ -865,12 +871,15 @@ def build_router(ctx: Ctx) -> Router:
         ib = invite_badge(db.invite_count(uid))
         if ib:
             lines.append(t(L, "iv_badge", b=badge_label(ib, L)))
+        lines.append(progress.level_line(db.get_user(uid)["xp"], L))
+        lines.append(t(L, "pg_ach_count", n=len(db.achievements_of(uid)), total=len(progress.ACH)))
         if p["cats"]:
             lines.append(t(L, "prof_cat"))
             lines += [f"• {cat_label(L, cat)}: {acc * 100:.0f}%" for cat, acc, _ in p["cats"]]
         link = f"https://t.me/{await bot_username(bot)}?start=pf_{uid}"
         share = t(L, "prof_share", score=f"{p['best']:.1f}", title=title)
         markup = kb([btn(t(L, "btn_share_profile"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")],
+                    [btn(t(L, "btn_achs"), "pg:me"), btn(t(L, "btn_teams"), "tm:m")],
                     *chan_row(L), [btn(t(L, "btn_menu"), "menu")])
         caption = "\n".join(lines)
         try:
@@ -1014,6 +1023,34 @@ def build_router(ctx: Ctx) -> Router:
             await m.answer("❌")
 
     # ── المتصدرون ───────────────────────────────────────────
+    @r.callback_query(F.data == "pg:me")
+    async def cb_progress_me(c: CallbackQuery):
+        """مستواي وإنجازاتي (من الملف الشخصي ومن شاشة الترتيب)."""
+        await c.answer()
+        uid = c.from_user.id
+        db.upsert_user(uid, c.from_user.full_name)
+        L = lang(uid)
+        await c.message.answer(progress.level_line(db.get_user(uid)["xp"], L) + "\n\n" + progress.ach_list(db, uid, L),
+                               parse_mode="HTML", reply_markup=kb([btn(t(L, "btn_teams"), "tm:m")], [btn(t(L, "btn_menu"), "menu")]))
+
+    def lb_team_view(uid: int, p: str):
+        """ترتيب العشائر (أسبوعي w / كل الأوقات a) بمجموع خبرة الأعضاء."""
+        L = lang(uid)
+        since = week_start() if p == "w" else None
+        board = db.team_board(since, 10)
+        medals = ["🥇", "🥈", "🥉"]
+        lines = [f"{medals[i] if i < 3 else str(i + 1) + '.'} {esc(x['name'])} · 👥{x['members']} — <b>{x['pts']}</b>" for i, x in enumerate(board)]
+        mine = (db.get_user(uid) or {})["team_id"] if db.get_user(uid) else None
+        extra = ""
+        if mine:
+            rk = db.team_rank(mine, since)
+            extra = t(L, "lb_you", rank=rk) if rk else ""
+        switch = [btn(("✅ " if q == p else "") + t(L, f"lbp_s_{'w' if q == 'w' else 'a'}"), f"lb:T:{q}") for q in ("w", "a")]
+        head = t(L, "lbt_team_head", p=t(L, "lbp_s_w" if p == "w" else "lbp_s_a"))
+        body = "\n".join(lines) if lines else t(L, "lb_empty")
+        return f"{head}\n\n{body}{extra}", kb(switch, [btn(t(L, "btn_teams"), "tm:m"), btn(t(L, "lb_back_period"), "lb:menu")],
+                                                [btn(t(L, "btn_menu"), "menu")])
+
     BOARD_TYPES = ("q", "s", "tf", "song", "ord", "char", "quote")
     LEGACY = {"all": "a:q", "week": "w:q", "sd": "a:s", "dy": "d:dc", "gm": "a:tf"}
 
@@ -1025,6 +1062,7 @@ def build_router(ctx: Ctx) -> Router:
         L = lang(uid)
         return t(L, "lbm_text"), kb(
             [btn(t(L, "lbp_a"), "lb:P:a")], [btn(t(L, "lbp_w"), "lb:P:w")], [btn(t(L, "lbp_d"), "lb:P:d")],
+            [btn(t(L, "lbm_teams"), "lb:T:w"), btn(t(L, "btn_achs"), "pg:me")],
             *chan_row(L), [btn(t(L, "btn_menu"), "menu")])
 
     def lb_types_view(uid: int, p: str):
@@ -1072,12 +1110,14 @@ def build_router(ctx: Ctx) -> Router:
                     [btn(t(L, "btn_menu"), "menu")], *chan_row(L))
         return f"{head}\n\n{body}{extra}", markup
 
-    @r.callback_query(F.data.regexp(r"^lb:(menu|P:[awd]|B:[awd]:(q|s|tf|song|ord|char|quote|dc)|all|week|sd|dy|gm|g:(tf|song|ord|char|quote))$"))
+    @r.callback_query(F.data.regexp(r"^lb:(menu|T:[wa]|P:[awd]|B:[awd]:(q|s|tf|song|ord|char|quote|dc)|all|week|sd|dy|gm|g:(tf|song|ord|char|quote))$"))
     async def cb_lb(c: CallbackQuery):
         await c.answer()
         view = c.data[3:]
         if view == "menu":
             text, markup = lb_menu_view(c.from_user.id)
+        elif view.startswith("T:"):
+            text, markup = lb_team_view(c.from_user.id, view[2:])
         elif view.startswith("P:"):
             text, markup = lb_types_view(c.from_user.id, view[2:])
         else:

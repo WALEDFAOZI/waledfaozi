@@ -78,7 +78,7 @@ def home_kb(pending: int = 0):
         [btn("➕ سؤال جديد", "ad:add"), btn("🔎 بحث/تعديل سؤال", "ad:find")],
         [btn(f"💬 الاقتراحات والملاحظات ({pending})", "ad:fb"), btn("📣 رسالة جماعية", "ad:bc")],
         [btn("⚙️ الإعدادات", "ad:set"), btn("👥 المشرفون", "ad:adm")],
-        [btn("📚 المحتوى (صح/غلط، أنمي)", "ad:ct")],
+        [btn("📚 المحتوى (صح/غلط، أنمي)", "ad:ct"), btn("🛡 العشائر", "ad:tm")],
         [btn("🖼 جلب أسئلة صور", "ad:img"), btn("💾 نسخة احتياطية", "ad:bak")],
     )
 
@@ -695,6 +695,21 @@ def build_admin_router(ctx: Ctx) -> Router:
 
     # ── الاقتراحات والملاحظات ───────────────────────────────
     FB_NAMES = {"feat": "🛠 تطوير البوت", "anime": "🎬 أنمي", "bug": "🐞 مشاكل", "note": "💭 ملاحظات"}
+
+    @r.callback_query(F.data == "ad:tm")
+    async def cb_teams_admin(c: CallbackQuery):
+        await c.answer()
+        board = db.team_board(None, 15)
+        if not board:
+            await nav(c, "لا توجد عشائر بعد.", kb(BACK), None)
+            return
+        btns = [[btn(f"🚫 {x['name'][:24]} · 👥{x['members']} · ⭐{x['pts']}", f"ad:tmh:{x['id']}")] for x in board]
+        await nav(c, "🛡 العشائر (اضغط لإخفاء عشيرة غير مناسبة وفكّ أعضائها):", kb(*btns, BACK), None)
+
+    @r.callback_query(F.data.regexp(r"^ad:tmh:\d+$"))
+    async def cb_team_hide(c: CallbackQuery):
+        db.hide_team(int(c.data.split(":")[2]))
+        await c.answer("🚫 أُخفيت العشيرة وأُخرج أعضاؤها", show_alert=True)
 
     @r.callback_query(F.data == "ad:fb")
     async def cb_feedback_hub(c: CallbackQuery):

@@ -14,6 +14,7 @@ from aiogram.types import CallbackQuery, Message
 from .bot import btn, esc, kb
 from .config import ROOT
 from .ctx import Ctx
+from . import progress
 from .names import loc, loc_opt
 from .texts import t
 
@@ -169,7 +170,10 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
         st, kind = g["state"], g["kind"]
         if st["pos"] >= len(st["rounds"]):
             best = db.finish_game(gid, c.from_user.id, kind, st["score"])
+            ps = progress.record(db, c.from_user.id, "game", score=st["score"])
             text = t(L, "g_end", title=t(L, titles[kind]), score=st["score"], total=len(st["rounds"]), best=best)
+            if ps.xp:
+                text += "\n" + t(L, "pg_xp_gain", xp=ps.xp)
             markup = kb([btn(t(L, "g_again"), f"g:{kind}")], [btn(t(L, "btn_menu"), "menu")])
         else:
             text, markup = screen(L, gid, kind, st)
@@ -177,6 +181,8 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
             await c.message.edit_text(text, parse_mode="HTML", reply_markup=markup)
         except TelegramBadRequest:
             await c.message.answer(text, parse_mode="HTML", reply_markup=markup)
+        if st["pos"] >= len(st["rounds"]):
+            await progress.send_notice(c.bot, c.from_user.id, L, ps)
 
     def mine(c: CallbackQuery, gid: int):
         g = db.get_game(gid)
