@@ -31,7 +31,7 @@ from .timeutil import week_start
 log = logging.getLogger(__name__)
 
 # قابلة للتعديل (والاختبارات تقلّلها)
-LOBBY_SECONDS = 30
+LOBBY_SECONDS = 180         # غرفة الانتظار: 3 دقائق
 Q_SECONDS = 15
 PAUSE = 3
 MIN_PLAYERS = 2
@@ -39,7 +39,7 @@ CH_MIN_PLAYERS = 1          # القنوات: يكفي مشارك واحد (ال
 MAX_PLAYERS = 40
 CHAT_COOLDOWN = 30          # بعد انتهاء لعبة في المجموعة
 START_COOLDOWN = 45         # لكل من يبدأ ألعابًا
-CH_LOBBY_SECONDS = 30       # مسابقات القنوات: نص دقيقة للمشاركة
+CH_LOBBY_SECONDS = 180      # مسابقات القنوات: 3 دقائق للمشاركة
 CH_Q_SECONDS = 30           # ثم 30 ثانية لكل سؤال
 CH_MAX_PLAYERS = 200000
 CH_KEEP = 50                # في القنوات الكبيرة نحفظ أفضل 50 فقط في القاعدة
@@ -347,7 +347,8 @@ def build_group_router(ctx: Ctx) -> Router:
             if left <= 0:
                 break
             now = time.monotonic()
-            if g.dirty and now - last >= g.edit_gap:
+            # العدّاد يتحدّث كل مرة (لا يبقى ثابتًا): نعدّل الرسالة كل edit_gap ثانية بالوقت المتبقي الفعلي
+            if now - last >= g.edit_gap:
                 g.dirty = False
                 last = now
                 await edit(bot, g, g.live, lobby_text(g, int(left + 0.5)), lobby_markup(g))
@@ -827,7 +828,7 @@ def build_group_router(ctx: Ctx) -> Router:
         g = Game(gid=counter[0], chat_id=chat_id, thread=None, reply_to=None, host_id=starter.id,
                  host_name=ANON if db.is_admin(starter.id) else clean(starter.full_name), kind=kind,
                  lang=db.group_lang(chat_id), scope="channel", lobby_secs=CH_LOBBY_SECONDS, q_secs=CH_Q_SECONDS,
-                 max_players=CH_MAX_PLAYERS, min_players=CH_MIN_PLAYERS, edit_gap=5.0)
+                 max_players=CH_MAX_PLAYERS, min_players=CH_MIN_PLAYERS, edit_gap=3.0)
         games[chat_id] = g
         g.live = await send(c.bot, g, lobby_text(g, int(g.lobby_secs)), lobby_markup(g))
         if g.live is None:

@@ -527,22 +527,22 @@ T["en"].update({
 
 T["ar"].update({
     "btn_channel_game": "📢 تحدٍّ في قناة",
-    "ch_intro": "📢 <b>تحدٍّ في قناة</b>\n1️⃣ اضغط «اختر القناة» وأضف البوت أدمن (نشر + تعديل + حذف رسائل)\n2️⃣ سيصلك هنا اختيار نوع المسابقة\n3️⃣ بعدها تبدأ مشاركة نص دقيقة، ثم أسئلة (30 ثانية لكل سؤال)، وتظهر النتيجة بالأفضل 10.\n\n<i>القناة مضافة سابقًا؟ اكتب /play في القناة (سأحذف منشورك وأرسل لك القائمة هنا)، أو اختر من قنواتك أدناه.</i>",
+    "ch_intro": "📢 <b>تحدٍّ في قناة</b>\n1️⃣ اضغط «اختر القناة» وأضف البوت أدمن (نشر + تعديل + حذف رسائل)\n2️⃣ سيصلك هنا اختيار نوع المسابقة\n3️⃣ بعدها تبدأ مشاركة 3 دقائق، ثم أسئلة (30 ثانية لكل سؤال)، وتظهر النتيجة بالأفضل 10.\n\n<i>القناة مضافة سابقًا؟ اكتب /play في القناة (سأحذف منشورك وأرسل لك القائمة هنا)، أو اختر من قنواتك أدناه.</i>",
     "ch_add_btn": "➕ اختر القناة", "ch_linked": "📢 القناة: <b>{title}</b>\nاختر نوع المسابقة:",
     "ch_rights_warn": "⚠️ البوت يحتاج صلاحية <b>نشر الرسائل وتعديلها</b> في القناة حتى تعمل المسابقة.",
     "ch_publish_fail": "ما قدرت أنشر في القناة. تأكد أن البوت أدمن فيها بصلاحية نشر وتعديل الرسائل.",
     "ch_started_toast": "🚀 نُشرت غرفة المشاركة في القناة!",
-    "ch_started": "✅ نُشرت المسابقة في القناة. المشاركة مفتوحة نص دقيقة.\nتحكّم من هنا:",
+    "ch_started": "✅ نُشرت المسابقة في القناة. المشاركة مفتوحة 3 دقائق.\nتحكّم من هنا:",
     "gp_lobby_ch": "🎮 <b>مسابقة: {kind}</b>\n\n⏳ تبدأ بعد <b>{left}</b> ثانية — اضغط «شارك»!\n👥 المشاركون: <b>{n}</b>\n<i>سؤال كل 30 ثانية، والأسرع يكسب نقاطًا أكثر.</i>",
 })
 T["en"].update({
     "btn_channel_game": "📢 Challenge in a channel",
-    "ch_intro": "📢 <b>Challenge in a channel</b>\n1️⃣ Tap “Pick channel” and add the bot as admin (post + edit + delete messages)\n2️⃣ You'll get the contest type menu here\n3️⃣ Then 30s to join, then questions (30s each), and the top 10 are shown at the end.\n\n<i>Bot already in your channel? Type /play there (I'll delete your post and send the menu here), or pick from your channels below.</i>",
+    "ch_intro": "📢 <b>Challenge in a channel</b>\n1️⃣ Tap “Pick channel” and add the bot as admin (post + edit + delete messages)\n2️⃣ You'll get the contest type menu here\n3️⃣ Then 3 minutes to join, then questions (30s each), and the top 10 are shown at the end.\n\n<i>Bot already in your channel? Type /play there (I'll delete your post and send the menu here), or pick from your channels below.</i>",
     "ch_add_btn": "➕ Pick a channel", "ch_linked": "📢 Channel: <b>{title}</b>\nPick the contest type:",
     "ch_rights_warn": "⚠️ The bot needs permission to <b>post and edit messages</b> in the channel.",
     "ch_publish_fail": "I couldn't post in the channel. Make sure the bot is an admin with post & edit rights.",
     "ch_started_toast": "🚀 The join post is live in the channel!",
-    "ch_started": "✅ The contest is posted in the channel. Joining is open for 30s.\nControl it here:",
+    "ch_started": "✅ The contest is posted in the channel. Joining is open for 3 minutes.\nControl it here:",
     "gp_lobby_ch": "🎮 <b>Contest: {kind}</b>\n\n⏳ Starts in <b>{left}</b>s — tap “Join”!\n👥 Players: <b>{n}</b>\n<i>A question every 30s; faster answers earn more points.</i>",
 })
 for L in ("ar", "en"):

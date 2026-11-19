@@ -1,6 +1,7 @@
 """ألعاب المجموعات: غرفة انتظار، أسئلة بعدّاد، ردود على صاحب الأمر، هوية القناة/المجموعة، الصلاحيات."""
 import asyncio
 import datetime as dt
+from pathlib import Path
 
 import pytest
 from aiogram.types import CallbackQuery, Chat, Message, MessageEntity, Update, User
@@ -569,3 +570,24 @@ def test_leave_before_start_final_has_try_button_not_play_hint_in_channel_and_gr
         await g2.say(g2.user(77, "New"), "/start src_contest")
         assert g2.db.conn.execute("SELECT COUNT(*) n FROM events WHERE kind='src_contest'").fetchone()["n"] == 1
     run(go())
+
+
+def test_lobby_is_three_minutes_and_countdown_actually_ticks():
+    async def go():
+        old = group.LOBBY_SECONDS
+        group.LOBBY_SECONDS = 6
+        try:
+            h = Harness()
+            await start_lobby(h, h.user(1, "Ali"), "tf", mid=80)
+            await asyncio.sleep(4.5)
+            edits = [c.text for c in h.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == GROUP.id]
+            nums = {int(x.split("تبدأ بعد <b>")[1].split("</b>")[0]) for x in edits if "تبدأ بعد" in x}
+            assert len(nums) >= 2, nums                      # العدّاد يتغيّر بدل أن يبقى ثابتًا
+        finally:
+            group.LOBBY_SECONDS = old
+    run(go())
+
+
+def test_default_lobby_is_180_seconds():
+    src = Path(group.__file__).read_text(encoding="utf-8")       # الاختبارات تخفّض القيمة، فنتحقق من الكود نفسه
+    assert "LOBBY_SECONDS = 180" in src and "CH_LOBBY_SECONDS = 180" in src
