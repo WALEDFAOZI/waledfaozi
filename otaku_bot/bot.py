@@ -96,6 +96,7 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
     """القائمة الرئيسية قصيرة: الاختبار أولًا، والألعاب والمزيد في قوائم فرعية."""
     return kb(*(top or []),
               [btn(t(L, "btn_full"), "go")],
+              [btn(t(L, "btn_online"), "on:m")],                                # زر اللعب أونلاين واضح بعد الاختبار
               [btn(t(L, "btn_group"), "gpm")],                                  # سطر كامل وواضح تحت الاختبار مباشرة
               [btn(t(L, "btn_channel_game"), "gpc")],
               [btn(t(L, "btn_daily"), "dy:m"), btn(t(L, "du_btn"), "du:new")],

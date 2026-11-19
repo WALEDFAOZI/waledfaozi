@@ -26,6 +26,7 @@ from .personality import build_persona_router
 from .mafia_game import build_mafia_router
 from .spy_game import build_spy_router
 from .swap_game import build_swap_router
+from .online import build_online_router
 from .games import build_games_router
 from .group import build_group_router
 
@@ -104,6 +105,7 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp.include_router(build_mafia_router(ctx))    # قبل المجموعات: أزرار المافيا
     dp.include_router(build_spy_router(ctx))      # برا السالفة
     dp.include_router(build_swap_router(ctx))     # تبادل الشخصيات (قبل start العادي)
+    dp.include_router(build_online_router(ctx))   # لعب أونلاين
     dp.include_router(build_group_router(ctx))    # المجموعات: قبل الباقي، والباقي مقيّد بالخاص
     dp.include_router(build_games_router(ctx))
     dp.include_router(build_recommend_router(ctx))
