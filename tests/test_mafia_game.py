@@ -63,25 +63,33 @@ def test_full_game_roles_night_day_and_result():
         host = users[0]
         await gcmd(h, host, "/mafia", 77)
         g = MG.games[GROUP.id]
-        assert g.host_id == 1 and 1 in g.players
+        assert g.host_id == 1 and 1 not in g.players                         # المضيف يُضاف إن انضم فقط
         lobby = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id == GROUP.id][-1]
         assert lobby.reply_parameters.message_id == 77                       # كل رسالة ترد على صاحب الأمر
         assert "كيف تلعب" in lobby.text                                      # الشرح واضح للمنضم
+        assert "المضيف" not in lobby.text                                    # لا يظهر اسم المضيف في الانتظار
+        lobby_buttons = [b for row in lobby.reply_markup.inline_keyboard for b in row]
+        assert all(b.callback_data is None or b.callback_data.startswith("mf:l:") for b in lobby_buttons)   # لا أزرار إعداد في القروب
+        assert any(b.url and "start=mf_" in b.url for b in lobby_buttons)    # زر انضم يفتح الخاص
         for u in users[1:]:
-            await gtap(h, u, f"mf:j:{g.gid}")
-        await gtap(h, host, f"mf:r:{g.gid}:doctor")                          # الطبيب دور إضافي
-        await gtap(h, users[1], f"mf:k:{g.gid}:+")                           # غير المضيف لا يغيّر الإعدادات
+            await h.say(u, f"/start mf_{g.gid}")                             # الانضمام يمر بالخاص
+        assert len(g.players) == 5 and 1 not in g.players                    # المضيف لم ينضم تلقائيًا
+        await h.say(host, f"/start mf_{g.gid}")
+        assert 1 in g.players
+        await h.tap(host, f"mf:r:{g.gid}:doctor")                            # الإعدادات في خاص المضيف
+        await h.tap(users[1], f"mf:k:{g.gid}:+")                             # غير المضيف لا يغيّر الإعدادات
         assert g.killers == 1
-        await gtap(h, host, f"mf:s:{g.gid}")
+        await h.tap(host, f"mf:s:{g.gid}")
         assert await wait_until(lambda: g.state == "night"), g.state
         # كل لاعب تلقّى دوره في الخاص
-        assert all(dms_to(h, u.id) for u in users)
+        assert all(any("دورك" in (c.text or "") for c in dms_to(h, u.id)) for u in users)
         roles = {uid: p.role for uid, p in g.players.items()}
         killer = next(u for u, r in roles.items() if r == "killer")
         doctor = next(u for u, r in roles.items() if r == "doctor")
         citizens = [u for u, r in roles.items() if r == "citizen"]
         victim = citizens[0]
-        assert "دورك" in dms_to(h, killer)[0].text and "القاتل" in dms_to(h, killer)[0].text
+        role_dm = [c.text for c in dms_to(h, killer) if "دورك" in (c.text or "")]
+        assert role_dm and "القاتل" in role_dm[-1]
         await h.tap(next(x for x in users if x.id == killer), f"mf:n:{g.gid}:killer:{victim}")
         await h.tap(next(x for x in users if x.id == doctor), f"mf:n:{g.gid}:doctor:{doctor}")   # الطبيب يحمي نفسه
         assert await wait_until(lambda: g.state == "day"), g.state
@@ -108,16 +116,16 @@ def test_host_rules_and_invalid_configurations_are_refused():
             h.db.upsert_user(u.id, u.first_name)
         await gcmd(h, users[0], "/mafia", 80)
         g = MG.games[GROUP.id]
-        for u in users[1:]:
-            await gtap(h, u, f"mf:j:{g.gid}")
+        for u in users:
+            await h.say(u, f"/start mf_{g.gid}")
         for _ in range(3):
-            await gtap(h, users[0], f"mf:k:{g.gid}:+")                     # 4 قتلة من 5 = مرفوض
+            await h.tap(users[0], f"mf:k:{g.gid}:+")                       # 4 قتلة من 5 = مرفوض
         assert g.killers >= 2
-        await gtap(h, users[0], f"mf:s:{g.gid}")
+        await h.tap(users[0], f"mf:s:{g.gid}")
         assert g.state == "lobby"                                           # لا تبدأ بإعدادات فاسدة
-        await gtap(h, users[0], f"mf:k:{g.gid}:-")
-        await gtap(h, users[0], f"mf:r:{g.gid}:doctor")                    # 1 قاتل + طبيب + 3 مواطنين = صالح
-        await gtap(h, users[0], f"mf:s:{g.gid}")
+        await h.tap(users[0], f"mf:k:{g.gid}:-")
+        await h.tap(users[0], f"mf:r:{g.gid}:doctor")                      # 1 قاتل + طبيب + 3 مواطنين = صالح
+        await h.tap(users[0], f"mf:s:{g.gid}")
         assert await wait_until(lambda: g.state != "lobby")
         g.task.cancel()
         await wait_until(lambda: GROUP.id not in MG.games, 5)
@@ -132,13 +140,13 @@ def test_leaving_mid_game_counts_as_elimination_and_cancel_works():
             h.db.upsert_user(u.id, u.first_name)
         await gcmd(h, users[0], "/mafia", 90)
         g = MG.games[GROUP.id]
-        for u in users[1:]:
-            await gtap(h, u, f"mf:j:{g.gid}")
-        await gtap(h, users[0], f"mf:s:{g.gid}")
+        for u in users:
+            await h.say(u, f"/start mf_{g.gid}")
+        await h.tap(users[0], f"mf:s:{g.gid}")
         assert await wait_until(lambda: g.state == "night")
         await gtap(h, users[2], f"mf:l:{g.gid}")                          # ينسحب أثناء اللعب
         assert not g.players[3].alive
-        await gtap(h, users[0], f"mf:x:{g.gid}")                          # المضيف يلغي
+        await h.tap(users[0], f"mf:x:{g.gid}")                            # المضيف يلغي من خاصه
         assert await wait_until(lambda: GROUP.id not in MG.games, 5)
         assert any("أُلغيت" in x for x in group_texts(h))
     run(go())

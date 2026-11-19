@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 
 from aiogram import Bot, F, Router
 from aiogram.exceptions import TelegramAPIError, TelegramRetryAfter
-from aiogram.filters import Command
+from aiogram.filters import Command, CommandStart
 from aiogram.types import CallbackQuery, Message, ReplyParameters
 
 from . import mafia as M
@@ -67,11 +67,18 @@ class Game:
     task: asyncio.Task | None = None
     dirty: bool = True
     start_now: bool = False
+    me: str = ""                    # اسم البوت (لرابط الانضمام)
+    cfg_msg: int | None = None       # رسالة إعدادات المضيف في الخاص
 
 
 games: dict[int, Game] = {}
 cooldown: dict[int, float] = {}
 counter = [0]
+
+
+def roles_line(g: Game, L: str) -> str:
+    parts = [f"🔪 {t(L, 'mf_killers')}: {g.killers}"] + [f"{ICON[r]} {t(L, 'mf_r_' + r)}" for r in g.specials]
+    return " · ".join(parts)
 
 
 def alive_players(g: Game) -> list[Player]:
@@ -153,10 +160,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
 
     def lobby_text(g: Game, left: int) -> str:
         L = g.lang
-        roles = " · ".join([f"🔪 {t(L, 'mf_killers')}: {g.killers}"] + [f"{ICON[r]} {t(L, 'mf_r_' + r)}" for r in g.specials])
+        roles = roles_line(g, L)
         return "\n".join([
             t(L, "mf_title"), "",
-            t(L, "mf_host", h=esc(g.host_name)),
             roles,
             t(L, "mf_players", n=len(g.players), names=names(g)),
             t(L, "mf_left", s=max(0, left), min=M.MIN_PLAYERS),
@@ -165,13 +171,39 @@ def build_mafia_router(ctx: Ctx) -> Router:
 
     def lobby_markup(g: Game):
         L = g.lang
-        rows = [[btn(t(L, "mf_join"), f"mf:j:{g.gid}"), btn(t(L, "mf_leave"), f"mf:l:{g.gid}")],
-                [btn("➖", f"mf:k:{g.gid}:-"), btn(t(L, "mf_killers_btn", k=g.killers), f"mf:k:{g.gid}:0"),
+        join_url = f"https://t.me/{g.me}?start=mf_{g.gid}"
+        return kb([btn(t(L, "mf_join"), url=join_url), btn(t(L, "mf_leave"), f"mf:l:{g.gid}")])
+
+    def config_text(g: Game) -> str:
+        L = g.lang
+        return "\n".join([t(L, "mf_cfg_title"), "", roles_line(g, L), "", t(L, "mf_cfg_hint")])
+
+    def config_markup(g: Game):
+        L = g.lang
+        rows = [[btn("➖", f"mf:k:{g.gid}:-"), btn(t(L, "mf_killers_btn", k=g.killers), f"mf:k:{g.gid}:0"),
                  btn("➕", f"mf:k:{g.gid}:+")]]
         sp = [btn(("✅ " if r in g.specials else "") + t(L, "mf_r_" + r), f"mf:r:{g.gid}:{r}") for r in SPECIAL_ORDER]
         rows += [sp[:2], sp[2:]]
         rows.append([btn(t(L, "mf_start"), f"mf:s:{g.gid}"), btn(t(L, "mf_cancel"), f"mf:x:{g.gid}")])
         return kb(*rows)
+
+    async def push_config(bot: Bot, g: Game) -> None:
+        """رسالة الإعدادات للمضيف في الخاص فقط (تُعدَّل ولا تتراكم)."""
+        if g.cfg_msg:
+            try:
+                await bot.edit_message_text(config_text(g), chat_id=g.host_id, message_id=g.cfg_msg,
+                                            parse_mode="HTML", reply_markup=config_markup(g))
+                return
+            except TelegramAPIError:
+                pass
+        try:
+            m = await bot.send_message(g.host_id, config_text(g), parse_mode="HTML", reply_markup=config_markup(g))
+            g.cfg_msg = m.message_id
+        except TelegramAPIError:
+            await show(bot, g, t(g.lang, "mf_host_dm_missing", me=g.me), None)
+
+    def roles_line_placeholder():  # pragma: no cover
+        return ""
 
     # ── الانتظار ──────────────────────────────────────────
     async def lobby_phase(bot: Bot, g: Game) -> None:
@@ -347,10 +379,12 @@ def build_mafia_router(ctx: Ctx) -> Router:
 
     async def open_lobby(bot: Bot, g: Game) -> bool:
         games[g.chat_id] = g
+        g.me = (await bot.get_me()).username
         g.live = await send(bot, g, lobby_text(g, LOBBY_SECS), lobby_markup(g))
         if g.live is None:
             games.pop(g.chat_id, None)
             return False
+        await push_config(bot, g)
         g.task = asyncio.create_task(run(bot, g))
         return True
 
@@ -380,29 +414,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
         db.upsert_user(m.from_user.id, m.from_user.full_name)
         thread = m.message_thread_id if getattr(m, "is_topic_message", False) else None
         g = new_game(m.chat.id, "group", m.from_user.id, m.from_user.full_name, m.message_id, thread, L)
-        g.players[m.from_user.id] = Player(m.from_user.id, m.from_user.full_name)
         await open_lobby(m.bot, g)
 
     # ── أزرار الانتظار والتحكم ────────────────────────────
-    @cbs.callback_query(F.data.regexp(r"^mf:j:\d+$"))
-    async def cb_join(c: CallbackQuery):
-        L = db.group_lang(c.message.chat.id)
-        g = get_game(c, int(c.data.split(":")[2]))
-        if not g or g.state != "lobby":
-            await c.answer(t(L, "mf_gone"), show_alert=True)
-            return
-        uid = c.from_user.id
-        if uid in g.players:
-            await c.answer(t(L, "mf_already"))
-            return
-        if len(g.players) >= M.MAX_PLAYERS:
-            await c.answer(t(L, "mf_full"), show_alert=True)
-            return
-        db.upsert_user(uid, c.from_user.full_name)
-        g.players[uid] = Player(uid, c.from_user.full_name)
-        g.dirty = True
-        await c.answer(t(L, "mf_joined_toast"))
-
     @cbs.callback_query(F.data.regexp(r"^mf:l:\d+$"))
     async def cb_leave(c: CallbackQuery):
         L = db.group_lang(c.message.chat.id)
@@ -423,12 +437,42 @@ def build_mafia_router(ctx: Ctx) -> Router:
         await c.answer(t(L, "mf_quit_toast"))
         await show(c.bot, g, t(L, "mf_quit_live", name=esc(g.players[uid].name)), None)
 
-    @cbs.callback_query(F.data.regexp(r"^mf:k:\d+:[-+0]$"))
+    # ── الانضمام: رابط يفتح الخاص مع البوت (يثبت أن اللاعب فتح البوت) ──
+    @pm.message(CommandStart(deep_link=True, magic=F.args.startswith("mf_")))
+    async def on_join_start(m: Message):
+        L = db.get_lang(m.from_user.id)
+        db.upsert_user(m.from_user.id, m.from_user.full_name)
+        try:
+            gid = int((m.text or "").split("mf_", 1)[1].split()[0])
+        except (IndexError, ValueError):
+            await m.answer(t(L, "mf_gone"))
+            return
+        g = next((x for x in games.values() if x.gid == gid), None)
+        if not g or g.state != "lobby":
+            await m.answer(t(L, "mf_gone"))
+            return
+        uid = m.from_user.id
+        if uid in g.players:
+            await m.answer(t(L, "mf_already"))
+            return
+        if len(g.players) >= M.MAX_PLAYERS:
+            await m.answer(t(L, "mf_full"))
+            return
+        g.players[uid] = Player(uid, m.from_user.full_name)
+        g.dirty = True
+        await m.answer(t(L, "mf_joined_dm"), parse_mode="HTML")
+
+    # ── إعدادات المضيف في الخاص ──────────────────────────
+    def host_game(c: CallbackQuery, gid: int) -> Game | None:
+        g = next((x for x in games.values() if x.gid == gid), None)
+        return g if g and g.state == "lobby" and c.from_user.id == g.host_id else None
+
+    @pm.callback_query(F.data.regexp(r"^mf:k:\d+:[-+0]$"))
     async def cb_killers(c: CallbackQuery):
-        L = db.group_lang(c.message.chat.id)
+        L = db.get_lang(c.from_user.id)
         _, _, gid, op = c.data.split(":")
-        g = get_game(c, int(gid))
-        if not g or g.state != "lobby" or not await can_control(c.bot, g, c.from_user.id):
+        g = host_game(c, int(gid))
+        if not g:
             await c.answer(t(L, "mf_host_only"), show_alert=True)
             return
         if op == "+":
@@ -437,13 +481,14 @@ def build_mafia_router(ctx: Ctx) -> Router:
             g.killers = max(1, g.killers - 1)
         g.dirty = True
         await c.answer()
+        await push_config(c.bot, g)
 
-    @cbs.callback_query(F.data.regexp(r"^mf:r:\d+:(detective|doctor|guard|joker)$"))
+    @pm.callback_query(F.data.regexp(r"^mf:r:\d+:(detective|doctor|guard|joker)$"))
     async def cb_roles(c: CallbackQuery):
-        L = db.group_lang(c.message.chat.id)
+        L = db.get_lang(c.from_user.id)
         _, _, gid, role = c.data.split(":")
-        g = get_game(c, int(gid))
-        if not g or g.state != "lobby" or not await can_control(c.bot, g, c.from_user.id):
+        g = host_game(c, int(gid))
+        if not g:
             await c.answer(t(L, "mf_host_only"), show_alert=True)
             return
         if role in g.specials:
@@ -452,12 +497,13 @@ def build_mafia_router(ctx: Ctx) -> Router:
             g.specials.append(role)
         g.dirty = True
         await c.answer()
+        await push_config(c.bot, g)
 
-    @cbs.callback_query(F.data.regexp(r"^mf:s:\d+$"))
+    @pm.callback_query(F.data.regexp(r"^mf:s:\d+$"))
     async def cb_start(c: CallbackQuery):
-        L = db.group_lang(c.message.chat.id)
-        g = get_game(c, int(c.data.split(":")[2]))
-        if not g or g.state != "lobby" or not await can_control(c.bot, g, c.from_user.id):
+        L = db.get_lang(c.from_user.id)
+        g = host_game(c, int(c.data.split(":")[2]))
+        if not g:
             await c.answer(t(L, "mf_host_only"), show_alert=True)
             return
         try:
@@ -466,13 +512,13 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await c.answer(str(e)[:190], show_alert=True)
             return
         g.start_now = True
-        await c.answer()
+        await c.answer(t(L, "mf_starting"))
 
-    @cbs.callback_query(F.data.regexp(r"^mf:x:\d+$"))
+    @pm.callback_query(F.data.regexp(r"^mf:x:\d+$"))
     async def cb_cancel(c: CallbackQuery):
-        L = db.group_lang(c.message.chat.id)
-        g = get_game(c, int(c.data.split(":")[2]))
-        if not g or not await can_control(c.bot, g, c.from_user.id):
+        L = db.get_lang(c.from_user.id)
+        g = next((x for x in games.values() if x.gid == int(c.data.split(":")[2])), None)
+        if not g or c.from_user.id != g.host_id:
             await c.answer(t(L, "mf_host_only"), show_alert=True)
             return
         await c.answer()
@@ -559,7 +605,6 @@ def build_mafia_router(ctx: Ctx) -> Router:
         await c.answer()
         title = next((tt for cid, tt in db.user_channels(c.from_user.id) if cid == chat_id), None)
         g = new_game(chat_id, "channel", c.from_user.id, title or "القناة", None, None, db.group_lang(chat_id))
-        g.players[c.from_user.id] = Player(c.from_user.id, c.from_user.full_name)
         if await open_lobby(c.bot, g):
             await c.message.answer(t(L, "mf_channel_started"))
 
