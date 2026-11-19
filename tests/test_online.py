@@ -83,3 +83,26 @@ def test_same_questions_for_both_and_cancel_and_busy():
         assert any("خسرت" in x for x in texts(h, 1))
         assert any("فزت" in x for x in texts(h, 2))
     run(go())
+
+
+def test_sudden_death_first_wrong_answer_loses_and_menu_shows_queues():
+    async def go():
+        h = Harness()
+        a, b, c = h.user(1, "Ali"), h.user(2, "Bob"), h.user(3, "Cy")
+        for u in (a, b, c):
+            h.db.upsert_user(u.id, u.first_name)
+        await h.tap(c, "on:j:sudden")                                  # Cy ينتظر في طابور الموت المفاجئ
+        await h.tap(a, "on:m")
+        menu = [c for c in h.session.calls if getattr(c, "reply_markup", None) is not None and type(c).__name__ == "SendMessage"][-1].reply_markup.inline_keyboard
+        labels = [b_.text for row in menu for b_ in row]
+        assert any("الموت المفاجئ" in x and "ينتظر" in x for x in labels)   # يظهر عدد المنتظرين
+        await h.tap(a, "on:j:sudden")                                   # يدخل الطابور نفسه فيُطابَق مع Cy
+        assert 1 in O.user_match and O.user_match.get(3) == O.user_match.get(1)
+        mid = O.user_match[1]
+        m = O.matches[mid]
+        assert await wait_until(lambda: m.rnd == 0 and len(m.answers) == 0)
+        await h.tap(a, f"on:a:{mid}:0:{m.qs[0]['answer']}")             # Ali صحيح
+        await h.tap(c, f"on:a:{mid}:0:{(m.qs[0]['answer'] + 1) % len(m.qs[0]['opts'])}")   # Cy خطأ
+        assert await wait_until(lambda: mid not in O.matches)
+        assert any("فزت" in x for x in texts(h, 1)) and any("خسرت" in x for x in texts(h, 3))
+    run(go())

@@ -1086,3 +1086,8 @@ T["ar"].update({"du_pick_game": "⚔️ <b>تحدَّ صديقًا</b>\nاختر
                 "on_opp_card": "🆚 <b>منافسك</b>\n🏅 ترتيبه العام: <b>#{rank}</b>\n⭐ أفضل تقييم: <b>{best}</b>/10 · 📝 اختبارات كاملة: {tests}\n☠️ أطول موت مفاجئ: {sd} · 🎮 ألعابه: {games}\n<i>الاسم مخفي حتى نهاية المباراة.</i>"})
 T["en"].update({"du_pick_game": "⚔️ <b>Challenge a friend</b>\nPick the game:", "du_game_quiz": "🎯 Anime questions (7)",
                 "on_opp_card": "🆚 <b>Your opponent</b>\n🏅 Overall rank: <b>#{rank}</b>\n⭐ Best score: <b>{best}</b>/10 · 📝 Full tests: {tests}\n☠️ Longest sudden-death streak: {sd} · 🎮 Games played: {games}\n<i>Name hidden until the match ends.</i>"})
+
+T["ar"].update({"on_kind_sudden": "☠️ الموت المفاجئ", "on_kind_images": "🖼 شخصيات بالصور",
+                "on_queue_n": "  🟢 ({n} ينتظر)"})
+T["en"].update({"on_kind_sudden": "☠️ Sudden death", "on_kind_images": "🖼 Character pictures",
+                "on_queue_n": "  🟢 ({n} waiting)"})

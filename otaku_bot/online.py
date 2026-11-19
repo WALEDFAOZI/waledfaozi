@@ -20,7 +20,7 @@ from .ctx import Ctx
 from .texts import t
 
 log = logging.getLogger(__name__)
-KINDS = ("quiz", "tf")
+KINDS = ("quiz", "tf", "sudden", "images")
 ROUNDS = 8
 ROUND_SECS = 20
 QUEUE_SECS = 180
@@ -38,6 +38,7 @@ class Match:
     answers: dict = field(default_factory=dict)      # uid -> (choice, time)
     score: dict = field(default_factory=dict)
     msg: dict = field(default_factory=dict)          # uid -> message_id للسؤال الحالي
+    photo: dict = field(default_factory=dict)        # uid -> هل رسالة السؤال صورة
     total_ms: dict = field(default_factory=dict)
     state: str = "play"
     task: asyncio.Task | None = None
@@ -71,13 +72,24 @@ def build_online_router(ctx: Ctx) -> Router:
         except TelegramAPIError:
             return None
 
-    async def edit(bot: Bot, uid: int, mid: int | None, text: str, markup=None) -> None:
+    async def edit(bot: Bot, uid: int, mid: int | None, text: str, markup=None, caption: bool = False) -> None:
         if not mid:
             return
         try:
-            await bot.edit_message_text(text, chat_id=uid, message_id=mid, parse_mode="HTML", reply_markup=markup)
+            if caption:
+                await bot.edit_message_caption(chat_id=uid, message_id=mid, caption=text, parse_mode="HTML", reply_markup=markup)
+            else:
+                await bot.edit_message_text(text, chat_id=uid, message_id=mid, parse_mode="HTML", reply_markup=markup)
         except TelegramAPIError:
             pass
+
+    def pool_images(L: str) -> list[dict]:
+        out = []
+        for q in db.all_questions():
+            if q.category == "images" and q.image and (L != "en" or q.q_en):
+                photo = q.image[3:] if q.image.startswith("tg:") else q.image
+                out.append({"text": q.text(L), "opts": q.opts(L), "answer": q.answer, "image": photo})
+        return out
 
     def pool_quiz(L: str) -> list[dict]:
         out = []
@@ -96,7 +108,7 @@ def build_online_router(ctx: Ctx) -> Router:
         return out
 
     def pick_questions(kind: str, L: str) -> list[dict]:
-        pool = pool_quiz(L) if kind == "quiz" else pool_tf(L)
+        pool = {"quiz": pool_quiz, "sudden": pool_quiz, "tf": pool_tf, "images": pool_images}[kind](L)
         return rng.sample(pool, min(ROUNDS, len(pool)))
 
     def q_markup(m: Match, uid: int, q: dict):
@@ -114,6 +126,15 @@ def build_online_router(ctx: Ctx) -> Router:
             text = t(L, "on_round", n=m.rnd + 1, total=len(m.qs), q=esc(q["text"]),
                      opts="\n".join(f"<b>{LETTERS[i]})</b> {esc(o)}" for i, o in enumerate(q["opts"])),
                      secs=ROUND_SECS, a=m.score.get(uid, 0), b=m.score.get(_other(m, uid), 0))
+            if q.get("image"):
+                try:
+                    msg = await bot.send_photo(uid, q["image"], caption=text[:1000], parse_mode="HTML",
+                                               reply_markup=q_markup(m, uid, q))
+                    m.msg[uid] = msg.message_id
+                    m.photo[uid] = True
+                    continue
+                except TelegramAPIError:
+                    pass                                    # الصورة معطوبة: نص فقط
             m.msg[uid] = await send(bot, uid, text, q_markup(m, uid, q))
 
     def _other(m: Match, uid: int) -> int:
@@ -147,7 +168,13 @@ def build_online_router(ctx: Ctx) -> Router:
                         m.total_ms[uid] = m.total_ms.get(uid, 0) + ROUND_SECS * 1000
                     txt = t(L_(uid), "on_reveal_ok" if got and got[0] == q["answer"] else "on_reveal_bad",
                             right=esc(q["opts"][q["answer"]]))
-                    await edit(bot, uid, m.msg.get(uid), txt, None)
+                    await edit(bot, uid, m.msg.get(uid), txt, None, caption=m.photo.get(uid, False))
+                if m.kind == "sudden":                       # الموت المفاجئ: أول خطأ يخرج، فيفوز الآخر
+                    ok = {u: (m.answers.get(u, (None,))[0] == q["answer"]) for u in m.players}
+                    if ok[m.players[0]] != ok[m.players[1]]:
+                        winner = m.players[0] if ok[m.players[0]] else m.players[1]
+                        m.score[winner] = m.score.get(winner, 0) + ROUNDS
+                        break
                 await asyncio.sleep(GAP_SECS)
             await finish(bot, m)
         except asyncio.CancelledError:
@@ -194,10 +221,14 @@ def build_online_router(ctx: Ctx) -> Router:
     async def cb_menu(c: CallbackQuery):
         await c.answer()
         L = L_(c.from_user.id)
-        await c.message.answer(t(L, "on_menu"), parse_mode="HTML", reply_markup=kb(
-            *[[btn(t(L, f"on_kind_{k}"), f"on:j:{k}")] for k in KINDS], [btn(t(L, "btn_menu"), "menu")]))
+        rows = []
+        for k in KINDS:
+            n = len(queue[k])
+            label = t(L, f"on_kind_{k}") + (t(L, "on_queue_n", n=n) if n else "")
+            rows.append([btn(label, f"on:j:{k}")])
+        await c.message.answer(t(L, "on_menu"), parse_mode="HTML", reply_markup=kb(*rows, [btn(t(L, "btn_menu"), "menu")]))
 
-    @r.callback_query(F.data.regexp(r"^on:j:(quiz|tf)$"))
+    @r.callback_query(F.data.regexp(r"^on:j:(quiz|tf|sudden|images)$"))
     async def cb_join(c: CallbackQuery):
         uid, L = c.from_user.id, L_(c.from_user.id)
         kind = c.data.split(":")[2]
@@ -217,7 +248,7 @@ def build_online_router(ctx: Ctx) -> Router:
             queue[kind] = [x for x in queue[kind] if x[0] != uid]
             await send(bot, uid, t(L_(uid), "on_timeout"))
 
-    @r.callback_query(F.data.regexp(r"^on:c:(quiz|tf)$"))
+    @r.callback_query(F.data.regexp(r"^on:c:(quiz|tf|sudden|images)$"))
     async def cb_cancel(c: CallbackQuery):
         kind = c.data.split(":")[2]
         queue[kind] = [x for x in queue[kind] if x[0] != c.from_user.id]

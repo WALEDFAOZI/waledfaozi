@@ -1298,6 +1298,47 @@ class DB:
         self._stats_cache = (time.time(), data)
         return data
 
+    def activity_stats(self) -> dict:
+        """تفاعل مفصّل للأدمن: من تفاعل آخر ساعة/يوم/أسبوع وبأي نوع، وأين يلعب الناس الآن."""
+        c = self.conn
+        now = time.time()
+        windows = {"hour": now - 3600, "day": now - 86400, "week": now - 7 * 86400}
+        out: dict = {}
+        for name, since in windows.items():
+            out[f"act_{name}"] = c.execute(
+                """SELECT COUNT(DISTINCT tg_id) n FROM (
+                     SELECT s.tg_id FROM session_questions sq JOIN sessions s ON s.id=sq.session_id WHERE sq.sent_at>=?
+                     UNION SELECT tg_id FROM game_sessions WHERE started_at>=?
+                     UNION SELECT tg_id FROM events WHERE ts>=?
+                     UNION SELECT tg_id FROM group_results WHERE at>=?)""",
+                (since, since, since, since)).fetchone()["n"]
+        h = windows["hour"]
+        out["hour_quiz"] = c.execute("SELECT COUNT(DISTINCT s.tg_id) n FROM session_questions sq JOIN sessions s ON s.id=sq.session_id WHERE sq.sent_at>=?", (h,)).fetchone()["n"]
+        out["hour_games"] = c.execute("SELECT COUNT(DISTINCT tg_id) n FROM game_sessions WHERE started_at>=?", (h,)).fetchone()["n"]
+        out["hour_groups"] = c.execute("SELECT COUNT(DISTINCT chat_id) n FROM group_results WHERE at>=?", (h,)).fetchone()["n"]
+        out["hour_answers"] = c.execute("SELECT COUNT(*) n FROM session_questions WHERE sent_at>=? AND user_answer IS NOT NULL", (h,)).fetchone()["n"]
+        out["hour_tests_done"] = c.execute("SELECT COUNT(*) n FROM sessions WHERE state='finished' AND finished_at>=?", (h,)).fetchone()["n"]
+        out["in_test_now"] = c.execute("SELECT COUNT(*) n FROM sessions WHERE state='active'").fetchone()["n"]
+        out["new_hour"] = c.execute("SELECT COUNT(*) n FROM users WHERE created_at>=?", (h,)).fetchone()["n"]
+        out["groups_week"] = c.execute("SELECT COUNT(DISTINCT chat_id) n FROM group_results WHERE at>=?", (windows["week"],)).fetchone()["n"]
+        out["groups_total"] = c.execute("SELECT COUNT(*) n FROM group_chats").fetchone()["n"]
+        out["channels_linked"] = c.execute("SELECT COUNT(*) n FROM channel_links").fetchone()["n"]
+        out["game_kinds_week"] = {r["kind"]: r["n"] for r in c.execute(
+            "SELECT kind, COUNT(*) n FROM game_sessions WHERE started_at>=? GROUP BY kind ORDER BY n DESC",
+            (windows["week"],))}
+        out["d1_retention"] = c.execute(
+            """SELECT COUNT(*) n FROM users u WHERE u.created_at>=? AND u.created_at<? AND EXISTS(
+                 SELECT 1 FROM sessions s WHERE s.tg_id=u.tg_id AND s.started_at>=u.created_at+86400)""",
+            (now - 8 * 86400, now - 86400)).fetchone()["n"]
+        out["d1_base"] = c.execute("SELECT COUNT(*) n FROM users WHERE created_at>=? AND created_at<?",
+                                   (now - 8 * 86400, now - 86400)).fetchone()["n"]
+        out["blocked"] = c.execute("SELECT COUNT(*) n FROM users WHERE blocked=1").fetchone()["n"]
+        out["tests_7d"] = c.execute("SELECT COUNT(*) n FROM sessions WHERE state='finished' AND mode='full' AND finished_at>=?",
+                                    (windows["week"],)).fetchone()["n"]
+        out["avg_full_7d"] = c.execute("SELECT AVG(score) a FROM sessions WHERE state='finished' AND mode='full' AND counted=1 AND finished_at>=?",
+                                       (windows["week"],)).fetchone()["a"]
+        return out
+
     def _compute_admin_stats(self) -> dict:
         c = self.conn
         one = lambda sql, *a: c.execute(sql, a).fetchone()[0]   # noqa: E731
