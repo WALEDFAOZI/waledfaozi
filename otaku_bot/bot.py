@@ -97,8 +97,7 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
     return kb(*(top or []),
               [btn(t(L, "btn_full"), "go")],
               [btn(t(L, "btn_online"), "on:m")],                                # زر اللعب أونلاين واضح بعد الاختبار
-              [btn(t(L, "btn_group"), "gpm")],                                  # سطر كامل وواضح تحت الاختبار مباشرة
-              [btn(t(L, "btn_channel_game"), "gpc")],
+              [btn(t(L, "btn_group"), "gpm"), btn(t(L, "btn_channel_game"), "gpc")],   # زرين جنب بعض
               [btn(t(L, "btn_daily"), "dy:m"), btn(t(L, "du_btn"), "du:new")],
               [btn(t(L, "btn_quick"), "qk"), btn(t(L, "btn_cat"), "cats")],
               [btn(t(L, "btn_games_menu"), "m:games"), btn(t(L, "btn_anime"), "an:m")],
