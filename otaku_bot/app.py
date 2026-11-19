@@ -22,6 +22,7 @@ from .db import DB
 from .texts import t
 from .recommend import build_recommend_router
 from .teams import build_teams_router
+from .personality import build_persona_router
 from .games import build_games_router
 from .group import build_group_router
 
@@ -101,6 +102,7 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp.include_router(build_games_router(ctx))
     dp.include_router(build_recommend_router(ctx))
     dp.include_router(build_teams_router(ctx))
+    dp.include_router(build_persona_router(ctx))
     dp.include_router(build_router(ctx))
     return dp
 

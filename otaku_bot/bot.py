@@ -112,7 +112,8 @@ def games_kb(L: str, images: bool = False) -> InlineKeyboardMarkup:
     if images:
         rows.append([btn(t(L, "btn_images"), "ct:images")])
     rows += [[btn(t(L, "g_tf"), "g:tf")], [btn(t(L, "g_song"), "g:song")], [btn(t(L, "g_ord"), "g:ord")],
-             [btn(t(L, "g_char"), "g:char")], [btn(t(L, "g_quote"), "g:quote")], [btn(t(L, "btn_menu"), "menu")]]
+             [btn(t(L, "g_char"), "g:char")], [btn(t(L, "g_quote"), "g:quote")], [btn(t(L, "btn_persona"), "ps:s")],
+             [btn(t(L, "btn_menu"), "menu")]]
     return kb(*rows)
 
 

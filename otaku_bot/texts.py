@@ -722,3 +722,24 @@ T["en"].update({
 
 T["ar"].update({"gp_top_week": "📅 <b>متصدرو المجموعة · هذا الأسبوع</b>", "gp_top_all": "🌍 <b>متصدرو المجموعة · كل الأوقات</b>"})
 T["en"].update({"gp_top_week": "📅 <b>Group top · This week</b>", "gp_top_all": "🌍 <b>Group top · All time</b>"})
+
+T["ar"].update({
+    "btn_persona": "🧬 اختبار نمط الشخصية", "ps_go": "ابدأ الاختبار",
+    "ps_intro": "🧬 <b>اختبار نمط الشخصية</b>\n24 سؤالًا قصيرًا. جاوب بدون تفكير طويل، وقيّم كل عبارة من 1 (لا تنطبق عليّ) إلى 5 (تنطبق عليّ تمامًا).\nالنتيجة تُظهر لك قربك من كل جانب، وشخصيات أنمي من نفس النمط.",
+    "ps_q": "🧬 <b>سؤال {n}/{total}</b>\n{q}\n\n<i>1 = لا تنطبق عليّ · 5 = تنطبق عليّ تمامًا</i>",
+    "ps_back": "↩️ السؤال السابق", "ps_again": "🔄 أعد الاختبار",
+    "ps_res_head": "🧬 <b>نمط شخصيتك: {code}</b>",
+    "ps_closer": "↳ أقرب إلى <b>{side}</b> ({pct}%)",
+    "ps_anime_head": "🎭 <b>شخصيات أنمي من نمط {code}</b> (أشهر 10):",
+    "ps_anime_soon": "🎭 قائمة شخصيات هذا النمط قيد الإعداد.",
+})
+T["en"].update({
+    "btn_persona": "🧬 Personality type test", "ps_go": "Start the test",
+    "ps_intro": "🧬 <b>Personality type test</b>\n24 short statements. Answer quickly, rate each from 1 (doesn't describe me) to 5 (describes me perfectly).\nYou'll see how close you are to each side, and anime characters of the same type.",
+    "ps_q": "🧬 <b>Question {n}/{total}</b>\n{q}\n\n<i>1 = not me · 5 = very much me</i>",
+    "ps_back": "↩️ Previous question", "ps_again": "🔄 Retake the test",
+    "ps_res_head": "🧬 <b>Your type: {code}</b>",
+    "ps_closer": "↳ Closer to <b>{side}</b> ({pct}%)",
+    "ps_anime_head": "🎭 <b>Anime characters of type {code}</b> (top 10):",
+    "ps_anime_soon": "🎭 The character list for this type is coming soon.",
+})
