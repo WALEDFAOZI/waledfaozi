@@ -6,6 +6,18 @@
 """
 from aiogram.types import Message
 
+ANON_ADMIN_ID = 1087968824  # GroupAnonymousBot
+
+
+def identity(m: Message) -> tuple[int, str]:
+    """(المعرّف, الاسم) لصاحب الرسالة: القناة/المجموعة إن كان يرسل باسمها، وإلا المستخدم."""
+    if m.sender_chat is not None:
+        return m.sender_chat.id, (m.sender_chat.title or "قناة")
+    if m.from_user is not None and m.from_user.id == ANON_ADMIN_ID:
+        return m.chat.id, (m.chat.title or "المجموعة")
+    u = m.from_user
+    return (u.id, u.full_name) if u else (0, "؟")
+
 
 def anchor_id(msg: Message) -> int:
     """معرّف الرسالة التي نرد عليها: نسخة المنشور التلقائية إن وُجدت، وإلا الرسالة نفسها."""

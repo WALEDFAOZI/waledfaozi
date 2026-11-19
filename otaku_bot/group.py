@@ -26,7 +26,7 @@ from .games import load_games, order_rounds, quote_rounds, char_rounds, song_rou
 from .names import loc, loc_opt
 from .quiz import pick_questions, shuffle_options
 from .texts import t
-from .thread_anchor import anchor_id
+from .thread_anchor import ANON_ADMIN_ID, anchor_id, identity
 from .timeutil import week_start
 
 log = logging.getLogger(__name__)
@@ -44,7 +44,6 @@ CH_LOBBY_SECONDS = 180      # مسابقات القنوات: 3 دقائق للم
 CH_Q_SECONDS = 30           # ثم 30 ثانية لكل سؤال
 CH_MAX_PLAYERS = 200000
 CH_KEEP = 50                # في القنوات الكبيرة نحفظ أفضل 50 فقط في القاعدة
-ANON_ADMIN_ID = 1087968824  # GroupAnonymousBot
 KINDS = ("quiz", "sudden", "tf", "song", "char", "quote", "ord", "images")
 CMD_KIND = {"quiz": "quiz", "sudden": "sudden", "tf": "tf", "song": "song", "char": "char", "quote": "quote",
             "order": "ord", "images": "images"}
@@ -106,16 +105,6 @@ class Game:
     start_now: bool = False
     dirty: bool = True
     task: asyncio.Task | None = None
-
-
-def identity(m: Message) -> tuple[int, str]:
-    """(المعرّف, الاسم) لصاحب الرسالة: القناة/المجموعة إن كان يرسل باسمها، وإلا المستخدم."""
-    if m.sender_chat is not None:
-        return m.sender_chat.id, (m.sender_chat.title or "قناة")
-    if m.from_user is not None and m.from_user.id == ANON_ADMIN_ID:
-        return m.chat.id, (m.chat.title or "المجموعة")
-    u = m.from_user
-    return (u.id, u.full_name) if u else (0, "؟")
 
 
 def build_group_router(ctx: Ctx) -> Router:
@@ -228,7 +217,7 @@ def build_group_router(ctx: Ctx) -> Router:
         kw = {"message_thread_id": m.message_thread_id} if getattr(m, "is_topic_message", False) and m.message_thread_id else {}
         try:
             await m.bot.send_message(m.chat.id, text, parse_mode="HTML", reply_markup=markup,
-                                     reply_parameters=ReplyParameters(message_id=anchor_id(m), allow_sending_without_reply=True),
+                                     reply_parameters=ReplyParameters(message_id=m.message_id, allow_sending_without_reply=True),   # القائمة ترد على الأمر نفسه: cb_pick يعرف صاحبه منه
                                      **kw)
         except TelegramAPIError as e:
             log.warning("group reply failed: %s", e)
@@ -538,19 +527,13 @@ def build_group_router(ctx: Ctx) -> Router:
 
     @cb.callback_query(F.data.regexp(r"^gp:n:(quiz|sudden|tf|song|char|quote|ord|images)$"))
     async def cb_pick(c: CallbackQuery):
-        L = db.group_lang(c.message.chat.id)
         cmd = c.message.reply_to_message
-        if cmd is not None:
-            hid, _ = identity(cmd)
-            if c.from_user.id != hid and not await is_group_admin(c.bot, c.message.chat.id, c.from_user.id):
-                await c.answer(t(L, "gp_host_only"), show_alert=True)
-                return
         await c.answer()
         try:
             await c.message.delete()
         except TelegramAPIError:
             pass
-        host = identity(cmd) if cmd is not None else (c.from_user.id, c.from_user.full_name)
+        host = (c.from_user.id, c.from_user.full_name)              # من يختار اللعبة يصير مضيفها
         await open_game(cmd or c.message, c.data.split(":")[2], host=host, presser=c.from_user)
 
     @cb.callback_query(F.data.regexp(r"^gp:j:\d+$"))

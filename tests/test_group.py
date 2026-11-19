@@ -177,16 +177,14 @@ def test_private_features_do_not_leak_into_groups_and_menu_flow():
         await gsay(h, h.user(9, "Boss"), "/admin")
         await gsay(h, a, "/top")
         assert len(h.session.calls) == n                         # لا شيء من لوحة الأدمن/الخاص يظهر في المجموعة
-        # قائمة الاختيار: غير صاحب الأمر مرفوض
+        # قائمة الاختيار: أي عضو يقدر يختار نوع اللعبة ويبدأها
         cmd = gmsg(a, "/play", mid=51)
         await gsay(h, a, "/play", mid=51)
         menu = sent(h)[-1]
         assert menu.reply_parameters.message_id == 51 and "gp:n:quiz" in buttons(menu)
-        await gtap(h, b, "gp:n:quiz", reply_to=cmd)
-        assert not any("بعد" in (c.text or "") and "تبدأ" in (c.text or "") for c in sent(h))
-        await gtap(h, a, "gp:n:tf", reply_to=cmd)
+        await gtap(h, b, "gp:n:tf", reply_to=cmd)
         lobby = [c for c in sent(h) if "تبدأ بعد" in (c.text or "")][-1]
-        assert "صح أم غلط" in lobby.text and lobby.reply_parameters.message_id == 51
+        assert "صح أم غلط" in lobby.text and lobby.reply_parameters.message_id == 51 and "Bob" in lobby.text
     run(go())
 
 
@@ -629,3 +627,35 @@ def test_command_in_post_comments_replies_to_the_post_copy():
         lobby = sent(h)[0]
         assert lobby.reply_parameters.message_id == 40
     run(go())
+
+
+def test_comment_play_menu_lets_the_sender_pick_a_game():
+    """/play داخل تعليقات منشور: صاحب الأمر يختار نوع اللعبة، ويصير هو المضيف لا القناة."""
+    async def go():
+        h = Harness()
+        a = h.user(1, "Ali")
+        post_copy = Message(message_id=40, date=dt.datetime.now(), chat=GROUP, is_automatic_forward=True)
+        cmd = gmsg(a, "/play", mid=77, reply_to=post_copy)
+        h.uid += 1
+        await h.dp.feed_update(h.bot, Update(update_id=h.uid, message=cmd))
+        menu = sent(h)[-1]
+        assert "gp:n:quiz" in buttons(menu)
+        await gtap(h, a, "gp:n:quiz", msg_id=78, reply_to=cmd)
+        lobby = sent(h)[-1]
+        assert "Ali" in lobby.text and "gp:j:" in buttons(lobby)[0]
+    run(go())
+
+
+def test_anyone_can_pick_a_game_from_the_menu():
+    """أي عضو يقدر يختار نوع اللعبة من قائمة /play، ويصير هو المضيف."""
+    async def go_one(key):
+        h = Harness()
+        a, b = h.user(1, "Ali"), h.user(2, "Bob")
+        cmd = gmsg(a, "/play", mid=77)
+        await gtap(h, b, key, msg_id=78, reply_to=cmd)
+        assert sent(h), key
+    run(go_one("mf:new"))
+    run(go_one("sp:new"))
+    run(go_one("gp:n:quiz"))
+
+
