@@ -45,3 +45,10 @@ def test_flow_from_games_menu_to_result_with_back_button():
         await h.tap(u, f"pa:{ans}")                           # 24 إجابة = النتيجة
         assert any("نمط شخصيتك" in x for x in h.session.texts())
     run(go())
+
+
+def test_anime_lists_cover_all_16_types_with_ten_each():
+    data = P.anime_by_type()
+    assert len(data) == 16 and all(len(v) == 10 for v in data.values())
+    assert {"INTJ", "INFP", "ENFJ", "ISTP"} <= set(data)
+    assert data["INTJ"][0] == ["Sasuke Uchiha", "Naruto Shippuden"]
