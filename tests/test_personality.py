@@ -22,9 +22,18 @@ def test_questions_are_balanced_and_interleaved():
     per_axis = {}
     for axis, sign, _, _ in P.QUESTIONS:
         per_axis.setdefault(axis, []).append(sign)
-    assert P.N == 30 and len(P.QUESTIONS) >= 40 and all(c >= 7 for c in P.AXIS_COUNT)
+    assert P.N == 30 and len(P.QUESTIONS) >= 40
     assert len(set(P.ORDER)) == P.N
-    assert len({P.QUESTIONS[q][0] for q in P.ORDER[:4]}) == 4                  # أول 4 أسئلة من 4 محاور مختلفة
+
+
+def test_bank_is_large_and_each_test_shows_thirty_balanced():
+    assert len(P.QUESTIONS) >= 60
+    for seed in range(10):
+        order = P.order_for(seed)
+        assert len(order) == 30 and len(set(order)) == 30
+        per_axis = [sum(1 for i in order if P.QUESTIONS[i][0] == a) for a in range(4)]
+        assert min(per_axis) >= 6 and max(per_axis) <= 9
+    assert P.order_for(1) != P.order_for(2)                                  # اختبارات مختلفة
 
 
 def test_flow_from_games_menu_to_result_with_back_button():
@@ -35,14 +44,14 @@ def test_flow_from_games_menu_to_result_with_back_button():
         await h.tap(u, "m:games")
         assert any(b.callback_data == "ps:s" for row in h.session.calls[-1].reply_markup.inline_keyboard for b in row) or True
         await h.tap(u, "ps:s")
-        await h.tap(u, "pa:")                                 # يبدأ الاختبار (بلا إجابات)
+        await h.tap(u, "pa:0")                                # يبدأ الاختبار (بذرة 0، بلا إجابات)
         assert any(f"سؤال 1/{P.N}" in x for x in h.session.texts())
-        await h.tap(u, "pa:5")
+        await h.tap(u, "pa:05")
         assert any(f"سؤال 2/{P.N}" in x for x in h.session.texts())
-        await h.tap(u, "pb:")                                 # رجوع للسؤال الأول
+        await h.tap(u, "pb:0")                                # رجوع للسؤال الأول
         assert any(f"سؤال 1/{P.N}" in x for x in h.session.texts())
         ans = "3" * P.N
-        await h.tap(u, f"pa:{ans}")                           # 24 إجابة = النتيجة
+        await h.tap(u, f"pa:0{ans}")                          # إجابات كاملة = النتيجة
         assert any("نمط شخصيتك" in x for x in h.session.texts())
     run(go())
 
