@@ -26,6 +26,7 @@ from .config import ROOT
 from .ctx import Ctx
 from .names import loc
 from .texts import t
+from .thread_anchor import anchor_id
 
 log = logging.getLogger(__name__)
 
@@ -433,7 +434,7 @@ def build_spy_router(ctx: Ctx) -> Router:
             return
         await c.answer()
         db.upsert_user(c.from_user.id, c.from_user.full_name)
-        g = new_game(c.message.chat.id, c.from_user.id, c.from_user.full_name, c.message.message_id,
+        g = new_game(c.message.chat.id, c.from_user.id, c.from_user.full_name, anchor_id(c.message),
                      c.message.message_thread_id if getattr(c.message, "is_topic_message", False) else None, L)
         g.players[c.from_user.id] = Player(c.from_user.id, c.from_user.full_name)
         games[c.message.chat.id] = g
@@ -456,7 +457,7 @@ def build_spy_router(ctx: Ctx) -> Router:
             return
         db.upsert_user(m.from_user.id, m.from_user.full_name)
         thread = m.message_thread_id if getattr(m, "is_topic_message", False) else None
-        g = new_game(m.chat.id, m.from_user.id, m.from_user.full_name, m.message_id, thread, L)
+        g = new_game(m.chat.id, m.from_user.id, m.from_user.full_name, anchor_id(m), thread, L)
         g.players[m.from_user.id] = Player(m.from_user.id, m.from_user.full_name)
         games[m.chat.id] = g
         g.live = await send(m.bot, g, lobby_text(g, LOBBY_SECS), lobby_markup(g))

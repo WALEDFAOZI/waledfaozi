@@ -26,6 +26,7 @@ from .games import load_games, order_rounds, quote_rounds, char_rounds, song_rou
 from .names import loc, loc_opt
 from .quiz import pick_questions, shuffle_options
 from .texts import t
+from .thread_anchor import anchor_id
 from .timeutil import week_start
 
 log = logging.getLogger(__name__)
@@ -227,7 +228,7 @@ def build_group_router(ctx: Ctx) -> Router:
         kw = {"message_thread_id": m.message_thread_id} if getattr(m, "is_topic_message", False) and m.message_thread_id else {}
         try:
             await m.bot.send_message(m.chat.id, text, parse_mode="HTML", reply_markup=markup,
-                                     reply_parameters=ReplyParameters(message_id=m.message_id, allow_sending_without_reply=True),
+                                     reply_parameters=ReplyParameters(message_id=anchor_id(m), allow_sending_without_reply=True),
                                      **kw)
         except TelegramAPIError as e:
             log.warning("group reply failed: %s", e)
@@ -508,7 +509,7 @@ def build_group_router(ctx: Ctx) -> Router:
         start_at[hid] = time.monotonic()
         counter[0] += 1
         thread = m.message_thread_id if getattr(m, "is_topic_message", False) else None
-        g = Game(gid=counter[0], chat_id=m.chat.id, thread=thread, reply_to=m.message_id, host_id=hid, host_name=hname,
+        g = Game(gid=counter[0], chat_id=m.chat.id, thread=thread, reply_to=anchor_id(m), host_id=hid, host_name=hname,
                  kind=kind, lang=L, lobby_secs=LOBBY_SECONDS, q_secs=Q_SECONDS, max_players=MAX_PLAYERS,
                  min_players=MIN_PLAYERS)
         games[m.chat.id] = g

@@ -22,6 +22,7 @@ from . import progress
 from .bot import btn, chan_row, esc, kb
 from .ctx import Ctx
 from .texts import t
+from .thread_anchor import anchor_id
 
 log = logging.getLogger(__name__)
 
@@ -413,7 +414,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             return
         db.upsert_user(m.from_user.id, m.from_user.full_name)
         thread = m.message_thread_id if getattr(m, "is_topic_message", False) else None
-        g = new_game(m.chat.id, "group", m.from_user.id, m.from_user.full_name, m.message_id, thread, L)
+        g = new_game(m.chat.id, "group", m.from_user.id, m.from_user.full_name, anchor_id(m), thread, L)
         await open_lobby(m.bot, g)
 
     @cbs.callback_query(F.data == "mf:new")
@@ -426,7 +427,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             return
         await c.answer()
         db.upsert_user(c.from_user.id, c.from_user.full_name)
-        g = new_game(c.message.chat.id, "group", c.from_user.id, c.from_user.full_name, c.message.message_id,
+        g = new_game(c.message.chat.id, "group", c.from_user.id, c.from_user.full_name, anchor_id(c.message),
                      c.message.message_thread_id if getattr(c.message, "is_topic_message", False) else None, L)
         await open_lobby(c.bot, g)
 

@@ -617,3 +617,15 @@ def test_group_play_menu_lists_mafia_and_spy_first_and_buttons_start_them():
         await asyncio.sleep(0.05)
         SG.games.clear()
     run(go())
+
+
+def test_command_in_post_comments_replies_to_the_post_copy():
+    """الأمر داخل تعليقات منشور: نرد على النسخة التلقائية للمنشور لتبقى رسائل البوت في تعليقات نفس المنشور."""
+    async def go():
+        h = Harness()
+        a = h.user(1, "Ali")
+        post_copy = Message(message_id=40, date=dt.datetime.now(), chat=GROUP, is_automatic_forward=True)
+        await start_lobby(h, a, "quiz", mid=77, reply_to=post_copy)
+        lobby = sent(h)[0]
+        assert lobby.reply_parameters.message_id == 40
+    run(go())
