@@ -50,10 +50,29 @@ QUESTIONS = [
     (3, -1, "أعمل بشكل أفضل تحت ضغط الوقت القريب.", "I work best under close deadline pressure."),
     (3, +1, "أرتاح عندما تكون الأمور مرتبة ومحسومة.", "I feel at ease when things are organized and settled."),
     (3, -1, "أغيّر خططي بسهولة إذا ظهر خيار أفضل.", "I change my plans easily when a better option shows up."),
+
+(0, +1, "أستمتع بالتعرف على أشخاص جدد في المناسبات.", "I enjoy meeting new people at events."),
+    (0, -1, "أفضّل أن أتابع الحديث بعمق مع شخص واحد على أن أتنقل بين الجميع.", "I prefer deep talks with one person over mingling with everyone."),
+    (1, +1, "أنتبه للتفاصيل الصغيرة التي يفوتها غيري.", "I notice small details others miss."),
+    (1, -1, "أفكر كثيرًا في الصورة الكبيرة والأهداف البعيدة.", "I think a lot about the big picture and long-term goals."),
+    (2, +1, "أحلل الخطأ بدقة لأعرف سببه قبل أن أهتم بمشاعر من ارتكبه.", "I analyze a mistake carefully to find its cause before worrying about feelings."),
+    (2, -1, "أحس بالضيق عندما يتجاهل أحد مشاعر من حوله.", "I feel upset when someone ignores others' feelings."),
+    (3, +1, "أحب أن تكون قائمة مهامي واضحة ومرتبة كل يوم.", "I like my to-do list to be clear and organized every day."),
+    (3, -1, "أستمتع بالعفوية وأقرر في اللحظة ما أفعله.", "I enjoy spontaneity and decide what to do in the moment."),
+    (0, +1, "أشعر بالراحة عندما أكون محاطًا بالناس طوال اليوم.", "I feel comfortable when surrounded by people all day."),
+    (0, -1, "أشعر بالإرهاق سريعًا في الاجتماعات الطويلة.", "I get tired quickly in long social gatherings."),
+    (1, +1, "أثق بالتجربة الواقعية أكثر من الأفكار النظرية.", "I trust real-world experience more than theoretical ideas."),
+    (1, -1, "أحب اكتشاف الأنماط والعلاقات الخفية بين الأشياء.", "I love discovering hidden patterns and connections between things."),
+    (2, +1, "أفضّل النقد المباشر الواضح على المجاملة.", "I prefer direct, clear criticism over politeness."),
+    (2, -1, "أبحث عن الحل الذي يرضي الجميع حتى لو لم يكن الأدق.", "I look for a solution that pleases everyone, even if it isn't the most accurate."),
+    (3, +1, "أكره ترك الأمور معلّقة دون قرار.", "I hate leaving things hanging without a decision."),
+    (3, -1, "أستطيع التعايش مع الفوضى إذا كانت النتيجة جيدة.", "I can live with some mess if the outcome is good."),
 ]
 
 # ترتيب العرض: محاور متداخلة حتى لا تتتابع أسئلة المحور نفسه
-ORDER = [axis * 6 + k for k in range(6) for axis in range(4)]
+M = len(QUESTIONS) // 4                       # أسئلة لكل محور
+_buckets = [[i for i, q in enumerate(QUESTIONS) if q[0] == a] for a in range(4)]
+ORDER = [_buckets[a][k] for k in range(M) for a in range(4)]   # محاور متداخلة حتى لا تتتابع أسئلة المحور نفسه
 N = len(QUESTIONS)
 
 
@@ -66,7 +85,7 @@ def compute(answers: str) -> dict:
         raw[axis] += sign * (int(ch) - 3)
     res = []
     for axis, (a, b, *_rest) in enumerate(AXES):
-        pct_a = max(0, min(100, round(50 + raw[axis] / 12 * 50)))   # 6 أسئلة × أقصى 2 = 12
+        pct_a = max(0, min(100, round(50 + raw[axis] / (2 * M) * 50)))   # كل سؤال أقصى ±2
         res.append({"a": a, "b": b, "pct_a": pct_a, "pct_b": 100 - pct_a,
                     "letter": a if pct_a >= 50 else b})
     return {"axes": res, "code": "".join(x["letter"] for x in res)}
@@ -135,9 +154,9 @@ def build_persona_router(ctx) -> Router:
     async def start(c: CallbackQuery):
         await c.answer()
         L = lang(c.from_user.id)
-        await c.message.answer(t(L, "ps_intro"), parse_mode="HTML", reply_markup=kb([btn(t(L, "ps_go"), "pa:")]))
+        await c.message.answer(t(L, "ps_intro", n=N), parse_mode="HTML", reply_markup=kb([btn(t(L, "ps_go"), "pa:")]))
 
-    @r.callback_query(F.data.regexp(r"^pa:[1-5]{0,24}$"))
+    @r.callback_query(F.data.regexp(r"^pa:[1-5]{0,40}$"))
     async def answer(c: CallbackQuery):
         L = lang(c.from_user.id)
         ans = c.data[3:]
@@ -153,7 +172,7 @@ def build_persona_router(ctx) -> Router:
         except Exception:  # noqa: BLE001
             await c.message.answer(question_text(pos, L), parse_mode="HTML", reply_markup=question_markup(ans, L))
 
-    @r.callback_query(F.data.regexp(r"^pb:[1-5]{0,23}$"))
+    @r.callback_query(F.data.regexp(r"^pb:[1-5]{0,39}$"))
     async def back(c: CallbackQuery):
         await c.answer()
         L = lang(c.from_user.id)
