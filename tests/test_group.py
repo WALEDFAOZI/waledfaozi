@@ -333,6 +333,7 @@ def test_channel_contest_flow_single_live_message_and_final_top():
         lobby = chan_sent(h)[0]
         assert buttons(lobby)[0].startswith("gp:j:") and len(buttons(lobby)) == 1      # زر المشاركة فقط
         assert lobby.reply_parameters is None and "تبدأ بعد" in lobby.text
+        assert [b.text for row in lobby.reply_markup.inline_keyboard for b in row] == ["✋ شارك"]      # زر «شارك» ظاهر في القناة
         gid = buttons(lobby)[0].split(":")[2]
         h.session.member = False                                  # الضاغطون غير مشتركين: لا فحص لكل ضغطة في القنوات
         players = [h.user(100 + i, f"P{i}") for i in range(300)]       # أعداد كبيرة

@@ -289,7 +289,7 @@ def build_group_router(ctx: Ctx) -> Router:
 
     def lobby_markup(g: Game):
         if g.scope == "channel":                          # في القناة زر المشاركة فقط؛ التحكم من الخاص
-            return kb([btn(t(g.lang, "gp_join"), f"gp:j:{g.gid}")])
+            return kb([btn(t(g.lang, "gp_join_ch"), f"gp:j:{g.gid}")])
         return kb([btn(t(g.lang, "gp_join"), f"gp:j:{g.gid}")],
                   [btn(t(g.lang, "gp_start_now"), f"gp:s:{g.gid}"), btn(t(g.lang, "gp_cancel"), f"gp:x:{g.gid}")])
 
@@ -530,7 +530,7 @@ def build_group_router(ctx: Ctx) -> Router:
         g.players[uid] = Player(uid, shown(uid, c.from_user.full_name))
         g.dirty = True
         g.wake.set()
-        await c.answer(t(L, "gp_joined"))
+        await c.answer(t(L, "gp_joined" if g.scope == "group" else "gp_joined_ch"))
 
     @cb.callback_query(F.data.regexp(r"^gp:s:\d+$"))
     async def cb_start_now(c: CallbackQuery):

@@ -547,3 +547,8 @@ T["en"].update({
 })
 for L in ("ar", "en"):
     T[L]["gp_final"] = T[L]["gp_final"].replace("{w}\n\n{rows}", "{w}\n👥 {n}\n\n{rows}")
+
+T["ar"]["gp_join_ch"] = "✋ شارك"
+T["en"]["gp_join_ch"] = "✋ Participate"
+T["ar"]["gp_joined_ch"] = "✅ تم تسجيل مشاركتك! انتظر بداية الأسئلة"
+T["en"]["gp_joined_ch"] = "✅ You're in! Wait for the questions to start"
