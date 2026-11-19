@@ -571,3 +571,32 @@ T["ar"]["btn_sub_bot_channel"] = "📢 اشترك في قناة البوت"
 T["en"]["btn_sub_bot_channel"] = "📢 Subscribe to the bot's channel"
 T["ar"]["gp_must_sub"] = "⚠️ لازم تشترك في قناتنا @{ch} عشان تشارك. اشترك ثم اضغط «شارك» مرة ثانية."
 T["en"]["gp_must_sub"] = "⚠️ You must subscribe to our channel @{ch} to take part. Subscribe, then tap “Participate” again."
+
+T["ar"].update({
+    "btn_suggest": "💬 الاقتراحات والملاحظات",
+    "fb_menu": "💬 <b>الاقتراحات والملاحظات</b>\nرأيك يهمنا! اختر نوع رسالتك:",
+    "fbk_feat": "🛠 اقتراح لتطوير البوت", "fbk_q": "❓ اقتراح سؤال", "fbk_anime": "🎬 اقتراح أنمي للقائمة",
+    "fbk_bug": "🐞 مشكلة أو خطأ", "fbk_note": "💭 ملاحظة أو شكر",
+    "fbp_feat": "🛠 <b>اقتراح لتطوير البوت</b>\nاكتب فكرتك في رسالة واحدة (ميزة جديدة، تحسين، لعبة…).\n<i>من 10 إلى 1000 حرف.</i>",
+    "fbp_anime": "🎬 <b>اقتراح أنمي للقائمة</b>\nاكتب اسم الأنمي وسبب ترشيحه في رسالة واحدة.\n<i>القائمة للأعمال النظيفة فقط.</i>",
+    "fbp_bug": "🐞 <b>مشكلة أو خطأ</b>\nاشرح ماذا حصل وأين (القائمة، اللعبة، السؤال…) وسأوصله للإدارة.",
+    "fbp_note": "💭 <b>ملاحظة أو شكر</b>\nاكتب ما تريد قوله للإدارة.",
+    "fb_cancel": "⬅️ رجوع", "fb_len": "اكتب من 10 إلى 1000 حرف من فضلك.",
+    "fb_limit": "وصلت للحد اليومي ({n} رسائل). جرّب بكرة 🙏", "fb_pending": "عندك رسائل كثيرة لم تُراجع بعد. انتظر ردنا أولًا 🙏",
+    "fb_dup": "أرسلت نفس الرسالة من قبل 😉", "fb_ok": "شكرًا! وصلت رسالتك للإدارة 💙",
+    "fb_reply": "💬 <b>رد من الإدارة</b>\n\n{text}",
+})
+T["en"].update({
+    "btn_suggest": "💬 Suggestions & feedback",
+    "fb_menu": "💬 <b>Suggestions & feedback</b>\nWe value your opinion! Pick a type:",
+    "fbk_feat": "🛠 Suggest a bot improvement", "fbk_q": "❓ Suggest a question", "fbk_anime": "🎬 Suggest an anime for the list",
+    "fbk_bug": "🐞 Problem or bug", "fbk_note": "💭 Note or thanks",
+    "fbp_feat": "🛠 <b>Bot improvement</b>\nWrite your idea in one message (new feature, improvement, game…).\n<i>10 to 1000 characters.</i>",
+    "fbp_anime": "🎬 <b>Suggest an anime</b>\nWrite the anime's name and why you recommend it, in one message.\n<i>The list is for clean titles only.</i>",
+    "fbp_bug": "🐞 <b>Problem or bug</b>\nExplain what happened and where (menu, game, question…) and I'll pass it on.",
+    "fbp_note": "💭 <b>Note or thanks</b>\nWrite what you'd like to tell the team.",
+    "fb_cancel": "⬅️ Back", "fb_len": "Please write 10 to 1000 characters.",
+    "fb_limit": "Daily limit reached ({n} messages). Try tomorrow 🙏", "fb_pending": "You have many unreviewed messages. Please wait for our reply 🙏",
+    "fb_dup": "You've sent this already 😉", "fb_ok": "Thanks! Your message reached the team 💙",
+    "fb_reply": "💬 <b>Reply from the team</b>\n\n{text}",
+})

@@ -34,6 +34,14 @@ class Suggest(StatesGroup):
     wait = State()          # ننتظر اقتراح سؤال من اللاعب
 
 
+class Feedback(StatesGroup):
+    wait = State()          # ننتظر نص اقتراح/ملاحظة؛ النوع في data["kind"]
+
+FEEDBACK_KINDS = ("feat", "anime", "bug", "note")
+FEEDBACK_PER_DAY = 5
+FEEDBACK_PENDING_MAX = 10
+
+
 class ClearState(BaseMiddleware):
     """أي زر يضغطه اللاعب يُلغي أي إدخال معلّق (كاقتراح سؤال) حتى لا يُفسَّر كلامه التالي بالغلط."""
 
@@ -868,11 +876,53 @@ def build_router(ctx: Ctx) -> Router:
         db.upsert_user(m.from_user.id, m.from_user.full_name)
         await ask_suggestion(m, state, m.from_user.id)
 
+    def feedback_menu(L: str):
+        return kb([btn(t(L, "fbk_feat"), "sg:f:feat")], [btn(t(L, "fbk_q"), "sg:q")], [btn(t(L, "fbk_anime"), "sg:f:anime")],
+                  [btn(t(L, "fbk_bug"), "sg:f:bug")], [btn(t(L, "fbk_note"), "sg:f:note")], [btn(t(L, "btn_menu"), "menu")])
+
     @r.callback_query(F.data == "sg")
     async def cb_suggest(c: CallbackQuery, state: FSMContext):
+        """الاقتراحات والملاحظات: اختيار النوع (تطوير البوت، سؤال، أنمي، مشكلة، ملاحظة)."""
+        await c.answer()
+        db.upsert_user(c.from_user.id, c.from_user.full_name)
+        await state.clear()
+        await c.message.answer(t(lang(c.from_user.id), "fb_menu"), parse_mode="HTML", reply_markup=feedback_menu(lang(c.from_user.id)))
+
+    @r.callback_query(F.data == "sg:q")
+    async def cb_suggest_q(c: CallbackQuery, state: FSMContext):
         await c.answer()
         db.upsert_user(c.from_user.id, c.from_user.full_name)
         await ask_suggestion(c.message, state, c.from_user.id)
+
+    @r.callback_query(F.data.regexp(r"^sg:f:(feat|anime|bug|note)$"))
+    async def cb_feedback_kind(c: CallbackQuery, state: FSMContext):
+        await c.answer()
+        db.upsert_user(c.from_user.id, c.from_user.full_name)
+        kind = c.data.split(":")[2]
+        await state.set_state(Feedback.wait)
+        await state.update_data(kind=kind)
+        L = lang(c.from_user.id)
+        await c.message.answer(t(L, f"fbp_{kind}"), parse_mode="HTML", reply_markup=kb([btn(t(L, "fb_cancel"), "sg")]))
+
+    @r.message(Feedback.wait, F.text, ~F.text.startswith("/"))
+    async def on_feedback(m: Message, state: FSMContext):
+        uid, L = m.from_user.id, lang(m.from_user.id)
+        kind = (await state.get_data()).get("kind", "note")
+        text = m.text.strip()
+        if not 10 <= len(text) <= 1000:
+            await m.answer(t(L, "fb_len"))
+            return
+        await state.clear()
+        if db.feedback_today(uid) >= FEEDBACK_PER_DAY:
+            await m.answer(t(L, "fb_limit", n=FEEDBACK_PER_DAY))
+        elif db.conn.execute("SELECT COUNT(*) n FROM feedback WHERE tg_id=? AND status='pending'",
+                             (uid,)).fetchone()["n"] >= FEEDBACK_PENDING_MAX:
+            await m.answer(t(L, "fb_pending"))
+        elif db.feedback_exists(uid, text):
+            await m.answer(t(L, "fb_dup"))
+        else:
+            db.add_feedback(uid, kind, text)
+            await m.answer(t(L, "fb_ok"), reply_markup=kb([btn(t(L, "btn_menu"), "menu")]))
 
     @r.message(Command("cancel"))
     async def cmd_cancel(m: Message, state: FSMContext):

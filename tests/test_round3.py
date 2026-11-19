@@ -62,7 +62,8 @@ def test_stop_command_cancels_quiz_game_and_pending_input():
         assert "ما عندك شيء" in h.session.texts()[-1]
         await h.tap(u, "go")
         await h.tap(u, "g:tf")
-        await h.tap(u, "sg")                                       # يبدأ إدخال اقتراح
+        await h.tap(u, "sg")
+        await h.tap(u, "sg:q")                                       # يبدأ إدخال اقتراح
         sid = h.db.active_session(1)["id"]
         gid = h.db.conn.execute("SELECT MAX(id) FROM game_sessions").fetchone()[0]
         await h.say(u, "/stop")

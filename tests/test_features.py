@@ -24,6 +24,7 @@ def test_suggestion_flow_validation_and_limits():
         h, o = mk()
         u = h.user(1, "Player")
         await h.tap(u, "sg")
+        await h.tap(u, "sg:q")
         assert "5 أسطر" in h.session.texts()[-1]
         await h.say(u, "سطر واحد فقط")
         assert "5 أسطر" in h.session.texts()[-1] and h.db.pending_count() == 0
@@ -58,6 +59,7 @@ def test_suggestion_flow_validation_and_limits():
         assert h.db.pending_count() == 3
         # ضغط زر آخر يلغي الانتظار
         await h.tap(u, "sg")
+        await h.tap(u, "sg:q")
         await h.tap(u, "st")
         n = len(h.session.calls)
         await h.say(u, GOOD.replace("Great Teacher Onizuka", "Z"))
@@ -70,10 +72,11 @@ def test_admin_reviews_suggestion_and_user_is_notified_and_question_playable():
         h, o = mk()
         u = h.user(1, "Player")
         await h.tap(u, "sg")
+        await h.tap(u, "sg:q")
         await h.say(u, GOOD)
         sid = h.db.pending_suggestions()[0]["id"]
         await h.say(o, "/admin")
-        assert "الاقتراحات (1)" in str([c.reply_markup for c in h.session.calls if getattr(c, "chat_id", None) == 5][-1])
+        assert "الاقتراحات والملاحظات (1)" in str([c.reply_markup for c in h.session.calls if getattr(c, "chat_id", None) == 5][-1])
         await h.tap(o, "ad:sg")
         await h.tap(o, f"ad:sv:{sid}")
         assert "تورو فوجيساوا" in h.session.texts()[-1]
@@ -90,12 +93,14 @@ def test_admin_reviews_suggestion_and_user_is_notified_and_question_playable():
         assert len([x for x in h.db.all_questions() if x.id >= 100000]) == 1
         # رفض
         await h.tap(u, "sg")
+        await h.tap(u, "sg:q")
         await h.say(u, GOOD.replace("Great Teacher Onizuka", "Another One"))
         sid2 = h.db.pending_suggestions()[0]["id"]
         await h.tap(o, f"ad:sgr:{sid2}")
         assert h.db.pending_count() == 0
         # لا يستطيع غير المشرف المراجعة
         await h.tap(u, "sg")
+        await h.tap(u, "sg:q")
         await h.say(u, GOOD.replace("Great Teacher Onizuka", "Third"))
         sid3 = h.db.pending_suggestions()[0]["id"]
         await h.tap(u, f"ad:sgd:{sid3}:creators:6")

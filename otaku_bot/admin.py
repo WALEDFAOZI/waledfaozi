@@ -76,7 +76,7 @@ def home_kb(pending: int = 0):
     return kb(
         [btn("📊 الإحصائيات", "ad:stats"), btn("🚩 البلاغات", "ad:rep")],
         [btn("➕ سؤال جديد", "ad:add"), btn("🔎 بحث/تعديل سؤال", "ad:find")],
-        [btn(f"💡 الاقتراحات ({pending})", "ad:sg"), btn("📣 رسالة جماعية", "ad:bc")],
+        [btn(f"💬 الاقتراحات والملاحظات ({pending})", "ad:fb"), btn("📣 رسالة جماعية", "ad:bc")],
         [btn("⚙️ الإعدادات", "ad:set"), btn("👥 المشرفون", "ad:adm")],
         [btn("📚 المحتوى (صح/غلط، أنمي)", "ad:ct")],
         [btn("🖼 جلب أسئلة صور", "ad:img"), btn("💾 نسخة احتياطية", "ad:bak")],
@@ -152,13 +152,13 @@ def build_admin_router(ctx: Ctx) -> Router:
     @r.message(Command("admin"))
     async def cmd_admin(m: Message, state: FSMContext):
         await state.clear()
-        await m.answer("🛠 <b>لوحة التحكم</b>", parse_mode="HTML", reply_markup=home_kb(db.pending_count()))
+        await m.answer("🛠 <b>لوحة التحكم</b>", parse_mode="HTML", reply_markup=home_kb(db.pending_count() + sum(db.feedback_counts().values())))
 
     @r.callback_query(F.data == "ad:home")
     async def cb_home(c: CallbackQuery, state: FSMContext):
         await state.clear()
         await c.answer()
-        await nav(c, "🛠 <b>لوحة التحكم</b>", home_kb(db.pending_count()))
+        await nav(c, "🛠 <b>لوحة التحكم</b>", home_kb(db.pending_count() + sum(db.feedback_counts().values())))
 
     @r.message(Command("flagged"))
     async def cmd_flagged(m: Message):
@@ -436,6 +436,20 @@ def build_admin_router(ctx: Ctx) -> Router:
         text = (m.text or m.caption or "").strip()
         photo = f"tg:{m.photo[-1].file_id}" if m.photo else None
 
+        if act == "freply":
+            fb = db.get_feedback(data["fid"])
+            await state.clear()
+            if not fb:
+                await m.answer("الرسالة غير موجودة.", reply_markup=kb(BACK))
+                return
+            try:
+                await m.bot.send_message(fb["tg_id"], t(db.get_lang(fb["tg_id"]), "fb_reply", text=esc(text)), parse_mode="HTML")
+                db.set_feedback_status(fb["id"], "answered")
+                await m.answer("✅ وصل الرد.", reply_markup=kb([btn("◀️ الأنواع", "ad:fb")]))
+            except TelegramAPIError:
+                await m.answer("❌ تعذّر الإرسال (ربما حظر البوت).", reply_markup=kb([btn("◀️ الأنواع", "ad:fb")]))
+            return
+
         if act in ("ctf", "can"):
             if act == "ctf":
                 row, err = parse_tf(text)
@@ -679,7 +693,56 @@ def build_admin_router(ctx: Ctx) -> Router:
         await note.edit_text(f"✅ أضفت/حدّثت {n} سؤال صورة من {src}.\nراجع عيّنة من «🔎 بحث» وعطّل أي سؤال تراه غلطًا.",
                              reply_markup=kb(BACK))
 
-    # ── اقتراحات اللاعبين ───────────────────────────────────
+    # ── الاقتراحات والملاحظات ───────────────────────────────
+    FB_NAMES = {"feat": "🛠 تطوير البوت", "anime": "🎬 أنمي", "bug": "🐞 مشاكل", "note": "💭 ملاحظات"}
+
+    @r.callback_query(F.data == "ad:fb")
+    async def cb_feedback_hub(c: CallbackQuery):
+        await c.answer()
+        cnt = db.feedback_counts()
+        rows = [[btn(f"💡 أسئلة مقترحة ({db.pending_count()})", "ad:sg")]]
+        rows += [[btn(f"{name} ({cnt.get(k, 0)})", f"ad:fk:{k}")] for k, name in FB_NAMES.items()]
+        await nav(c, "💬 <b>الاقتراحات والملاحظات</b>\nاختر النوع:", kb(*rows, BACK))
+
+    @r.callback_query(F.data.regexp(r"^ad:fk:(feat|anime|bug|note)$"))
+    async def cb_feedback_list(c: CallbackQuery):
+        await c.answer()
+        kind = c.data.split(":")[2]
+        rows = db.feedback_list(kind, 10)
+        if not rows:
+            await nav(c, f"{FB_NAMES[kind]}: لا شيء ينتظر المراجعة 🎉", kb([btn("◀️ الأنواع", "ad:fb")]), None)
+            return
+        btns = [[btn(f"#{x['id']} {x['text'][:40]}", f"ad:fv:{x['id']}")] for x in rows]
+        await nav(c, f"{FB_NAMES[kind]} ({len(rows)}):", kb(*btns, [btn("◀️ الأنواع", "ad:fb")]), None)
+
+    @r.callback_query(F.data.regexp(r"^ad:fv:\d+$"))
+    async def cb_feedback_view(c: CallbackQuery):
+        await c.answer()
+        fb = db.get_feedback(int(c.data.split(":")[2]))
+        if not fb or fb["status"] != "pending":
+            await c.message.answer("تمت مراجعة هذه الرسالة.", reply_markup=kb([btn("◀️ الأنواع", "ad:fb")]))
+            return
+        await c.message.answer(
+            f"{FB_NAMES.get(fb['kind'], fb['kind'])} · #{fb['id']} من <code>{fb['tg_id']}</code>\n\n{esc(fb['text'])}",
+            parse_mode="HTML", reply_markup=kb(
+                [btn("💬 رد", f"ad:fr:{fb['id']}"), btn("✅ تمت", f"ad:fd:{fb['id']}")],
+                [btn("◀️ " + FB_NAMES.get(fb["kind"], ""), f"ad:fk:{fb['kind']}")]))
+
+    @r.callback_query(F.data.regexp(r"^ad:fd:\d+$"))
+    async def cb_feedback_done(c: CallbackQuery):
+        fb = db.get_feedback(int(c.data.split(":")[2]))
+        if fb:
+            db.set_feedback_status(fb["id"], "done")
+        await c.answer("✅ تم", show_alert=True)
+
+    @r.callback_query(F.data.regexp(r"^ad:fr:\d+$"))
+    async def cb_feedback_reply(c: CallbackQuery, state: FSMContext):
+        await c.answer()
+        await state.set_state(Flow.wait)
+        await state.update_data(act="freply", fid=int(c.data.split(":")[2]))
+        await c.message.answer("اكتب ردك (يصل للاعب باسم «الإدارة» دون اسمك):", reply_markup=kb([btn("إلغاء", "ad:fb")]))
+
+    # ── اقتراحات اللاعبين (الأسئلة) ─────────────────────────
     @r.callback_query(F.data == "ad:sg")
     async def cb_suggestions(c: CallbackQuery):
         await c.answer()

@@ -68,6 +68,11 @@ CREATE TABLE IF NOT EXISTS suggestions(
   status TEXT NOT NULL DEFAULT 'pending',     -- pending | approved | rejected
   created_at REAL NOT NULL, qid INTEGER
 );
+CREATE TABLE IF NOT EXISTS feedback(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, kind TEXT NOT NULL, text TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',     -- pending | done | answered
+  created_at REAL NOT NULL
+);
 CREATE TABLE IF NOT EXISTS events(
   id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, kind TEXT NOT NULL, ts REAL NOT NULL
 );
@@ -753,6 +758,35 @@ class DB:
             cur = self.conn.execute("INSERT INTO suggestions(tg_id,q,options,created_at) VALUES(?,?,?,?)",
                                     (tg_id, q, json.dumps(options, ensure_ascii=False), time.time()))
         return cur.lastrowid
+
+    # ── الاقتراحات والملاحظات (تطوير، أنمي، مشكلة، ملاحظة) ───────
+    def add_feedback(self, tg_id: int, kind: str, text: str) -> int:
+        with self.conn:
+            return self.conn.execute("INSERT INTO feedback(tg_id,kind,text,created_at) VALUES(?,?,?,?)",
+                                     (tg_id, kind, text, time.time())).lastrowid
+
+    def feedback_today(self, tg_id: int) -> int:
+        return self.conn.execute("SELECT COUNT(*) n FROM feedback WHERE tg_id=? AND created_at>=?",
+                                 (tg_id, day_start())).fetchone()["n"]
+
+    def feedback_exists(self, tg_id: int, text: str) -> bool:
+        return bool(self.conn.execute("SELECT 1 FROM feedback WHERE tg_id=? AND lower(text)=lower(?)",
+                                      (tg_id, text)).fetchone())
+
+    def feedback_counts(self) -> dict[str, int]:
+        return {r["kind"]: r["n"] for r in self.conn.execute(
+            "SELECT kind, COUNT(*) n FROM feedback WHERE status='pending' GROUP BY kind")}
+
+    def feedback_list(self, kind: str, limit: int = 10) -> list[sqlite3.Row]:
+        return self.conn.execute("SELECT * FROM feedback WHERE kind=? AND status='pending' ORDER BY id LIMIT ?",
+                                 (kind, limit)).fetchall()
+
+    def get_feedback(self, fid: int):
+        return self.conn.execute("SELECT * FROM feedback WHERE id=?", (fid,)).fetchone()
+
+    def set_feedback_status(self, fid: int, status: str) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE feedback SET status=? WHERE id=?", (status, fid))
 
     def pending_suggestions(self, limit: int = 10) -> list[sqlite3.Row]:
         return self.conn.execute("SELECT * FROM suggestions WHERE status='pending' ORDER BY id LIMIT ?", (limit,)).fetchall()
