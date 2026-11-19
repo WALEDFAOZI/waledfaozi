@@ -24,6 +24,7 @@ from .recommend import build_recommend_router
 from .teams import build_teams_router
 from .personality import build_persona_router
 from .mafia_game import build_mafia_router
+from .spy_game import build_spy_router
 from .games import build_games_router
 from .group import build_group_router
 
@@ -100,6 +101,7 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp.callback_query.outer_middleware(SubGate(ctx))
     dp.include_router(build_admin_router(ctx))   # أولًا: محميّ بفلتر المشرفين
     dp.include_router(build_mafia_router(ctx))    # قبل المجموعات: أزرار المافيا
+    dp.include_router(build_spy_router(ctx))      # برا السالفة
     dp.include_router(build_group_router(ctx))    # المجموعات: قبل الباقي، والباقي مقيّد بالخاص
     dp.include_router(build_games_router(ctx))
     dp.include_router(build_recommend_router(ctx))
