@@ -1081,3 +1081,8 @@ T["ar"]["gpk_mafia"] = "🔪 المافيا (لعبة أنمي)"
 T["en"]["gpk_mafia"] = "🔪 Mafia (anime game)"
 T["ar"]["gpk_spy"] = "🎭 برا السالفة"
 T["en"]["gpk_spy"] = "🎭 Outside the Story"
+
+T["ar"].update({"du_pick_game": "⚔️ <b>تحدَّ صديقًا</b>\nاختر اللعبة:", "du_game_quiz": "🎯 أسئلة أنمي (7 أسئلة)",
+                "on_opp_card": "🆚 <b>منافسك</b>\n🏅 ترتيبه العام: <b>#{rank}</b>\n⭐ أفضل تقييم: <b>{best}</b>/10 · 📝 اختبارات كاملة: {tests}\n☠️ أطول موت مفاجئ: {sd} · 🎮 ألعابه: {games}\n<i>الاسم مخفي حتى نهاية المباراة.</i>"})
+T["en"].update({"du_pick_game": "⚔️ <b>Challenge a friend</b>\nPick the game:", "du_game_quiz": "🎯 Anime questions (7)",
+                "on_opp_card": "🆚 <b>Your opponent</b>\n🏅 Overall rank: <b>#{rank}</b>\n⭐ Best score: <b>{best}</b>/10 · 📝 Full tests: {tests}\n☠️ Longest sudden-death streak: {sd} · 🎮 Games played: {games}\n<i>Name hidden until the match ends.</i>"})

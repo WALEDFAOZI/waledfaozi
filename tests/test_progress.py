@@ -78,7 +78,7 @@ def test_duel_rematch_invites_previous_opponent_after_creator_finishes():
         h.db.fast_answer_ratio = lambda sid: 0.0
         a, b = h.user(1, "Ali"), h.user(2, "Bob")
         await h.say(a, "/start"); await h.say(b, "/start")
-        await h.tap(a, "du:new")
+        await h.tap(a, "du:new:q")
         await h.tap(a, "du:go:1")
         await h.play(a)
         await h.say(b, "/start du_1")
@@ -149,7 +149,7 @@ def test_duel_share_link_comes_before_questions_and_friend_can_play_first():
         h.db.fast_answer_ratio = lambda sid: 0.0
         a, b = h.user(1, "Ali"), h.user(2, "Bob")
         await h.say(a, "/start"); await h.say(b, "/start")
-        await h.tap(a, "du:new")
+        await h.tap(a, "du:new:q")
         calls = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id == 1]
         share = calls[-1]
         urls = [x.url for row in share.reply_markup.inline_keyboard for x in row if x.url]

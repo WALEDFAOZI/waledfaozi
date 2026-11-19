@@ -451,6 +451,16 @@ def build_router(ctx: Ctx) -> Router:
         await start_targeted_duel(c, other, tie=False)
 
     @r.callback_query(F.data == "du:new")
+    async def cb_duel_pick(c: CallbackQuery):
+        """تحدي صديق: اختيار اللعبة أولًا (أسئلة أنمي أو تبادل الشخصيات)."""
+        await c.answer()
+        db.upsert_user(c.from_user.id, c.from_user.full_name)
+        L = lang(c.from_user.id)
+        await c.message.answer(t(L, "du_pick_game"), parse_mode="HTML", reply_markup=kb(
+            [btn(t(L, "du_game_quiz"), "du:new:q")], [btn(t(L, "sw_btn"), "sw:new")],
+            [btn(t(L, "btn_menu"), "menu")]))
+
+    @r.callback_query(F.data == "du:new:q")
     async def cb_duel_new(c: CallbackQuery):
         await c.answer()
         did = db.create_duel(c.from_user.id)

@@ -57,9 +57,17 @@ def build_online_router(ctx: Ctx) -> Router:
     def L_(uid: int) -> str:
         return db.get_lang(uid)
 
-    async def send(bot: Bot, uid: int, text: str, markup=None) -> int | None:
+    def opp_card(other: int, L: str) -> str:
+        """بطاقة المنافس بلا اسم أو معرّف: الترتيب وأرقامه فقط."""
+        u = db.get_user(other) or {}
+        games_n = db.conn.execute("SELECT COUNT(*) n FROM game_sessions WHERE tg_id=?", (other,)).fetchone()["n"]
+        return t(L, "on_opp_card", rank=db.user_rank(other) or "—", best=f"{u['best_score'] or 0:.1f}",
+                 tests=u["tests_taken"] or 0, sd=u["best_sudden"] or 0, games=games_n)
+
+    async def send(bot: Bot, uid: int, text: str, markup=None, parse_mode_html: bool = True) -> int | None:
         try:
-            return (await bot.send_message(uid, text, parse_mode="HTML", reply_markup=markup)).message_id
+            return (await bot.send_message(uid, text, parse_mode="HTML" if parse_mode_html else None,
+                                           reply_markup=markup)).message_id
         except TelegramAPIError:
             return None
 
@@ -113,6 +121,10 @@ def build_online_router(ctx: Ctx) -> Router:
 
     async def play(bot: Bot, m: Match) -> None:
         try:
+            for uid in m.players:
+                other = _other(m, uid)
+                await send(bot, uid, opp_card(other, L_(uid)), parse_mode_html=True)
+            await asyncio.sleep(GAP_SECS)
             for uid in m.players:
                 await send(bot, uid, t(L_(uid), "on_started", kind=t(L_(uid), f"on_kind_{m.kind}"), secs=ROUND_SECS))
             await asyncio.sleep(GAP_SECS)
