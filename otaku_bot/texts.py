@@ -552,3 +552,17 @@ T["ar"]["gp_join_ch"] = "✋ شارك"
 T["en"]["gp_join_ch"] = "✋ Participate"
 T["ar"]["gp_joined_ch"] = "✅ تم تسجيل مشاركتك! انتظر بداية الأسئلة"
 T["en"]["gp_joined_ch"] = "✅ You're in! Wait for the questions to start"
+
+T["ar"].update({
+    "ch_test_btn": "🔧 اختبار النشر في القناة", "ch_test_ok": "✅ البوت ينشر ويحذف في القناة بشكل سليم.",
+    "ch_test_ok_nodel": "⚠️ البوت ينشر لكن لا يستطيع الحذف: فعّل له صلاحية «حذف الرسائل».",
+    "ch_open_pm": "📩 لإكمال المسابقة افتح البوت بالخاص أولًا: @{me} ثم أعد كتابة /play",
+})
+T["en"].update({
+    "ch_test_btn": "🔧 Test posting in the channel", "ch_test_ok": "✅ The bot can post and delete in the channel.",
+    "ch_test_ok_nodel": "⚠️ The bot can post but not delete: enable the “Delete messages” right.",
+    "ch_open_pm": "📩 To continue, open the bot in private first: @{me}, then type /play again",
+})
+
+T["ar"]["gp_nobody_joined"] = "😴 ما شارك أحد هذه المرة. جرّب مرة ثانية!"
+T["en"]["gp_nobody_joined"] = "😴 Nobody joined this time. Try again!"

@@ -34,6 +34,7 @@ LOBBY_SECONDS = 30
 Q_SECONDS = 15
 PAUSE = 3
 MIN_PLAYERS = 2
+CH_MIN_PLAYERS = 1          # القنوات: يكفي مشارك واحد (التجربة والمسابقات الصغيرة)
 MAX_PLAYERS = 40
 CHAT_COOLDOWN = 30          # بعد انتهاء لعبة في المجموعة
 START_COOLDOWN = 45         # لكل من يبدأ ألعابًا
@@ -90,6 +91,7 @@ class Game:
     lobby_secs: float = 30
     q_secs: float = 15
     max_players: int = 40
+    min_players: int = 2
     edit_gap: float = 2.5
     rounds: list = field(default_factory=list)
     idx: int = -1
@@ -128,6 +130,7 @@ def build_group_router(ctx: Ctx) -> Router:
     start_at: dict[int, float] = {}           # من بدأ → وقت آخر بدء
     seen: dict[int, dict[int, float]] = {}    # chat_id → أسئلة شوهدت مؤخرًا
     counter = [0]
+    send_errors: dict[int, str] = {}          # chat_id → آخر سبب فشل نشر (يُعرض للمنظّم)
 
     # ── أدوات ──────────────────────────────────────────────
     def enabled() -> bool:
@@ -176,9 +179,11 @@ def build_group_router(ctx: Ctx) -> Router:
                     photo = None
                     continue
                 log.warning("group send failed in %s: %s", chat_id, e)
+                send_errors[chat_id] = str(e)[:120]
                 return None
             except (TelegramForbiddenError, TelegramAPIError) as e:
                 log.warning("group send failed in %s: %s", chat_id, e)
+                send_errors[chat_id] = str(e)[:120]
                 return None
         return None
 
@@ -285,7 +290,7 @@ def build_group_router(ctx: Ctx) -> Router:
 
     def lobby_text(g: Game, left: int) -> str:
         return t(g.lang, "gp_lobby" if g.scope == "group" else "gp_lobby_ch", kind=t(g.lang, f"gpk_{g.kind}"), host=esc(g.host_name), left=max(0, left),
-                 n=len(g.players), names=pnames(g), min=MIN_PLAYERS)
+                 n=len(g.players), names=pnames(g), min=g.min_players)
 
     def lobby_markup(g: Game):
         if g.scope == "channel":                          # في القناة زر المشاركة فقط؛ التحكم من الخاص
@@ -415,8 +420,8 @@ def build_group_router(ctx: Ctx) -> Router:
     async def run(bot: Bot, g: Game) -> None:
         try:
             await lobby_phase(bot, g)
-            if len(g.players) < MIN_PLAYERS:
-                await edit(bot, g, g.live, t(g.lang, "gp_too_few", min=MIN_PLAYERS), None)
+            if len(g.players) < g.min_players:
+                await edit(bot, g, g.live, t(g.lang, "gp_too_few" if g.min_players > 1 else "gp_nobody_joined", min=g.min_players), None)
                 return
             g.state = "running"
             g.rounds = build_rounds(g.kind, g.lang, g.chat_id)
@@ -470,7 +475,8 @@ def build_group_router(ctx: Ctx) -> Router:
         counter[0] += 1
         thread = m.message_thread_id if getattr(m, "is_topic_message", False) else None
         g = Game(gid=counter[0], chat_id=m.chat.id, thread=thread, reply_to=m.message_id, host_id=hid, host_name=hname,
-                 kind=kind, lang=L, lobby_secs=LOBBY_SECONDS, q_secs=Q_SECONDS, max_players=MAX_PLAYERS)
+                 kind=kind, lang=L, lobby_secs=LOBBY_SECONDS, q_secs=Q_SECONDS, max_players=MAX_PLAYERS,
+                 min_players=MIN_PLAYERS)
         games[m.chat.id] = g
         g.live = await send(bot, g, lobby_text(g, int(g.lobby_secs)), lobby_markup(g))
         if g.live is None:                                                    # لا صلاحية للإرسال
@@ -658,15 +664,16 @@ def build_group_router(ctx: Ctx) -> Router:
 
     def kinds_markup(L: str, chat_id: int):
         rows = [[btn(t(L, f"gpk_{k}"), f"ch:n:{chat_id}:{k}")] for k in KINDS]
-        return kb(*rows, [btn(t(L, "btn_menu"), "menu")])
+        return kb(*rows, [btn(t(L, "ch_test_btn"), f"ch:t:{chat_id}")], [btn(t(L, "btn_menu"), "menu")])
 
-    async def offer_menu(bot: Bot, user_id: int, chat_id: int, title: str | None, warn: str = "") -> None:
+    async def offer_menu(bot: Bot, user_id: int, chat_id: int, title: str | None, warn: str = "") -> bool:
         L = db.get_lang(user_id)
         try:
             await bot.send_message(user_id, t(L, "ch_linked", title=esc(title or "?")) + warn, parse_mode="HTML",
                                    reply_markup=kinds_markup(L, chat_id))
+            return True
         except TelegramAPIError:
-            pass                                           # لم يبدأ البوت بالخاص بعد
+            return False                                   # لم يبدأ البوت بالخاص بعد
 
     async def can_manage(bot: Bot, chat_id: int, uid: int) -> bool:
         return db.channel_owner(chat_id) == uid or await is_group_admin(bot, chat_id, uid)
@@ -703,8 +710,21 @@ def build_group_router(ctx: Ctx) -> Router:
             owner = next((a.user.id for a in admins if a.status == "creator" and not a.user.is_bot), None)
             if owner:
                 db.link_channel(m.chat.id, owner, m.chat.title)
-        if owner:
-            await offer_menu(m.bot, owner, m.chat.id, m.chat.title)
+        ok = bool(owner) and await offer_menu(m.bot, owner, m.chat.id, m.chat.title)
+        if not ok:                                         # لا نستطيع مراسلة المنظّم: تنبيه مؤقت يختفي وحده
+            me = (await m.bot.get_me()).username
+            try:
+                note = await m.bot.send_message(m.chat.id, t(db.group_lang(m.chat.id), "ch_open_pm", me=me), parse_mode="HTML")
+            except TelegramAPIError:
+                return
+
+            async def later():
+                await asyncio.sleep(12)
+                try:
+                    await m.bot.delete_message(m.chat.id, note.message_id)
+                except TelegramAPIError:
+                    pass
+            asyncio.create_task(later())
 
     @pm.callback_query(F.data == "gpc")
     async def cb_channels(c: CallbackQuery):
@@ -753,17 +773,37 @@ def build_group_router(ctx: Ctx) -> Router:
         g = Game(gid=counter[0], chat_id=chat_id, thread=None, reply_to=None, host_id=starter.id,
                  host_name=ANON if db.is_admin(starter.id) else clean(starter.full_name), kind=kind,
                  lang=db.group_lang(chat_id), scope="channel", lobby_secs=CH_LOBBY_SECONDS, q_secs=CH_Q_SECONDS,
-                 max_players=CH_MAX_PLAYERS, edit_gap=5.0)
+                 max_players=CH_MAX_PLAYERS, min_players=CH_MIN_PLAYERS, edit_gap=5.0)
         games[chat_id] = g
         g.live = await send(c.bot, g, lobby_text(g, int(g.lobby_secs)), lobby_markup(g))
         if g.live is None:
             games.pop(chat_id, None)
-            await c.answer(t(L, "ch_publish_fail"), show_alert=True)
+            await c.answer((t(L, "ch_publish_fail") + "\n\n" + send_errors.get(chat_id, ""))[:200], show_alert=True)
             return
         g.task = asyncio.create_task(run(c.bot, g))
         await c.answer(t(L, "ch_started_toast"))
         await c.message.answer(t(L, "ch_started"), parse_mode="HTML", reply_markup=kb(
             [btn(t(L, "gp_start_now"), f"ch:s:{chat_id}"), btn(t(L, "gp_cancel"), f"ch:x:{chat_id}")]))
+
+    @pm.callback_query(F.data.regexp(r"^ch:t:-?\d+$"))
+    async def cb_channel_test(c: CallbackQuery):
+        """اختبار النشر: يرسل رسالة قصيرة في القناة ويحذفها، ويخبرك بالنتيجة أو بسبب الفشل بالضبط."""
+        chat_id = int(c.data.split(":")[2])
+        L = db.get_lang(c.from_user.id)
+        if not await can_manage(c.bot, chat_id, c.from_user.id):
+            await c.answer(t(L, "gp_host_only"), show_alert=True)
+            return
+        try:
+            m = await c.bot.send_message(chat_id, "✅")
+        except TelegramAPIError as e:
+            await c.answer((t(L, "ch_publish_fail") + "\n\n" + str(e))[:200], show_alert=True)
+            return
+        try:
+            await c.bot.delete_message(chat_id, m.message_id)
+            note = t(L, "ch_test_ok")
+        except TelegramAPIError:
+            note = t(L, "ch_test_ok_nodel")
+        await c.answer(note, show_alert=True)
 
     @pm.callback_query(F.data.regexp(r"^ch:(s|x):-?\d+$"))
     async def cb_channel_control(c: CallbackQuery):

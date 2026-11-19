@@ -377,3 +377,55 @@ def test_channel_play_post_is_deleted_and_menu_goes_to_owner_and_menu_button():
         assert any("startchannel=play" in u and "post_messages" in u for u in urls)
         assert any(f"ch:m:{CHAN.id}" in buttons(c) for c in h.session.calls if getattr(c, "reply_markup", None) is not None)
     run(go())
+
+
+def test_channel_publish_failure_reason_test_button_and_dm_fallback():
+    async def go():
+        h = Harness()
+        owner = h.user(5, "Owner")
+        h.db.upsert_user(5, "Owner")
+        h.db.link_channel(CHAN.id, 5, CHAN.title)
+        # فشل النشر في القناة (لا صلاحية): سبب واضح في التنبيه ولا لعبة عالقة
+        h.session.blocked_chats.add(CHAN.id)
+        await h.tap(owner, f"ch:n:{CHAN.id}:quiz")
+        ans = [c for c in h.session.calls if type(c).__name__ == "AnswerCallbackQuery" and getattr(c, "show_alert", False)]
+        assert ans and "Forbidden" in (ans[-1].text or "")
+        await h.tap(owner, f"ch:t:{CHAN.id}")
+        ans = [c for c in h.session.calls if type(c).__name__ == "AnswerCallbackQuery" and getattr(c, "show_alert", False)]
+        assert "Forbidden" in (ans[-1].text or "")
+        h.session.blocked_chats.discard(CHAN.id)
+        await h.tap(owner, f"ch:t:{CHAN.id}")                       # الآن ينجح ويحذف رسالة الاختبار
+        ans = [c for c in h.session.calls if type(c).__name__ == "AnswerCallbackQuery" and getattr(c, "show_alert", False)]
+        assert "ينشر ويحذف" in (ans[-1].text or "")
+        assert any(type(c).__name__ == "DeleteMessage" and c.chat_id == CHAN.id for c in h.session.calls)
+        await h.tap(owner, f"ch:n:{CHAN.id}:quiz")                  # وبعد الإصلاح تظهر رسالة المشاركة
+        assert chan_sent(h) and "✋ شارك" in [b.text for row in chan_sent(h)[-1].reply_markup.inline_keyboard for b in row]
+        # /play في القناة والمنظّم لا يستقبل الخاص: تنبيه مؤقت بالقناة بدل صمت
+        h2 = Harness()
+        h2.db.upsert_user(5, "Owner"); h2.db.link_channel(CHAN.id, 5, CHAN.title)
+        h2.session.blocked_chats.add(5)
+        h2.uid += 1
+        m = Message(message_id=34, date=dt.datetime.now(), chat=CHAN, text="/play",
+                    entities=[MessageEntity(type="bot_command", offset=0, length=5)])
+        await h2.dp.feed_update(h2.bot, Update(update_id=h2.uid, channel_post=m))
+        assert any("افتح البوت بالخاص" in (c.text or "") for c in chan_sent(h2))
+    run(go())
+
+
+def test_channel_contest_runs_with_a_single_participant_and_empty_lobby_message():
+    async def go():
+        h = Harness()
+        owner, solo = h.user(5, "Owner"), h.user(7, "Solo")
+        h.db.upsert_user(5, "Owner"); h.db.link_channel(CHAN.id, 5, CHAN.title)
+        await h.tap(owner, f"ch:n:{CHAN.id}:tf")
+        gid = buttons(chan_sent(h)[0])[0].split(":")[2]
+        await ctap(h, solo, f"gp:j:{gid}")                          # مشارك واحد فقط: تبدأ المسابقة
+        assert await chan_play_out(h, [solo], timeout=15)
+        assert any("👥 1" in (c.text or "") for c in chan_sent(h))
+        h2 = Harness()                                              # ولو لم يشارك أحد: رسالة واضحة
+        h2.db.upsert_user(5, "Owner"); h2.db.link_channel(CHAN.id, 5, CHAN.title)
+        await h2.tap(h2.user(5, "Owner"), f"ch:n:{CHAN.id}:tf")
+        await asyncio.sleep(1.2)
+        edits = [c for c in h2.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == CHAN.id]
+        assert any("ما شارك أحد" in e.text for e in edits)
+    run(go())
