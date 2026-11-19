@@ -523,7 +523,8 @@ def build_group_router(ctx: Ctx) -> Router:
         await open_game(m, CMD_KIND[command.command])
 
     def menu_markup(L: str):
-        rows = [[btn(t(L, f"gpk_{k}"), f"gp:n:{k}")] for k in KINDS]
+        rows = [[btn(t(L, "gpk_mafia"), "mf:new")], [btn(t(L, "gpk_spy"), "sp:new")]]   # الألعاب الجماعية الجديدة أولًا
+        rows += [[btn(t(L, f"gpk_{k}"), f"gp:n:{k}")] for k in KINDS]
         return kb(*rows, [btn(t(L, "gp_top_btn"), "gp:t")])
 
     @r.message(Command("play"))
@@ -716,7 +717,8 @@ def build_group_router(ctx: Ctx) -> Router:
     ADD_URL = "https://t.me/{me}?startchannel=play&admin=post_messages+edit_messages+delete_messages"
 
     def kinds_markup(L: str, chat_id: int):
-        rows = [[btn(t(L, f"gpk_{k}"), f"ch:n:{chat_id}:{k}")] for k in KINDS]
+        rows = [[btn(t(L, "gpk_mafia"), f"mf:cs:{chat_id}")]]                  # المافيا أولًا (تُبدأ من الخاص)
+        rows += [[btn(t(L, f"gpk_{k}"), f"ch:n:{chat_id}:{k}")] for k in KINDS]
         return kb(*rows, [btn(t(L, "ch_test_btn"), f"ch:t:{chat_id}")], [btn(t(L, "btn_menu"), "menu")])
 
     async def offer_menu(bot: Bot, user_id: int, chat_id: int, title: str | None, warn: str = "") -> bool:

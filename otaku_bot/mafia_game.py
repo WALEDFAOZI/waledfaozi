@@ -416,6 +416,20 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g = new_game(m.chat.id, "group", m.from_user.id, m.from_user.full_name, m.message_id, thread, L)
         await open_lobby(m.bot, g)
 
+    @cbs.callback_query(F.data == "mf:new")
+    async def cb_new_from_menu(c: CallbackQuery):
+        """زر المافيا من قائمة /play في المجموعة."""
+        L = db.group_lang(c.message.chat.id)
+        why = busy_or_cool(c.message.chat.id)
+        if why:
+            await c.answer(t(L, "mf_busy" if why == "busy" else "mf_cool"), show_alert=True)
+            return
+        await c.answer()
+        db.upsert_user(c.from_user.id, c.from_user.full_name)
+        g = new_game(c.message.chat.id, "group", c.from_user.id, c.from_user.full_name, c.message.message_id,
+                     c.message.message_thread_id if getattr(c.message, "is_topic_message", False) else None, L)
+        await open_lobby(c.bot, g)
+
     # ── أزرار الانتظار والتحكم ────────────────────────────
     @cbs.callback_query(F.data.regexp(r"^mf:l:\d+$"))
     async def cb_leave(c: CallbackQuery):

@@ -1073,3 +1073,11 @@ T["en"]['mf_cfg_hint'] = 'Set the number of killers and special roles, then star
 T["en"]['mf_host_dm_missing'] = "⚠️ I couldn't send you the game settings. Open the bot privately first: @{me}, then /mafia again."
 T["en"]['mf_joined_dm'] = '✅ You joined the mafia game! Wait for the start; your role will arrive here.'
 T["en"]['mf_starting'] = '▶️ The game starts now.'
+
+T["ar"]["prof_recent"] = "🕘 آخر نتائجك: {recent}"
+T["en"]["prof_recent"] = "🕘 Recent scores: {recent}"
+
+T["ar"]["gpk_mafia"] = "🔪 المافيا (لعبة أنمي)"
+T["en"]["gpk_mafia"] = "🔪 Mafia (anime game)"
+T["ar"]["gpk_spy"] = "🎭 برا السالفة"
+T["en"]["gpk_spy"] = "🎭 Outside the Story"

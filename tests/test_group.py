@@ -263,7 +263,7 @@ def test_group_button_is_second_row_and_full_width():
         await h.say(h.user(1), "/start")
         from harness import last_menu_call
         rows = last_menu_call(h).reply_markup.inline_keyboard
-        assert [b.callback_data for b in rows[0]] == ["go"] and [b.callback_data for b in rows[1]] == ["on:m"] and [b.callback_data for b in rows[2]] == ["gpm", "gpc"]
+        assert [b.callback_data for b in rows[0]] == ["go"] and [b.callback_data for b in rows[1]] == ["qk"] and [b.callback_data for b in rows[2]] == ["on:m"] and [b.callback_data for b in rows[3]] == ["gpm", "gpc"]
     run(go())
 
 
@@ -591,3 +591,29 @@ def test_lobby_is_three_minutes_and_countdown_actually_ticks():
 def test_default_lobby_is_180_seconds():
     src = Path(group.__file__).read_text(encoding="utf-8")       # الاختبارات تخفّض القيمة، فنتحقق من الكود نفسه
     assert "LOBBY_SECONDS = 180" in src and "CH_LOBBY_SECONDS = 180" in src
+
+
+def test_group_play_menu_lists_mafia_and_spy_first_and_buttons_start_them():
+    async def go():
+        from otaku_bot import mafia_game as MG, spy_game as SG
+        h = Harness()
+        host = h.user(1, "Ali")
+        h.db.upsert_user(1, "Ali")
+        h.uid += 1
+        m = Message(message_id=900, date=dt.datetime.now(), chat=GROUP, text="/play",
+                    from_user=host, entities=[MessageEntity(type="bot_command", offset=0, length=5)])
+        await h.dp.feed_update(h.bot, Update(update_id=h.uid, message=m))
+        menu = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id == GROUP.id][-1]
+        rows = menu.reply_markup.inline_keyboard
+        assert [b.callback_data for b in rows[0]] == ["mf:new"] and [b.callback_data for b in rows[1]] == ["sp:new"]
+        await gtap(h, host, "mf:new")
+        assert GROUP.id in MG.games
+        MG.games[GROUP.id].task.cancel()
+        await asyncio.sleep(0.05)
+        MG.games.clear()
+        await gtap(h, host, "sp:new")
+        assert GROUP.id in SG.games
+        SG.games[GROUP.id].task.cancel()
+        await asyncio.sleep(0.05)
+        SG.games.clear()
+    run(go())

@@ -96,13 +96,13 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
     """القائمة الرئيسية قصيرة: الاختبار أولًا، والألعاب والمزيد في قوائم فرعية."""
     return kb(*(top or []),
               [btn(t(L, "btn_full"), "go")],
-              [btn(t(L, "btn_online"), "on:m")],                                # زر اللعب أونلاين واضح بعد الاختبار
+              [btn(t(L, "btn_quick"), "qk")],                                   # اختبار سريع تحت الاختبار الكامل
+              [btn(t(L, "btn_online"), "on:m")],                                # زر اللعب أونلاين
               [btn(t(L, "btn_group"), "gpm"), btn(t(L, "btn_channel_game"), "gpc")],   # زرين جنب بعض
               [btn(t(L, "btn_daily"), "dy:m"), btn(t(L, "du_btn"), "du:new")],
-              [btn(t(L, "btn_quick"), "qk"), btn(t(L, "btn_cat"), "cats")],
               [btn(t(L, "btn_games_menu"), "m:games"), btn(t(L, "btn_anime"), "an:m")],
               [btn(t(L, "btn_rank"), "lb:menu"), btn(t(L, "btn_profile"), "pf")],
-              [btn(t(L, "btn_invite"), "iv"), btn(t(L, "btn_stats"), "st")],
+              [btn(t(L, "btn_invite"), "iv")],
               [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")],
               *chan_row(L))
 
@@ -118,8 +118,7 @@ def games_kb(L: str, images: bool = False) -> InlineKeyboardMarkup:
 
 
 def more_kb(L: str) -> InlineKeyboardMarkup:
-    return kb([btn(t(L, "btn_stats"), "st")],
-              [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")],
+    return kb([btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")],
               [btn(t(L, "btn_menu"), "menu")])
 
 
@@ -919,6 +918,9 @@ def build_router(ctx: Ctx) -> Router:
             lines.append(t(L, "prof_acc", pct=round(100 * p["correct"] / p["answers"]), ok=p["correct"], n=p["answers"]))
         if p["sudden"]:
             lines.append(t(L, "prof_sudden", n=p["sudden"]))
+        recent = [f"{x['score']:.1f}" for x in db.last_session_stats(uid)] if hasattr(db, "last_session_stats") else []
+        if recent:
+            lines.append(t(L, "prof_recent", recent=" · ".join(recent)))
         ib = invite_badge(db.invite_count(uid))
         if ib:
             lines.append(t(L, "iv_badge", b=badge_label(ib, L)))

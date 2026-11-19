@@ -423,6 +423,26 @@ def build_spy_router(ctx: Ctx) -> Router:
         g = games.get(c.message.chat.id)
         return g if g and g.gid == gid and g.state != "done" else None
 
+    @cbs.callback_query(F.data == "sp:new")
+    async def cb_new_from_menu(c: CallbackQuery):
+        """زر برا السالفة من قائمة /play في المجموعة."""
+        L = db.group_lang(c.message.chat.id)
+        why = busy_or_cool(c.message.chat.id)
+        if why:
+            await c.answer(t(L, "sp_busy" if why == "busy" else "sp_cool"), show_alert=True)
+            return
+        await c.answer()
+        db.upsert_user(c.from_user.id, c.from_user.full_name)
+        g = new_game(c.message.chat.id, c.from_user.id, c.from_user.full_name, c.message.message_id,
+                     c.message.message_thread_id if getattr(c.message, "is_topic_message", False) else None, L)
+        g.players[c.from_user.id] = Player(c.from_user.id, c.from_user.full_name)
+        games[c.message.chat.id] = g
+        g.live = await send(c.bot, g, lobby_text(g, LOBBY_SECS), lobby_markup(g))
+        if g.live is None:
+            games.pop(c.message.chat.id, None)
+            return
+        g.task = asyncio.create_task(run(c.bot, g))
+
     # ── الأوامر والرسائل ────────────────────────────────────
     @msgs.message(Command("spy"))
     async def cmd_spy(m: Message):

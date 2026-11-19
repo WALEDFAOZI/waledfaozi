@@ -257,7 +257,7 @@ def test_menu_has_profile_button_and_help_mentions_stop():
     async def go():
         h = Harness()
         await h.say(h.user(1), "/start")
-        assert {"pf", "st", "sg", "lg:toggle"} <= cb_data(h) and "m:more" not in cb_data(h)
+        assert {"pf", "sg", "lg:toggle"} <= cb_data(h) and "m:more" not in cb_data(h) and "st" not in cb_data(h)
         await h.say(h.user(1), "/help")
         assert "/stop" in h.session.texts()[-1] and "/profile" in h.session.texts()[-1]
     run(go())
