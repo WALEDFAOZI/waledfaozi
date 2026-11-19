@@ -83,6 +83,9 @@ CREATE TABLE IF NOT EXISTS extra_content(
 CREATE TABLE IF NOT EXISTS group_chats(
   chat_id INTEGER PRIMARY KEY, title TEXT, lang TEXT NOT NULL DEFAULT 'ar', created_at REAL NOT NULL
 );
+CREATE TABLE IF NOT EXISTS channel_links(
+  chat_id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, title TEXT, added_at REAL NOT NULL
+);
 CREATE TABLE IF NOT EXISTS group_results(
   id INTEGER PRIMARY KEY AUTOINCREMENT, chat_id INTEGER NOT NULL, tg_id INTEGER NOT NULL, points INTEGER NOT NULL,
   kind TEXT NOT NULL, won INTEGER NOT NULL DEFAULT 0, at REAL NOT NULL
@@ -367,6 +370,21 @@ class DB:
     def set_group_lang(self, chat_id: int, lang: str) -> None:
         with self.conn:
             self.conn.execute("UPDATE group_chats SET lang=? WHERE chat_id=?", (lang, chat_id))
+
+    def link_channel(self, chat_id: int, user_id: int, title: str | None) -> None:
+        with self.conn:
+            self.conn.execute(
+                "INSERT INTO channel_links(chat_id,user_id,title,added_at) VALUES(?,?,?,?) "
+                "ON CONFLICT(chat_id) DO UPDATE SET user_id=excluded.user_id, title=excluded.title",
+                (chat_id, user_id, title, time.time()))
+
+    def channel_owner(self, chat_id: int) -> int | None:
+        r = self.conn.execute("SELECT user_id FROM channel_links WHERE chat_id=?", (chat_id,)).fetchone()
+        return r["user_id"] if r else None
+
+    def user_channels(self, user_id: int) -> list[tuple[int, str | None]]:
+        return [(r["chat_id"], r["title"]) for r in self.conn.execute(
+            "SELECT chat_id, title FROM channel_links WHERE user_id=? ORDER BY added_at DESC", (user_id,))]
 
     def group_count(self) -> int:
         return self.conn.execute("SELECT COUNT(*) n FROM group_chats").fetchone()["n"]

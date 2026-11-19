@@ -36,6 +36,8 @@ class SubGate(BaseMiddleware):
         self.ctx = ctx
 
     async def __call__(self, handler, event, data):
+        if isinstance(event, CallbackQuery) and event.message and event.message.chat.type == "channel":
+            return await handler(event, data)             # مسابقات القنوات: لا فحص لكل ضغطة (آلاف)؛ يُتحقق من الفائزين فقط
         if (isinstance(event, CallbackQuery) and self.ctx.subscribed and self.ctx.channel()
                 and (event.data or "") not in self.EXEMPT):
             try:

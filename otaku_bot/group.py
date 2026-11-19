@@ -37,11 +37,16 @@ MIN_PLAYERS = 2
 MAX_PLAYERS = 40
 CHAT_COOLDOWN = 30          # بعد انتهاء لعبة في المجموعة
 START_COOLDOWN = 45         # لكل من يبدأ ألعابًا
+CH_LOBBY_SECONDS = 30       # مسابقات القنوات: نص دقيقة للمشاركة
+CH_Q_SECONDS = 30           # ثم 30 ثانية لكل سؤال
+CH_MAX_PLAYERS = 200000
+CH_KEEP = 50                # في القنوات الكبيرة نحفظ أفضل 50 فقط في القاعدة
 ANON_ADMIN_ID = 1087968824  # GroupAnonymousBot
 KINDS = ("quiz", "sudden", "tf", "song", "char", "quote", "ord", "images")
 CMD_KIND = {"quiz": "quiz", "sudden": "sudden", "tf": "tf", "song": "song", "char": "char", "quote": "quote",
             "order": "ord", "images": "images"}
 GROUP_TYPES = {"group", "supergroup"}
+ANY_TYPES = GROUP_TYPES | {"channel"}
 ANON = "مجهول 🎭"
 LETTERS = ["A", "B", "C", "D"]
 
@@ -72,14 +77,20 @@ class Game:
     gid: int
     chat_id: int
     thread: int | None
-    reply_to: int
+    reply_to: int | None
     host_id: int
     host_name: str
     kind: str
     lang: str
     players: dict = field(default_factory=dict)
     state: str = "lobby"
-    lobby_msg: int | None = None
+    scope: str = "group"            # group | channel
+    live: int | None = None         # الرسالة الحيّة الوحيدة: غرفة الانتظار ثم الأسئلة (تُعدَّل ولا تتراكم)
+    live_photo: bool = False
+    lobby_secs: float = 30
+    q_secs: float = 15
+    max_players: int = 40
+    edit_gap: float = 2.5
     rounds: list = field(default_factory=list)
     idx: int = -1
     q_msg: int | None = None
@@ -104,9 +115,13 @@ def identity(m: Message) -> tuple[int, str]:
 
 
 def build_group_router(ctx: Ctx) -> Router:
-    r = Router(name="group")
+    root = Router(name="groups")
+    r = Router(name="group_msgs")                       # أوامر المجموعات
     r.message.filter(F.chat.type.in_(GROUP_TYPES))
-    r.callback_query.filter(F.message.chat.type.in_(GROUP_TYPES))
+    cb = Router(name="group_cbs")                       # أزرار المجموعات والقنوات
+    cb.callback_query.filter(F.message.chat.type.in_(ANY_TYPES))
+    pm = Router(name="group_pm")                        # الخاص: اختيار القناة ونوع المسابقة
+    pm.callback_query.filter(F.message.chat.type == "private")
     db, rng = ctx.db, ctx.rng
     games: dict[int, Game] = {}               # chat_id → اللعبة الجارية
     cooldown: dict[int, float] = {}           # chat_id → وقت انتهاء آخر لعبة
@@ -139,11 +154,12 @@ def build_group_router(ctx: Ctx) -> Router:
     async def send(bot: Bot, g: Game, text: str, markup=None, photo: str | None = None) -> int | None:
         return await send_to(bot, g.chat_id, g.reply_to, g.thread, text, markup, photo)
 
-    async def send_to(bot: Bot, chat_id: int, reply_to: int, thread: int | None, text: str, markup=None,
+    async def send_to(bot: Bot, chat_id: int, reply_to: int | None, thread: int | None, text: str, markup=None,
                       photo: str | None = None) -> int | None:
-        """كل رسالة جديدة في المجموعة = رد على رسالة صاحب الأمر."""
-        kw = dict(chat_id=chat_id, reply_parameters=ReplyParameters(message_id=reply_to, allow_sending_without_reply=True),
-                  parse_mode="HTML", reply_markup=markup)
+        """كل رسالة جديدة في المجموعة = رد على رسالة صاحب الأمر (القنوات: رسالة عادية بلا رد)."""
+        kw = dict(chat_id=chat_id, parse_mode="HTML", reply_markup=markup)
+        if reply_to:
+            kw["reply_parameters"] = ReplyParameters(message_id=reply_to, allow_sending_without_reply=True)
         if thread:
             kw["message_thread_id"] = thread
         for attempt in (1, 2):
@@ -180,6 +196,26 @@ def build_group_router(ctx: Ctx) -> Router:
                 await asyncio.sleep(e.retry_after)
         except TelegramAPIError:
             pass                                             # «not modified» أو الرسالة اختفت: لا يهم
+
+    async def delete_msg(bot: Bot, g: Game, mid: int | None) -> None:
+        if mid:
+            try:
+                await bot.delete_message(g.chat_id, mid)
+            except TelegramAPIError:
+                pass
+
+    async def live_show(bot: Bot, g: Game, text: str, markup=None, photo: str | None = None) -> bool:
+        """رسالة حيّة واحدة: نعدّلها إن أمكن، وإن تغيّر نوعها (نص ↔ صورة) نرسل الجديدة ونحذف السابقة."""
+        if g.live and not photo and not g.live_photo:
+            await edit(bot, g, g.live, text, markup)
+            return True
+        old = g.live
+        mid = await send(bot, g, text, markup, photo)
+        if mid is None:
+            return False
+        g.live, g.live_photo = mid, bool(photo)
+        await delete_msg(bot, g, old)
+        return True
 
     async def reply(m: Message, text: str, markup=None) -> None:
         kw = {"message_thread_id": m.message_thread_id} if getattr(m, "is_topic_message", False) and m.message_thread_id else {}
@@ -248,10 +284,12 @@ def build_group_router(ctx: Ctx) -> Router:
         return "، ".join(names[:limit]) + extra if names else "—"
 
     def lobby_text(g: Game, left: int) -> str:
-        return t(g.lang, "gp_lobby", kind=t(g.lang, f"gpk_{g.kind}"), host=esc(g.host_name), left=max(0, left),
+        return t(g.lang, "gp_lobby" if g.scope == "group" else "gp_lobby_ch", kind=t(g.lang, f"gpk_{g.kind}"), host=esc(g.host_name), left=max(0, left),
                  n=len(g.players), names=pnames(g), min=MIN_PLAYERS)
 
     def lobby_markup(g: Game):
+        if g.scope == "channel":                          # في القناة زر المشاركة فقط؛ التحكم من الخاص
+            return kb([btn(t(g.lang, "gp_join"), f"gp:j:{g.gid}")])
         return kb([btn(t(g.lang, "gp_join"), f"gp:j:{g.gid}")],
                   [btn(t(g.lang, "gp_start_now"), f"gp:s:{g.gid}"), btn(t(g.lang, "gp_cancel"), f"gp:x:{g.gid}")])
 
@@ -276,20 +314,20 @@ def build_group_router(ctx: Ctx) -> Router:
 
     # ── سير اللعبة ─────────────────────────────────────────
     async def lobby_phase(bot: Bot, g: Game) -> None:
-        end = time.monotonic() + LOBBY_SECONDS
+        end = time.monotonic() + g.lobby_secs
         last = 0.0
         while not g.start_now:
             left = end - time.monotonic()
             if left <= 0:
                 break
             now = time.monotonic()
-            if g.dirty and now - last >= 2.5:
+            if g.dirty and now - last >= g.edit_gap:
                 g.dirty = False
                 last = now
-                await edit(bot, g, g.lobby_msg, lobby_text(g, int(left + 0.5)), lobby_markup(g))
+                await edit(bot, g, g.live, lobby_text(g, int(left + 0.5)), lobby_markup(g))
             g.wake.clear()
             try:
-                await asyncio.wait_for(g.wake.wait(), timeout=min(2.5, max(left, 0.02)))
+                await asyncio.wait_for(g.wake.wait(), timeout=min(g.edit_gap, max(left, 0.02)))
             except asyncio.TimeoutError:
                 pass
 
@@ -299,16 +337,14 @@ def build_group_router(ctx: Ctx) -> Router:
         g.event.clear()
         g.closed = False
         start = time.monotonic()
-        g.deadline = start + Q_SECONDS
-        mid = await send(bot, g, round_text(g, rnd, Q_SECONDS), answer_markup(g, rnd), rnd.photo)
-        if mid is None:
+        g.deadline = start + g.q_secs
+        if not await live_show(bot, g, round_text(g, rnd, int(g.q_secs)), answer_markup(g, rnd), rnd.photo):
             return False
-        g.q_msg = mid
-        is_photo = bool(rnd.photo)
+        mid, is_photo = g.live, g.live_photo
         try:
-            await asyncio.wait_for(g.event.wait(), timeout=Q_SECONDS / 2)
+            await asyncio.wait_for(g.event.wait(), timeout=g.q_secs / 2)
         except asyncio.TimeoutError:
-            await edit(bot, g, mid, round_text(g, rnd, int(Q_SECONDS / 2 + 0.5), len(g.answers), len(alive)),
+            await edit(bot, g, mid, round_text(g, rnd, int(g.q_secs / 2 + 0.5), len(g.answers), len(alive)),
                        answer_markup(g, rnd), caption=is_photo)
             try:
                 await asyncio.wait_for(g.event.wait(), timeout=max(0.01, g.deadline - time.monotonic()))
@@ -322,7 +358,7 @@ def build_group_router(ctx: Ctx) -> Router:
             got = g.answers.get(p.id)
             if got and got[0] == rnd.answer:
                 remain = max(0.0, g.deadline - got[1])
-                pts = 100 + int(100 * remain / Q_SECONDS)
+                pts = 100 + int(100 * remain / g.q_secs)
                 p.points += pts
                 p.correct += 1
                 winners.append((got[1], p, pts))
@@ -363,24 +399,29 @@ def build_group_router(ctx: Ctx) -> Router:
             champs = [p for p in rk if p.points == rk[0].points] if rk and rk[0].points > 0 else []
         medals = ["🥇", "🥈", "🥉"]
         lines = [f"{medals[i] if i < 3 else str(i + 1) + '.'} {esc(p.name)} — <b>{p.points}</b>" for i, p in enumerate(rk[:10])]
-        win = ("🏆 " + t(g.lang, "gp_winner", w=" + ".join(esc(p.name) for p in champs))) if champs else t(g.lang, "gp_nowinner")
-        await send(bot, g, t(g.lang, "gp_final", w=win, rows="\n".join(lines)),
-                   kb([btn(t(g.lang, "gp_top_btn"), "gp:t")]))
-        for p in g.players.values():                                       # الأدمن لا يدخل الترتيب
+        win = ("🏆 " + t(g.lang, "gp_winner", w=" + ".join(esc(p.name) for p in champs[:5]))) if champs else t(g.lang, "gp_nowinner")
+        markup = kb([btn(t(g.lang, "gp_top_btn"), "gp:t")]) if g.scope == "group" else None
+        old = g.live
+        await send(bot, g, t(g.lang, "gp_final", w=win, n=len(g.players), rows="\n".join(lines)), markup)   # الرسالة الجديدة الوحيدة
+        await delete_msg(bot, g, old)
+        keep = rk[:CH_KEEP] if g.scope == "channel" else rk               # القنوات الكبيرة: أفضل 50 فقط في القاعدة
+        champ_ids = {p.id for p in champs}
+        for p in keep:                                                      # الأدمن لا يدخل الترتيب
             if not db.is_admin(p.id):
-                db.add_group_result(g.chat_id, p.id, p.points, g.kind, p in champs)
+                if g.scope == "channel":
+                    db.upsert_user(p.id, p.name)
+                db.add_group_result(g.chat_id, p.id, p.points, g.kind, p.id in champ_ids)
 
     async def run(bot: Bot, g: Game) -> None:
         try:
             await lobby_phase(bot, g)
             if len(g.players) < MIN_PLAYERS:
-                await edit(bot, g, g.lobby_msg, t(g.lang, "gp_too_few", min=MIN_PLAYERS), None)
+                await edit(bot, g, g.live, t(g.lang, "gp_too_few", min=MIN_PLAYERS), None)
                 return
             g.state = "running"
-            await edit(bot, g, g.lobby_msg, t(g.lang, "gp_started", n=len(g.players), names=pnames(g)), None)
             g.rounds = build_rounds(g.kind, g.lang, g.chat_id)
             if not g.rounds:
-                await send(bot, g, t(g.lang, "gp_no_rounds"))
+                await edit(bot, g, g.live, t(g.lang, "gp_no_rounds"), None)
                 return
             for i, rnd in enumerate(g.rounds):
                 if g.kind == "sudden" and i > 0 and sum(p.alive for p in g.players.values()) <= 1:
@@ -391,7 +432,7 @@ def build_group_router(ctx: Ctx) -> Router:
                 await asyncio.sleep(PAUSE)
             await finish(bot, g)
         except asyncio.CancelledError:
-            await send(bot, g, t(g.lang, "gp_stopped"))
+            await edit(bot, g, g.live, t(g.lang, "gp_stopped"), None, caption=g.live_photo)
             raise
         except Exception:  # noqa: BLE001
             log.exception("group game crashed in %s", g.chat_id)
@@ -429,10 +470,10 @@ def build_group_router(ctx: Ctx) -> Router:
         counter[0] += 1
         thread = m.message_thread_id if getattr(m, "is_topic_message", False) else None
         g = Game(gid=counter[0], chat_id=m.chat.id, thread=thread, reply_to=m.message_id, host_id=hid, host_name=hname,
-                 kind=kind, lang=L)
+                 kind=kind, lang=L, lobby_secs=LOBBY_SECONDS, q_secs=Q_SECONDS, max_players=MAX_PLAYERS)
         games[m.chat.id] = g
-        g.lobby_msg = await send(bot, g, lobby_text(g, LOBBY_SECONDS), lobby_markup(g))
-        if g.lobby_msg is None:                                               # لا صلاحية للإرسال
+        g.live = await send(bot, g, lobby_text(g, int(g.lobby_secs)), lobby_markup(g))
+        if g.live is None:                                                    # لا صلاحية للإرسال
             games.pop(m.chat.id, None)
             return
         g.task = asyncio.create_task(run(bot, g))
@@ -453,7 +494,7 @@ def build_group_router(ctx: Ctx) -> Router:
             return
         await reply(m, t(L, "gp_menu"), menu_markup(L))
 
-    @r.callback_query(F.data.regexp(r"^gp:n:(quiz|sudden|tf|song|char|quote|ord|images)$"))
+    @cb.callback_query(F.data.regexp(r"^gp:n:(quiz|sudden|tf|song|char|quote|ord|images)$"))
     async def cb_pick(c: CallbackQuery):
         L = db.group_lang(c.message.chat.id)
         cmd = c.message.reply_to_message
@@ -470,7 +511,7 @@ def build_group_router(ctx: Ctx) -> Router:
         host = identity(cmd) if cmd is not None else (c.from_user.id, c.from_user.full_name)
         await open_game(cmd or c.message, c.data.split(":")[2], host=host, presser=c.from_user)
 
-    @r.callback_query(F.data.regexp(r"^gp:j:\d+$"))
+    @cb.callback_query(F.data.regexp(r"^gp:j:\d+$"))
     async def cb_join(c: CallbackQuery):
         g = games.get(c.message.chat.id)
         L = db.group_lang(c.message.chat.id)
@@ -481,16 +522,17 @@ def build_group_router(ctx: Ctx) -> Router:
         if uid in g.players:
             await c.answer(t(L, "gp_already"))
             return
-        if len(g.players) >= MAX_PLAYERS:
+        if len(g.players) >= g.max_players:
             await c.answer(t(L, "gp_full"), show_alert=True)
             return
-        db.upsert_user(uid, c.from_user.full_name)
+        if g.scope == "group":                                  # القنوات الكبيرة: لا كتابة في القاعدة لكل مشارك
+            db.upsert_user(uid, c.from_user.full_name)
         g.players[uid] = Player(uid, shown(uid, c.from_user.full_name))
         g.dirty = True
         g.wake.set()
         await c.answer(t(L, "gp_joined"))
 
-    @r.callback_query(F.data.regexp(r"^gp:s:\d+$"))
+    @cb.callback_query(F.data.regexp(r"^gp:s:\d+$"))
     async def cb_start_now(c: CallbackQuery):
         g = games.get(c.message.chat.id)
         L = db.group_lang(c.message.chat.id)
@@ -504,7 +546,7 @@ def build_group_router(ctx: Ctx) -> Router:
         g.wake.set()
         await c.answer()
 
-    @r.callback_query(F.data.regexp(r"^gp:x:\d+$"))
+    @cb.callback_query(F.data.regexp(r"^gp:x:\d+$"))
     async def cb_cancel(c: CallbackQuery):
         g = games.get(c.message.chat.id)
         L = db.group_lang(c.message.chat.id)
@@ -518,7 +560,7 @@ def build_group_router(ctx: Ctx) -> Router:
         if g.task:
             g.task.cancel()
 
-    @r.callback_query(F.data.regexp(r"^gp:a:\d+:\d+:\d$"))
+    @cb.callback_query(F.data.regexp(r"^gp:a:\d+:\d+:\d$"))
     async def cb_answer(c: CallbackQuery):
         _, _, gid, rid, choice = c.data.split(":")
         g = games.get(c.message.chat.id)
@@ -573,7 +615,7 @@ def build_group_router(ctx: Ctx) -> Router:
 
     top_at: dict[int, float] = {}
 
-    @r.callback_query(F.data == "gp:t")
+    @cb.callback_query(F.data == "gp:t")
     async def cb_group_top(c: CallbackQuery):
         """زر «ترتيب المجموعة»: رسالة (رد على صاحب الأمر) أو نافذة منبثقة إن ضُغط بكثرة (حماية من الإزعاج)."""
         chat = c.message.chat.id
@@ -611,14 +653,139 @@ def build_group_router(ctx: Ctx) -> Router:
         me = await m.bot.get_me()
         await reply(m, t(L, "gp_help"), kb([btn(t(L, "gp_open_private"), url=f"https://t.me/{me.username}")]))
 
-    @r.my_chat_member()
+    # ── مسابقات القنوات ────────────────────────────────────
+    ADD_URL = "https://t.me/{me}?startchannel=play&admin=post_messages+edit_messages+delete_messages"
+
+    def kinds_markup(L: str, chat_id: int):
+        rows = [[btn(t(L, f"gpk_{k}"), f"ch:n:{chat_id}:{k}")] for k in KINDS]
+        return kb(*rows, [btn(t(L, "btn_menu"), "menu")])
+
+    async def offer_menu(bot: Bot, user_id: int, chat_id: int, title: str | None, warn: str = "") -> None:
+        L = db.get_lang(user_id)
+        try:
+            await bot.send_message(user_id, t(L, "ch_linked", title=esc(title or "?")) + warn, parse_mode="HTML",
+                                   reply_markup=kinds_markup(L, chat_id))
+        except TelegramAPIError:
+            pass                                           # لم يبدأ البوت بالخاص بعد
+
+    async def can_manage(bot: Bot, chat_id: int, uid: int) -> bool:
+        return db.channel_owner(chat_id) == uid or await is_group_admin(bot, chat_id, uid)
+
+    @root.my_chat_member()
     async def on_member(ev: ChatMemberUpdated):
-        if ev.chat.type in GROUP_TYPES and ev.new_chat_member.status in ("left", "kicked"):
+        st = ev.new_chat_member.status
+        if st in ("left", "kicked") and ev.chat.type in ANY_TYPES:
             g = games.get(ev.chat.id)
             if g and g.task:
                 g.task.cancel()
+            return
+        if ev.chat.type == "channel" and st == "administrator" and ev.from_user and not ev.from_user.is_bot:
+            db.touch_group(ev.chat.id, ev.chat.title)
+            db.link_channel(ev.chat.id, ev.from_user.id, ev.chat.title)
+            nm = ev.new_chat_member
+            L = db.get_lang(ev.from_user.id)
+            ok = getattr(nm, "can_post_messages", True) and getattr(nm, "can_edit_messages", True)
+            await offer_menu(ev.bot, ev.from_user.id, ev.chat.id, ev.chat.title, "" if ok else "\n\n" + t(L, "ch_rights_warn"))
 
-    @r.callback_query()
+    @root.channel_post(Command("play"))
+    async def ch_play(m: Message):
+        """اكتب /play في القناة: يحذف البوت منشورك ويرسل لك (بالخاص) قائمة أنواع المسابقة."""
+        try:
+            await m.delete()
+        except TelegramAPIError:
+            pass
+        owner = db.channel_owner(m.chat.id)
+        if not owner:
+            try:
+                admins = await m.bot.get_chat_administrators(m.chat.id)
+            except TelegramAPIError:
+                admins = []
+            owner = next((a.user.id for a in admins if a.status == "creator" and not a.user.is_bot), None)
+            if owner:
+                db.link_channel(m.chat.id, owner, m.chat.title)
+        if owner:
+            await offer_menu(m.bot, owner, m.chat.id, m.chat.title)
+
+    @pm.callback_query(F.data == "gpc")
+    async def cb_channels(c: CallbackQuery):
+        """زر القائمة الرئيسية «تحدٍّ في قناة»: قنواتك المرتبطة + إضافة قناة جديدة."""
+        await c.answer()
+        L = db.get_lang(c.from_user.id)
+        me = (await c.bot.get_me()).username
+        rows = [[btn(f"📢 {title or chat_id}", f"ch:m:{chat_id}")] for chat_id, title in db.user_channels(c.from_user.id)[:8]]
+        rows.append([btn(t(L, "ch_add_btn"), url=ADD_URL.format(me=me))])
+        rows.append([btn(t(L, "btn_menu"), "menu")])
+        await c.message.answer(t(L, "ch_intro"), parse_mode="HTML", reply_markup=kb(*rows))
+
+    @pm.callback_query(F.data.regexp(r"^ch:m:-?\d+$"))
+    async def cb_channel_menu(c: CallbackQuery):
+        chat_id = int(c.data.split(":")[2])
+        L = db.get_lang(c.from_user.id)
+        if not await can_manage(c.bot, chat_id, c.from_user.id):
+            await c.answer(t(L, "gp_host_only"), show_alert=True)
+            return
+        await c.answer()
+        title = next((tt for cid, tt in db.user_channels(c.from_user.id) if cid == chat_id), None)
+        await c.message.answer(t(L, "ch_linked", title=esc(title or str(chat_id))), parse_mode="HTML",
+                               reply_markup=kinds_markup(L, chat_id))
+
+    @pm.callback_query(F.data.regexp(r"^ch:n:-?\d+:(quiz|sudden|tf|song|char|quote|ord|images)$"))
+    async def cb_channel_start(c: CallbackQuery):
+        _, _, cid, kind = c.data.split(":")
+        chat_id = int(cid)
+        L = db.get_lang(c.from_user.id)
+        if not await can_manage(c.bot, chat_id, c.from_user.id):
+            await c.answer(t(L, "gp_host_only"), show_alert=True)
+            return
+        if not enabled():
+            await c.answer(t(L, "gp_disabled"), show_alert=True)
+            return
+        cur = games.get(chat_id)
+        if cur and cur.state != "done":
+            await c.answer(t(L, "gp_busy"), show_alert=True)
+            return
+        wait = CHAT_COOLDOWN - (time.monotonic() - cooldown.get(chat_id, -1e9))
+        if wait > 0:
+            await c.answer(t(L, "gp_cooldown", s=int(wait) + 1), show_alert=True)
+            return
+        counter[0] += 1
+        starter = c.from_user
+        g = Game(gid=counter[0], chat_id=chat_id, thread=None, reply_to=None, host_id=starter.id,
+                 host_name=ANON if db.is_admin(starter.id) else clean(starter.full_name), kind=kind,
+                 lang=db.group_lang(chat_id), scope="channel", lobby_secs=CH_LOBBY_SECONDS, q_secs=CH_Q_SECONDS,
+                 max_players=CH_MAX_PLAYERS, edit_gap=5.0)
+        games[chat_id] = g
+        g.live = await send(c.bot, g, lobby_text(g, int(g.lobby_secs)), lobby_markup(g))
+        if g.live is None:
+            games.pop(chat_id, None)
+            await c.answer(t(L, "ch_publish_fail"), show_alert=True)
+            return
+        g.task = asyncio.create_task(run(c.bot, g))
+        await c.answer(t(L, "ch_started_toast"))
+        await c.message.answer(t(L, "ch_started"), parse_mode="HTML", reply_markup=kb(
+            [btn(t(L, "gp_start_now"), f"ch:s:{chat_id}"), btn(t(L, "gp_cancel"), f"ch:x:{chat_id}")]))
+
+    @pm.callback_query(F.data.regexp(r"^ch:(s|x):-?\d+$"))
+    async def cb_channel_control(c: CallbackQuery):
+        _, act, cid = c.data.split(":")
+        chat_id = int(cid)
+        L = db.get_lang(c.from_user.id)
+        g = games.get(chat_id)
+        if not g or g.state == "done" or not await can_manage(c.bot, chat_id, c.from_user.id):
+            await c.answer(t(L, "gp_gone"), show_alert=True)
+            return
+        await c.answer()
+        if act == "s" and g.state == "lobby":
+            g.start_now = True
+            g.wake.set()
+        elif act == "x" and g.task:
+            g.task.cancel()
+
+    @cb.callback_query()
     async def cb_fallback(c: CallbackQuery):
         await c.answer()
-    return r
+
+    root.include_router(r)
+    root.include_router(cb)
+    root.include_router(pm)
+    return root
