@@ -22,8 +22,8 @@ def test_questions_are_balanced_and_interleaved():
     per_axis = {}
     for axis, sign, _, _ in P.QUESTIONS:
         per_axis.setdefault(axis, []).append(sign)
-    assert all(sorted(v) == [-1] * (P.M // 2) + [1] * (P.M // 2) for v in per_axis.values()) and P.N >= 30
-    assert sorted(P.ORDER) == list(range(P.N))
+    assert P.N == 30 and len(P.QUESTIONS) >= 40 and all(c >= 7 for c in P.AXIS_COUNT)
+    assert len(set(P.ORDER)) == P.N
     assert len({P.QUESTIONS[q][0] for q in P.ORDER[:4]}) == 4                  # أول 4 أسئلة من 4 محاور مختلفة
 
 

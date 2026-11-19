@@ -69,11 +69,29 @@ QUESTIONS = [
     (3, -1, "أستطيع التعايش مع الفوضى إذا كانت النتيجة جيدة.", "I can live with some mess if the outcome is good."),
 ]
 
-# ترتيب العرض: محاور متداخلة حتى لا تتتابع أسئلة المحور نفسه
-M = len(QUESTIONS) // 4                       # أسئلة لكل محور
-_buckets = [[i for i, q in enumerate(QUESTIONS) if q[0] == a] for a in range(4)]
-ORDER = [_buckets[a][k] for k in range(M) for a in range(4)]   # محاور متداخلة حتى لا تتتابع أسئلة المحور نفسه
-N = len(QUESTIONS)
+# كل اختبار يعرض 30 سؤالًا من البنك (متوازنة بين المحاور وبين الجانبين)
+SHOW = 30
+
+
+def _balanced(axis: int) -> list[int]:
+    """فهارس أسئلة المحور مرتبة بالتناوب بين الموجب والسالب، حتى تبقى المجموعة المعروضة متوازنة."""
+    pos = [i for i, q in enumerate(QUESTIONS) if q[0] == axis and q[1] > 0]
+    neg = [i for i, q in enumerate(QUESTIONS) if q[0] == axis and q[1] < 0]
+    out = []
+    for a, b in zip(pos, neg):
+        out += [a, b]
+    return out + pos[len(neg):] + neg[len(pos):]
+
+
+_b = [_balanced(a) for a in range(4)]
+ORDER: list[int] = []
+for k in range(max(len(x) for x in _b)):
+    for a in range(4):
+        if k < len(_b[a]):
+            ORDER.append(_b[a][k])
+ORDER = ORDER[:SHOW]
+N = len(ORDER)
+AXIS_COUNT = [sum(1 for i in ORDER if QUESTIONS[i][0] == a) for a in range(4)]
 
 
 def compute(answers: str) -> dict:
@@ -85,7 +103,7 @@ def compute(answers: str) -> dict:
         raw[axis] += sign * (int(ch) - 3)
     res = []
     for axis, (a, b, *_rest) in enumerate(AXES):
-        pct_a = max(0, min(100, round(50 + raw[axis] / (2 * M) * 50)))   # كل سؤال أقصى ±2
+        pct_a = max(0, min(100, round(50 + raw[axis] / (2 * max(1, AXIS_COUNT[axis])) * 50)))   # كل سؤال أقصى ±2
         res.append({"a": a, "b": b, "pct_a": pct_a, "pct_b": 100 - pct_a,
                     "letter": a if pct_a >= 50 else b})
     return {"axes": res, "code": "".join(x["letter"] for x in res)}
@@ -156,7 +174,7 @@ def build_persona_router(ctx) -> Router:
         L = lang(c.from_user.id)
         await c.message.answer(t(L, "ps_intro", n=N), parse_mode="HTML", reply_markup=kb([btn(t(L, "ps_go"), "pa:")]))
 
-    @r.callback_query(F.data.regexp(r"^pa:[1-5]{0,40}$"))
+    @r.callback_query(F.data.regexp(r"^pa:[1-5]{0,30}$"))
     async def answer(c: CallbackQuery):
         L = lang(c.from_user.id)
         ans = c.data[3:]
@@ -172,7 +190,7 @@ def build_persona_router(ctx) -> Router:
         except Exception:  # noqa: BLE001
             await c.message.answer(question_text(pos, L), parse_mode="HTML", reply_markup=question_markup(ans, L))
 
-    @r.callback_query(F.data.regexp(r"^pb:[1-5]{0,39}$"))
+    @r.callback_query(F.data.regexp(r"^pb:[1-5]{0,29}$"))
     async def back(c: CallbackQuery):
         await c.answer()
         L = lang(c.from_user.id)
