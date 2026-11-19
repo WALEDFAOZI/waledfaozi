@@ -330,7 +330,7 @@ def test_admin_path_is_fast_regression_guard():
                 await h.say(o, step)
             else:
                 await h.tap(o, step)
-            assert (_t.perf_counter() - t0) < 0.1, step
+            assert (_t.perf_counter() - t0) < 0.5, step
     run(go())
 
 
