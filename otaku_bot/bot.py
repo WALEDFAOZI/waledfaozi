@@ -15,7 +15,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (BufferedInputFile, CallbackQuery, FSInputFile, InlineKeyboardButton,
                            InlineKeyboardMarkup, InputMediaPhoto, Message)
 
-from . import card, progress
+from . import board, card, progress, ties
 from .config import LEVELS, ROOT
 from .ctx import Ctx
 from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
@@ -322,10 +322,8 @@ def build_router(ctx: Ctx) -> Router:
     # ── التحدي اليومي وسؤال اليوم وسلسلة الأيام ───────────────
     def board_text(L: str, day: int) -> str:
         rows = db.daily_board(day, "daily", 10)
-        medals = ["🥇", "🥈", "🥉"]
-        lines = [f"{medals[i] if i < 3 else str(i + 1) + '.'} {esc(r['name'] or '?')} — <b>{r['correct']}/{r['total']}</b> · {r['secs']:.0f}s"
-                 for i, r in enumerate(rows)]
-        return t(L, "dy_board", rows="\n".join(lines)) if lines else t(L, "dy_board_empty")
+        pairs = [(r["name"], f"{r['correct']}/{r['total']} · {r['secs']:.0f}s") for r in rows]
+        return board.render(t(L, "lt_daily_head"), pairs, t(L, "dy_board_empty"))
 
     async def finish_daily(bot: Bot, chat_id: int, sid: int, tg_id: int, mode: str, answers, L: str) -> None:
         from .daily import STREAK_MILESTONES
@@ -414,26 +412,6 @@ def build_router(ctx: Ctx) -> Router:
                 pass
 
     # ── مواجهة مع صديق (نفس الأسئلة، كلٌّ في وقته) ───────────────
-    @r.callback_query(F.data.regexp(r"^du:re:\d+$"))
-    async def cb_duel_rematch(c: CallbackQuery):
-        """ثأر: مواجهة جديدة ضد الخصم السابق، ويصله تحدٍّ مباشر بعد أن تنتهي."""
-        await c.answer()
-        other = int(c.data.split(":")[2])
-        if other == c.from_user.id or not db.get_user(other):
-            return
-        did = db.create_duel(c.from_user.id, target=other)
-        sid = await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="duel", duel_id=did, defer_start=True)
-        if not sid:
-            return
-        Lt = lang(other)
-        invited = True
-        try:                                                      # الخصم السابق يصله التحدي فورًا ويقدر يلعب قبل المضيف أو بعده
-            await c.bot.send_message(other, t(Lt, "du_rematch_invite", name=esc(pub(db.get_user(c.from_user.id)))),
-                                     parse_mode="HTML", reply_markup=kb([btn(t(Lt, "du_accept"), f"du:acc:{did}")]))
-        except TelegramAPIError:
-            invited = False
-        await duel_share_screen(c.bot, c.message.chat.id, c.from_user.id, did, invited=invited)
-
     async def duel_share_screen(bot: Bot, chat_id: int, uid: int, did: int, invited: bool = False) -> None:
         """رابط المشاركة قبل الأسئلة: يرسله المضيف لصديقه، ثم يضغط «ابدأ» (الصديق يلعب نفس الأسئلة متى شاء)."""
         L = lang(uid)
@@ -442,6 +420,35 @@ def build_router(ctx: Ctx) -> Router:
         await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=kb(
             [btn(t(L, "du_share_btn"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(t(L, 'du_share_text'))}")],
             [btn(t(L, "du_go"), f"du:go:{did}")], [btn(t(L, "btn_menu"), "menu")]))
+
+    async def start_targeted_duel(c: CallbackQuery, other: int, tie: bool) -> None:
+        """مواجهة موجّهة لشخص محدد (ثأر أو تعادل): يصله الدعوة فورًا، والمضيف يبدأ متى شاء."""
+        did = db.create_duel(c.from_user.id, target=other, tie=tie)
+        sid = await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="duel", duel_id=did, defer_start=True)
+        if not sid:
+            return
+        Lt = lang(other)
+        name = esc(pub(db.get_user(c.from_user.id)))
+        invited = True
+        try:
+            if tie:
+                await c.bot.send_message(other, t(Lt, "tie_invite", name=name), parse_mode="HTML",
+                                         reply_markup=kb([btn(t(Lt, "du_accept"), f"du:acc:{did}")]))
+            else:
+                await c.bot.send_message(other, t(Lt, "du_rematch_invite", name=name), parse_mode="HTML",
+                                         reply_markup=kb([btn(t(Lt, "du_accept"), f"du:acc:{did}")]))
+        except TelegramAPIError:
+            invited = False
+        await duel_share_screen(c.bot, c.message.chat.id, c.from_user.id, did, invited=invited)
+
+    @r.callback_query(F.data.regexp(r"^du:re:\d+$"))
+    async def cb_duel_rematch(c: CallbackQuery):
+        """ثأر: مواجهة جديدة ضد الخصم السابق."""
+        await c.answer()
+        other = int(c.data.split(":")[2])
+        if other == c.from_user.id or not db.get_user(other):
+            return
+        await start_targeted_duel(c, other, tie=False)
 
     @r.callback_query(F.data == "du:new")
     async def cb_duel_new(c: CallbackQuery):
@@ -469,7 +476,8 @@ def build_router(ctx: Ctx) -> Router:
         did = int(c.data.split(":")[2])
         d = db.get_duel(did)
         cs = db.get_session(d["creator_sid"]) if d and d["creator_sid"] else None
-        if not cs or cs["state"] not in ("active", "finished") or not db.join_duel(did, c.from_user.id):
+        expired_tie = bool(d and d["tie"] and d["created_at"] + ties.TIE_HOURS * 3600 < time.time())
+        if not cs or expired_tie or cs["state"] not in ("active", "finished") or not db.join_duel(did, c.from_user.id):
             await c.answer(t(L, "du_unavail"), show_alert=True)
             return
         await c.answer()
@@ -1079,19 +1087,18 @@ def build_router(ctx: Ctx) -> Router:
         """ترتيب العشائر (أسبوعي w / كل الأوقات a) بمجموع خبرة الأعضاء."""
         L = lang(uid)
         since = week_start() if p == "w" else None
-        board = db.team_board(since, 10)
-        medals = ["🥇", "🥈", "🥉"]
-        lines = [f"{medals[i] if i < 3 else str(i + 1) + '.'} {esc(x['name'])} · 👥{x['members']} — <b>{x['pts']}</b>" for i, x in enumerate(board)]
+        board_rows = db.team_board(since, 10)
+        pairs = [(x["name"], f"{x['pts']} XP · 👥{x['members']}") for x in board_rows]
         mine = (db.get_user(uid) or {})["team_id"] if db.get_user(uid) else None
-        extra = ""
+        footer = ""
         if mine:
             rk = db.team_rank(mine, since)
-            extra = t(L, "lb_you", rank=rk) if rk else ""
+            footer = t(L, "lb_rank_of", rank=rk).strip() if rk else ""
         switch = [btn(("✅ " if q == p else "") + t(L, f"lbp_s_{'w' if q == 'w' else 'a'}"), f"lb:T:{q}") for q in ("w", "a")]
         head = t(L, "lbt_team_head", p=t(L, "lbp_s_w" if p == "w" else "lbp_s_a"))
-        body = "\n".join(lines) if lines else t(L, "lb_empty")
-        return f"{head}\n\n{body}{extra}", kb(switch, [btn(t(L, "btn_teams"), "tm:m"), btn(t(L, "lb_back_period"), "lb:menu")],
-                                                [btn(t(L, "btn_menu"), "menu")])
+        text = board.render(head, pairs, t(L, "lb_empty"), footer)
+        return text, kb(switch, [btn(t(L, "btn_teams"), "tm:m"), btn(t(L, "lb_back_period"), "lb:menu")],
+                        [btn(t(L, "btn_menu"), "menu")])
 
     BOARD_TYPES = ("q", "s", "tf", "song", "ord", "char", "quote")
     LEGACY = {"all": "a:q", "week": "w:q", "sd": "a:s", "dy": "d:dc", "gm": "a:tf"}
@@ -1100,11 +1107,14 @@ def build_router(ctx: Ctx) -> Router:
         return None if p == "a" else week_start() if p == "w" else day_start()
 
     def lb_menu_view(uid: int):
-        """الخطوة 1: اختيار المدة (عام / أسبوعي / اليوم)."""
+        """الخطوة 1: اختيار المدة (عام / أسبوعي / اليوم) + العشائر + إخفاء الاسم."""
         L = lang(uid)
-        return t(L, "lbm_text"), kb(
+        hidden = db.is_lb_hidden(uid)
+        text = t(L, "lbm_text") + (("\n\n" + t(L, "lb_hidden_note")) if hidden else "")
+        return text, kb(
             [btn(t(L, "lbp_a"), "lb:P:a")], [btn(t(L, "lbp_w"), "lb:P:w")], [btn(t(L, "lbp_d"), "lb:P:d")],
             [btn(t(L, "lbm_teams"), "lb:T:w"), btn(t(L, "btn_achs"), "pg:me")],
+            [btn(t(L, "lb_show_btn" if hidden else "lb_hide_btn"), "lb:hide")],
             *chan_row(L), [btn(t(L, "btn_menu"), "menu")])
 
     def lb_types_view(uid: int, p: str):
@@ -1116,7 +1126,7 @@ def build_router(ctx: Ctx) -> Router:
         return t(L, f"lbt_head_{p}"), kb(*rows, [btn(t(L, "lb_back_period"), "lb:menu"), btn(t(L, "btn_menu"), "menu")])
 
     def lb_view(uid: int, view: str):
-        """الخطوة 3: اللوحة نفسها (مدة + نوع) مع أزرار للتنقل السريع."""
+        """الخطوة 3: اللوحة (مدة + نوع) بالشكل الموحّد، وترتيبك، وتحدّي التعادل إن وُجد."""
         L = lang(uid)
         view = LEGACY.get(view, view)
         if view.startswith("g:"):
@@ -1126,48 +1136,76 @@ def build_router(ctx: Ctx) -> Router:
             p, kind = "a", "q"
         if kind == "dc" and p != "d":
             kind = "q"
-        extra = ""
+        hidden = db.is_lb_hidden(uid)
+        ties = []
         if kind == "dc":
             today = db.today()
             rows = db.daily_board(today, "daily", 10)
-            lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['correct']}/{x['total']}</b> · {x['secs']:.0f}s" for i, x in enumerate(rows)]
+            pairs = [(x["name"], f"{x['correct']}/{x['total']} · {x['secs']:.0f}s") for x in rows]
             rank = db.daily_rank(today, "daily", uid)
         else:
             allrows = db.board(kind, period_since(p))
             rows = allrows[:10]
             if kind == "q":
-                lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{x['score']:.1f}</b>"
-                         + (f" ({esc(title_for(x['score'], L))})" if p == "a" else "") for i, x in enumerate(rows)]
+                pairs = [(x["name"], f"{x['score']:.1f}/10") for x in rows]
+                if p == "a" and not hidden:
+                    ties = db.ties_of(uid, 5)
             else:
-                lines = [f"{i + 1}. {esc(x['name'] or '?')} — <b>{int(x['score'])}</b>" for i, x in enumerate(rows)]
+                pairs = [(x["name"], str(int(x["score"]))) for x in rows]
             rank = next((i for i, x in enumerate(allrows, 1) if x["tg_id"] == uid), None)
-        extra = t(L, "lb_you", rank=rank) if rank else t(L, "lb_you_none")
-        medals = ["🥇", "🥈", "🥉"]
-        lines = [(medals[i] + l[l.index("."):][1:]) if i < 3 else l for i, l in enumerate(lines)]
-        body = "\n".join(lines) if lines else t(L, "lb_empty")
+        if hidden:
+            footer = t(L, "lb_hidden_note")
+        elif rank:
+            footer = t(L, "lb_rank_of", rank=rank).strip()
+        else:
+            footer = t(L, "lb_rank_none_q").strip()
+        if ties:
+            footer += "\n\n" + t(L, "tie_hint")
         head = t(L, "lb_title", p=t(L, f"lbp_s_{p}"), k=t(L, f"lbt_{kind}"))
+        text = board.render(head, pairs, t(L, "lb_empty"), footer)
         switch = [btn(("✅ " if q == p else "") + t(L, f"lbp_s_{q}"), f"lb:B:{q}:{kind if not (kind == 'dc' and q != 'd') else 'q'}")
                   for q in ("a", "w", "d")]
-        markup = kb(switch, [btn(t(L, "lb_back_types"), f"lb:P:{p}"), btn(t(L, "lb_back_period"), "lb:menu")],
+        tie_rows = [[btn(t(L, "tie_btn", name=board.clean(x["name"]), score=f"{x['best_score']:.1f}"), f"tt:{x['tg_id']}")]
+                    for x in ties]
+        markup = kb(switch, *tie_rows, [btn(t(L, "lb_back_types"), f"lb:P:{p}"), btn(t(L, "lb_back_period"), "lb:menu")],
+                    [btn(t(L, "lb_show_btn" if hidden else "lb_hide_btn"), "lb:hide")],
                     [btn(t(L, "btn_menu"), "menu")], *chan_row(L))
-        return f"{head}\n\n{body}{extra}", markup
+        return text, markup
 
-    @r.callback_query(F.data.regexp(r"^lb:(menu|T:[wa]|P:[awd]|B:[awd]:(q|s|tf|song|ord|char|quote|dc)|all|week|sd|dy|gm|g:(tf|song|ord|char|quote))$"))
+    @r.callback_query(F.data.regexp(r"^lb:(menu|hide|T:[wa]|P:[awd]|B:[awd]:(q|s|tf|song|ord|char|quote|dc)|all|week|sd|dy|gm|g:(tf|song|ord|char|quote))$"))
     async def cb_lb(c: CallbackQuery):
         await c.answer()
         view = c.data[3:]
-        if view == "menu":
-            text, markup = lb_menu_view(c.from_user.id)
+        uid = c.from_user.id
+        if view == "hide":
+            now_hidden = not db.is_lb_hidden(uid)
+            db.set_lb_hidden(uid, now_hidden)
+            await c.answer(t(lang(uid), "lb_hide_on" if now_hidden else "lb_hide_off"), show_alert=True)
+            text, markup = lb_menu_view(uid)
+        elif view == "menu":
+            text, markup = lb_menu_view(uid)
         elif view.startswith("T:"):
-            text, markup = lb_team_view(c.from_user.id, view[2:])
+            text, markup = lb_team_view(uid, view[2:])
         elif view.startswith("P:"):
-            text, markup = lb_types_view(c.from_user.id, view[2:])
+            text, markup = lb_types_view(uid, view[2:])
         else:
-            text, markup = lb_view(c.from_user.id, view[2:] if view.startswith("B:") else view)
+            text, markup = lb_view(uid, view[2:] if view.startswith("B:") else view)
         try:
             await c.message.edit_text(text, parse_mode="HTML", reply_markup=markup)
         except TelegramBadRequest:
             await c.message.answer(text, parse_mode="HTML", reply_markup=markup)
+
+    @r.callback_query(F.data.regexp(r"^tt:\d+$"))
+    async def cb_tie_challenge(c: CallbackQuery):
+        """تحدّي التعادل: يتحدّى صاحب نفس التقييم، ويصله الدعوة فورًا (المهلة 5 ساعات)."""
+        me, other = c.from_user.id, int(c.data[3:])
+        L = lang(me)
+        why = ties.can_challenge(db, me, other)
+        if why:
+            await c.answer(t(L, why), show_alert=True)
+            return
+        await c.answer()
+        await start_targeted_duel(c, other, tie=True)
 
     # ── القوائم والأوضاع ────────────────────────────────────
     @r.callback_query(F.data == "gpm")

@@ -19,7 +19,7 @@ from aiogram.exceptions import TelegramAPIError, TelegramBadRequest, TelegramFor
 from aiogram.filters import Command, CommandObject
 from aiogram.types import CallbackQuery, ChatMemberUpdated, Message, ReplyParameters
 
-from . import progress
+from . import board, progress
 from .bot import btn, esc, kb
 from .ctx import Ctx
 from .games import load_games, order_rounds, quote_rounds, char_rounds, song_rounds, tf_rounds
@@ -661,13 +661,11 @@ def build_group_router(ctx: Ctx) -> Router:
             g.task.cancel()
 
     def top_text(chat_id: int, L: str, plain: bool = False, n: int = 10) -> str:
-        medals = ["🥇", "🥈", "🥉"]
-
-        def fmt(rows):
-            return "\n".join(f"{medals[i] if i < 3 else str(i + 1) + '.'} {x['name'] if plain else esc(x['name'] or '?')} — "
-                             f"🏆{x['wins']} · 🎮{x['games']} · ⭐{x['pts']}" for i, x in enumerate(rows[:n])) or t(L, "lb_empty")
-        week, allt = fmt(db.group_top(chat_id, week_start(), n)), fmt(db.group_top(chat_id, 0.0, n))
-        return t(L, "gp_top_plain" if plain else "gp_top", week=week, all=allt)
+        def pairs(rows):
+            return [(x["name"], f"🏆{x['wins']} · 🎮{x['games']} · ⭐{x['pts']}") for x in rows[:n]]
+        week = board.render(t(L, "gp_top_week"), pairs(db.group_top(chat_id, week_start(), n)), t(L, "lb_empty"))
+        allt = board.render(t(L, "gp_top_all"), pairs(db.group_top(chat_id, 0.0, n)), t(L, "lb_empty"))
+        return week + "\n\n" + allt
 
     @r.message(Command("gtop"))
     async def cmd_top(m: Message):

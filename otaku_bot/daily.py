@@ -63,4 +63,11 @@ async def reminder_loop(bot: Bot, ctx: Ctx) -> None:
             raise
         except Exception:  # noqa: BLE001
             log.exception("reminder loop failed")
+        try:                                                     # تحدّيات التعادل التي انتهت مهلتها
+            from .ties import sweep
+            await sweep(bot, ctx.db)
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # noqa: BLE001
+            log.exception("tie sweep failed")
         await asyncio.sleep(600)

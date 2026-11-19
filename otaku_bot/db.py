@@ -7,6 +7,9 @@ import time
 from pathlib import Path
 
 from .quiz import Answer, Question
+
+# المستخدمون الذين أخفوا أسماءهم من الترتيب
+HID = "tg_id NOT IN (SELECT tg_id FROM users WHERE lb_hidden=1)"
 from .timeutil import day_start
 
 SCHEMA = """
@@ -154,8 +157,9 @@ MIGRATIONS = {
               "streak": "INTEGER NOT NULL DEFAULT 0", "best_streak": "INTEGER NOT NULL DEFAULT 0",
               "streak_day": "INTEGER NOT NULL DEFAULT 0", "remind": "INTEGER NOT NULL DEFAULT 0",
               "last_remind_day": "INTEGER NOT NULL DEFAULT 0", "xp": "INTEGER NOT NULL DEFAULT 0",
-              "freezes": "INTEGER NOT NULL DEFAULT 0", "team_id": "INTEGER"},
-    "duels": {"target": "INTEGER"},
+              "freezes": "INTEGER NOT NULL DEFAULT 0", "team_id": "INTEGER",
+              "lb_hidden": "INTEGER NOT NULL DEFAULT 0"},
+    "duels": {"target": "INTEGER", "tie": "INTEGER NOT NULL DEFAULT 0"},
     "sessions": {
         "mode": "TEXT NOT NULL DEFAULT 'full'", "counted": "INTEGER NOT NULL DEFAULT 1",
         "challenge_of": "INTEGER", "duel_id": "INTEGER", "msg_kind": "TEXT NOT NULL DEFAULT 'text'", "category": "TEXT",
@@ -420,7 +424,7 @@ class DB:
         return self.conn.execute(
             """SELECT u.name, SUM(r.points) pts, COUNT(*) games, SUM(r.won) wins FROM group_results r
                JOIN users u ON u.tg_id=r.tg_id WHERE r.chat_id=? AND r.at>=?
-               AND r.tg_id NOT IN (SELECT tg_id FROM admins)
+               AND r.tg_id NOT IN (SELECT tg_id FROM admins) AND u.lb_hidden=0
                GROUP BY r.tg_id ORDER BY pts DESC LIMIT ?""", (chat_id, since, limit)).fetchall()
 
     # ── التحدي اليومي والسلسلة والتذكير ─────────────────────
@@ -450,7 +454,7 @@ class DB:
     def daily_board(self, day: int, mode: str = "daily", limit: int = 10) -> list[sqlite3.Row]:
         return self.conn.execute(
             """SELECT d.tg_id, u.name, d.correct, d.total, d.secs FROM daily_results d JOIN users u ON u.tg_id=d.tg_id
-               WHERE d.day=? AND d.mode=? AND d.tg_id NOT IN (SELECT tg_id FROM admins)
+               WHERE d.day=? AND d.mode=? AND d.tg_id NOT IN (SELECT tg_id FROM admins) AND u.lb_hidden=0
                ORDER BY d.correct DESC, d.secs ASC LIMIT ?""", (day, mode, limit)).fetchall()
 
     def daily_rank(self, day: int, mode: str, tg_id: int) -> int | None:
@@ -608,7 +612,7 @@ class DB:
     def team_members(self, tid: int, since: float = 0.0, limit: int = 10) -> list[dict]:
         return [dict(r) for r in self.conn.execute(
             """SELECT u.tg_id, u.name, u.xp, COALESCE((SELECT SUM(x.xp) FROM xp_log x WHERE x.tg_id=u.tg_id AND x.at>=?),0) AS wxp
-               FROM users u WHERE u.team_id=? ORDER BY wxp DESC, u.xp DESC LIMIT ?""", (since, tid, limit))]
+               FROM users u WHERE u.team_id=? AND u.lb_hidden=0 ORDER BY wxp DESC, u.xp DESC LIMIT ?""", (since, tid, limit))]
 
     def team_board(self, since: float | None = None, limit: int = 10) -> list[dict]:
         """ترتيب العشائر بمجموع خبرة أعضائها (أسبوعي إن أُعطي since، وإلا كل الأوقات)."""
@@ -636,10 +640,45 @@ class DB:
                 self.conn.execute("UPDATE users SET team_id=NULL WHERE team_id=?", (tid,))
 
     # ── مواجهة مع صديق ──────────────────────────────────────
-    def create_duel(self, creator: int, target: int | None = None) -> int:
+    def create_duel(self, creator: int, target: int | None = None, tie: bool = False) -> int:
         with self.conn:
-            return self.conn.execute("INSERT INTO duels(creator,created_at,target) VALUES(?,?,?)",
-                                     (creator, time.time(), target)).lastrowid
+            return self.conn.execute("INSERT INTO duels(creator,created_at,target,tie) VALUES(?,?,?,?)",
+                                     (creator, time.time(), target, int(tie))).lastrowid
+
+    # ── إخفاء الاسم من الترتيب + تحدّي التعادل ──────────────
+    def set_lb_hidden(self, tg_id: int, hidden: bool) -> None:
+        with self.conn:
+            self.conn.execute("UPDATE users SET lb_hidden=? WHERE tg_id=?", (int(hidden), tg_id))
+
+    def is_lb_hidden(self, tg_id: int) -> bool:
+        u = self.get_user(tg_id)
+        return bool(u and u["lb_hidden"])
+
+    def ties_of(self, tg_id: int, limit: int = 5) -> list[sqlite3.Row]:
+        """أصحاب نفس أفضل تقييم (ظاهرون وغير أدمن) — لتحدّي التعادل."""
+        return self.conn.execute(
+            f"""SELECT tg_id, name, best_score FROM users WHERE best_score>0 AND tg_id<>? AND lb_hidden=0
+                AND tg_id NOT IN (SELECT tg_id FROM admins)
+                AND ABS(best_score - (SELECT best_score FROM users WHERE tg_id=?)) < 0.001
+                ORDER BY tg_id LIMIT ?""", (tg_id, tg_id, limit)).fetchall()
+
+    def recent_tie(self, a: int, b: int, since: float) -> bool:
+        return bool(self.conn.execute(
+            """SELECT 1 FROM duels WHERE tie=1 AND created_at>=? AND
+               ((creator=? AND target=?) OR (creator=? AND target=?)) LIMIT 1""", (since, a, b, b, a)).fetchone())
+
+    def open_tie_duels(self, cutoff: float) -> list[sqlite3.Row]:
+        """تحدّيات تعادل فُتحت قبل cutoff ولم يلعب فيها الطرف المدعو."""
+        return self.conn.execute(
+            "SELECT * FROM duels WHERE tie=1 AND state='open' AND created_at<? AND opponent_sid IS NULL",
+            (cutoff,)).fetchall()
+
+    def first_reached(self, tg_id: int, score: float) -> float | None:
+        """أول وقت وصل فيه اللاعب لهذا التقييم (يحدد من «قبله»)."""
+        r = self.conn.execute(
+            "SELECT MIN(finished_at) m FROM sessions WHERE tg_id=? AND mode='full' AND state='finished' "
+            "AND counted=1 AND score>=?", (tg_id, score - 0.001)).fetchone()
+        return r["m"] if r else None
 
     def get_duel(self, did: int):
         return self.conn.execute("SELECT * FROM duels WHERE id=?", (did,)).fetchone()
@@ -805,21 +844,24 @@ class DB:
 
     def leaderboard(self, limit: int = 10) -> list[sqlite3.Row]:
         return self.conn.execute(
-            "SELECT name, best_score FROM users WHERE best_score>0 AND tg_id NOT IN (SELECT tg_id FROM admins) "
+            f"SELECT name, best_score FROM users WHERE best_score>0 AND tg_id NOT IN (SELECT tg_id FROM admins) AND {HID} "
             "ORDER BY best_score DESC, tests_taken ASC LIMIT ?", (limit,)).fetchall()
 
     def user_rank(self, tg_id: int) -> int | None:
         u = self.get_user(tg_id)
         if not u or u["best_score"] <= 0:
             return None
-        return self.conn.execute("SELECT COUNT(*)+1 rk FROM users WHERE best_score > ?", (u["best_score"],)).fetchone()["rk"]
+        if u["lb_hidden"]:
+            return None
+        return self.conn.execute(f"SELECT COUNT(*)+1 rk FROM users WHERE best_score > ? AND {HID}",
+                                 (u["best_score"],)).fetchone()["rk"]
 
     def weekly_leaderboard(self, since: float, limit: int = 10) -> list[sqlite3.Row]:
         return self.conn.execute(
             """SELECT u.tg_id, u.name, MAX(s.score) AS score, MIN(s.finished_at) AS at
                FROM sessions s JOIN users u ON u.tg_id=s.tg_id
                WHERE s.state='finished' AND s.mode='full' AND s.counted=1 AND s.finished_at>=?
-               AND u.tg_id NOT IN (SELECT tg_id FROM admins)
+               AND u.tg_id NOT IN (SELECT tg_id FROM admins) AND u.lb_hidden=0
                GROUP BY u.tg_id ORDER BY score DESC, at ASC LIMIT ?""", (since, limit)).fetchall()
 
     def weekly_rank(self, tg_id: int, since: float) -> int | None:
@@ -832,26 +874,28 @@ class DB:
     def board(self, kind: str, since: float | None = None, limit: int = 100000) -> list[dict]:
         """لوحة موحّدة: kind = q (الاختبار الكامل) | s (الموت المفاجئ) | tf/song/ord/char/quote؛
         since=None → كل الأوقات (أفضل رقم لكل لاعب)، وإلا أفضل رقم داخل الفترة. الأدمن مستبعد."""
-        adm = "NOT IN (SELECT tg_id FROM admins)"
+        def adm_of(col: str) -> str:
+            return f"{col} NOT IN (SELECT tg_id FROM admins) AND {col} NOT IN (SELECT tg_id FROM users WHERE lb_hidden=1)"
+        adm_t, adm_g, adm_u = adm_of("tg_id"), adm_of("g.tg_id"), adm_of("u.tg_id")
         if since is None:
             if kind == "q":
-                sql, args = (f"SELECT tg_id, name, best_score AS score FROM users WHERE best_score>0 AND tg_id {adm} "
+                sql, args = (f"SELECT tg_id, name, best_score AS score FROM users WHERE best_score>0 AND {adm_t} "
                              "ORDER BY best_score DESC, tests_taken ASC, tg_id ASC LIMIT ?"), (limit,)
             elif kind == "s":
-                sql, args = (f"SELECT tg_id, name, best_sudden AS score FROM users WHERE best_sudden>0 AND tg_id {adm} "
+                sql, args = (f"SELECT tg_id, name, best_sudden AS score FROM users WHERE best_sudden>0 AND {adm_t} "
                              "ORDER BY best_sudden DESC, tg_id ASC LIMIT ?"), (limit,)
             else:
                 sql, args = (f"SELECT u.tg_id, u.name, g.best AS score FROM game_scores g JOIN users u ON u.tg_id=g.tg_id "
-                             f"WHERE g.kind=? AND g.best>0 AND g.tg_id {adm} ORDER BY g.best DESC, u.tg_id ASC LIMIT ?"), (kind, limit)
+                             f"WHERE g.kind=? AND g.best>0 AND {adm_g} ORDER BY g.best DESC, u.tg_id ASC LIMIT ?"), (kind, limit)
         elif kind in ("q", "s"):
             mode = "full" if kind == "q" else "sudden"
             extra = "AND s.counted=1" if kind == "q" else ""
             sql, args = (f"SELECT u.tg_id, u.name, MAX(s.score) AS score FROM sessions s JOIN users u ON u.tg_id=s.tg_id "
-                         f"WHERE s.state='finished' AND s.mode=? {extra} AND s.finished_at>=? AND u.tg_id {adm} "
+                         f"WHERE s.state='finished' AND s.mode=? {extra} AND s.finished_at>=? AND {adm_u} "
                          "GROUP BY u.tg_id HAVING score>0 ORDER BY score DESC, MIN(s.finished_at) ASC LIMIT ?"), (mode, since, limit)
         else:
             sql, args = (f"SELECT u.tg_id, u.name, MAX(g.score) AS score FROM game_sessions g JOIN users u ON u.tg_id=g.tg_id "
-                         f"WHERE g.kind=? AND g.finished_at IS NOT NULL AND g.finished_at>=? AND u.tg_id {adm} "
+                         f"WHERE g.kind=? AND g.finished_at IS NOT NULL AND g.finished_at>=? AND {adm_u} "
                          "GROUP BY u.tg_id HAVING score>0 ORDER BY score DESC, MIN(g.finished_at) ASC LIMIT ?"), (kind, since, limit)
         return [dict(r) for r in self.conn.execute(sql, args).fetchall()]
 
@@ -859,20 +903,23 @@ class DB:
         u = self.get_user(tg_id)
         if not u or u["best_sudden"] <= 0:
             return None
-        return self.conn.execute("SELECT COUNT(*)+1 rk FROM users WHERE best_sudden>? AND tg_id NOT IN (SELECT tg_id FROM admins)",
+        if u["lb_hidden"]:
+            return None
+        return self.conn.execute(f"SELECT COUNT(*)+1 rk FROM users WHERE best_sudden>? AND tg_id NOT IN (SELECT tg_id FROM admins) AND {HID}",
                                  (u["best_sudden"],)).fetchone()["rk"]
 
     def game_rank(self, tg_id: int, kind: str) -> int | None:
         r = self.conn.execute("SELECT best FROM game_scores WHERE tg_id=? AND kind=?", (tg_id, kind)).fetchone()
-        if not r or r["best"] <= 0:
+        u = self.get_user(tg_id)
+        if not r or r["best"] <= 0 or (u and u["lb_hidden"]):
             return None
         return self.conn.execute(
-            "SELECT COUNT(*)+1 rk FROM game_scores WHERE kind=? AND best>? AND tg_id NOT IN (SELECT tg_id FROM admins)",
+            f"SELECT COUNT(*)+1 rk FROM game_scores WHERE kind=? AND best>? AND tg_id NOT IN (SELECT tg_id FROM admins) AND {HID}",
             (kind, r["best"])).fetchone()["rk"]
 
     def sudden_leaderboard(self, limit: int = 10) -> list[sqlite3.Row]:
         return self.conn.execute(
-            "SELECT name, best_sudden FROM users WHERE best_sudden>0 AND tg_id NOT IN (SELECT tg_id FROM admins) ORDER BY best_sudden DESC LIMIT ?",
+            f"SELECT name, best_sudden FROM users WHERE best_sudden>0 AND tg_id NOT IN (SELECT tg_id FROM admins) AND {HID} ORDER BY best_sudden DESC LIMIT ?",
             (limit,)).fetchall()
 
     def last_session_stats(self, tg_id: int):
@@ -1145,7 +1192,7 @@ class DB:
     def game_board(self, kind: str, limit: int = 10) -> list[sqlite3.Row]:
         return self.conn.execute(
             """SELECT u.name, g.best FROM game_scores g JOIN users u ON u.tg_id=g.tg_id
-               WHERE g.kind=? AND g.best>0 AND g.tg_id NOT IN (SELECT tg_id FROM admins)
+               WHERE g.kind=? AND g.best>0 AND g.tg_id NOT IN (SELECT tg_id FROM admins) AND u.lb_hidden=0
                ORDER BY g.best DESC, u.tg_id ASC LIMIT ?""", (kind, limit)).fetchall()
 
     def finish_game(self, gid: int, tg_id: int, kind: str, score: int) -> int:

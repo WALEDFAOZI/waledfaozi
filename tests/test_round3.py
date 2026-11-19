@@ -131,12 +131,12 @@ def test_general_rating_top10_is_separate_from_weekly():
         await h.say(u, "/top")
         txt = h.session.texts()[-1]
         assert "العام" in txt and "الاختبار" in txt
-        lines = [l for l in txt.splitlines() if "P" in l and "—" in l]
+        lines = [l for l in txt.splitlines() if "P" in l and "·" in l]
         assert len(lines) == 10 and "P12" in lines[0] and "P3" in lines[-1] and "P2 " not in txt
         await h.say(u, "/weekly")
         wk = h.session.texts()[-1]
         assert "الأسبوعي" in wk
-        wk_lines = [l for l in wk.splitlines() if "P" in l and "—" in l]
+        wk_lines = [l for l in wk.splitlines() if "P" in l and "·" in l]
         assert len(wk_lines) == 4 and "P4" in wk_lines[0]            # الأسبوعي لا يضم القدامى
         assert {"lb:B:a:q", "lb:B:w:q", "lb:B:d:q", "lb:menu", "lb:P:w"} <= cb_data(h)
         await h.say(u, "/start")

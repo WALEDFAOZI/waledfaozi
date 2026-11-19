@@ -688,3 +688,37 @@ T["en"].update({
     "gp_leave_late": "The questions have started, you can't leave now", "gp_not_joined": "You haven't joined",
     "gp_cancel": "⛔ Cancel game",
 })
+
+T["ar"].update({
+    "lb_hide_btn": "👁 إخفاء اسمي من الترتيب", "lb_show_btn": "👁 إظهار اسمي في الترتيب",
+    "lb_hidden_note": "👻 أنت مخفي من الترتيب الآن. تقدر تظهر اسمك من الزر أسفل.",
+    "lb_hide_on": "تم إخفاء اسمك من كل الترتيبات 👻", "lb_hide_off": "تم إظهار اسمك في الترتيب 👁",
+    "lb_rank_of": "📍 ترتيبك: <b>#{rank}</b>", "lb_rank_none_q": "📍 ما دخلت الترتيب بعد، العب وكن منهم!",
+    "tie_hint": "⚖️ عندك تقييم مساوٍ لبعض اللاعبين. تحدَّاهم لتحديد الأفضل (تُغلق المهلة بعد 5 ساعات):",
+    "tie_btn": "⚖️ تحدَّ {name} ({score})",
+    "tie_no": "لا يمكن هذا التحدي.", "tie_not": "التقييم لم يعد متساويًا.", "tie_hidden": "أحد الطرفين مخفي من الترتيب.",
+    "tie_cooldown": "تحدّيت هذا اللاعب قبل قليل. جرّب بعد 24 ساعة.",
+    "tie_invite": "⚖️ <b>{name}</b> عنده نفس تقييمك بالضبط! يتحداك لتحديد الأفضل بينكما.\n\n⏳ عندك <b>5 ساعات</b> تلعب فيها، وإن ما لعبت يُحسب الفوز لمن وصل لهذا التقييم أولًا.",
+    "tie_timeout_win": "🏆 انتهت مهلة التحدي (5 ساعات) ولم يلعب {name}. وبما أنك وصلت لهذا التقييم أولًا، فأنت الأفضل!",
+    "tie_timeout_lose": "⏰ انتهت مهلة التحدي (5 ساعات) ولم تلعب، فاحتُسب الفوز لـ{name} لأنه وصل لهذا التقييم أولًا.",
+    "tie_timeout_lose_played": "⏰ انتهت مهلة التحدي (5 ساعات) ولم يلعب الطرف الآخر، واحتُسب الفوز لـ{name} لأنه وصل لهذا التقييم أولًا.",
+    "tie_share": "⚖️ تحدّيتك على أفضل تقييم! هل تقدر تثبت أنك الأفضل؟",
+})
+T["en"].update({
+    "lb_hide_btn": "👁 Hide my name from rankings", "lb_show_btn": "👁 Show my name in rankings",
+    "lb_hidden_note": "👻 You're hidden from the rankings. Show your name with the button below.",
+    "lb_hide_on": "Your name is hidden from all rankings 👻", "lb_hide_off": "Your name is shown in rankings 👁",
+    "lb_rank_of": "📍 Your rank: <b>#{rank}</b>", "lb_rank_none_q": "📍 You're not on the board yet, play and join in!",
+    "tie_hint": "⚖️ Some players have the exact same score as you. Challenge them to find the best (the window closes after 5 hours):",
+    "tie_btn": "⚖️ Challenge {name} ({score})",
+    "tie_no": "This challenge isn't possible.", "tie_not": "Your scores are no longer tied.", "tie_hidden": "One of you is hidden from the rankings.",
+    "tie_cooldown": "You challenged this player recently. Try again in 24 hours.",
+    "tie_invite": "⚖️ <b>{name}</b> has the exact same score as you! They challenge you to decide who's the best.\n\n⏳ You have <b>5 hours</b> to play; if you don't, the win goes to whoever reached this score first.",
+    "tie_timeout_win": "🏆 The 5-hour window closed and {name} didn't play. You reached this score first, so you're the best!",
+    "tie_timeout_lose": "⏰ The 5-hour window closed and you didn't play, so the win went to {name} who reached this score first.",
+    "tie_timeout_lose_played": "⏰ The 5-hour window closed and the other side didn't play; the win went to {name} who reached this score first.",
+    "tie_share": "⚖️ I challenged you on our top score! Can you prove you're the best?",
+})
+
+T["ar"].update({"gp_top_week": "📅 <b>متصدرو المجموعة · هذا الأسبوع</b>", "gp_top_all": "🌍 <b>متصدرو المجموعة · كل الأوقات</b>"})
+T["en"].update({"gp_top_week": "📅 <b>Group top · This week</b>", "gp_top_all": "🌍 <b>Group top · All time</b>"})
