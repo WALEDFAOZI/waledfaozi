@@ -19,6 +19,13 @@ from names_data import NAMES, OPTION_ONLY  # noqa: E402
 
 CATS = {"anime", "characters", "studios", "creators", "music", "culture", "history", "manga"}
 BANNED = ("ecchi", "hentai", "harem", "porn", "nude", "sexual", "erotic", "إيتشي", "هنتاي", "حريم", "إباحي", "عاري", "جنسي", "إيحاء")
+# أعمال مستبعدة من قائمة الاقتراح (معيار الأمان: لا عنف شديد/محتوى للكبار/إيحاءات)
+EXCLUDE_TITLES = {norm_t for norm_t in (
+    "steins gate", "samurai champloo", "dororo", "yu yu hakusho", "konosuba", "no game no life", "sword art online", "fairy tail",
+    "food wars", "chainsaw man", "berserk", "tokyo ghoul", "neon genesis evangelion", "evangelion", "made in abyss", "oshi no ko",
+    "gintama", "assassination classroom", "ouran high school host club", "sailor moon", "naruto", "one piece", "bleach", "dragon ball",
+    "high school dxd", "highschool of the dead", "prison school", "date a live", "rosario vampire", "to love ru", "shimoneta",
+    "elfen lied", "gantz", "devilman crybaby", "akame ga kill", "hellsing", "black lagoon", "claymore", "school days")}
 LAT, ARB = re.compile(r"[A-Za-z]"), re.compile(r"[؀-ۿ]")
 
 
@@ -135,6 +142,8 @@ def main() -> None:
             try:
                 if d["key"] in keys or norm(d["en"]) in titles:
                     err = "مكرر"
+                elif norm(d["en"]) in EXCLUDE_TITLES or any(t_ in norm(d["en"]).split() for t_ in ()):
+                    err = "مستبعد (معيار الأمان)"
                 elif not set(d["genres"]) <= GENRES or d["rating"] not in RATINGS:
                     err = "نوع/تصنيف"
                 elif not (d["syn_ar"] and d["syn_en"] and d["studio"] and d["ar"]):
