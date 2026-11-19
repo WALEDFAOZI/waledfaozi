@@ -346,6 +346,7 @@ def test_channel_contest_flow_single_live_message_and_final_top():
         rows = h.db.conn.execute("SELECT COUNT(*) n FROM group_results WHERE chat_id=?", (CHAN.id,)).fetchone()["n"]
         assert rows == group.CH_KEEP                               # أفضل 50 فقط في القاعدة
         assert h.db.conn.execute("SELECT COUNT(*) n FROM users WHERE tg_id>=100").fetchone()["n"] == group.CH_KEEP
+        assert h.db.conn.execute("SELECT COUNT(*) n FROM group_results WHERE tg_id=5").fetchone()["n"] == 0   # المنظّم ليس مشاركًا إلا إذا ضغط «شارك»
     run(go())
 
 
