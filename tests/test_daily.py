@@ -85,6 +85,7 @@ def test_duel_end_to_end():
         a, b = h.user(1, "Ali"), h.user(2, "Bob")
         await h.say(a, "/start")
         await h.tap(a, "du:new")
+        await h.tap(a, "du:go:1")
         await h.play(a)                                           # صحّ الكل
         d = h.db.get_duel(1)
         assert d["creator"] == 1 and d["creator_sid"]

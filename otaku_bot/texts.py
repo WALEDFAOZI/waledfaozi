@@ -662,3 +662,14 @@ T["en"].update({
 
 T["ar"]["pg_ach_count"] = "🏅 الإنجازات: {n}/{total}"
 T["en"]["pg_ach_count"] = "🏅 Achievements: {n}/{total}"
+
+T["ar"].update({
+    "du_share_first": "⚔️ <b>تحدٍّ جديد: 7 أسئلة</b>\nأرسل الرابط لصديقك الآن، يقدر يقبل التحدي ويلعب نفس الأسئلة في أي وقت (قبلك أو بعدك). ثم اضغط «ابدأ» لتلعب أنت.",
+    "du_go": "▶️ ابدأ أسئلتي", "du_rematch_sent": "✅ أرسلت له التحدي مباشرة أيضًا.",
+    "du_wait_host": "⏳ انتهيت: <b>{c}/{n}</b>\nننتظر المضيف يخلّص أسئلته، وأرسل لك النتيجة فور انتهائه.",
+})
+T["en"].update({
+    "du_share_first": "⚔️ <b>New duel: 7 questions</b>\nSend the link to your friend now; they can accept and play the same questions any time (before or after you). Then tap “Start” to play yours.",
+    "du_go": "▶️ Start my questions", "du_rematch_sent": "✅ I also sent them the challenge directly.",
+    "du_wait_host": "⏳ Done: <b>{c}/{n}</b>\nWaiting for the host to finish; I'll send you the result as soon as they do.",
+})

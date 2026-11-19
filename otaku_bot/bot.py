@@ -422,13 +422,46 @@ def build_router(ctx: Ctx) -> Router:
         if other == c.from_user.id or not db.get_user(other):
             return
         did = db.create_duel(c.from_user.id, target=other)
-        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="duel", duel_id=did)
+        sid = await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="duel", duel_id=did, defer_start=True)
+        if not sid:
+            return
+        Lt = lang(other)
+        invited = True
+        try:                                                      # الخصم السابق يصله التحدي فورًا ويقدر يلعب قبل المضيف أو بعده
+            await c.bot.send_message(other, t(Lt, "du_rematch_invite", name=esc(pub(db.get_user(c.from_user.id)))),
+                                     parse_mode="HTML", reply_markup=kb([btn(t(Lt, "du_accept"), f"du:acc:{did}")]))
+        except TelegramAPIError:
+            invited = False
+        await duel_share_screen(c.bot, c.message.chat.id, c.from_user.id, did, invited=invited)
+
+    async def duel_share_screen(bot: Bot, chat_id: int, uid: int, did: int, invited: bool = False) -> None:
+        """رابط المشاركة قبل الأسئلة: يرسله المضيف لصديقه، ثم يضغط «ابدأ» (الصديق يلعب نفس الأسئلة متى شاء)."""
+        L = lang(uid)
+        link = f"https://t.me/{await bot_username(bot)}?start=du_{did}"
+        text = t(L, "du_share_first") + ("\n" + t(L, "du_rematch_sent") if invited else "")
+        await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=kb(
+            [btn(t(L, "du_share_btn"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(t(L, 'du_share_text'))}")],
+            [btn(t(L, "du_go"), f"du:go:{did}")], [btn(t(L, "btn_menu"), "menu")]))
 
     @r.callback_query(F.data == "du:new")
     async def cb_duel_new(c: CallbackQuery):
         await c.answer()
         did = db.create_duel(c.from_user.id)
-        await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="duel", duel_id=did)
+        sid = await begin(c.bot, c.message.chat.id, c.from_user.id, name_of(c), mode="duel", duel_id=did, defer_start=True)
+        if sid:
+            await duel_share_screen(c.bot, c.message.chat.id, c.from_user.id, did)
+
+    @r.callback_query(F.data.regexp(r"^du:go:\d+$"))
+    async def cb_duel_go(c: CallbackQuery):
+        """يبدأ المضيف أسئلته بعد مشاركة الرابط."""
+        L = lang(c.from_user.id)
+        d = db.get_duel(int(c.data.split(":")[2]))
+        sess = db.get_session(d["creator_sid"]) if d and d["creator_sid"] else None
+        if not d or d["creator"] != c.from_user.id or not sess or sess["state"] != "active" or sess["current_pos"] != 0:
+            await c.answer(t(L, "du_unavail"), show_alert=True)
+            return
+        await c.answer()
+        await send_question(c.bot, c.message.chat.id, sess["id"], 0)
 
     @r.callback_query(F.data.regexp(r"^du:acc:\d+$"))
     async def cb_duel_accept(c: CallbackQuery):
@@ -436,7 +469,7 @@ def build_router(ctx: Ctx) -> Router:
         did = int(c.data.split(":")[2])
         d = db.get_duel(did)
         cs = db.get_session(d["creator_sid"]) if d and d["creator_sid"] else None
-        if not cs or cs["state"] != "finished" or not db.join_duel(did, c.from_user.id):
+        if not cs or cs["state"] not in ("active", "finished") or not db.join_duel(did, c.from_user.id):
             await c.answer(t(L, "du_unavail"), show_alert=True)
             return
         await c.answer()
@@ -444,6 +477,7 @@ def build_router(ctx: Ctx) -> Router:
                     challenge_of=cs["id"], duel_id=did, force_new=True)
 
     async def finish_duel(bot: Bot, chat_id: int, sess, tg_id: int, answers, L: str) -> None:
+        """تُحسب النتيجة عند انتهاء الطرفين، أيًّا كان الأسبق (الرابط يُشارَك قبل الأسئلة)."""
         did = sess["duel_id"]
         correct = sum(a.correct for a in answers)
         n = db.session_len(sess["id"])
@@ -452,34 +486,36 @@ def build_router(ctx: Ctx) -> Router:
         if not d:
             return
         ps = progress.record(db, tg_id, "duel", correct=correct, won=False)
-        if tg_id == d["creator"]:
-            link = f"https://t.me/{await bot_username(bot)}?start=du_{did}"
-            await bot.send_message(chat_id, t(L, "du_wait", c=correct, n=n) + "\n" + t(L, "pg_xp_gain", xp=ps.xp),
-                                   parse_mode="HTML", reply_markup=kb(
-                [btn(t(L, "du_share_btn"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(t(L, 'du_share_text'))}")],
-                [btn(t(L, "btn_menu"), "menu")]))
+        is_creator = tg_id == d["creator"]
+        other_sid = d["opponent_sid"] if is_creator else d["creator_sid"]
+        other = db.get_session(other_sid) if other_sid else None
+        if not other or other["state"] != "finished" or d["state"] == "done":
+            if is_creator:                                        # لم ينتهِ الصديق (أو لم ينضم): الرابط يبقى متاحًا
+                link = f"https://t.me/{await bot_username(bot)}?start=du_{did}"
+                await bot.send_message(chat_id, t(L, "du_wait", c=correct, n=n) + "\n" + t(L, "pg_xp_gain", xp=ps.xp),
+                                       parse_mode="HTML", reply_markup=kb(
+                    [btn(t(L, "du_share_btn"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(t(L, 'du_share_text'))}")],
+                    [btn(t(L, "btn_menu"), "menu")]))
+            else:                                                 # الصديق انتهى قبل المضيف
+                await bot.send_message(chat_id, t(L, "du_wait_host", c=correct, n=n) + "\n" + t(L, "pg_xp_gain", xp=ps.xp),
+                                       parse_mode="HTML", reply_markup=kb([btn(t(L, "btn_menu"), "menu")]))
             await progress.send_notice(bot, tg_id, L, ps)
-            if d["target"]:                                       # ثأر: ادعُ الخصم السابق مباشرة
-                Lt = lang(d["target"])
-                try:
-                    await bot.send_message(d["target"], t(Lt, "du_rematch_invite", name=esc(pub(db.get_user(tg_id)))),
-                                           parse_mode="HTML", reply_markup=kb([btn(t(Lt, "du_accept"), f"du:acc:{did}")]))
-                except TelegramAPIError:
-                    pass
             return
-        a_sess = db.get_session(d["creator_sid"])
-        sa, sb = int(a_sess["score"] or 0), correct
+        cid, oid = d["creator"], d["opponent"]
+        sa = int(db.get_session(d["creator_sid"])["score"] or 0)
+        sb = int(db.get_session(d["opponent_sid"])["score"] or 0)
         db.duel_done(did)
-        ua, ub = db.get_user(d["creator"]), db.get_user(tg_id)
-        win_id = d["creator"] if sa > sb else tg_id if sb > sa else None
+        ua, ub = db.get_user(cid), db.get_user(oid)
+        win_id = cid if sa > sb else oid if sb > sa else None
         wps = progress.bonus(db, win_id, "duel_win", 25, "duel_wins") if win_id else progress.Summary()
-        for uid, Lx in ((d["creator"], lang(d["creator"])), (tg_id, L)):
+        for uid in (cid, oid):
+            Lx = lang(uid)
             winner = pub(ua) if sa > sb else pub(ub) if sb > sa else None
             verdict = t(Lx, "du_win", w=esc(winner)) if winner else t(Lx, "du_draw")
-            other = tg_id if uid == d["creator"] else d["creator"]
+            other_id = oid if uid == cid else cid
             try:
                 await bot.send_message(uid, t(Lx, "du_result", a=esc(pub(ua)), sa=sa, b=esc(pub(ub)), sb=sb, n=n, v=verdict),
-                                       parse_mode="HTML", reply_markup=kb([btn(t(Lx, "du_rematch"), f"du:re:{other}")],
+                                       parse_mode="HTML", reply_markup=kb([btn(t(Lx, "du_rematch"), f"du:re:{other_id}")],
                                                                           [btn(t(Lx, "du_btn"), "du:new")],
                                                                           [btn(t(Lx, "btn_menu"), "menu")]))
             except TelegramAPIError:
@@ -648,7 +684,8 @@ def build_router(ctx: Ctx) -> Router:
 
     # ── بدء الاختبار ────────────────────────────────────────
     async def begin(bot: Bot, chat_id: int, tg_id: int, name: str, mode: str = "full",
-                    category: str | None = None, force_new: bool = False, challenge_of: int | None = None, duel_id: int | None = None) -> None:
+                    category: str | None = None, force_new: bool = False, challenge_of: int | None = None, duel_id: int | None = None,
+                    defer_start: bool = False) -> int | None:
         from .daily import daily_questions, duel_questions
         db.upsert_user(tg_id, name)
         L = lang(tg_id)
@@ -700,6 +737,8 @@ def build_router(ctx: Ctx) -> Router:
         if duel_id:
             d = db.get_duel(duel_id)
             db.duel_set_sid(duel_id, "creator" if d["creator"] == tg_id else "opponent", sid)
+        if defer_start:                                           # المواجهة: نعرض رابط المشاركة أولًا ثم يبدأ المضيف
+            return sid
         await send_question(bot, chat_id, sid, 0)
 
     async def resume(bot: Bot, chat_id: int, tg_id: int, name: str) -> None:
@@ -766,7 +805,7 @@ def build_router(ctx: Ctx) -> Router:
         if arg.startswith("du_") and arg[3:].isdigit():
             d = db.get_duel(int(arg[3:]))
             cs = db.get_session(d["creator_sid"]) if d and d["creator_sid"] else None
-            if d and d["creator"] != m.from_user.id and d["state"] == "open" and cs and cs["state"] == "finished" \
+            if d and d["creator"] != m.from_user.id and d["state"] == "open" and cs and cs["state"] in ("active", "finished") \
                     and d["opponent"] in (None, m.from_user.id):
                 extra = t(L, "du_invite", name=esc(pub(db.get_user(d["creator"]))))
                 top = [[btn(t(L, "du_accept"), f"du:acc:{d['id']}")]]

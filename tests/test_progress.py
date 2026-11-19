@@ -79,6 +79,7 @@ def test_duel_rematch_invites_previous_opponent_after_creator_finishes():
         a, b = h.user(1, "Ali"), h.user(2, "Bob")
         await h.say(a, "/start"); await h.say(b, "/start")
         await h.tap(a, "du:new")
+        await h.tap(a, "du:go:1")
         await h.play(a)
         await h.say(b, "/start du_1")
         await h.tap(b, "du:acc:1")
@@ -88,9 +89,8 @@ def test_duel_rematch_invites_previous_opponent_after_creator_finishes():
         await h.tap(b, "du:re:1")                                              # بوب يطلب ثأرًا من علي
         d = h.db.get_duel(2)
         assert d["creator"] == 2 and d["target"] == 1
-        await h.play(b)
         inv = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id == 1 and "ثأرًا" in (c.text or "")]
-        assert inv and "du:acc:2" in {b.callback_data for row in inv[-1].reply_markup.inline_keyboard for b in row}
+        assert inv and "du:acc:2" in {b.callback_data for row in inv[-1].reply_markup.inline_keyboard for b in row}   # الدعوة فورًا
     run(go())
 
 
@@ -140,4 +140,37 @@ def test_clans_create_join_leave_rank_and_admin_hidden():
         await h.tap(h.user(9, "Owner"), f"ad:tmh:{tid}")
         assert h.db.get_user(2)["team_id"] is None and h.db.team_board(None) == []
         assert h.db.join_team(1, tid) == "gone"
+    run(go())
+
+
+def test_duel_share_link_comes_before_questions_and_friend_can_play_first():
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        a, b = h.user(1, "Ali"), h.user(2, "Bob")
+        await h.say(a, "/start"); await h.say(b, "/start")
+        await h.tap(a, "du:new")
+        calls = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id == 1]
+        share = calls[-1]
+        urls = [x.url for row in share.reply_markup.inline_keyboard for x in row if x.url]
+        assert urls and "t.me/share/url" in urls[0] and "start%3Ddu_1" in urls[0]     # الرابط أولًا
+        assert "du:go:1" in {x.callback_data for row in share.reply_markup.inline_keyboard for x in row}
+        assert not any(any((x.callback_data or "").startswith("a:") for row in c.reply_markup.inline_keyboard for x in row)
+                       for c in calls if getattr(c, "reply_markup", None) is not None)   # لم يظهر أي سؤال بعد
+        # الصديق يقبل ويلعب قبل أن يبدأ المضيف
+        await h.say(b, "/start du_1")
+        assert any("يتحداك" in (getattr(c, "caption", None) or getattr(c, "text", None) or "") for c in h.session.calls)
+        await h.tap(b, "du:acc:1")
+        await h.play(b, correct=False)
+        assert any("ننتظر المضيف" in x for x in texts_to(h, 2))
+        assert not any("نتيجة المواجهة" in x for x in texts_to(h, 1) + texts_to(h, 2))
+        await h.tap(a, "du:go:1")                                              # الآن يلعب المضيف
+        assert any(any((x.callback_data or "").startswith("a:") for row in c.reply_markup.inline_keyboard for x in row)
+                   for c in h.session.calls if type(c).__name__ in ("SendMessage", "EditMessageText") and c.chat_id == 1
+                   and getattr(c, "reply_markup", None) is not None)
+        await h.play(a)
+        for uid in (1, 2):
+            assert any("نتيجة المواجهة" in x for x in texts_to(h, uid))            # النتيجة للطرفين عند انتهاء الثاني
+        assert h.db.get_duel(1)["state"] == "done" and h.db.stat(1, "duel_wins") == 1
+        await h.tap(b, "du:go:1")                                                # ليس مضيفًا: مرفوض
     run(go())
