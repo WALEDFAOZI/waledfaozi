@@ -7,7 +7,7 @@ from .config import CATEGORY_LABELS, CATEGORY_LABELS_EN
 
 T: dict[str, dict[str, str]] = {
 "ar": {
- "welcome": "أهلًا بك في <b>بوت تقييم الأوتاكو</b> 🎌\n\nنختبر معرفتك بالأنمي بأسئلة بأربعة اختيارات من الأسهل للأصعب، وتحصل على <b>تقييم من 10 ولقب</b>!\nالأسئلة الصعبة تُحسب بوزن أكبر.\n\nاختر طريقة اللعب:",
+ "welcome": "أهلًا بك في <b>بوت اختبار الأوتاكو</b> 🎌\n\nاختبر معرفتك بالأنمي: أكثر من <b>1400 سؤال</b> من الأسهل للأصعب، وألعاب، وتحدٍّ يومي، ومواجهات ومسابقات في المجموعات والقنوات.\nتحصل على <b>تقييم من 10 ولقب ومستوى وإنجازات</b>!\n\nاختر طريقة اللعب:",
  "challenge_banner": "\n\n⚔️ <b>{name}</b> تحداك! حصل على <b>{score}/10</b> ويلقّب <b>{title}</b>.\nتقبل التحدي بنفس الأسئلة؟",
  "btn_full": "🎯 الاختبار الكامل (50 سؤال)", "btn_quick": "⚡ اختبار سريع (10 أسئلة)",
  "btn_cat": "📂 حسب التصنيف", "btn_sudden": "☠️ الموت المفاجئ", "btn_games": "🎮 ألعاب أخرى",
@@ -45,7 +45,7 @@ T: dict[str, dict[str, str]] = {
  "prof_rank": "🌍 ترتيبك العام: <b>#{rank}</b>", "prof_week": "📅 ترتيبك هذا الأسبوع: <b>#{rank}</b>",
  "prof_tests": "🎯 الاختبارات الكاملة: {n}", "prof_acc": "✅ دقتك الكلية: {pct}% ({ok}/{n})",
  "prof_sudden": "☠️ أفضل «موت مفاجئ»: {n}", "prof_cat": "💪 أقوى تصنيفاتك:",
- "prof_share": "ملفي في بوت تقييم الأوتاكو: {score}/10 — {title}! تقدر تغلبني؟",
+ "prof_share": "ملفي في بوت اختبار الأوتاكو: {score}/10 — {title}! تقدر تغلبني؟",
  "fin_head": "🏁 <b>انتهى التقييم يا {name}!</b>", "res_score": "⭐ التقييم: <b>{score} / 10</b>", "res_title": "🏷 اللقب: <b>{title}</b>",
  "res_correct": "✅ الإجابات الصحيحة: {c}/{t}", "res_pct": "📊 أفضل من {p}% من اللاعبين", "res_cat": "<b>حسب التصنيف:</b>",
  "res_suspect": "⚠️ إجاباتك كانت سريعة جدًا؛ لن تُحتسب النتيجة في المتصدرين.",
@@ -57,7 +57,7 @@ T: dict[str, dict[str, str]] = {
  "vs_dm": "⚔️ <b>{name}</b> قبل تحداك!\nأنت: <b>{them}</b>  ·  {name}: <b>{me}</b>\n{verdict}",
  "vs_dm_win": "🔥 فزت!", "vs_dm_lose": "😅 خسرت هذه الجولة", "vs_dm_draw": "🤝 تعادل!",
  "btn_again": "🔁 اختبار جديد", "btn_menu": "🏠 القائمة", "btn_share": "📤 تحدَّ صديقك", "btn_report": "🚩 أبلغ عن سؤال",
- "share_text": "حصلت على {score}/10 وصرت «{title}» في بوت تقييم الأوتاكو! تقدر تغلبني بنفس الأسئلة؟",
+ "share_text": "حصلت على {score}/10 وصرت «{title}» في بوت اختبار الأوتاكو! تقدر تغلبني بنفس الأسئلة؟",
  "ch_gone": "هذا التحدي لم يعد متاحًا.", "ch_self": "هذا تحديك أنت 😄 شاركه مع أصدقائك!",
  "ch_done": "سبق وخضت هذا التحدي ✅ نتيجتك: <b>{score}/10</b>",
  "lb_all": "🌍 <b>التقييم العام — أفضل 10 أوتاكو</b>\nحسب أفضل تقييم لكل لاعب في الاختبار الكامل", "lb_week": "📅 <b>متصدرو الأسبوع</b>\nيتصفر كل أحد 00:00 (توقيت مكة)",
@@ -84,7 +84,7 @@ T: dict[str, dict[str, str]] = {
  "g_again": "🔁 العب مرة ثانية", "g_stale": "هذه الجولة انتهت",
 },
 "en": {
- "welcome": "Welcome to the <b>Otaku Rating Bot</b> 🎌\n\nWe test your anime knowledge with 4-choice questions from easy to hard, and you get a <b>score out of 10 and a title</b>!\nHarder questions are worth more.\n\nPick a mode:",
+ "welcome": "Welcome to the <b>Otaku Quiz Bot</b> 🎌\n\nTest your anime knowledge: <b>1400+ questions</b> from easy to hard, games, a daily challenge, duels and contests in groups and channels.\nYou get a <b>score out of 10, a title, a level and achievements</b>!\n\nPick a mode:",
  "challenge_banner": "\n\n⚔️ <b>{name}</b> challenged you! They scored <b>{score}/10</b> and are <b>{title}</b>.\nAccept the challenge with the same questions?",
  "btn_full": "🎯 Full test (50 questions)", "btn_quick": "⚡ Quick test (10 questions)",
  "btn_cat": "📂 By category", "btn_sudden": "☠️ Sudden death", "btn_games": "🎮 Other games",
@@ -122,7 +122,7 @@ T: dict[str, dict[str, str]] = {
  "prof_rank": "🌍 Overall rank: <b>#{rank}</b>", "prof_week": "📅 Rank this week: <b>#{rank}</b>",
  "prof_tests": "🎯 Full tests taken: {n}", "prof_acc": "✅ Overall accuracy: {pct}% ({ok}/{n})",
  "prof_sudden": "☠️ Best “sudden death”: {n}", "prof_cat": "💪 Your strongest categories:",
- "prof_share": "My Otaku Rating profile: {score}/10 — {title}! Can you beat me?",
+ "prof_share": "My Otaku Quiz profile: {score}/10 — {title}! Can you beat me?",
  "fin_head": "🏁 <b>Test complete, {name}!</b>", "res_score": "⭐ Score: <b>{score} / 10</b>", "res_title": "🏷 Title: <b>{title}</b>",
  "res_correct": "✅ Correct answers: {c}/{t}", "res_pct": "📊 Better than {p}% of players", "res_cat": "<b>By category:</b>",
  "res_suspect": "⚠️ Your answers were suspiciously fast; this result won't count on the leaderboard.",
@@ -134,7 +134,7 @@ T: dict[str, dict[str, str]] = {
  "vs_dm": "⚔️ <b>{name}</b> accepted your challenge!\nYou: <b>{them}</b>  ·  {name}: <b>{me}</b>\n{verdict}",
  "vs_dm_win": "🔥 You won!", "vs_dm_lose": "😅 You lost this round", "vs_dm_draw": "🤝 Draw!",
  "btn_again": "🔁 New test", "btn_menu": "🏠 Menu", "btn_share": "📤 Challenge a friend", "btn_report": "🚩 Report a question",
- "share_text": "I scored {score}/10 and became “{title}” in the Otaku Rating Bot! Can you beat me on the same questions?",
+ "share_text": "I scored {score}/10 and became “{title}” in the Otaku Quiz Bot! Can you beat me on the same questions?",
  "ch_gone": "This challenge is no longer available.", "ch_self": "That's your own challenge 😄 Share it with friends!",
  "ch_done": "You already took this challenge ✅ Your score: <b>{score}/10</b>",
  "lb_all": "🌍 <b>Overall rating — Top 10 Otaku</b>\nBy each player's best full-test score", "lb_week": "📅 <b>Weekly leaderboard</b>\nResets every Sunday 00:00 (Mecca time)",
@@ -181,7 +181,7 @@ def cat_label(lang: str, cat: str) -> str:
 # نحافظ على نفس المتغيرات {name} {ans} ... وعلى الكلمات المفتاحية التي تعتمد عليها الاختبارات.
 T["ar"].update({
  "mode_quick": "اختبار سريع",
- "welcome": "يا هلا والله {name}! 🎌\n\nتحسب نفسك تعرف الأنمي؟ خلنا نشوف! أسئلة بأربع اختيارات تبدأ سهلة وتشتد معك، وفي الآخر تاخذ تقييم من 10 ولقب تفتخر فيه.\nوالسؤال الصعب يوزن أكثر، فلا تستخف فيه 😏\n\nوش تبي تلعب؟",
+ "welcome": "يا هلا والله {name}! 🎌\n\nهذا <b>بوت اختبار الأوتاكو</b>: تحسب نفسك تعرف الأنمي؟ خلنا نشوف! أكثر من 1400 سؤال تبدأ سهلة وتشتد معك، وألعاب وتحديات، وفي الآخر تاخذ تقييم من 10 ولقب ومستوى تفتخر فيهم.\nوالسؤال الصعب يوزن أكثر، فلا تستخف فيه 😏\n\nوش تبي تلعب؟",
  "challenge_banner": "\n\n⚔️ <b>{name}</b> يتحداك! جاب <b>{score}/10</b> ولقبه «{title}».\nتجرؤ تواجهه بنفس الأسئلة؟",
  "toast_ok": ["✅ صح عليك!", "✅ كفو!", "✅ ناكاما! 💪", "✅ هذا هو!", "✅ ضربة معلم 🔥", "✅ ما شاء الله"],
  "toast_bad": ["❌ لا… الجواب: {ans}", "❌ قربت! الجواب: {ans}", "❌ أوه لا، الجواب: {ans}", "❌ مو هذا، الجواب: {ans}"],
@@ -337,7 +337,7 @@ T["ar"].update({
     "iv_head": "👥 <b>ادعُ أصدقاءك</b>\nتُحسب الدعوة بعد أن يكمل صديقك أول اختبار كامل ويشترك بالقناة، وتأخذ ألقابًا خاصة.",
     "iv_count": "📨 دعواتك المكتملة: {n}", "iv_badge": "🏅 لقبك: {b}", "iv_nobadge": "🏅 لا لقب بعد، أول دعوة تعطيك لقبًا!",
     "iv_next": "🎯 باقي {k} للقب {b}", "iv_btn": "📤 شارك رابط الدعوة",
-    "iv_share": "تعال جرّب تقييم الأوتاكو، شف كم تجيب من 10 🔥",
+    "iv_share": "تعال جرّب اختبار الأوتاكو، شف كم تجيب من 10 🔥",
     "iv_joined": "🎉 صديقك أكمل أول اختبار واشترك! دعواتك المكتملة: {n}", "iv_badge_up": "🏅 ترقّيت للقب: {b}",
 })
 T["en"].update({
@@ -345,7 +345,7 @@ T["en"].update({
     "iv_head": "👥 <b>Invite friends</b>\nAn invite counts once your friend finishes a full test and joins the channel. Earn special badges.",
     "iv_count": "📨 Completed invites: {n}", "iv_badge": "🏅 Your badge: {b}", "iv_nobadge": "🏅 No badge yet, your first invite earns one!",
     "iv_next": "🎯 {k} more for {b}", "iv_btn": "📤 Share invite link",
-    "iv_share": "Come try the Otaku Rating, see what you score out of 10 🔥",
+    "iv_share": "Come try the Otaku Quiz, see what you score out of 10 🔥",
     "iv_joined": "🎉 Your friend finished a first test and joined! Completed invites: {n}", "iv_badge_up": "🏅 New badge: {b}",
 })
 
@@ -460,7 +460,7 @@ T["ar"].update({
     "gp_ord_q": "📅 أيّ هذه الأعمال عُرض أولًا؟",
     "gp_top": "🏆 <b>متصدرو المجموعة</b>\n\n📅 <b>هذا الأسبوع</b>\n{week}\n\n🌍 <b>كل الأوقات</b>\n{all}",
     "gp_lang_set": "🌐 لغة ألعاب المجموعة: العربية.",
-    "gp_help": "🎌 <b>تقييم الأوتاكو</b>\nللعب مع الأصدقاء هنا اكتب /play أو أحد الأوامر: /quiz /sudden /tf /song /char /quote /order /images\n/gtop متصدرو المجموعة · /gstop إيقاف اللعبة · /glang تغيير اللغة (للأدمن)\nولاختبارك الشخصي افتح البوت بالخاص.",
+    "gp_help": "🎌 <b>اختبار الأوتاكو</b>\nللعب مع الأصدقاء هنا اكتب /play أو أحد الأوامر: /quiz /sudden /tf /song /char /quote /order /images\n/gtop متصدرو المجموعة · /gstop إيقاف اللعبة · /glang تغيير اللغة (للأدمن)\nولاختبارك الشخصي افتح البوت بالخاص.",
     "gp_open_private": "💬 افتح البوت بالخاص",
 })
 T["en"].update({
@@ -487,7 +487,7 @@ T["en"].update({
     "gp_ord_q": "📅 Which of these aired first?",
     "gp_top": "🏆 <b>Group leaderboard</b>\n\n📅 <b>This week</b>\n{week}\n\n🌍 <b>All time</b>\n{all}",
     "gp_lang_set": "🌐 Group games language: English.",
-    "gp_help": "🎌 <b>Otaku Rating</b>\nTo play with friends here use /play or: /quiz /sudden /tf /song /char /quote /order /images\n/gtop group leaderboard · /gstop stop the game · /glang switch language (admins)\nFor your personal test open the bot in private.",
+    "gp_help": "🎌 <b>Otaku Quiz</b>\nTo play with friends here use /play or: /quiz /sudden /tf /song /char /quote /order /images\n/gtop group leaderboard · /gstop stop the game · /glang switch language (admins)\nFor your personal test open the bot in private.",
     "gp_open_private": "💬 Open the bot in private",
 })
 
@@ -630,7 +630,7 @@ T["en"].update({
 T["ar"].update({
     "tm_none": "🛡 <b>العشائر</b>\nانضم لعشيرة أو أنشئ عشيرتك! تتنافس العشائر بمجموع خبرة أعضائها كل أسبوع، ويراها الجميع في الترتيب.\n<i>الحد الأقصى 30 عضوًا للعشيرة.</i>",
     "tm_create": "➕ أنشئ عشيرة", "tm_join_list": "🔍 انضم لعشيرة", "tm_rank_btn": "🏆 ترتيب العشائر", "tm_leave": "🚪 غادر العشيرة",
-    "tm_invite": "📤 ادعُ لعشيرتك", "tm_invite_text": "انضم لعشيرتي «{name}» في بوت تقييم الأوتاكو ⚔️",
+    "tm_invite": "📤 ادعُ لعشيرتك", "tm_invite_text": "انضم لعشيرتي «{name}» في بوت اختبار الأوتاكو ⚔️",
     "tm_view": "🛡 <b>{name}</b>\n👥 الأعضاء: {n}/{mx} · القائد: {leader}\n⭐ خبرة العشيرة هذا الأسبوع: <b>{wxp}</b> · ترتيبها: <b>#{rank}</b>\n\n<b>أفضل الأعضاء هذا الأسبوع</b>\n{rows}",
     "tm_ask_name": "اكتب اسم عشيرتك (من {a} إلى {b} حرفًا، بدون روابط):", "tm_name_len": "الاسم من {a} إلى {b} حرفًا من فضلك.",
     "tm_name_bad": "الاسم غير مناسب، جرّب اسمًا آخر.", "tm_taken": "هذا الاسم مستخدم، اختر اسمًا آخر.",
@@ -646,7 +646,7 @@ T["ar"].update({
 T["en"].update({
     "tm_none": "🛡 <b>Clans</b>\nJoin a clan or create your own! Clans compete by their members' total XP every week, visible to everyone in the rankings.\n<i>Max 30 members per clan.</i>",
     "tm_create": "➕ Create a clan", "tm_join_list": "🔍 Join a clan", "tm_rank_btn": "🏆 Clan ranking", "tm_leave": "🚪 Leave clan",
-    "tm_invite": "📤 Invite to your clan", "tm_invite_text": "Join my clan “{name}” in the Otaku Rating bot ⚔️",
+    "tm_invite": "📤 Invite to your clan", "tm_invite_text": "Join my clan “{name}” in the Otaku Quiz bot ⚔️",
     "tm_view": "🛡 <b>{name}</b>\n👥 Members: {n}/{mx} · Leader: {leader}\n⭐ Clan XP this week: <b>{wxp}</b> · Rank: <b>#{rank}</b>\n\n<b>Top members this week</b>\n{rows}",
     "tm_ask_name": "Write your clan's name ({a} to {b} characters, no links):", "tm_name_len": "The name must be {a} to {b} characters.",
     "tm_name_bad": "That name isn't allowed, try another.", "tm_taken": "That name is taken, pick another.",

@@ -80,13 +80,15 @@ def test_start_sends_banner_with_menu_caches_file_id_and_falls_back():
         data = {b.callback_data for row in m.reply_markup.inline_keyboard for b in row}
         assert {"go", "qk", "m:games", "pf"} <= data
         # معرّف صورة مخزَّن: لا نرفع الملف ثانية
-        h.db.set_setting("banner_fid_ar", "CACHED_FID")
+        from otaku_bot.config import ROOT as _R
+        bkey = f"banner_fid_ar_{(_R / 'assets' / 'banner.jpg').stat().st_size}"
+        h.db.set_setting(bkey, "CACHED_FID")
         await h.say(h.user(2), "/start")
         assert last_menu_call(h).photo == "CACHED_FID"
         # فشل الصورة (معرّف قديم): يرجع للنص ويمسح المعرّف التالف
         h.session.bad_photos = {"CACHED_FID"}
         await h.say(h.user(3), "/start")
-        assert type(last_menu_call(h)).__name__ == "SendMessage" and h.db.get_setting("banner_fid_ar") == ""
+        assert type(last_menu_call(h)).__name__ == "SendMessage" and h.db.get_setting(bkey) == ""
         # الإنجليزية: بانر ونص إنجليزي
         en = h.user(4, "Sam", lang="en")
         await h.say(en, "/start")

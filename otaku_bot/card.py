@@ -255,11 +255,11 @@ def make_banner(lang: str = "ar", handle: str = "@Otaku1GalaxyBot") -> bytes:
     if has_jp():
         c.text((820, 118), "オタク", "jp", 84, fill=(255, 235, 140), stroke=6, rotate=-6, arabic=False)
     c.starburst((880, 330), 330, 270, spikes=18, fill=PAPER, width=5)
-    ar = "تقييم الأوتاكو"
+    ar = "اختبار الأوتاكو"
     c.text((880, 310), ar, "ar", c.fit(ar, "ar", 92, 480), fill=(255, 255, 255), stroke=8, shadow=5, rotate=-2)
-    c.text((880, 410), "OTAKU RATING", "display", 62, fill=(255, 220, 90), stroke=6, shadow=3, arabic=False, rotate=-2)
+    c.text((880, 410), "OTAKU QUIZ", "display", 62, fill=(255, 220, 90), stroke=6, shadow=3, arabic=False, rotate=-2)
     _ribbon(c, (640, 496, 1130, 566), (214, 40, 80))
-    tag = "50 سؤال · من السهل إلى المستحيل" if lang == "ar" else "50 questions · easy to impossible"
+    tag = "1400+ سؤال · ألعاب · تحديات" if lang == "ar" else "1400+ questions · games · challenges"
     c.text((885, 531), tag, "ar", c.fit(tag, "ar", 34, 430), fill=(255, 255, 255), stroke=3)
     c.hanko((1165, 150), 70, "10", "/10", angle=-12)
     return c.jpeg(grain=0.04)

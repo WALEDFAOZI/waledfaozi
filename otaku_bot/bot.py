@@ -725,7 +725,8 @@ def build_router(ctx: Ctx) -> Router:
     async def send_welcome(m: Message, L: str, text: str, markup) -> None:
         """بانر مرسوم (assets/banner*.png) + نص الترحيب في رسالة واحدة. معرّف الصورة يُخزَّن فلا تُرفع كل مرة."""
         path = ROOT / "assets" / ("banner_en.jpg" if L == "en" else "banner.jpg")
-        key = f"banner_fid_{L}"
+        # يتضمن حجم الملف: أي تعديل على البانر يُبطل المعرّف المخزَّن تلقائيًا فيُرفع الجديد
+        key = f"banner_fid_{L}_{path.stat().st_size if path.is_file() else 0}"
         fid = db.get_setting(key, "") or None
         if fid or path.is_file():
             try:
