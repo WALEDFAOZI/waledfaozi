@@ -41,7 +41,7 @@ REVOTE_SECS = 60
 GUESS_SECS = 60
 COOLDOWN_SECS = 60
 EDIT_GAP = 3.0
-GUESS_CHOICES = 6
+GUESS_CHOICES = 7                  # الخيارات كلها (الصحيح + 6 بدائل قريبة)
 PTS_WIN = 100
 
 
@@ -91,14 +91,35 @@ counter = [0]
 
 def load_characters() -> list[dict]:
     data = json.loads((ROOT / "data" / "games.json").read_text(encoding="utf-8"))
+    levels = json.loads((ROOT / "data" / "char_levels.json").read_text(encoding="utf-8"))
+    mbti = json.loads((ROOT / "data" / "char_mbti.json").read_text(encoding="utf-8"))
     out = []
     names = json.loads((ROOT / "data" / "names_ar.json").read_text(encoding="utf-8")).get("names", {})
     for desc_ar, desc_en, en in data["chars"]:
         ar = names.get(en) or loc(en, "ar")
         aliases = {en.lower(), re.sub(r"\s+", " ", ar).strip()}
         aliases |= {w.lower() for w in en.split() if len(w) >= 5}      # الاسم الأول/الأخير لو طويل
-        out.append({"en": en, "ar": ar if ar != en else en, "aliases": {a for a in aliases if a}})
+        out.append({"en": en, "ar": ar if ar != en else en, "aliases": {a for a in aliases if a},
+                    "level": levels.get(en, 2), "mbti": mbti.get(en)})
     return out
+
+
+def pick_decoys(char: dict, chars: list[dict], rng: random.Random, n: int) -> list[dict]:
+    """بدائل قريبة في الصفات: أولًا نفس نمط الشخصية (MBTI) بأكبر تشابه في الحروف، ثم نفس المستوى.
+    نختار عشوائيًا من أفضل المرشحين حتى لا تتكرر نفس البدائل."""
+    cands = [c for c in chars if c["en"] != char["en"]]
+
+    def score(c: dict) -> int:
+        s = 0
+        if char.get("mbti") and c.get("mbti"):
+            s += sum(1 for x, y in zip(char["mbti"], c["mbti"]) if x == y) * 10
+        if c.get("level") == char.get("level"):
+            s += 3
+        return s
+
+    ranked = sorted(cands, key=lambda c: (-score(c), rng.random()))
+    pool = ranked[: max(n * 2, n)]
+    return rng.sample(pool, n)
 
 
 def normalize(text: str) -> str:
@@ -285,7 +306,7 @@ def build_spy_router(ctx: Ctx) -> Router:
                 await show(bot, g, t(L, "sp_too_few", min=MIN_PLAYERS), None)
                 return
             g.char = rng.choice(chars)
-            g.decoys = rng.sample([c for c in chars if c["en"] != g.char["en"]], GUESS_CHOICES - 1)
+            g.decoys = pick_decoys(g.char, chars, rng, GUESS_CHOICES - 1)
             uids = list(g.players)
             outsider = rng.choice(uids)
             g.players[outsider].outsider = True
