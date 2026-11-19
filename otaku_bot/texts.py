@@ -673,3 +673,18 @@ T["en"].update({
     "du_go": "▶️ Start my questions", "du_rematch_sent": "✅ I also sent them the challenge directly.",
     "du_wait_host": "⏳ Done: <b>{c}/{n}</b>\nWaiting for the host to finish; I'll send you the result as soon as they do.",
 })
+
+T["ar"]["gp_final"] = "🏁 <b>انتهت اللعبة!</b>\n{w}\n👥 {n}\n\n{rows}"
+T["en"]["gp_final"] = "🏁 <b>Game over!</b>\n{w}\n👥 {n}\n\n{rows}"
+T["ar"].update({
+    "gp_try_btn": "🔥 جرّب اختبار الأوتاكو وشوف مستواك الحقيقي!",
+    "gp_leave": "↩️ إلغاء مشاركتي", "gp_left": "تم إلغاء مشاركتك ✅ تقدر تشارك ثانية قبل ما تبدأ الأسئلة",
+    "gp_leave_late": "بدأت الأسئلة، ما تقدر تنسحب الآن", "gp_not_joined": "أنت غير مشارك أصلًا",
+    "gp_cancel": "⛔ إلغاء اللعبة",
+})
+T["en"].update({
+    "gp_try_btn": "🔥 Try the Otaku Quiz and see your real level!",
+    "gp_leave": "↩️ Cancel my participation", "gp_left": "Your participation was cancelled ✅ You can join again before the questions start",
+    "gp_leave_late": "The questions have started, you can't leave now", "gp_not_joined": "You haven't joined",
+    "gp_cancel": "⛔ Cancel game",
+})

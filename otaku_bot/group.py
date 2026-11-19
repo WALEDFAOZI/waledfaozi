@@ -311,9 +311,10 @@ def build_group_router(ctx: Ctx) -> Router:
                 return True
 
     def lobby_markup(g: Game):
-        if g.scope == "channel":                          # في القناة زر المشاركة فقط؛ التحكم من الخاص
-            return kb([btn(t(g.lang, "gp_join_ch"), f"gp:j:{g.gid}")], *sub_row(g.lang))
-        return kb([btn(t(g.lang, "gp_join"), f"gp:j:{g.gid}")],
+        leave = btn(t(g.lang, "gp_leave"), f"gp:u:{g.gid}")
+        if g.scope == "channel":                          # في القناة: مشاركة/انسحاب فقط؛ التحكم من الخاص
+            return kb([btn(t(g.lang, "gp_join_ch"), f"gp:j:{g.gid}"), leave], *sub_row(g.lang))
+        return kb([btn(t(g.lang, "gp_join"), f"gp:j:{g.gid}"), leave],
                   [btn(t(g.lang, "gp_start_now"), f"gp:s:{g.gid}"), btn(t(g.lang, "gp_cancel"), f"gp:x:{g.gid}")],
                   *sub_row(g.lang))
 
@@ -434,8 +435,9 @@ def build_group_router(ctx: Ctx) -> Router:
         medals = ["🥇", "🥈", "🥉"]
         lines = [f"{medals[i] if i < 3 else str(i + 1) + '.'} {esc(p.name)} — <b>{p.points}</b>" for i, p in enumerate(rk[:10])]
         win = ("🏆 " + t(g.lang, "gp_winner", w=" + ".join(esc(p.name) for p in champs[:5]))) if champs else t(g.lang, "gp_nowinner")
-        markup = kb(*([[btn(t(g.lang, "gp_top_btn"), "gp:t")]] if g.scope == "group" else []), *sub_row(g.lang)) \
-            if (g.scope == "group" or sub_row(g.lang)) else None
+        me = (await bot.get_me()).username
+        markup = kb([btn(t(g.lang, "gp_try_btn"), url=f"https://t.me/{me}?start=src_contest")],
+                    *([[btn(t(g.lang, "gp_top_btn"), "gp:t")]] if g.scope == "group" else []), *sub_row(g.lang))
         old = g.live
         await send(bot, g, t(g.lang, "gp_final", w=win, n=len(g.players), rows="\n".join(lines)), markup)   # الرسالة الجديدة الوحيدة
         await delete_msg(bot, g, old)
@@ -571,6 +573,24 @@ def build_group_router(ctx: Ctx) -> Router:
         g.dirty = True
         g.wake.set()
         await c.answer(t(L, "gp_joined" if g.scope == "group" else "gp_joined_ch"))
+
+    @cb.callback_query(F.data.regexp(r"^gp:u:\d+$"))
+    async def cb_leave(c: CallbackQuery):
+        """إلغاء المشاركة: متاح فقط قبل بدء الأسئلة."""
+        g = games.get(c.message.chat.id)
+        L = db.group_lang(c.message.chat.id)
+        if not g or g.gid != int(c.data.split(":")[2]) or g.state == "done":
+            await c.answer(t(L, "gp_gone"), show_alert=True)
+            return
+        if g.state != "lobby":
+            await c.answer(t(L, "gp_leave_late"), show_alert=True)
+            return
+        if g.players.pop(c.from_user.id, None) is None:
+            await c.answer(t(L, "gp_not_joined"))
+            return
+        g.dirty = True
+        g.wake.set()
+        await c.answer(t(L, "gp_left"))
 
     @cb.callback_query(F.data.regexp(r"^gp:s:\d+$"))
     async def cb_start_now(c: CallbackQuery):

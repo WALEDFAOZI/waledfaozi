@@ -332,9 +332,9 @@ def test_channel_contest_flow_single_live_message_and_final_top():
         group.CH_LOBBY_SECONDS = 30                                 # مهلة طويلة؛ نبدأ يدويًا بعد انضمام الجميع (بلا اعتماد على سرعة الجهاز)
         await h.tap(owner, f"ch:n:{CHAN.id}:quiz")
         lobby = chan_sent(h)[0]
-        assert buttons(lobby)[0].startswith("gp:j:") and len([d for d in buttons(lobby) if d]) == 1      # زر مشاركة واحد (+ رابط الاشتراك)
+        assert buttons(lobby)[0].startswith("gp:j:") and buttons(lobby)[1].startswith("gp:u:") and len([d for d in buttons(lobby) if d]) == 2      # مشاركة + إلغاء مشاركتي (+ رابط الاشتراك)
         assert lobby.reply_parameters is None and "تبدأ بعد" in lobby.text
-        assert [b.text for row in lobby.reply_markup.inline_keyboard for b in row] == ["✋ شارك", "📢 اشترك في قناة البوت"]
+        assert [b.text for row in lobby.reply_markup.inline_keyboard for b in row] == ["✋ شارك", "↩️ إلغاء مشاركتي", "📢 اشترك في قناة البوت"]
         gid = buttons(lobby)[0].split(":")[2]
         players = [h.user(100 + i, f"P{i}") for i in range(300)]       # أعداد كبيرة
         for u in players:
@@ -481,7 +481,8 @@ def test_channel_contest_requires_subscription_and_shows_subscribe_button():
             await asyncio.sleep(0.05)
         final = chan_sent(h)[-1]
         assert "انتهت اللعبة" in final.text
-        assert [x.url for row in final.reply_markup.inline_keyboard for x in row if x.url] == ["https://t.me/Anime1Galaxy"]
+        assert [x.url for row in final.reply_markup.inline_keyboard for x in row if x.url] == [
+            "https://t.me/otaku_test_bot?start=src_contest", "https://t.me/Anime1Galaxy"]
         # ... وعند الكشف تبقى أزرار الاشتراك
         reveals = [c for c in h.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == CHAN.id and "الجواب" in (c.text or "")]
         assert reveals and all(any(x.url for row in c.reply_markup.inline_keyboard for x in row) for c in reveals)
@@ -521,4 +522,50 @@ def test_channel_final_excludes_player_who_left_our_channel():
         final = chan_sent(h)[-1]
         assert "انتهت اللعبة" in final.text and "Ann" not in final.text
         assert h.db.conn.execute("SELECT COUNT(*) n FROM group_results WHERE tg_id=10").fetchone()["n"] == 0
+    run(go())
+
+
+def test_leave_before_start_final_has_try_button_not_play_hint_in_channel_and_group():
+    async def go():
+        # القناة
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        owner, a, b = h.user(5, "Owner"), h.user(10, "Ann"), h.user(11, "Bob")
+        h.db.upsert_user(5, "Owner"); h.db.link_channel(CHAN.id, 5, CHAN.title)
+        group.CH_LOBBY_SECONDS = 20
+        await h.tap(owner, f"ch:n:{CHAN.id}:tf")
+        gid = buttons(chan_sent(h)[0])[0].split(":")[2]
+        await ctap(h, a, f"gp:j:{gid}"); await ctap(h, b, f"gp:j:{gid}")
+        await ctap(h, a, f"gp:u:{gid}")                                         # آن تنسحب قبل البدء
+        await ctap(h, a, f"gp:u:{gid}")                                         # مرة ثانية: لا شيء
+        lobby_edits = [c for c in h.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == CHAN.id]
+        await h.tap(owner, f"ch:s:{CHAN.id}")
+        assert await chan_play_out(h, [a, b], timeout=20)
+        final = chan_sent(h)[-1]
+        assert "/play" not in final.text and "لعبة جديدة" not in final.text           # حُذف السطر الأخير
+        assert "Bob" in final.text and "Ann" not in final.text                        # آن لم تعد مشاركة
+        btn_try = [x for row in final.reply_markup.inline_keyboard for x in row if x.url and "src_contest" in x.url]
+        assert btn_try and "اختبار الأوتاكو" in btn_try[0].text and "👥 1" in final.text
+        # بعد البدء لا يُسمح بالانسحاب
+        await ctap(h, b, f"gp:u:{gid}")
+        alerts = [c for c in h.session.calls if type(c).__name__ == "AnswerCallbackQuery" and getattr(c, "show_alert", False)]
+        assert alerts
+        # المجموعة بنفس الطريقة
+        g2 = Harness()
+        g2.db.fast_answer_ratio = lambda sid: 0.0
+        x, y = g2.user(1, "Ali"), g2.user(2, "Bob")
+        await start_lobby(g2, x, "tf", mid=70)
+        gid2 = buttons(sent(g2)[0])[0].split(":")[2]
+        assert any(d == f"gp:u:{gid2}" for d in buttons(sent(g2)[0]))
+        await gtap(g2, x, f"gp:j:{gid2}"); await gtap(g2, y, f"gp:j:{gid2}")
+        await gtap(g2, y, f"gp:u:{gid2}")                                          # بوب ينسحب
+        await gtap(g2, y, f"gp:j:{gid2}")                                          # ثم يعود
+        assert await play_out(g2, [x, y])
+        fin = [c for c in sent(g2) if "انتهت اللعبة" in (c.text or "")][-1]
+        assert "/play" not in fin.text and "Bob" in fin.text
+        assert any(b2.url and "src_contest" in b2.url for row in fin.reply_markup.inline_keyboard for b2 in row)
+        assert "gp:t" in buttons(fin)
+        # قياس المصدر
+        await g2.say(g2.user(77, "New"), "/start src_contest")
+        assert g2.db.conn.execute("SELECT COUNT(*) n FROM events WHERE kind='src_contest'").fetchone()["n"] == 1
     run(go())

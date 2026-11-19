@@ -789,6 +789,8 @@ def build_router(ctx: Ctx) -> Router:
             db.set_inviter(m.from_user.id, int(arg[4:]))
         L = lang(m.from_user.id)
         extra, top = "", []
+        if arg.startswith("src_") and len(arg) <= 40:                # مصدر الزيارة (مسابقات القنوات/المجموعات…) للقياس
+            db.log_event(m.from_user.id, arg)
         if arg.startswith("ch_") and arg[3:].isdigit():
             s = db.get_session(int(arg[3:]))
             if s and s["state"] == "finished" and s["mode"] == "full" and s["tg_id"] != m.from_user.id:
