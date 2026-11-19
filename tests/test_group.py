@@ -263,7 +263,7 @@ def test_group_button_is_second_row_and_full_width():
         await h.say(h.user(1), "/start")
         from harness import last_menu_call
         rows = last_menu_call(h).reply_markup.inline_keyboard
-        assert [b.callback_data for b in rows[0]] == ["go"] and [b.callback_data for b in rows[1]] == ["qk"] and [b.callback_data for b in rows[2]] == ["on:m"] and [b.callback_data for b in rows[3]] == ["gpm", "gpc"]
+        assert [b.callback_data for b in rows[0]] == ["go"] and [b.callback_data for b in rows[1]] == ["qk"] and [b.callback_data for b in rows[2]] == ["on:m", "dy:m"] and [b.callback_data for b in rows[3]] == ["gpm", "gpc"] and [b.callback_data for b in rows[4]] == ["du:new", "iv"]
     run(go())
 
 
