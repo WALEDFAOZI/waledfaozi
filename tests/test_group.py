@@ -329,6 +329,7 @@ def test_channel_contest_flow_single_live_message_and_final_top():
         stranger = h.user(6, "Eve")
         await h.tap(stranger, f"ch:n:{CHAN.id}:quiz")             # غير مالك/أدمن: مرفوض
         assert not chan_sent(h)
+        group.CH_LOBBY_SECONDS = 30                                 # مهلة طويلة؛ نبدأ يدويًا بعد انضمام الجميع (بلا اعتماد على سرعة الجهاز)
         await h.tap(owner, f"ch:n:{CHAN.id}:quiz")
         lobby = chan_sent(h)[0]
         assert buttons(lobby)[0].startswith("gp:j:") and len(buttons(lobby)) == 1      # زر المشاركة فقط
@@ -339,6 +340,7 @@ def test_channel_contest_flow_single_live_message_and_final_top():
         players = [h.user(100 + i, f"P{i}") for i in range(300)]       # أعداد كبيرة
         for u in players:
             await ctap(h, u, f"gp:j:{gid}")
+        await h.tap(owner, f"ch:s:{CHAN.id}")                       # ابدأ الآن من الخاص
         assert await chan_play_out(h, players, timeout=45), "المسابقة لم تنتهِ"
         assert len(chan_sent(h)) == 2                              # الغرفة الحيّة + النتيجة النهائية فقط
         assert any(type(c).__name__ == "DeleteMessage" and c.chat_id == CHAN.id for c in h.session.calls)
