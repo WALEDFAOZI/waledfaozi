@@ -14,7 +14,7 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram.types import CallbackQuery
 
 from . import progress
-from .bot import btn, esc, kb
+from .bot import btn, chan_row, esc, kb
 from .config import ROOT
 from .ctx import Ctx
 from .texts import t
@@ -62,8 +62,8 @@ def build_online_router(ctx: Ctx) -> Router:
         """بطاقة المنافس بلا اسم أو معرّف: الترتيب وأرقامه فقط."""
         u = db.get_user(other) or {}
         games_n = db.conn.execute("SELECT COUNT(*) n FROM game_sessions WHERE tg_id=?", (other,)).fetchone()["n"]
-        return t(L, "on_opp_card", rank=db.user_rank(other) or "—", best=f"{u['best_score'] or 0:.1f}",
-                 tests=u["tests_taken"] or 0, sd=u["best_sudden"] or 0, games=games_n)
+        return t(L, "on_opp_card", name=esc(u["name"] or "?"), rank=db.user_rank(other) or "—",
+                 best=f"{u['best_score'] or 0:.1f}", tests=u["tests_taken"] or 0, sd=u["best_sudden"] or 0, games=games_n)
 
     async def send(bot: Bot, uid: int, text: str, markup=None, parse_mode_html: bool = True) -> int | None:
         try:
@@ -144,7 +144,7 @@ def build_online_router(ctx: Ctx) -> Router:
         try:
             for uid in m.players:
                 other = _other(m, uid)
-                await send(bot, uid, opp_card(other, L_(uid)), parse_mode_html=True)
+                await send(bot, uid, opp_card(other, L_(uid)), markup=kb(*chan_row(L_(uid))) or None)
             await asyncio.sleep(GAP_SECS)
             for uid in m.players:
                 await send(bot, uid, t(L_(uid), "on_started", kind=t(L_(uid), f"on_kind_{m.kind}"), secs=ROUND_SECS))
@@ -196,7 +196,8 @@ def build_online_router(ctx: Ctx) -> Router:
             other = _other(m, uid)
             head = t(L, "on_draw") if winner is None else t(L, "on_win" if winner == uid else "on_lose")
             await send(bot, uid, t(L, "on_result", head=head, me=m.score.get(uid, 0), op=m.score.get(other, 0),
-                                   n=len(m.qs), name=esc(db.get_user(other)["name"] or "?")))
+                                   n=len(m.qs), name=esc(db.get_user(other)["name"] or "?")),
+                       markup=kb(*chan_row(L)) or None)
             if uid == winner:
                 progress.bonus(db, uid, "duel_win", 25, "duel_wins")
             progress.record(db, uid, "duel", correct=m.score.get(uid, 0), won=uid == winner)

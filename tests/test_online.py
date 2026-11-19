@@ -53,7 +53,7 @@ def test_two_players_are_matched_answer_and_both_see_result():
             assert await wait_until(lambda: m.rnd != rnd or mid not in O.matches)
         assert await wait_until(lambda: mid not in O.matches)
         card_a = [x for x in texts(h, 1) if "منافسك" in x]
-        assert card_a and "Bob" not in card_a[0] and "#" in card_a[0]          # البطاقة بلا اسم المنافس
+        assert card_a and "Bob" in card_a[0] and "#" in card_a[0]               # الاسم يظهر، والمعرّف لا يظهر أبدًا
         assert any("فزت" in x for x in texts(h, 1)) and any("خسرت" in x for x in texts(h, 2))
         assert any("انتهت المباراة" in x for x in texts(h, 2))
         # بعد الانتهاء يمكن اللعب من جديد

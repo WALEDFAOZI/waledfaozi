@@ -1091,3 +1091,6 @@ T["ar"].update({"on_kind_sudden": "☠️ الموت المفاجئ", "on_kind_i
                 "on_queue_n": "  🟢 ({n} ينتظر)"})
 T["en"].update({"on_kind_sudden": "☠️ Sudden death", "on_kind_images": "🖼 Character pictures",
                 "on_queue_n": "  🟢 ({n} waiting)"})
+
+T["ar"]["on_opp_card"] = "🆚 <b>منافسك: {name}</b>\n🏅 ترتيبه العام: <b>#{rank}</b>\n⭐ أفضل تقييم: <b>{best}</b>/10 · 📝 اختبارات كاملة: {tests}\n☠️ أطول موت مفاجئ: {sd} · 🎮 ألعابه: {games}"
+T["en"]["on_opp_card"] = "🆚 <b>Your opponent: {name}</b>\n🏅 Overall rank: <b>#{rank}</b>\n⭐ Best score: <b>{best}</b>/10 · 📝 Full tests: {tests}\n☠️ Longest sudden-death streak: {sd} · 🎮 Games played: {games}"

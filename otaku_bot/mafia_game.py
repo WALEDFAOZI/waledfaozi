@@ -19,7 +19,7 @@ from aiogram.types import CallbackQuery, Message, ReplyParameters
 
 from . import mafia as M
 from . import progress
-from .bot import btn, esc, kb
+from .bot import btn, chan_row, esc, kb
 from .ctx import Ctx
 from .texts import t
 
@@ -172,7 +172,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
     def lobby_markup(g: Game):
         L = g.lang
         join_url = f"https://t.me/{g.me}?start=mf_{g.gid}"
-        return kb([btn(t(L, "mf_join"), url=join_url), btn(t(L, "mf_leave"), f"mf:l:{g.gid}")])
+        return kb([btn(t(L, "mf_join"), url=join_url), btn(t(L, "mf_leave"), f"mf:l:{g.gid}")], *chan_row(L))
 
     def config_text(g: Game) -> str:
         L = g.lang
@@ -298,7 +298,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         reveal = "\n".join(
             f"{ICON[p.role]} {esc(p.name)} — {t(L, 'mf_r_' + p.role)}{' ✅' if p.uid in won else ''}"
             for p in g.players.values())
-        await show(bot, g, t(L, "mf_end", head=head, reveal=reveal, rounds=g.round), None)
+        await show(bot, g, t(L, "mf_end", head=head, reveal=reveal, rounds=g.round), kb(*chan_row(L)) or None)
         for p in g.players.values():
             if db.is_admin(p.uid):
                 continue
