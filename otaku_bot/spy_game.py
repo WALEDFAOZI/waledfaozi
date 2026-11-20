@@ -25,6 +25,7 @@ from .bot import btn, chan_row, esc, kb
 from .config import ROOT
 from .ctx import Ctx
 from .names import loc
+from .links import back_rows, open_private_rows
 from .texts import t
 from .thread_anchor import anchor_id
 
@@ -273,13 +274,14 @@ def build_spy_router(ctx: Ctx) -> Router:
     async def dm_votes(bot: Bot, g: Game, candidates: list[int], secs: int) -> bool:
         """يرسل التصويت في الخاص لكل لاعب (يصوّت على المرشحين عدا نفسه). False إن فشل إرسال لأحدهم."""
         L = g.lang
+        back = await back_rows(bot, g.chat_id, g.live, L)               # زر العودة إلى رسالة اللعبة
         g.votes, g.tie_pool = {}, list(candidates)
         required = set()
         for p in g.players.values():
             opts = [[btn(g.players[c].name[:24], f"sp:v:{g.gid}:{c}")] for c in candidates if c != p.uid]
             if not opts:
                 continue
-            if not await dm(bot, p.uid, t(L, "sp_vote_dm"), kb(*opts)):
+            if not await dm(bot, p.uid, t(L, "sp_vote_dm"), kb(*opts, *back) if back else kb(*opts)):
                 return False
             required.add(p.uid)
         end = time.monotonic() + secs
@@ -313,9 +315,10 @@ def build_spy_router(ctx: Ctx) -> Router:
             g.players[outsider].outsider = True
             g.state = "play"
             failed = []
+            back = await back_rows(bot, g.chat_id, g.live, L)               # زر العودة إلى رسالة اللعبة
             for p in g.players.values():
                 text = t(L, "sp_out_dm") if p.outsider else t(L, "sp_in_dm", char=esc(loc(g.char["en"], L)))
-                if not await dm(bot, p.uid, text):
+                if not await dm(bot, p.uid, text, kb(*back) if back else None):
                     failed.append(esc(p.name))
             if failed:
                 g.state = "done"
@@ -349,6 +352,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         L = g.lang
         g.state = "vote"
         uids = list(g.players)
+        await show(bot, g, t(L, "sp_vote_dm_live"), kb(*await open_private_rows(bot, L)))
         if not await dm_votes(bot, g, uids, VOTE_SECS):
             await finish(bot, g, winner="outsider", guessed=None)      # تعذّر إرسال التصويت لأحدهم
             return
@@ -356,7 +360,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         if len(picks) != 1:                                  # تعادل أو لا أصوات: إعادة تصويت واحدة
             if not picks:
                 picks = uids
-            await show(bot, g, t(L, "sp_revote_live"), None)
+            await show(bot, g, t(L, "sp_revote_live"), kb(*await open_private_rows(bot, L)))
             await dm_votes(bot, g, picks, REVOTE_SECS)
             picks = tally(g)
             if len(picks) != 1:

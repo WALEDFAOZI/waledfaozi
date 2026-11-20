@@ -1094,3 +1094,12 @@ T["en"].update({"on_kind_sudden": "☠️ Sudden death", "on_kind_images": "🖼
 
 T["ar"]["on_opp_card"] = "🆚 <b>منافسك: {name}</b>\n🏅 ترتيبه العام: <b>#{rank}</b>\n⭐ أفضل تقييم: <b>{best}</b>/10 · 📝 اختبارات كاملة: {tests}\n☠️ أطول موت مفاجئ: {sd} · 🎮 ألعابه: {games}"
 T["en"]["on_opp_card"] = "🆚 <b>Your opponent: {name}</b>\n🏅 Overall rank: <b>#{rank}</b>\n⭐ Best score: <b>{best}</b>/10 · 📝 Full tests: {tests}\n☠️ Longest sudden-death streak: {sd} · 🎮 Games played: {games}"
+
+T["ar"]["btn_back_group"] = "↩️ العودة للمجموعة"
+T["en"]["btn_back_group"] = "↩️ Back to the group"
+T["ar"]["btn_back_channel"] = "↩️ العودة للقناة"
+T["en"]["btn_back_channel"] = "↩️ Back to the channel"
+T["ar"]["btn_open_private"] = "💬 افتح الخاص"
+T["en"]["btn_open_private"] = "💬 Open private chat"
+T["ar"]["sp_vote_dm_live"] = "🗳 التصويت بدأ في الخاص. افتح البوت واختر من تظن أنه المتطفل."
+T["en"]["sp_vote_dm_live"] = "🗳 Voting has started in private. Open the bot and pick who you think is the outsider."

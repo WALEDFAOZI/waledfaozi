@@ -21,6 +21,7 @@ from . import mafia as M
 from . import progress
 from .bot import btn, chan_row, esc, kb
 from .ctx import Ctx
+from .links import back_rows, open_private_rows, with_rows
 from .texts import t
 from .thread_anchor import anchor_id
 
@@ -190,15 +191,16 @@ def build_mafia_router(ctx: Ctx) -> Router:
 
     async def push_config(bot: Bot, g: Game) -> None:
         """رسالة الإعدادات للمضيف في الخاص فقط (تُعدَّل ولا تتراكم)."""
+        back = await back_rows(bot, g.chat_id, g.live, g.lang)
         if g.cfg_msg:
             try:
                 await bot.edit_message_text(config_text(g), chat_id=g.host_id, message_id=g.cfg_msg,
-                                            parse_mode="HTML", reply_markup=config_markup(g))
+                                            parse_mode="HTML", reply_markup=with_rows(config_markup(g), back))
                 return
             except TelegramAPIError:
                 pass
         try:
-            m = await bot.send_message(g.host_id, config_text(g), parse_mode="HTML", reply_markup=config_markup(g))
+            m = await bot.send_message(g.host_id, config_text(g), parse_mode="HTML", reply_markup=with_rows(config_markup(g), back))
             g.cfg_msg = m.message_id
         except TelegramAPIError:
             await show(bot, g, t(g.lang, "mf_host_dm_missing", me=g.me), None)
@@ -226,6 +228,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.round += 1
         g.night_picks, g.night_actions, g.acted = {}, {}, set()
         L = g.lang
+        back = await back_rows(bot, g.chat_id, g.live, L)               # زر العودة إلى رسالة اللعبة
         alive = alive_players(g)
         for p in alive:
             if p.role == "killer":
@@ -237,8 +240,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 rows = [[btn(q.name[:24], f"mf:n:{g.gid}:{p.role}:{q.uid}")] for q in alive if q.uid != p.uid]
             else:
                 continue
-            await dm(bot, p.uid, t(L, f"mf_n_{p.role}"), kb(*rows))
-        await show(bot, g, t(L, "mf_night_live", r=g.round, s=NIGHT_SECS, n=len(alive), names=names(g, True)))
+            await dm(bot, p.uid, t(L, f"mf_n_{p.role}"), kb(*rows, *back))
+        await show(bot, g, t(L, "mf_night_live", r=g.round, s=NIGHT_SECS, n=len(alive), names=names(g, True)),
+                   kb(*await open_private_rows(bot, L)))
         deadline = time.monotonic() + NIGHT_SECS
         while time.monotonic() < deadline and g.state == "night" and not night_complete(g):
             await asyncio.sleep(0.5)
