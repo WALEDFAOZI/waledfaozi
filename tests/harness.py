@@ -103,13 +103,13 @@ class FakeSession(BaseSession):
 
 
 class Harness:
-    def __init__(self, channel="", timer=0, cooldown=0, admin_ids=(), backup_chat="", backup_hours=6):
+    def __init__(self, channel="", timer=0, cooldown=0, admin_ids=(), backup_chat="", backup_hours=6, state=None):
         self.db = DB(":memory:")
         self.db.load_questions(QPATH)
         s = Settings(token="1:fake", db_path=":memory:", questions_path=QPATH, timer_seconds=timer,
                      cooldown_minutes=cooldown, admin_ids=tuple(admin_ids), required_channel=channel,
                      backup_chat=backup_chat, backup_hours=backup_hours)
-        self.ctx = Ctx(s, self.db)
+        self.ctx = Ctx(s, self.db, state=state)
         self.session = FakeSession()
         self.bot = Bot("1:fake", session=self.session)
         self.dp = build_dispatcher(self.ctx)

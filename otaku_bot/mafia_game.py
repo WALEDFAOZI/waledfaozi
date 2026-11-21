@@ -101,6 +101,7 @@ def night_complete(g: Game) -> bool:
 
 def build_mafia_router(ctx: Ctx) -> Router:
     db, rng = ctx.db, ctx.rng
+    games, cooldown = ctx.state.mafia_games, ctx.state.mafia_cooldown
     root = Router(name="mafia")
     msgs = Router(name="mafia_msgs")
     msgs.message.filter(F.chat.type.in_(GROUP_TYPES))

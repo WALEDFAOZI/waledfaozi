@@ -136,6 +136,7 @@ def mentions(text: str, char: dict) -> bool:
 
 def build_spy_router(ctx: Ctx) -> Router:
     db, rng = ctx.db, ctx.rng
+    games, cooldown = ctx.state.spy_games, ctx.state.spy_cooldown
     chars = load_characters()
     root = Router(name="spy")
     msgs = Router(name="spy_msgs")

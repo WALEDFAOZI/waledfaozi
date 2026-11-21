@@ -55,6 +55,7 @@ counter = [0]
 
 def build_online_router(ctx: Ctx) -> Router:
     db, rng = ctx.db, ctx.rng
+    queue, matches, user_match = ctx.state.online_queue, ctx.state.online_matches, ctx.state.online_user_match
     r = Router(name="online")
     r.callback_query.filter(F.message.chat.type == "private")
 

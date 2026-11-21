@@ -19,6 +19,7 @@ from .bot import build_router
 from .config import Settings
 from .ctx import Ctx
 from .registry import register_main
+from .state import CURRENT, scoped
 from .db import DB
 from .texts import t
 from .recommend import build_recommend_router
@@ -97,8 +98,23 @@ async def _tell_owners(bot: Bot, ctx: Ctx, text: str) -> None:
             pass
 
 
+class TenantScope(BaseMiddleware):
+    """يضبط حالة المستأجر لكل تحديث، فلا يقرأ بوت حالة بوت آخر."""
+
+    def __init__(self, state):
+        self.state = state
+
+    async def __call__(self, handler, event, data):
+        token = CURRENT.set(self.state)
+        try:
+            return await handler(event, data)
+        finally:
+            CURRENT.reset(token)
+
+
 def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp = Dispatcher()
+    dp.update.outer_middleware(TenantScope(ctx.state))
     dp.message.outer_middleware(Guard())
     dp.callback_query.outer_middleware(Guard())
     dp.callback_query.outer_middleware(SubGate(ctx))
@@ -175,9 +191,9 @@ async def run(settings: Settings) -> None:
             BotCommand(command="gstop", description="Stop the game ⛔")], scope=BotCommandScopeAllGroupChats(), language_code="en")
     except Exception as e:  # noqa: BLE001
         log.warning("group commands failed: %s", e)
-    ctx.tasks.append(asyncio.create_task(growth_loop(bot, ctx)))   # لقطة يومية لعدد مشتركي القناة
-    ctx.tasks.append(asyncio.create_task(reminder_loop(bot, ctx)))   # تذكير يومي اختياري
-    ctx.tasks.append(asyncio.create_task(backup_loop(bot, ctx)))   # نسخة احتياطية أسبوعية تلقائية
+    ctx.tasks.append(asyncio.create_task(scoped(ctx.state, growth_loop(bot, ctx))))   # لقطة يومية لعدد مشتركي القناة
+    ctx.tasks.append(asyncio.create_task(scoped(ctx.state, reminder_loop(bot, ctx))))   # تذكير يومي اختياري
+    ctx.tasks.append(asyncio.create_task(scoped(ctx.state, backup_loop(bot, ctx))))   # نسخة احتياطية أسبوعية تلقائية
     dp = build_dispatcher(ctx)
     await dp.start_polling(
         bot, allowed_updates=dp.resolve_used_update_types(),

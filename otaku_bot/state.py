@@ -24,3 +24,24 @@ class GameState:
 
 
 STATE = GameState()   # المستأجر الرئيسي
+
+
+# ── البوت الحالي (المستأجر) أثناء المعالجة ─────────────
+# كل تحديث وكل حلقة خلفية تضبط هذه المتغيّرة قبل العمل، فتقرأ الدوال المشتركة
+# (مثل القناة والذاكرة المؤقتة للروابط) حالة مستأجرها لا حالة مستأجر آخر.
+from contextvars import ContextVar  # noqa: E402
+
+CURRENT: ContextVar[GameState] = ContextVar("tenant_state", default=STATE)
+
+
+def current() -> GameState:
+    return CURRENT.get()
+
+
+async def scoped(state: GameState, coro):
+    """يشغّل coroutine بحالة مستأجر محددة (للحلقات الخلفية)."""
+    token = CURRENT.set(state)
+    try:
+        return await coro
+    finally:
+        CURRENT.reset(token)

@@ -53,6 +53,7 @@ def match(text: str, char: dict) -> bool:
 
 def build_swap_router(ctx: Ctx) -> Router:
     db = ctx.db
+    swaps = ctx.state.swaps
     rng: random.Random = ctx.rng
     r = Router(name="swap")
     r.message.filter(F.chat.type == "private")

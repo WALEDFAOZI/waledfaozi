@@ -20,7 +20,7 @@ from .config import LEVELS, ROOT
 from .ctx import Ctx
 from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
                    shuffle_options, title_for)
-from .state import STATE
+from .state import current
 from .texts import cat_label, t
 from .timeutil import day_start, week_start
 
@@ -83,12 +83,11 @@ def badge_label(b, L: str) -> str:
     return f"{b[1]} {b[2] if L == 'ar' else b[3]}"
 
 
-_CHAN = STATE.channel   # يضبطها build_router: القناة الحالية (قابلة للتعديل من لوحة الأدمن)
 
 
 def chan_row(L: str) -> list[list[InlineKeyboardButton]]:
     """صف زر «تعال للقناة وتفاعل مع الأوتاكو»، أو لا شيء إن لم تُضبط قناة."""
-    ch = (_CHAN["get"]() or "").lstrip("@")
+    ch = (current().channel["get"]() or "").lstrip("@")
     return [[btn(t(L, "btn_channel"), url=f"https://t.me/{ch}")]] if ch else []
 
 
@@ -125,7 +124,7 @@ def more_kb(L: str) -> InlineKeyboardMarkup:
 def build_router(ctx: Ctx) -> Router:
     r = Router()
     db, rng, settings = ctx.db, ctx.rng, ctx.settings
-    _CHAN["get"] = ctx.channel
+    ctx.state.channel["get"] = ctx.channel      # قناة هذا المستأجر فقط
     r.message.filter(F.chat.type == "private")                    # الخاص فقط؛ المجموعات لها router مستقل (group.py)
     r.callback_query.filter(F.message.chat.type == "private")
     r.callback_query.outer_middleware(ClearState())

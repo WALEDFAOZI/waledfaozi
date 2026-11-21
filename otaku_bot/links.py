@@ -11,27 +11,27 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram.types import InlineKeyboardMarkup
 
 from .bot import btn, kb
-from .state import STATE
+from .state import current
 from .texts import t
 
-_INFO: dict[int, tuple[str | None, str]] = STATE.chat_info   # chat_id -> (username, type)
-_ME: dict[str, str] = STATE.me_name
 
 
 async def bot_name(bot: Bot) -> str:
-    if "u" not in _ME:
-        _ME["u"] = (await bot.get_me()).username or ""
-    return _ME["u"]
+    me = current().me_name
+    if "u" not in me:
+        me["u"] = (await bot.get_me()).username or ""
+    return me["u"]
 
 
 async def chat_info(bot: Bot, chat_id: int) -> tuple[str | None, str]:
-    if chat_id not in _INFO:
+    info = current().chat_info
+    if chat_id not in info:
         try:
             ch = await bot.get_chat(chat_id)
-            _INFO[chat_id] = (ch.username, ch.type)
+            info[chat_id] = (ch.username, ch.type)
         except TelegramAPIError:
             return None, "group"
-    return _INFO[chat_id]
+    return info[chat_id]
 
 
 def msg_url(chat_id: int, username: str | None, mid: int) -> str:
