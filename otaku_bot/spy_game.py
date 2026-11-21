@@ -26,7 +26,6 @@ from .config import ROOT
 from .ctx import Ctx
 from .names import loc
 from .links import back_rows, open_private_rows
-from .state import STATE
 from .texts import t
 from .thread_anchor import anchor_id
 
@@ -87,8 +86,8 @@ class Game:
     task: asyncio.Task | None = None
 
 
-games: dict[int, Game] = STATE.spy_games
-cooldown: dict[int, float] = STATE.spy_cooldown
+games: dict[int, Game] = {}
+cooldown: dict[int, float] = {}
 counter = [0]
 
 
@@ -136,7 +135,6 @@ def mentions(text: str, char: dict) -> bool:
 
 def build_spy_router(ctx: Ctx) -> Router:
     db, rng = ctx.db, ctx.rng
-    games, cooldown = ctx.state.spy_games, ctx.state.spy_cooldown
     chars = load_characters()
     root = Router(name="spy")
     msgs = Router(name="spy_msgs")

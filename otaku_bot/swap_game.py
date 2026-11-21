@@ -23,12 +23,11 @@ from .config import ROOT
 from .ctx import Ctx
 from .names import loc
 from .spy_game import load_characters, normalize
-from .state import STATE
 from .texts import t
 
 GUESS_COOLDOWN = 10
 counter = [0]
-swaps: dict[int, dict] = STATE.swaps
+swaps: dict[int, dict] = {}
 
 
 class SwapFlow(StatesGroup):
@@ -53,7 +52,6 @@ def match(text: str, char: dict) -> bool:
 
 def build_swap_router(ctx: Ctx) -> Router:
     db = ctx.db
-    swaps = ctx.state.swaps
     rng: random.Random = ctx.rng
     r = Router(name="swap")
     r.message.filter(F.chat.type == "private")

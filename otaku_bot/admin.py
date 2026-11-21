@@ -32,7 +32,6 @@ from .content import ANIME_HELP, TF_HELP, parse_anime, parse_tf
 from .games import item_key, load_games
 from .recommend import hkey, load_anime
 from .texts import t
-from .tenants import RUNTIME
 
 log = logging.getLogger(__name__)
 BROADCAST_GAP = 300          # أقل مدة بين رسالتين جماعيتين (ثواني) لتفادي الإرسال بالخطأ
@@ -863,38 +862,22 @@ def build_admin_router(ctx: Ctx) -> Router:
                                "سأعرض لك معاينة، ثم تختار الجمهور وتؤكد قبل الإرسال.\nللإلغاء: /cancel", parse_mode="HTML")
 
     BC_KEYS = [
-        ("main_users", "👤 مستخدمو الخاص · البوت الرئيسي"),
-        ("main_channels", "📢 القنوات · البوت الرئيسي"),
-        ("main_groups", "👥 المجموعات · البوت الرئيسي"),
-        ("child_users", "👤 مستخدمو الخاص · البوتات الفرعية"),
-        ("child_channels", "📢 القنوات · البوتات الفرعية"),
-        ("child_groups", "👥 المجموعات · البوتات الفرعية"),
+        ("users", "👤 مستخدمين الخاص"),
+        ("channels", "📢 القنوات"),
+        ("groups", "👥 المجموعات"),
     ]
 
-    def bc_targets(sel: list[str], main_bot: Bot) -> list[tuple[Bot, int, str, object]]:
-        """قائمة (البوت، المعرّف، النوع، قاعدة صاحب البوت) لكل الوجهات المحددة."""
+    def bc_targets(sel: list[str], bot: Bot) -> list[tuple[Bot, int, str, object]]:
+        """قائمة (البوت، المعرّف، النوع، قاعدة البيانات) لكل الوجهات المحددة."""
         out: list[tuple[Bot, int, str, object]] = []
-        for key in sel:
-            scope, kind = key.split("_", 1)
-            if scope == "main":
-                bot_db = [(main_bot, db)]
-            else:
-                bot_db = [(h.bot, h.db) for h in RUNTIME.children()]
-            for bot, d in bot_db:
-                ids = d.broadcast_targets(None) if kind == "users" else d.broadcast_chats("channels" if kind == "channels" else "groups")
-                out += [(bot, i, kind, d) for i in ids]
+        for kind in sel:
+            ids = db.broadcast_targets(None) if kind == "users" else db.broadcast_chats(kind)
+            out += [(bot, i, kind, db) for i in ids]
         return out
 
     def bc_counts() -> dict[str, int]:
-        counts = {"main_users": len(db.broadcast_targets(None)), "main_channels": len(db.broadcast_chats("channels")),
-                  "main_groups": len(db.broadcast_chats("groups"))}
-        for key in ("child_users", "child_channels", "child_groups"):
-            counts[key] = 0
-        for h in RUNTIME.children():
-            counts["child_users"] += len(h.db.broadcast_targets(None))
-            counts["child_channels"] += len(h.db.broadcast_chats("channels"))
-            counts["child_groups"] += len(h.db.broadcast_chats("groups"))
-        return counts
+        return {"users": len(db.broadcast_targets(None)), "channels": len(db.broadcast_chats("channels")),
+                "groups": len(db.broadcast_chats("groups"))}
 
     def bc_keyboard(sel: list[str]):
         counts = bc_counts()
@@ -905,7 +888,7 @@ def build_admin_router(ctx: Ctx) -> Router:
         rows.append([btn("❌ إلغاء", "ad:home")])
         return kb(*rows)
 
-    @r.callback_query(F.data.regexp(r"^ad:bt:(main|child)_(users|channels|groups)$"))
+    @r.callback_query(F.data.regexp(r"^ad:bt:(users|channels|groups)$"))
     async def cb_bc_toggle(c: CallbackQuery, state: FSMContext):
         data = await state.get_data()
         if data.get("act") != "bcast_ready":
@@ -974,7 +957,7 @@ def build_admin_router(ctx: Ctx) -> Router:
                     await note.edit_text(f"📣 {i}/{len(targets)} …")
                 except TelegramAPIError:
                     pass
-        names = {"users": "مستخدمو الخاص", "channels": "القنوات", "groups": "المجموعات"}
+        names = {"users": "مستخدمين الخاص", "channels": "القنوات", "groups": "المجموعات"}
         lines = [f"• {names[k]}: وصلت {v['sent']} · حظروا/خرجوا {v['blocked']} · فشلت {v['failed']}" for k, v in totals.items()]
         await bot.send_message(admin_chat, "✅ انتهى الإرسال\n" + ("\n".join(lines) or "لا وجهات"))
         return totals

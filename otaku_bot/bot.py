@@ -20,8 +20,6 @@ from .config import LEVELS, ROOT
 from .ctx import Ctx
 from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
                    shuffle_options, title_for)
-from .state import current
-from .tenants import RelayUnavailable, relay_member
 from .texts import cat_label, t
 from .timeutil import day_start, week_start
 
@@ -84,11 +82,12 @@ def badge_label(b, L: str) -> str:
     return f"{b[1]} {b[2] if L == 'ar' else b[3]}"
 
 
+_CHAN = {"get": lambda: ""}   # يضبطها build_router: القناة الحالية (قابلة للتعديل من لوحة الأدمن)
 
 
 def chan_row(L: str) -> list[list[InlineKeyboardButton]]:
     """صف زر «تعال للقناة وتفاعل مع الأوتاكو»، أو لا شيء إن لم تُضبط قناة."""
-    ch = (current().channel["get"]() or "").lstrip("@")
+    ch = (_CHAN["get"]() or "").lstrip("@")
     return [[btn(t(L, "btn_channel"), url=f"https://t.me/{ch}")]] if ch else []
 
 
@@ -125,7 +124,7 @@ def more_kb(L: str) -> InlineKeyboardMarkup:
 def build_router(ctx: Ctx) -> Router:
     r = Router()
     db, rng, settings = ctx.db, ctx.rng, ctx.settings
-    ctx.state.channel["get"] = ctx.channel      # قناة هذا المستأجر فقط
+    _CHAN["get"] = ctx.channel
     r.message.filter(F.chat.type == "private")                    # الخاص فقط؛ المجموعات لها router مستقل (group.py)
     r.callback_query.filter(F.message.chat.type == "private")
     r.callback_query.outer_middleware(ClearState())
@@ -164,12 +163,9 @@ def build_router(ctx: Ctx) -> Router:
         if time.time() - sub_ok.get(tg_id, 0) < 30:
             return True
         try:
-            if ctx.tenant_id == 0:
-                member = await bot.get_chat_member(ch, tg_id)
-            else:                                              # البوت الفرعي: التحقق يطلبه من الرئيسي داخليًا
-                member = await relay_member(ch, tg_id)
-        except (TelegramAPIError, RelayUnavailable) as e:
-            log.warning("cannot verify subscription to %s (is the bot an admin there?): %s", ch, type(e).__name__)
+            member = await bot.get_chat_member(ch, tg_id)
+        except TelegramAPIError as e:
+            log.warning("cannot verify subscription to %s (is the bot an admin there?): %s", ch, e)
             return None
         ok = member.status in ("creator", "administrator", "member") or (
             member.status == "restricted" and getattr(member, "is_member", False))

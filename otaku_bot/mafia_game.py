@@ -73,10 +73,8 @@ class Game:
     cfg_msg: int | None = None       # رسالة إعدادات المضيف في الخاص
 
 
-from .state import STATE
-
-games: dict[int, Game] = STATE.mafia_games
-cooldown: dict[int, float] = STATE.mafia_cooldown
+games: dict[int, Game] = {}
+cooldown: dict[int, float] = {}
 counter = [0]
 
 
@@ -101,7 +99,6 @@ def night_complete(g: Game) -> bool:
 
 def build_mafia_router(ctx: Ctx) -> Router:
     db, rng = ctx.db, ctx.rng
-    games, cooldown = ctx.state.mafia_games, ctx.state.mafia_cooldown
     root = Router(name="mafia")
     msgs = Router(name="mafia_msgs")
     msgs.message.filter(F.chat.type.in_(GROUP_TYPES))

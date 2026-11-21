@@ -17,13 +17,6 @@ class Ctx:
     tasks: list = field(default_factory=list)   # مهام الخلفية (رسائل جماعية، نسخ احتياطي)
     subscribed: object = None   # دوال يضبطها bot.py: التحقق من الاشتراك وعرض شاشة الاشتراك
     gate: object = None
-    tenant_id: int = 0      # 0 = البوت الرئيسي؛ البوتات الفرعية لها معرّفات أخرى من السجل
-    state: object = None   # GameState لهذا المستأجر؛ None = الحالة الافتراضية (المستأجر الرئيسي)
-
-    def __post_init__(self):
-        if self.state is None:
-            from .state import STATE
-            self.state = STATE
 
     def timer(self) -> int:
         return int(self.db.get_setting("timer_seconds", str(self.settings.timer_seconds)))

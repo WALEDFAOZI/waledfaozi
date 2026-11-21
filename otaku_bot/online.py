@@ -17,7 +17,6 @@ from . import progress
 from .bot import btn, chan_row, esc, kb
 from .config import ROOT
 from .ctx import Ctx
-from .state import STATE
 from .texts import t
 
 log = logging.getLogger(__name__)
@@ -45,17 +44,14 @@ class Match:
     task: asyncio.Task | None = None
 
 
-queue: dict[str, list[tuple[int, float]]] = STATE.online_queue
-for _k in KINDS:
-    queue.setdefault(_k, [])
-matches: dict[int, Match] = STATE.online_matches
-user_match: dict[int, int] = STATE.online_user_match
+queue: dict[str, list[tuple[int, float]]] = {k: [] for k in KINDS}
+matches: dict[int, Match] = {}
+user_match: dict[int, int] = {}
 counter = [0]
 
 
 def build_online_router(ctx: Ctx) -> Router:
     db, rng = ctx.db, ctx.rng
-    queue, matches, user_match = ctx.state.online_queue, ctx.state.online_matches, ctx.state.online_user_match
     r = Router(name="online")
     r.callback_query.filter(F.message.chat.type == "private")
 

@@ -126,7 +126,7 @@ def test_broadcast_checkboxes_send_only_to_selected_targets_and_cooldown():
         confirms = sum("متأكد" in x for x in h.session.texts())
         await h.tap(o, "ad:bgo")                                  # لم يُحدد شيء بعد: لا تأكيد
         assert sum("متأكد" in x for x in h.session.texts()) == confirms
-        await h.tap(o, "ad:bt:main_users")                        # تحديد مستخدمي الخاص فقط
+        await h.tap(o, "ad:bt:users")                        # تحديد مستخدمي الخاص فقط
         await h.tap(o, "ad:bgo")
         assert "<b>4</b>" in h.session.texts()[-1]                # 11 و12 و13 و14 قبل الإرسال
         await h.tap(o, "ad:bg")
@@ -139,7 +139,7 @@ def test_broadcast_checkboxes_send_only_to_selected_targets_and_cooldown():
         # حماية: رسالة جماعية ثانية فورًا مرفوضة
         await h.tap(o, "ad:bc")
         await h.say(o, "رسالة ثانية")
-        await h.tap(o, "ad:bt:main_users")
+        await h.tap(o, "ad:bt:users")
         await h.tap(o, "ad:bgo")
         assert sum("متأكد" in x for x in h.session.texts()) == confirms + 1   # التأكيد الثاني لم يُعرض بسبب الانتظار
     run(go())
@@ -152,7 +152,7 @@ def test_broadcast_to_groups_and_channels_is_separate_from_private_users():
         h.db.touch_group(-100888, "مجموعة")
         await h.tap(o, "ad:bc")
         await h.say(o, "إعلان للمجموعات")
-        await h.tap(o, "ad:bt:main_groups")
+        await h.tap(o, "ad:bt:groups")
         await h.tap(o, "ad:bgo")
         await h.tap(o, "ad:bg")
         await asyncio.gather(*h.ctx.tasks)
@@ -169,7 +169,7 @@ def test_broadcast_with_photo_and_non_admin_denied():
         await h.photo(o, "PIC9", caption="إعلان بصورة")
         assert any(type(c).__name__ == "SendPhoto" and c.photo == "PIC9" and c.chat_id == 5 for c in h.session.calls)   # المعاينة
         h.db.set_setting("last_broadcast", "0")
-        await h.tap(o, "ad:bt:main_users")
+        await h.tap(o, "ad:bt:users")
         await h.tap(o, "ad:bgo")
         await h.tap(o, "ad:bg")
         await asyncio.gather(*h.ctx.tasks)
@@ -178,7 +178,7 @@ def test_broadcast_with_photo_and_non_admin_denied():
         x = h.user(77)
         await h.tap(x, "ad:bc")
         await h.say(x, "إعلان مزيّف")
-        await h.tap(x, "ad:bt:main_users")
+        await h.tap(x, "ad:bt:users")
         await h.tap(x, "ad:bg")
         assert not h.session.sent_to(77)
     run(go())
@@ -363,3 +363,19 @@ def test_ping_reports_delivery_delay_and_conflict_alert_removed():
     run(go())
     import otaku_bot.app as app
     assert not hasattr(app, "ConflictWatcher")
+
+
+def test_broadcast_to_channels_checkbox():
+    async def go():
+        h, o = mk()
+        h.db.upsert_user(11, "u11")
+        h.db.link_channel(-100999, o.id if hasattr(o, "id") else 5, "قناة")
+        await h.tap(o, "ad:bc")
+        await h.say(o, "إعلان للقنوات")
+        await h.tap(o, "ad:bt:channels")
+        await h.tap(o, "ad:bgo")
+        await h.tap(o, "ad:bg")
+        await asyncio.gather(*h.ctx.tasks)
+        got = {c.chat_id for c in h.session.calls if getattr(c, "text", None) == "إعلان للقنوات"}
+        assert got - {5} == {-100999}                           # القناة فقط، لا المستخدمون
+    run(go())
