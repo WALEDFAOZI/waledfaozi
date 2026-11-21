@@ -107,6 +107,9 @@ class Game:
     task: asyncio.Task | None = None
 
 
+_BG_TASKS: set = set()   # مهام خلفية قصيرة (حذف رسائل مؤقتة) نحتفظ بمراجعها
+
+
 def build_group_router(ctx: Ctx) -> Router:
     root = Router(name="groups")
     r = Router(name="group_msgs")                       # أوامر المجموعات
@@ -724,6 +727,7 @@ def build_group_router(ctx: Ctx) -> Router:
             g = games.get(ev.chat.id)
             if g and g.task:
                 g.task.cancel()
+            db.forget_chat(ev.chat.id)                       # لم يعد البوت هناك: لا إرسال ولا إحصاء
             return
         if ev.chat.type == "channel" and st == "administrator" and ev.from_user and not ev.from_user.is_bot:
             db.touch_group(ev.chat.id, ev.chat.title)
@@ -763,7 +767,9 @@ def build_group_router(ctx: Ctx) -> Router:
                     await m.bot.delete_message(m.chat.id, note.message_id)
                 except TelegramAPIError:
                     pass
-            asyncio.create_task(later())
+            task = asyncio.create_task(later())
+            _BG_TASKS.add(task)                          # نحتفظ بمرجع حتى ينتهي، وإلا قد يجمعه المحرر قبل حذف الرسالة
+            task.add_done_callback(_BG_TASKS.discard)
 
     @pm.callback_query(F.data == "gpc")
     async def cb_channels(c: CallbackQuery):

@@ -219,7 +219,8 @@ def test_no_code_path_deletes_players_or_their_progress():
         for pat in banned:
             assert not re.search(pat, src, re.I), f"{f.name}: {pat}"
     # الحذف الوحيد المسموح: أسئلة أضافها المالك/المقترحة، وصلاحيات مشرف، وليس بيانات اللاعبين
-    allowed = {"DELETE FROM questions", "DELETE FROM admins"}
+    # group_chats و channel_links: سجلات الدردشات فقط (حين يُخرَج البوت منها)، وليست بيانات لاعبين
+    allowed = {"DELETE FROM questions", "DELETE FROM admins", "DELETE FROM group_chats", "DELETE FROM channel_links"}
     found = set()
     for f in (ROOT / "otaku_bot").glob("*.py"):
         found |= {m.group(0).upper().replace("  ", " ") for m in re.finditer(r"DELETE\s+FROM\s+\w+", f.read_text(encoding="utf-8"), re.I)}

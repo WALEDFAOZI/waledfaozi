@@ -1074,6 +1074,12 @@ class DB:
             sql, args = sql + " AND lang=?", (lang,)
         return [r["tg_id"] for r in self.conn.execute(sql, args)]
 
+    def forget_chat(self, chat_id: int) -> None:
+        """يحذف الدردشة من السجلات عند خروج البوت منها أو منعه، فلا تبقى في الإرسال والإحصاءات."""
+        with self.conn:
+            self.conn.execute("DELETE FROM group_chats WHERE chat_id=?", (chat_id,))
+            self.conn.execute("DELETE FROM channel_links WHERE chat_id=?", (chat_id,))
+
     def broadcast_chats(self, kind: str) -> list[int]:
         """قنوات (channel_links) أو مجموعات (group_chats) تُرسل إليها الرسالة الجماعية."""
         table = {"channels": "channel_links", "groups": "group_chats"}[kind]

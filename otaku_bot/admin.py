@@ -948,6 +948,8 @@ def build_admin_router(ctx: Ctx) -> Router:
             except TelegramForbiddenError:                # حظر البوت أو خروجه: نتوقف عن مراسلته
                 if kind == "users":
                     d.mark_blocked(chat_id)
+                else:
+                    db.forget_chat(chat_id)
                 row["blocked"] += 1
             except TelegramAPIError:
                 row["failed"] += 1

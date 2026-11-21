@@ -379,3 +379,27 @@ def test_broadcast_to_channels_checkbox():
         got = {c.chat_id for c in h.session.calls if getattr(c, "text", None) == "إعلان للقنوات"}
         assert got - {5} == {-100999}                           # القناة فقط، لا المستخدمون
     run(go())
+
+
+def test_removed_group_is_forgotten_and_not_broadcast_to():
+    async def go():
+        h, o = mk()
+        h.db.touch_group(-100123, "قديمة")
+        h.db.touch_group(-100124, "حيّة")
+        h.session.blocked_chats = {-100123}                     # البوت أُخرج منها
+        await h.tap(o, "ad:bc")
+        await h.say(o, "إعلان قديم")
+        await h.tap(o, "ad:bt:groups")
+        await h.tap(o, "ad:bgo")
+        await h.tap(o, "ad:bg")
+        await asyncio.gather(*h.ctx.tasks)
+        assert -100123 not in h.db.broadcast_chats("groups")    # حُذفت بعد أول فشل
+        assert -100124 in h.db.broadcast_chats("groups")
+    run(go())
+
+
+def test_leaving_group_removes_it_from_records():
+    h = Harness()
+    h.db.touch_group(-100555, "x")
+    h.db.forget_chat(-100555)
+    assert -100555 not in h.db.broadcast_chats("groups")
