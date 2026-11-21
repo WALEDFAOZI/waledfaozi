@@ -220,7 +220,7 @@ def build_group_router(ctx: Ctx) -> Router:
         kw = {"message_thread_id": m.message_thread_id} if getattr(m, "is_topic_message", False) and m.message_thread_id else {}
         try:
             await m.bot.send_message(m.chat.id, text, parse_mode="HTML", reply_markup=markup,
-                                     reply_parameters=ReplyParameters(message_id=m.message_id, allow_sending_without_reply=True),   # القائمة ترد على الأمر نفسه: cb_pick يعرف صاحبه منه
+                                     reply_parameters=ReplyParameters(message_id=anchor_id(m), allow_sending_without_reply=True),   # داخل تعليقات المنشور: نرد على نسخة المنشور
                                      **kw)
         except TelegramAPIError as e:
             log.warning("group reply failed: %s", e)

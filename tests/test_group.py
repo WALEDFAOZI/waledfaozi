@@ -639,10 +639,10 @@ def test_comment_play_menu_lets_the_sender_pick_a_game():
         h.uid += 1
         await h.dp.feed_update(h.bot, Update(update_id=h.uid, message=cmd))
         menu = sent(h)[-1]
-        assert "gp:n:quiz" in buttons(menu)
-        await gtap(h, a, "gp:n:quiz", msg_id=78, reply_to=cmd)
+        assert "gp:n:quiz" in buttons(menu) and menu.reply_parameters.message_id == 40   # القائمة ترد على نسخة المنشور
+        await gtap(h, a, "gp:n:quiz", msg_id=78, reply_to=post_copy)
         lobby = sent(h)[-1]
-        assert "Ali" in lobby.text and "gp:j:" in buttons(lobby)[0]
+        assert "Ali" in lobby.text and "gp:j:" in buttons(lobby)[0] and lobby.reply_parameters.message_id == 40
     run(go())
 
 
