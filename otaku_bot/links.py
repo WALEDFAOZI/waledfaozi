@@ -11,10 +11,11 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram.types import InlineKeyboardMarkup
 
 from .bot import btn, kb
+from .state import STATE
 from .texts import t
 
-_INFO: dict[int, tuple[str | None, str]] = {}   # chat_id -> (username, type)
-_ME: dict[str, str] = {}
+_INFO: dict[int, tuple[str | None, str]] = STATE.chat_info   # chat_id -> (username, type)
+_ME: dict[str, str] = STATE.me_name
 
 
 async def bot_name(bot: Bot) -> str:

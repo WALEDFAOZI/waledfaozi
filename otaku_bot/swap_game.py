@@ -23,11 +23,12 @@ from .config import ROOT
 from .ctx import Ctx
 from .names import loc
 from .spy_game import load_characters, normalize
+from .state import STATE
 from .texts import t
 
 GUESS_COOLDOWN = 10
 counter = [0]
-swaps: dict[int, dict] = {}
+swaps: dict[int, dict] = STATE.swaps
 
 
 class SwapFlow(StatesGroup):

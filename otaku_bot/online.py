@@ -17,6 +17,7 @@ from . import progress
 from .bot import btn, chan_row, esc, kb
 from .config import ROOT
 from .ctx import Ctx
+from .state import STATE
 from .texts import t
 
 log = logging.getLogger(__name__)
@@ -44,9 +45,11 @@ class Match:
     task: asyncio.Task | None = None
 
 
-queue: dict[str, list[tuple[int, float]]] = {k: [] for k in KINDS}
-matches: dict[int, Match] = {}
-user_match: dict[int, int] = {}
+queue: dict[str, list[tuple[int, float]]] = STATE.online_queue
+for _k in KINDS:
+    queue.setdefault(_k, [])
+matches: dict[int, Match] = STATE.online_matches
+user_match: dict[int, int] = STATE.online_user_match
 counter = [0]
 
 

@@ -20,6 +20,7 @@ from .config import LEVELS, ROOT
 from .ctx import Ctx
 from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
                    shuffle_options, title_for)
+from .state import STATE
 from .texts import cat_label, t
 from .timeutil import day_start, week_start
 
@@ -82,7 +83,7 @@ def badge_label(b, L: str) -> str:
     return f"{b[1]} {b[2] if L == 'ar' else b[3]}"
 
 
-_CHAN = {"get": lambda: ""}   # يضبطها build_router: القناة الحالية (قابلة للتعديل من لوحة الأدمن)
+_CHAN = STATE.channel   # يضبطها build_router: القناة الحالية (قابلة للتعديل من لوحة الأدمن)
 
 
 def chan_row(L: str) -> list[list[InlineKeyboardButton]]:

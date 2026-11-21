@@ -73,8 +73,10 @@ class Game:
     cfg_msg: int | None = None       # رسالة إعدادات المضيف في الخاص
 
 
-games: dict[int, Game] = {}
-cooldown: dict[int, float] = {}
+from .state import STATE
+
+games: dict[int, Game] = STATE.mafia_games
+cooldown: dict[int, float] = STATE.mafia_cooldown
 counter = [0]
 
 

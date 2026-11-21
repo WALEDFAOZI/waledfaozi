@@ -26,6 +26,7 @@ from .config import ROOT
 from .ctx import Ctx
 from .names import loc
 from .links import back_rows, open_private_rows
+from .state import STATE
 from .texts import t
 from .thread_anchor import anchor_id
 
@@ -86,8 +87,8 @@ class Game:
     task: asyncio.Task | None = None
 
 
-games: dict[int, Game] = {}
-cooldown: dict[int, float] = {}
+games: dict[int, Game] = STATE.spy_games
+cooldown: dict[int, float] = STATE.spy_cooldown
 counter = [0]
 
 
