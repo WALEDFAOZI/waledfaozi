@@ -109,37 +109,55 @@ def test_admin_reviews_suggestion_and_user_is_notified_and_question_playable():
 
 
 # ── #9 رسالة جماعية ─────────────────────────────────────
-def test_broadcast_preview_audience_confirm_blocked_and_cooldown():
+def test_broadcast_checkboxes_send_only_to_selected_targets_and_cooldown():
     async def go():
         h, o = mk()
-        for uid, lang in ((11, "ar"), (12, "ar"), (13, "en"), (14, "ar")):
-            h.db.upsert_user(uid, f"u{uid}", lang)
+        for uid in (11, 12, 13, 14):
+            h.db.upsert_user(uid, f"u{uid}")
         h.session.blocked_chats = {12}
+        h.db.touch_group(-100777, "قروب")
         await h.tap(o, "ad:bc")
         await h.say(o, "")                                       # فارغ
         await h.say(o, "📣 تحديث جديد في البوت!")
-        assert "اختر الجمهور" in h.session.texts()[-1]
+        assert "اختر الوجهات" in h.session.texts()[-1]
         before = len(h.session.sent_to(11))
         await h.tap(o, "ad:bs:me")                                # تجربة لي فقط
         assert len(h.session.sent_to(11)) == before and any(c.chat_id == 5 and "تحديث جديد" in (c.text or "") for c in h.session.sent_to(5))
-        await h.tap(o, "ad:bs:ar")                                # تأكيد لـ 3 عربي
-        assert "3" in h.session.texts()[-1]
-        await h.tap(o, "ad:bg:ar")
+        confirms = sum("متأكد" in x for x in h.session.texts())
+        await h.tap(o, "ad:bgo")                                  # لم يُحدد شيء بعد: لا تأكيد
+        assert sum("متأكد" in x for x in h.session.texts()) == confirms
+        await h.tap(o, "ad:bt:main_users")                        # تحديد مستخدمي الخاص فقط
+        await h.tap(o, "ad:bgo")
+        assert "<b>4</b>" in h.session.texts()[-1]                # 11 و12 و13 و14 قبل الإرسال
+        await h.tap(o, "ad:bg")
         await asyncio.gather(*h.ctx.tasks)
         got = {c.chat_id for c in h.session.calls if getattr(c, "text", None) == "📣 تحديث جديد في البوت!"}
-        assert {11, 14} <= got and 13 not in got                  # الإنجليزي لم يصله
+        assert {11, 13, 14} <= got and -100777 not in got        # المجموعة لم تُحدد فلم تصلها
         assert h.db.conn.execute("SELECT blocked FROM users WHERE tg_id=12").fetchone()[0] == 1   # حظر البوت
         assert 12 not in h.db.broadcast_targets()
-        assert "حظروا البوت: 1" in h.session.texts()[-1]
+        assert "حظروا/خرجوا 1" in h.session.texts()[-1]
         # حماية: رسالة جماعية ثانية فورًا مرفوضة
         await h.tap(o, "ad:bc")
         await h.say(o, "رسالة ثانية")
-        n = len(h.db.broadcast_targets())
-        await h.tap(o, "ad:bs:all")
-        assert "انتظر" in h.session.texts()[-1]
-        # ويعود المستخدم لقائمة الإرسال إذا فتح البوت من جديد
-        h.db.upsert_user(12, "u12")
-        assert 12 in h.db.broadcast_targets()
+        await h.tap(o, "ad:bt:main_users")
+        await h.tap(o, "ad:bgo")
+        assert sum("متأكد" in x for x in h.session.texts()) == confirms + 1   # التأكيد الثاني لم يُعرض بسبب الانتظار
+    run(go())
+
+
+def test_broadcast_to_groups_and_channels_is_separate_from_private_users():
+    async def go():
+        h, o = mk()
+        h.db.upsert_user(11, "u11")
+        h.db.touch_group(-100888, "مجموعة")
+        await h.tap(o, "ad:bc")
+        await h.say(o, "إعلان للمجموعات")
+        await h.tap(o, "ad:bt:main_groups")
+        await h.tap(o, "ad:bgo")
+        await h.tap(o, "ad:bg")
+        await asyncio.gather(*h.ctx.tasks)
+        got = {c.chat_id for c in h.session.calls if getattr(c, "text", None) == "إعلان للمجموعات"}
+        assert got - {5} == {-100888}                             # المجموعة فقط (5 هو معاينة الأدمن)، لا المستخدمون
     run(go())
 
 
@@ -151,15 +169,17 @@ def test_broadcast_with_photo_and_non_admin_denied():
         await h.photo(o, "PIC9", caption="إعلان بصورة")
         assert any(type(c).__name__ == "SendPhoto" and c.photo == "PIC9" and c.chat_id == 5 for c in h.session.calls)   # المعاينة
         h.db.set_setting("last_broadcast", "0")
-        await h.tap(o, "ad:bs:all")
-        await h.tap(o, "ad:bg:all")
+        await h.tap(o, "ad:bt:main_users")
+        await h.tap(o, "ad:bgo")
+        await h.tap(o, "ad:bg")
         await asyncio.gather(*h.ctx.tasks)
         assert any(type(c).__name__ == "SendPhoto" and c.chat_id == 11 and c.caption == "إعلان بصورة" for c in h.session.calls)
         # غير المشرف
         x = h.user(77)
         await h.tap(x, "ad:bc")
         await h.say(x, "إعلان مزيّف")
-        await h.tap(x, "ad:bg:all")
+        await h.tap(x, "ad:bt:main_users")
+        await h.tap(x, "ad:bg")
         assert not h.session.sent_to(77)
     run(go())
 

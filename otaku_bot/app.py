@@ -18,7 +18,8 @@ from .growth import growth_loop
 from .bot import build_router
 from .config import Settings
 from .ctx import Ctx
-from .registry import register_main
+from .registry import MAIN_TENANT, open_configured, register_main
+from .tenants import RUNTIME, Registration, attach_ownership, build_registration_router, start_all_children
 from .state import CURRENT, scoped
 from .db import DB
 from .texts import t
@@ -112,9 +113,11 @@ class TenantScope(BaseMiddleware):
             CURRENT.reset(token)
 
 
-def build_dispatcher(ctx: Ctx) -> Dispatcher:
+def build_dispatcher(ctx: Ctx, extra: list | None = None) -> Dispatcher:
     dp = Dispatcher()
     dp.update.outer_middleware(TenantScope(ctx.state))
+    for router in extra or []:                  # مثل /newbot للبوت الرئيسي: قبل كل شيء
+        dp.include_router(router)
     dp.message.outer_middleware(Guard())
     dp.callback_query.outer_middleware(Guard())
     dp.callback_query.outer_middleware(SubGate(ctx))
@@ -135,6 +138,8 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
 async def run(settings: Settings) -> None:
     bot = Bot(settings.token)
     await register_main(bot, settings)                      # السجل المركزي (المستأجر 0)، اختياري
+    RUNTIME.main_bot, RUNTIME.base = bot, settings
+    registry = open_configured(settings)                    # None إن لم يُفعَّل السجل
     restore = await restore_if_empty(bot, settings)          # قبل فتح القاعدة: لو انمسح القرص نستعيد التقدم
     if restore != "kept":
         log.warning("database startup: %s", restore)
@@ -194,7 +199,12 @@ async def run(settings: Settings) -> None:
     ctx.tasks.append(asyncio.create_task(scoped(ctx.state, growth_loop(bot, ctx))))   # لقطة يومية لعدد مشتركي القناة
     ctx.tasks.append(asyncio.create_task(scoped(ctx.state, reminder_loop(bot, ctx))))   # تذكير يومي اختياري
     ctx.tasks.append(asyncio.create_task(scoped(ctx.state, backup_loop(bot, ctx))))   # نسخة احتياطية أسبوعية تلقائية
-    dp = build_dispatcher(ctx)
+    extra = [build_registration_router(Registration(registry, settings))] if registry else None
+    dp = build_dispatcher(ctx, extra=extra)
+    if registry:
+        attach_ownership(dp, registry, MAIN_TENANT)           # ملكية المجموعات للبوت الرئيسي أيضًا
+        started = await start_all_children(settings, registry)
+        log.info("child bots started: %d", started)
     await dp.start_polling(
         bot, allowed_updates=dp.resolve_used_update_types(),
         backoff_config=BackoffConfig(min_delay=0.2, max_delay=1.5, factor=1.3, jitter=0.1))   # إعادة اتصال أسرع (الافتراضي حتى 5ث)

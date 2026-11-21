@@ -1074,6 +1074,11 @@ class DB:
             sql, args = sql + " AND lang=?", (lang,)
         return [r["tg_id"] for r in self.conn.execute(sql, args)]
 
+    def broadcast_chats(self, kind: str) -> list[int]:
+        """قنوات (channel_links) أو مجموعات (group_chats) تُرسل إليها الرسالة الجماعية."""
+        table = {"channels": "channel_links", "groups": "group_chats"}[kind]
+        return [r["chat_id"] for r in self.conn.execute(f"SELECT chat_id FROM {table}")]
+
     def mark_blocked(self, tg_id: int) -> None:
         with self.conn:
             self.conn.execute("UPDATE users SET blocked=1 WHERE tg_id=?", (tg_id,))

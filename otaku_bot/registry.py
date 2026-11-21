@@ -60,6 +60,7 @@ class Registry:
             self._fernet = Fernet(key.encode() if isinstance(key, str) else key)
         except (ValueError, TypeError) as e:
             raise RegistryError("REGISTRY_KEY غير صالح (أنشئه بـ generate_key)") from e
+        self.path = Path(path)
         self._lock = threading.Lock()
         self._con = sqlite3.connect(str(path), check_same_thread=False)
         self._con.row_factory = sqlite3.Row
@@ -115,6 +116,13 @@ class Registry:
             raise RegistryError("مستأجر غير موجود")
         return self._dec(row["token_enc"])
 
+    def active_children(self) -> list[dict]:
+        """البوتات الفرعية النشطة (كل المستأجرين ما عدا الرئيسي)."""
+        rows = self._con.execute(
+            "SELECT id, owner_user_id, bot_id, bot_username, db_path FROM tenants WHERE id<>? AND status='active' ORDER BY id",
+            (MAIN_TENANT,)).fetchall()
+        return [dict(r) for r in rows]
+
     def db_path(self, tenant_id: int) -> str | None:
         row = self._con.execute("SELECT db_path FROM tenants WHERE id=?", (tenant_id,)).fetchone()
         return row["db_path"] if row else None
@@ -132,6 +140,18 @@ class Registry:
     def chat_owner(self, chat_id: int) -> int | None:
         row = self._con.execute("SELECT tenant_id FROM chat_owner WHERE chat_id=?", (chat_id,)).fetchone()
         return int(row["tenant_id"]) if row else None
+
+
+def open_configured(settings) -> "Registry | None":
+    """يفتح السجل إن كان REGISTRY_KEY مضبوطًا، وإلا يرجع None. لا يوقف البوت عند الخطأ."""
+    key = getattr(settings, "registry_key", "")
+    if not key:
+        return None
+    try:
+        return Registry(settings.registry_path, key)
+    except RegistryError as e:
+        log.warning("registry disabled: %s", e)
+        return None
 
 
 async def register_main(bot, settings) -> None:

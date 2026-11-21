@@ -21,6 +21,7 @@ from .ctx import Ctx
 from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
                    shuffle_options, title_for)
 from .state import current
+from .tenants import RelayUnavailable, relay_member
 from .texts import cat_label, t
 from .timeutil import day_start, week_start
 
@@ -163,9 +164,12 @@ def build_router(ctx: Ctx) -> Router:
         if time.time() - sub_ok.get(tg_id, 0) < 30:
             return True
         try:
-            member = await bot.get_chat_member(ch, tg_id)
-        except TelegramAPIError as e:
-            log.warning("cannot verify subscription to %s (is the bot an admin there?): %s", ch, e)
+            if ctx.tenant_id == 0:
+                member = await bot.get_chat_member(ch, tg_id)
+            else:                                              # البوت الفرعي: التحقق يطلبه من الرئيسي داخليًا
+                member = await relay_member(ch, tg_id)
+        except (TelegramAPIError, RelayUnavailable) as e:
+            log.warning("cannot verify subscription to %s (is the bot an admin there?): %s", ch, type(e).__name__)
             return None
         ok = member.status in ("creator", "administrator", "member") or (
             member.status == "restricted" and getattr(member, "is_member", False))

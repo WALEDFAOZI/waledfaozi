@@ -32,6 +32,7 @@ from .content import ANIME_HELP, TF_HELP, parse_anime, parse_tf
 from .games import item_key, load_games
 from .recommend import hkey, load_anime
 from .texts import t
+from .tenants import RUNTIME
 
 log = logging.getLogger(__name__)
 BROADCAST_GAP = 300          # أقل مدة بين رسالتين جماعيتين (ثواني) لتفادي الإرسال بالخطأ
@@ -62,7 +63,7 @@ async def nav(c: CallbackQuery, text: str, markup, parse_mode: str | None = "HTM
 
 class ClearPending(BaseMiddleware):
     """أي زر في اللوحة (عدا خطوات المعالج نفسه) يُلغي الإدخال المعلّق، حتى لا يُفسَّر كلامك العادي بالغلط."""
-    KEEP = ("ad:aa:", "ad:ad:", "ad:ac:", "ad:ae:", "ad:bs:", "ad:bg:")
+    KEEP = ("ad:aa:", "ad:ad:", "ad:ac:", "ad:ae:", "ad:bs:", "ad:bg", "ad:bt:")
 
     async def __call__(self, handler, event, data):
         d = getattr(event, "data", None) or ""
@@ -576,11 +577,9 @@ def build_admin_router(ctx: Ctx) -> Router:
                 return
             await state.update_data(act="bcast_ready", bc_text=text, bc_photo=(photo[3:] if photo else None))
             await send_one(m.bot, m.chat.id, text, photo[3:] if photo else None)         # معاينة
-            n_all, n_ar, n_en = (len(audience(a)) for a in ("all", "ar", "en"))
-            await m.answer("👆 هذه معاينة رسالتك. اختر الجمهور:", reply_markup=kb(
-                [btn(f"👥 الكل ({n_all})", "ad:bs:all")],
-                [btn(f"🇸🇦 العربية ({n_ar})", "ad:bs:ar"), btn(f"🇬🇧 English ({n_en})", "ad:bs:en")],
-                [btn("📤 أرسلها لي فقط (تجربة)", "ad:bs:me")], [btn("❌ إلغاء", "ad:home")]))
+            await state.update_data(bc_sel=[])
+            await m.answer("👆 هذه معاينة رسالتك. اختر الوجهات بالضغط عليها (✅ = تُرسل)، ثم أرسل:",
+                           reply_markup=bc_keyboard([]))
 
         elif act == "channel":
             await state.clear()
@@ -863,66 +862,134 @@ def build_admin_router(ctx: Ctx) -> Router:
         await c.message.answer("📣 <b>رسالة جماعية</b>\nأرسل الرسالة (نصًا، أو صورة ومعها النص كتعليق).\n"
                                "سأعرض لك معاينة، ثم تختار الجمهور وتؤكد قبل الإرسال.\nللإلغاء: /cancel", parse_mode="HTML")
 
-    def audience(aud: str):
-        return db.broadcast_targets(aud if aud in ("ar", "en") else None)
+    BC_KEYS = [
+        ("main_users", "👤 مستخدمو الخاص · البوت الرئيسي"),
+        ("main_channels", "📢 القنوات · البوت الرئيسي"),
+        ("main_groups", "👥 المجموعات · البوت الرئيسي"),
+        ("child_users", "👤 مستخدمو الخاص · البوتات الفرعية"),
+        ("child_channels", "📢 القنوات · البوتات الفرعية"),
+        ("child_groups", "👥 المجموعات · البوتات الفرعية"),
+    ]
 
-    @r.callback_query(F.data.regexp(r"^ad:bs:(all|ar|en|me)$"))
-    async def cb_bc_audience(c: CallbackQuery, state: FSMContext):
+    def bc_targets(sel: list[str], main_bot: Bot) -> list[tuple[Bot, int, str, object]]:
+        """قائمة (البوت، المعرّف، النوع، قاعدة صاحب البوت) لكل الوجهات المحددة."""
+        out: list[tuple[Bot, int, str, object]] = []
+        for key in sel:
+            scope, kind = key.split("_", 1)
+            if scope == "main":
+                bot_db = [(main_bot, db)]
+            else:
+                bot_db = [(h.bot, h.db) for h in RUNTIME.children()]
+            for bot, d in bot_db:
+                ids = d.broadcast_targets(None) if kind == "users" else d.broadcast_chats("channels" if kind == "channels" else "groups")
+                out += [(bot, i, kind, d) for i in ids]
+        return out
+
+    def bc_counts() -> dict[str, int]:
+        counts = {"main_users": len(db.broadcast_targets(None)), "main_channels": len(db.broadcast_chats("channels")),
+                  "main_groups": len(db.broadcast_chats("groups"))}
+        for key in ("child_users", "child_channels", "child_groups"):
+            counts[key] = 0
+        for h in RUNTIME.children():
+            counts["child_users"] += len(h.db.broadcast_targets(None))
+            counts["child_channels"] += len(h.db.broadcast_chats("channels"))
+            counts["child_groups"] += len(h.db.broadcast_chats("groups"))
+        return counts
+
+    def bc_keyboard(sel: list[str]):
+        counts = bc_counts()
+        rows = [[btn(("✅ " if k in sel else "⬜ ") + f"{label} ({counts[k]})", f"ad:bt:{k}")] for k, label in BC_KEYS]
+        total = sum(counts[k] for k in sel)
+        rows.append([btn(f"📤 أرسل إلى المحدد ({total})", "ad:bgo")])
+        rows.append([btn("🧪 أرسلها لي فقط (تجربة)", "ad:bs:me")])
+        rows.append([btn("❌ إلغاء", "ad:home")])
+        return kb(*rows)
+
+    @r.callback_query(F.data.regexp(r"^ad:bt:(main|child)_(users|channels|groups)$"))
+    async def cb_bc_toggle(c: CallbackQuery, state: FSMContext):
+        data = await state.get_data()
+        if data.get("act") != "bcast_ready":
+            await c.answer("انتهت الجلسة. ابدأ من «📣 رسالة جماعية».", show_alert=True)
+            return
+        key = c.data.split(":")[2]
+        sel = list(data.get("bc_sel", []))
+        sel = [x for x in sel if x != key] if key in sel else sel + [key]
+        await state.update_data(bc_sel=sel)
+        await c.answer()
+        try:
+            await c.message.edit_reply_markup(reply_markup=bc_keyboard(sel))
+        except TelegramAPIError:
+            pass
+
+    @r.callback_query(F.data.regexp(r"^ad:bs:me$"))
+    async def cb_bc_test(c: CallbackQuery, state: FSMContext):
         await c.answer()
         data = await state.get_data()
         if data.get("act") != "bcast_ready":
             await c.message.answer("انتهت الجلسة. ابدأ من «📣 رسالة جماعية».", reply_markup=kb(BACK))
             return
-        aud = c.data.split(":")[2]
-        if aud == "me":
-            await send_one(c.bot, c.message.chat.id, data["bc_text"], data["bc_photo"])
-            await c.message.answer("📤 هذه تجربة وصلتك أنت فقط. اختر الجمهور للإرسال الفعلي.")
+        await send_one(c.bot, c.message.chat.id, data["bc_text"], data["bc_photo"])
+        await c.message.answer("🧪 هذه تجربة وصلتك أنت فقط.")
+
+    @r.callback_query(F.data == "ad:bgo")
+    async def cb_bc_confirm(c: CallbackQuery, state: FSMContext):
+        data = await state.get_data()
+        if data.get("act") != "bcast_ready":
+            await c.answer("انتهت الجلسة", show_alert=True)
+            return
+        sel = list(data.get("bc_sel", []))
+        if not sel:
+            await c.answer("اختر وجهة واحدة على الأقل", show_alert=True)
             return
         wait = float(db.get_setting("last_broadcast", "0") or 0) + BROADCAST_GAP - time.time()
         if wait > 0:
-            await c.message.answer(f"⏳ انتظر {int(wait // 60) + 1} دقيقة قبل رسالة جماعية أخرى (حماية من الإرسال بالخطأ).")
+            await c.answer(f"انتظر {int(wait // 60) + 1} دقيقة قبل رسالة جماعية أخرى", show_alert=True)
             return
-        n = len(audience(aud))
-        await c.message.answer(f"⚠️ سيُرسَل هذا إلى <b>{n}</b> مستخدم. متأكد؟", parse_mode="HTML", reply_markup=kb(
-            [btn("✅ نعم، أرسل", f"ad:bg:{aud}")], [btn("❌ إلغاء", "ad:home")]))
+        await c.answer()
+        n = len(bc_targets(sel, c.bot))
+        await c.message.answer(f"⚠️ سيُرسَل هذا إلى <b>{n}</b> وجهة. متأكد؟", parse_mode="HTML", reply_markup=kb(
+            [btn("✅ نعم، أرسل", "ad:bg")], [btn("❌ إلغاء", "ad:home")]))
 
-    async def run_broadcast(bot: Bot, admin_chat: int, targets: list[int], text: str, photo: str | None) -> dict:
-        sent = blocked = failed = 0
-        note = await bot.send_message(admin_chat, f"📣 بدأ الإرسال إلى {len(targets)} مستخدم…")
-        for i, uid in enumerate(targets, 1):
+    async def run_broadcast(bot: Bot, admin_chat: int, targets: list, text: str, photo: str | None) -> dict:
+        totals: dict[str, dict[str, int]] = {}
+        note = await bot.send_message(admin_chat, f"📣 بدأ الإرسال إلى {len(targets)} وجهة…")
+        for i, (tbot, chat_id, kind, d) in enumerate(targets, 1):
+            row = totals.setdefault(kind, {"sent": 0, "blocked": 0, "failed": 0})
             try:
                 try:
-                    await send_one(bot, uid, text, photo)
+                    await send_one(tbot, chat_id, text, photo)
                 except TelegramRetryAfter as e:           # تليجرام يطلب التمهّل
                     await asyncio.sleep(e.retry_after)
-                    await send_one(bot, uid, text, photo)
-                sent += 1
-            except TelegramForbiddenError:                # حظر البوت: نتوقف عن مراسلته
-                db.mark_blocked(uid)
-                blocked += 1
+                    await send_one(tbot, chat_id, text, photo)
+                row["sent"] += 1
+            except TelegramForbiddenError:                # حظر البوت أو خروجه: نتوقف عن مراسلته
+                if kind == "users":
+                    d.mark_blocked(chat_id)
+                row["blocked"] += 1
             except TelegramAPIError:
-                failed += 1
+                row["failed"] += 1
             await asyncio.sleep(0.04)                     # ~25 رسالة/ثانية (حد تليجرام 30)
             if i % 100 == 0:
                 try:
                     await note.edit_text(f"📣 {i}/{len(targets)} …")
                 except TelegramAPIError:
                     pass
-        result = {"sent": sent, "blocked": blocked, "failed": failed}
-        await bot.send_message(admin_chat, f"✅ انتهى الإرسال\n📬 وصلت: {sent}\n🚫 حظروا البوت: {blocked}\n⚠️ فشلت: {failed}")
-        return result
+        names = {"users": "مستخدمو الخاص", "channels": "القنوات", "groups": "المجموعات"}
+        lines = [f"• {names[k]}: وصلت {v['sent']} · حظروا/خرجوا {v['blocked']} · فشلت {v['failed']}" for k, v in totals.items()]
+        await bot.send_message(admin_chat, "✅ انتهى الإرسال\n" + ("\n".join(lines) or "لا وجهات"))
+        return totals
 
-    @r.callback_query(F.data.regexp(r"^ad:bg:(all|ar|en)$"))
+    @r.callback_query(F.data == "ad:bg")
     async def cb_bc_go(c: CallbackQuery, state: FSMContext):
         data = await state.get_data()
-        if data.get("act") != "bcast_ready":
+        if data.get("act") != "bcast_ready" or not data.get("bc_sel"):
             await c.answer("انتهت الجلسة", show_alert=True)
             return
         wait = float(db.get_setting("last_broadcast", "0") or 0) + BROADCAST_GAP - time.time()
         if wait > 0:
             await c.answer("انتظر قليلًا قبل رسالة جماعية أخرى", show_alert=True)
             return
-        targets = audience(c.data.split(":")[2])
+        targets = bc_targets(list(data["bc_sel"]), c.bot)
         db.set_setting("last_broadcast", str(time.time()))
         await state.clear()
         await c.answer("بدأ الإرسال في الخلفية ✅")
