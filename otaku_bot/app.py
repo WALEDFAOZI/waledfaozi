@@ -18,6 +18,7 @@ from .growth import growth_loop
 from .bot import build_router
 from .config import Settings
 from .ctx import Ctx
+from .registry import register_main
 from .db import DB
 from .texts import t
 from .recommend import build_recommend_router
@@ -117,6 +118,7 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
 
 async def run(settings: Settings) -> None:
     bot = Bot(settings.token)
+    await register_main(bot, settings)                      # السجل المركزي (المستأجر 0)، اختياري
     restore = await restore_if_empty(bot, settings)          # قبل فتح القاعدة: لو انمسح القرص نستعيد التقدم
     if restore != "kept":
         log.warning("database startup: %s", restore)

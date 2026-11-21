@@ -3,3 +3,4 @@ Pillow>=10
 arabic-reshaper>=3.0
 python-bidi>=0.5
 pytest>=8
+cryptography>=43

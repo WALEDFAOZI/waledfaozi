@@ -53,6 +53,8 @@ class Settings:
     required_channel: str = ""   # مثل @Anime1Galaxy ، فارغ = بدون اشتراك إجباري
     backup_chat: str = ""        # قناة/مجموعة خاصة تُحفظ فيها النسخ ويُستعاد منها التقدم تلقائيًا (BACKUP_CHAT_ID)
     backup_hours: int = 6        # كل كم ساعة تُرسل نسخة إلى backup_chat
+    registry_path: str = str(ROOT / "registry.db")   # السجل المركزي للبوتات (REGISTRY_PATH)
+    registry_key: str = ""                            # مفتاح تشفير التوكنات (REGISTRY_KEY)
 
     @staticmethod
     def from_env() -> "Settings":
@@ -69,4 +71,6 @@ class Settings:
             required_channel=os.getenv("REQUIRED_CHANNEL", "@Anime1Galaxy").strip(),
             backup_chat=os.getenv("BACKUP_CHAT_ID", "").strip(),
             backup_hours=max(1, int(os.getenv("BACKUP_HOURS", "6") or 6)),
+            registry_path=os.getenv("REGISTRY_PATH", str(ROOT / "registry.db")),
+            registry_key=os.getenv("REGISTRY_KEY", "").strip(),
         )
