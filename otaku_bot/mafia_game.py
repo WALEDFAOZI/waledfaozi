@@ -799,7 +799,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         link = State()
 
     @pm.callback_query(F.data.regexp(r"^mf:cs:-?\d+$"))
-    async def cb_channel_choice(c: CallbackQuery):
+    async def cb_channel_choice(c: CallbackQuery, state: FSMContext):
         """اختيار مكان النقاش: القناة نفسها، أو تعليقات منشور."""
         L = db.get_lang(c.from_user.id)
         chat_id = int(c.data.split(":")[2])
@@ -807,8 +807,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await c.answer(t(L, "mf_host_only"), show_alert=True)
             return
         await c.answer()
-        await c.message.answer(t(L, "mf_place_pick"), parse_mode="HTML", reply_markup=kb(
-            [btn(t(L, "mf_place_post"), f"mf:cp:{chat_id}")]))
+        await state.set_state(PostPick.link)                   # مباشرة: طلب رابط تعليق داخل المنشور
+        await state.update_data(channel=chat_id)
+        await c.message.answer(t(L, "mf_post_ask"), parse_mode="HTML")
 
     @pm.callback_query(F.data.regexp(r"^mf:cp:-?\d+$"))
     async def cb_post_place(c: CallbackQuery, state: FSMContext):
