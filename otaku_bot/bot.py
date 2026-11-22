@@ -66,8 +66,9 @@ def kb(*rows: list[InlineKeyboardButton]) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[r for r in rows if r])
 
 
-def btn(text: str, data: str | None = None, url: str | None = None) -> InlineKeyboardButton:
-    return InlineKeyboardButton(text=text, callback_data=data, url=url)
+def btn(text: str, data: str | None = None, url: str | None = None, style: str | None = None) -> InlineKeyboardButton:
+    """style: "success" أخضر، "danger" أحمر، "primary" أزرق (اختياري)."""
+    return InlineKeyboardButton(text=text, callback_data=data, url=url, style=style)
 
 
 INVITE_BADGES = [(1, "🌱", "سفير الأوتاكو", "Otaku Ambassador"), (3, "🤝", "جامع الشلّة", "Squad Gatherer"),

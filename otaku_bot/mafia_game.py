@@ -302,8 +302,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
         L = g.lang
         join_url = f"https://t.me/{g.me}?start=mf_{g.gid}"
         help_url = f"https://t.me/{g.me}?start=mfh"
-        return with_discuss(g, kb([btn(t(L, "mf_join"), url=join_url), btn(t(L, "mf_leave"), f"mf:l:{g.gid}")],
-                                  [btn(t(L, "mf_help_btn"), url=help_url)], *chan_row(L, bot_link=True)))
+        # انضم: سطر كامل أخضر. انسحب وشرح اللعبة جنب بعض. الرسالة فيها أصلًا زر يفتح البوت، فلا زر بوت إضافي.
+        return with_discuss(g, kb([btn(t(L, "mf_join"), url=join_url, style="success")],
+                                  [btn(t(L, "mf_leave"), f"mf:l:{g.gid}"), btn(t(L, "mf_help_btn"), url=help_url)],
+                                  *chan_row(L, bot_link=False)))
 
     def config_text(g: Game) -> str:
         L = g.lang
