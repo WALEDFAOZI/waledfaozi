@@ -71,3 +71,37 @@ def test_manual_change_turns_auto_off_and_auto_button_turns_it_back_on():
         await ptap(h, host, f"mf:a:{g.gid}")
         assert g.auto is True and g.killers == M.auto_config(max(M.MIN_PLAYERS, len(g.players)))[0]
     run(go())
+
+
+def test_three_quiet_rounds_kill_a_random_player():
+    from test_mafia_game import gtap, wait_until, group_texts
+    from otaku_bot import mafia_game as MGm
+
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 6)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, users[0], "/mafia", 90)
+        g = MGm.games[GROUP.id]
+        for u in users:
+            await h.say(u, f"/start mf_{g.gid}")
+        await ptap(h, users[0], f"mf:s:{g.gid}")
+        assert await wait_until(lambda: g.state == "night", 10)
+        for _ in range(400):
+            if any("⚰️" in x for x in group_texts(h)):
+                break
+            if g.state == "day":
+                for u in users:
+                    if g.players[u.id].alive:
+                        await gtap(h, u, f"mf:v:{g.gid}:0")     # الكل يتخطى التصويت
+            await asyncio.sleep(0.1)
+        texts = group_texts(h)                                  # بالترتيب الزمني
+        i_death = next(i for i, x in enumerate(texts) if "⚰️" in x)
+        i_day3 = next(i for i, x in enumerate(texts) if "النهار 3" in x)
+        assert not any("⚰️" in x for x in texts[:i_day3]), "مات أحد قبل الجولة الثالثة"
+        assert i_death > i_day3, "يجب أن يحدث الموت بعد الجولة الهادئة الثالثة"
+        dead = [p for p in g.players.values() if not p.alive]
+        assert len(dead) == 1
+    run(go())

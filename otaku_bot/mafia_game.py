@@ -32,6 +32,7 @@ LOBBY_SECS = 150
 NIGHT_SECS = 60
 DAY_SECS = 90
 MAX_ROUNDS = 15
+QUIET_ROUNDS = 3        # جولات متتالية بلا قتل ولا طرد، ثم يختار النظام لاعبًا عشوائيًا للخروج
 COOLDOWN_SECS = 60
 EDIT_GAP = 3.0
 GROUP_TYPES = {"group", "supergroup"}
@@ -78,6 +79,7 @@ class Game:
     day_secs: int = DAY_SECS
     day_mid: int | None = None        # رسالة التصويت الحالية (تُحدَّث مع كل صوت)
     day_text: str = ""
+    quiet: int = 0                    # عدّاد الجولات المتتالية بلا موت
     day_markup: object = None
 
 
@@ -379,6 +381,15 @@ def build_mafia_router(ctx: Ctx) -> Router:
                     await show(bot, g, t(L, "mf_executed", name=esc(g.players[out].name)), None)
                 else:
                     await show(bot, g, t(L, "mf_no_exec"), None)
+                if res.victim is not None or out is not None:
+                    g.quiet = 0
+                else:
+                    g.quiet += 1
+                    if g.quiet >= QUIET_ROUNDS and alive_players(g):
+                        pick = rng.choice(sorted(p.uid for p in alive_players(g)))
+                        g.players[pick].alive = False
+                        g.quiet = 0
+                        await show(bot, g, t(L, "mf_quiet_death", name=esc(g.players[pick].name)), None)
                 w = M.winner(roles_map, {p.uid for p in alive_players(g)}, last_voted=last)
                 if w:
                     await finish(bot, g, w)
