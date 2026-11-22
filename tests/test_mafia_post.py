@@ -71,6 +71,8 @@ def test_unknown_post_is_refused_and_non_owner_cannot_pick():
 
 def test_direct_channel_choice_still_opens_the_lobby_in_the_channel():
     async def go():
+        MG.games.clear()
+        MG.cooldown.clear()
         h = Harness()
         owner = h.user(5, "Owner")
         h.db.upsert_user(5, "Owner")
@@ -83,4 +85,48 @@ def test_direct_channel_choice_still_opens_the_lobby_in_the_channel():
         game = MG.games.get(CH.id)
         assert game is not None and game.scope == "channel"
         MG.games.clear()
+    run(go())
+
+
+def test_channel_game_keeps_announcements_visible():
+    from aiogram.types import CallbackQuery as CQ
+    from test_mafia_game import wait_until as wu
+
+    async def go():
+        MG.games.clear()
+        MG.cooldown.clear()
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        owner = h.user(5, "Owner")
+        h.db.upsert_user(5, "Owner")
+        h.db.link_channel(CH.id, 5, "قناتي")
+        users = [h.user(i, f"P{i}") for i in range(11, 16)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        h.uid += 1
+        cb = CQ(id="cc", from_user=owner, chat_instance="p", data=f"mf:cc:{CH.id}",
+                message=Message(message_id=3, date=dt.datetime.now(), chat=Chat(id=5, type="private"), text="."))
+        await h.dp.feed_update(h.bot, Update(update_id=20, callback_query=cb))
+        g = MG.games[CH.id]
+        for u in users:
+            await h.say(u, f"/start mf_{g.gid}")
+        h.uid += 1
+        st = CQ(id="st", from_user=owner, chat_instance="p", data=f"mf:s:{g.gid}",
+                message=Message(message_id=4, date=dt.datetime.now(), chat=Chat(id=5, type="private"), text="."))
+        await h.dp.feed_update(h.bot, Update(update_id=21, callback_query=st))
+        assert await wu(lambda: g.state == "night", 15)
+        killer = next(p for p in g.players.values() if p.role == "killer")
+        victim = next(p for p in g.players.values() if p.role == "citizen")
+        for p in g.players.values():
+            if p.role == "killer":
+                h.uid += 1
+                kc = CQ(id=f"k{p.uid}", from_user=next(u for u in users if u.id == p.uid), chat_instance="p",
+                        data=f"mf:n:{g.gid}:killer:{victim.uid}",
+                        message=Message(message_id=5, date=dt.datetime.now(), chat=Chat(id=p.uid, type="private"), text="."))
+                await h.dp.feed_update(h.bot, Update(update_id=h.uid + 100, callback_query=kc))
+        assert await wu(lambda: g.state == "day", 15)
+        chan_msgs = [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto") and c.chat_id == CH.id]
+        death = [c for c in chan_msgs if "تم قتل" in (getattr(c, "text", None) or getattr(c, "caption", None) or "")]
+        assert death, "خبر القتل يجب أن يبقى رسالة مستقلة في القناة"
+        assert not g.players[victim.uid].alive                 # الضحية مات فعلًا
     run(go())

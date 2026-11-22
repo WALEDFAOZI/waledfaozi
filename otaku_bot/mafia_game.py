@@ -148,9 +148,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
                                reply_to=g.reply_to if g.scope == "group" else None,
                                thread=g.thread if g.scope == "group" else None)
 
-    async def show(bot: Bot, g: Game, text: str, markup=None) -> int | None:
-        """كل مرحلة رسالة جديدة في المجموعات. في القنوات تُعدَّل رسالة واحدة (لتفادي الإغراق)."""
-        if g.scope == "channel" and g.live is not None:
+    async def show(bot: Bot, g: Game, text: str, markup=None, status: bool = False) -> int | None:
+        """الإعلانات (قتل، تصويت، نتائج...) رسائل جديدة دائمًا حتى لا تُمحى.
+        حالة المرحلة الحالية (ليل/نهار) في القنوات تُعدَّل في رسالة واحدة لتفادي الإغراق."""
+        if g.scope == "channel" and status and g.live is not None:
             await live.edit(bot, g.chat_id, g.live, text, markup)
             return g.live
         mid = await send(bot, g, text, markup)
@@ -284,7 +285,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 continue
             await dm(bot, p.uid, t(L, f"mf_n_{p.role}"), kb(*rows, *back))
         await show(bot, g, t(L, "mf_night_live", r=g.round, s=g.night_secs, n=len(alive), names=names(g, True)),
-                   kb(*await open_private_rows(bot, L)))
+                   kb(*await open_private_rows(bot, L)), status=True)
         deadline = time.monotonic() + g.night_secs
         while time.monotonic() < deadline and g.state == "night" and not night_complete(g):
             await asyncio.sleep(0.5)
@@ -321,7 +322,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         btns.append([btn(t(L, "mf_skip"), f"mf:v:{g.gid}:0")])
         g.day_text = t(L, "mf_day_live", r=g.round, s=g.day_secs, names=names(g, True))
         g.day_markup = kb(*btns)
-        g.day_mid = await show(bot, g, g.day_text, g.day_markup)
+        g.day_mid = await show(bot, g, g.day_text, g.day_markup, status=True)
         await notify_vote_start(bot, g, alive)
         deadline = time.monotonic() + g.day_secs
         while time.monotonic() < deadline and g.state == "day":
