@@ -218,6 +218,7 @@ def test_mayor_reveals_once_during_the_day_and_is_announced():
     from otaku_bot import mafia_game as MGm
 
     async def go():
+        MGm.DAY_SECS = 30                                    # وقت كافٍ للضغط على زر الكشف حتى مع ضغط الجهاز
         h = Harness()
         h.db.fast_answer_ratio = lambda sid: 0.0
         users = [h.user(i, f"P{i}") for i in range(1, 9)]
@@ -237,4 +238,5 @@ def test_mayor_reveals_once_during_the_day_and_is_announced():
         assert any(mayor.name in x and "هو العمدة" in x for x in group_texts(h))   # يُعلن الاسم
         await ptap(h, mayor_user, f"mf:rv:{g.gid}")              # مرة واحدة فقط
         assert sum(1 for x in group_texts(h) if "هو العمدة" in x) == 1
+        MGm.DAY_SECS = 3
     run(go())

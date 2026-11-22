@@ -1201,3 +1201,8 @@ T["ar"]["mf_mayor_revealed"] = "🎖 <b>{name}</b> هو العمدة! صوته �
 T["en"]["mf_mayor_revealed"] = "🎖 <b>{name}</b> is the Mayor! Their vote counts twice from now on."
 T["ar"]["mf_already_revealed"] = "العمدة كشف نفسه من قبل."
 T["en"]["mf_already_revealed"] = "The mayor has already revealed."
+
+T["ar"]["mf_vote_pending"] = "⏳ <b>لم يصوّتوا بعد:</b> {names}"
+T["en"]["mf_vote_pending"] = "⏳ <b>Not voted yet:</b> {names}"
+T["ar"]["mf_vote_all"] = "✅ <b>الكل صوّت</b>"
+T["en"]["mf_vote_all"] = "✅ <b>Everyone voted</b>"

@@ -120,6 +120,19 @@ def comment_link(username: str | None, channel_id: int, post_id: int, copy_id: i
 
 ORDINAL_AR = {1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة", 5: "الخامسة",
               6: "السادسة", 7: "السابعة", 8: "الثامنة", 9: "التاسعة", 10: "العاشرة"}
+ORDINAL_AR_MASC = {1: "الأول", 2: "الثاني", 3: "الثالث", 4: "الرابع", 5: "الخامس",
+                   6: "السادس", 7: "السابع", 8: "الثامن", 9: "التاسع", 10: "العاشر"}
+
+
+def news_section(g: Game, key: tuple, items: list) -> str:
+    """قسم في أخبار الجولة: «أخبار الصباح الأول» أو «أخبار النهار الأول» مع أخباره."""
+    r, phase = key
+    if g.lang == "en":
+        head = (f"🌅 <b>Morning {r} news</b>" if phase == "morning" else f"☀️ <b>Day {r} news</b>")
+    else:
+        word = ORDINAL_AR_MASC.get(r, str(r))
+        head = (f"🌅 <b>أخبار الصباح {word}</b>" if phase == "morning" else f"☀️ <b>أخبار النهار {word}</b>")
+    return head + "\n" + "\n".join(items)
 
 
 def roles_line(g: Game, L: str) -> str:
@@ -165,13 +178,21 @@ def build_mafia_router(ctx: Ctx) -> Router:
         return "\n\n".join(([g.discuss_line] if g.discuss_line else []) + [g.status_text])
 
     async def flush_news(bot: Bot, g: Game) -> None:
-        """يرسل أخبار الجولة في رسالة خاصة واحدة لكل مشارك، مع رقم الجولة."""
+        """يرسل أخبار كل جولة في رسالة خاصة واحدة لكل مشارك: أخبار الصباح وأخبار النهار منفصلتان."""
         if not g.news:
             return
-        r = g.news[0][0]
-        body = "\n\n".join(text for _, text in g.news)
+        sections: list[str] = []
+        cur, buf = None, []
+        for r, phase, text in g.news:
+            if (r, phase) != cur and buf:
+                sections.append(news_section(g, cur, buf))
+                buf = []
+            cur = (r, phase)
+            buf.append(text)
+        if buf:
+            sections.append(news_section(g, cur, buf))
         g.news = []
-        text = t(g.lang, "mf_news", r=r, ord=ORDINAL_AR.get(r, str(r)), body=body)
+        text = "\n\n".join(sections)
         for uid in list(g.players):
             try:
                 await bot.send_message(uid, text, parse_mode="HTML")
@@ -185,7 +206,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 await flush_news(bot, g)                   # أخبار الجولة السابقة تصل قبل الحالة الجديدة
                 g.status_text, g.status_markup = text, with_discuss(g, markup)
             else:
-                g.news.append((g.round, text))
+                g.news.append((g.round, "morning" if g.state == "night" else "day", text))
             await live.edit(bot, g.chat_id, g.live, channel_body(g), g.status_markup)
             return g.live
         mid = await send(bot, g, text, markup)
@@ -785,7 +806,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if g.day_mid and g.day_text:
             alive = alive_players(g)
             done = sum(1 for p in alive if p.uid in g.votes)
-            status = t(L, "mf_vote_status", name=esc(voter.name), done=done, total=len(alive), left=len(alive) - done)
+            pending = [esc(p.name) for p in alive if p.uid not in g.votes]
+            status = (t(L, "mf_vote_pending", names="، ".join(pending)) if pending else t(L, "mf_vote_all"))
             status += "\n" + t(L, "mf_vote_note")
             text = g.day_text + "\n\n" + status
             if g.scope == "channel":
