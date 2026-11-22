@@ -799,7 +799,6 @@ def build_mafia_router(ctx: Ctx) -> Router:
             return
         await c.answer()
         await c.message.answer(t(L, "mf_place_pick"), parse_mode="HTML", reply_markup=kb(
-            [btn(t(L, "mf_place_channel"), f"mf:cc:{chat_id}")],
             [btn(t(L, "mf_place_post"), f"mf:cp:{chat_id}")]))
 
     @pm.callback_query(F.data.regexp(r"^mf:cp:-?\d+$"))
