@@ -148,7 +148,7 @@ def build_spy_router(ctx: Ctx) -> Router:
     # ── إرسال وتعديل ────────────────────────────────────────
     async def send(bot: Bot, g: Game, text: str, markup=None) -> int | None:
         """الرسالة الحيّة الوحيدة للعبة: تبدأ بلافتة وتُعدَّل بعد ذلك."""
-        return await live.send(bot, g.chat_id, text, markup, lang=g.lang, reply_to=g.reply_to, thread=g.thread)
+        return await live.send(bot, g.chat_id, text, markup, lang=g.lang, reply_to=g.reply_to, thread=g.thread, kind="spy")
 
     async def show(bot: Bot, g: Game, text: str, markup=None) -> None:
         """الرسالة الحيّة الواحدة: تُعدَّل فلا تتراكم."""

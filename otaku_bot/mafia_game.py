@@ -86,7 +86,8 @@ class Game:
     log: list = field(default_factory=list)   # القناة: آخر الإعلانات تبقى داخل الرسالة الواحدة
     status_text: str = ""             # القناة: الحالة الحالية (ليل/نهار/نهاية)
     status_markup: object = None
-    discuss_line: str = ""            # سطر «النقاش هنا» مع رابط تعليقات المنشور (القناة)
+    discuss_line: str = ""            # سطر «النقاش في التعليقات» (القناة)
+    discuss_url: str = ""             # رابط تعليقات المنشور: يظهر كزر في رسالة القناة
     day_markup: object = None
 
 
@@ -150,7 +151,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         """الرسالة الحيّة الوحيدة للعبة: تبدأ بلافتة وتُعدَّل بعد ذلك."""
         return await live.send(bot, g.chat_id, text, markup, lang=g.lang,
                                reply_to=g.reply_to if g.scope == "group" else None,
-                               thread=g.thread if g.scope == "group" else None)
+                               thread=g.thread if g.scope == "group" else None, kind="mafia")
 
     CHANNEL_CAP = 1000
 
@@ -171,7 +172,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         """المجموعات: كل رسالة جديدة. القناة: رسالة واحدة تحمل آخر الإعلانات والحالة الحالية."""
         if g.scope == "channel" and g.live is not None:
             if status:
-                g.status_text, g.status_markup = text, markup
+                g.status_text, g.status_markup = text, with_discuss(g, markup)
             else:
                 g.log.append(text)
                 g.log = g.log[-12:]
@@ -221,10 +222,17 @@ def build_mafia_router(ctx: Ctx) -> Router:
             "", t(L, "mf_howto"),
         ] + ([g.discuss_line] if g.discuss_line else []))
 
+    def with_discuss(g: Game, markup):
+        """في القناة: زر النقاش يظهر مع كل رسالة حالة (ليل/نهار/لوبي)."""
+        if not g.discuss_url:
+            return markup
+        return with_rows(markup, [[btn(t(g.lang, "mf_discuss_btn"), url=g.discuss_url)]]) if markup is not None \
+            else kb([btn(t(g.lang, "mf_discuss_btn"), url=g.discuss_url)])
+
     def lobby_markup(g: Game):
         L = g.lang
         join_url = f"https://t.me/{g.me}?start=mf_{g.gid}"
-        return kb([btn(t(L, "mf_join"), url=join_url), btn(t(L, "mf_leave"), f"mf:l:{g.gid}")], *chan_row(L))
+        return with_discuss(g, kb([btn(t(L, "mf_join"), url=join_url), btn(t(L, "mf_leave"), f"mf:l:{g.gid}")], *chan_row(L)))
 
     def config_text(g: Game) -> str:
         L = g.lang
@@ -838,9 +846,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await m.answer(t(L, "mf_busy" if why == "busy" else "mf_cool"))
             return
         await state.clear()
-        url = comment_link(ch.username, chat_id, post_id, comment_id)
+        url = comment_link(ch.username, chat_id, post_id, int(f"{comment_id}99"))   # رقمان 99 تفتح التعليقات
         g = new_game(chat_id, "channel", m.from_user.id, ch.title or "القناة", None, None, db.group_lang(chat_id))
-        g.discuss_line = t(db.group_lang(chat_id), "mf_discuss_line", url=esc(url))
+        g.discuss_line = t(db.group_lang(chat_id), "mf_discuss_line")
+        g.discuss_url = url
         if not await open_lobby(m.bot, g):
             await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
             return

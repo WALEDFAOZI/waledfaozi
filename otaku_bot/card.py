@@ -242,8 +242,9 @@ def make_sudden_card(name: str, streak: int, level: int, best: int, lang: str = 
     return c.jpeg()
 
 
-def make_banner(lang: str = "ar", handle: str = "@Otaku1GalaxyBot") -> bytes:
-    """بانر الترحيب (يُنشأ مرة ويُحفظ في assets/banner.png)."""
+def make_banner(lang: str = "ar", handle: str = "@Otaku1GalaxyBot", title_ar: str = "اختبار الأوتاكو",
+                title_en: str = "OTAKU QUIZ") -> bytes:
+    """لافتة اللعبة: عنوانها حسب نوع اللعبة (المافيا، برا السالفة، الاختبار...)."""
     _need_font()
     c = Canvas(1280, 640, "banner")
     c.gradient((40, 12, 80), (255, 60, 120))
@@ -255,9 +256,8 @@ def make_banner(lang: str = "ar", handle: str = "@Otaku1GalaxyBot") -> bytes:
     if has_jp():
         c.text((820, 118), "オタク", "jp", 84, fill=(255, 235, 140), stroke=6, rotate=-6, arabic=False)
     c.starburst((880, 330), 330, 270, spikes=18, fill=PAPER, width=5)
-    ar = "اختبار الأوتاكو"
-    c.text((880, 310), ar, "ar", c.fit(ar, "ar", 92, 480), fill=(255, 255, 255), stroke=8, shadow=5, rotate=-2)
-    c.text((880, 410), "OTAKU QUIZ", "display", 62, fill=(255, 220, 90), stroke=6, shadow=3, arabic=False, rotate=-2)
+    c.text((880, 310), title_ar, "ar", c.fit(title_ar, "ar", 92, 480), fill=(255, 255, 255), stroke=8, shadow=5, rotate=-2)
+    c.text((880, 410), title_en, "display", 62, fill=(255, 220, 90), stroke=6, shadow=3, arabic=False, rotate=-2)
     _ribbon(c, (640, 496, 1130, 566), (214, 40, 80))
     tag = "1400+ سؤال · ألعاب · تحديات" if lang == "ar" else "1400+ questions · games · challenges"
     c.text((885, 531), tag, "ar", c.fit(tag, "ar", 34, 430), fill=(255, 255, 255), stroke=3)

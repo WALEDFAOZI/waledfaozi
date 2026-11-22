@@ -153,7 +153,7 @@ def build_group_router(ctx: Ctx) -> Router:
     async def send(bot: Bot, g: Game, text: str, markup=None, photo: str | None = None) -> int | None:
         """الرسالة الحيّة الوحيدة للعبة: تبدأ بلافتة وتُعدَّل بعد ذلك (لا رسائل جديدة)."""
         return await live.send(bot, g.chat_id, text, markup, lang=g.lang, reply_to=g.reply_to, thread=g.thread,
-                               on_error=lambda e: send_errors.__setitem__(g.chat_id, e[:120]))
+                               on_error=lambda e: send_errors.__setitem__(g.chat_id, e[:120]), kind=g.kind)
 
     async def send_to(bot: Bot, chat_id: int, reply_to: int | None, thread: int | None, text: str, markup=None,
                       photo: str | None = None) -> int | None:
@@ -207,7 +207,7 @@ def build_group_router(ctx: Ctx) -> Router:
         want = photo or "banner"
         media = None
         if want != g.live_media:
-            media = photo or await live.banner_media(g.lang)
+            media = photo or await live.banner_media(g.lang, g.kind)
         if await live.edit(bot, g.chat_id, g.live, text, markup, media=media):
             g.live_media = want
         return True

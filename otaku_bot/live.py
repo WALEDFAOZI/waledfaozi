@@ -20,8 +20,16 @@ from . import card
 log = logging.getLogger(__name__)
 
 CAPTION_MAX = 1024          # حد تليجرام للتعليق
-_BANNER: dict[str, bytes] = {}
-_BANNER_ID: dict[str, str] = {}      # معرّف الملف في تليجرام بعد أول إرسال
+# عنوان اللافتة حسب نوع اللعبة: (عربي، إنجليزي)
+TITLES = {
+    "quiz": ("اختبار الأوتاكو", "OTAKU QUIZ"), "sudden": ("الموت المفاجئ", "SUDDEN DEATH"),
+    "tf": ("صح أم خطأ", "TRUE OR FALSE"), "song": ("خمّن الأغنية", "ANIME SONG"),
+    "char": ("من هي الشخصية؟", "WHO IS IT?"), "quote": ("من قال الاقتباس؟", "QUOTE GUESS"),
+    "ord": ("أيّها أقدم؟", "WHICH IS OLDER?"), "images": ("أسئلة صور", "PICTURE QUIZ"),
+    "mafia": ("المافيا", "MAFIA"), "spy": ("برا السالفة", "ODD ONE OUT"),
+}
+_BANNER: dict[tuple[str, str], bytes] = {}
+_BANNER_ID: dict[tuple[str, str], str] = {}      # معرّف الملف في تليجرام بعد أول إرسال
 _TAG = re.compile(r"<(/?)(b|i|u|s|code|pre|a)\b[^>]*>")
 
 
@@ -44,31 +52,35 @@ def fit(text: str, limit: int = CAPTION_MAX) -> str:
     return cut + "…" + "".join(f"</{n}>" for n in reversed(stack))
 
 
-async def banner(lang: str) -> bytes:
-    if lang not in _BANNER:
-        _BANNER[lang] = await asyncio.to_thread(card.make_banner, lang)
-    return _BANNER[lang]
+async def banner(lang: str, kind: str = "quiz") -> bytes:
+    key = (lang, kind if kind in TITLES else "quiz")
+    if key not in _BANNER:
+        ar, en = TITLES[key[1]]
+        _BANNER[key] = await asyncio.to_thread(card.make_banner, lang, "@Otaku1GalaxyBot", ar, en)
+    return _BANNER[key]
 
 
-async def banner_media(lang: str):
+async def banner_media(lang: str, kind: str = "quiz"):
     """وسيط اللافتة: معرّف الملف إن عُرف، وإلا بياناتها."""
-    return _BANNER_ID.get(lang) or BufferedInputFile(await banner(lang), "banner.jpg")
+    key = (lang, kind if kind in TITLES else "quiz")
+    return _BANNER_ID.get(key) or BufferedInputFile(await banner(lang, kind), "banner.jpg")
 
 
 async def send(bot: Bot, chat_id: int, text: str, markup=None, lang: str = "ar",
-               reply_to: int | None = None, thread: int | None = None, on_error=None) -> int | None:
+               reply_to: int | None = None, thread: int | None = None, on_error=None, kind: str = "quiz") -> int | None:
     """يرسل الرسالة الحيّة الوحيدة للعبة: لافتة مع التعليق. يرجع معرّفها أو None."""
     kw = {"reply_markup": markup}
     if reply_to:
         kw["reply_parameters"] = ReplyParameters(message_id=reply_to, allow_sending_without_reply=True)
     if thread:
         kw["message_thread_id"] = thread
-    photo = _BANNER_ID.get(lang) or BufferedInputFile(await banner(lang), "banner.jpg")
+    key = (lang, kind if kind in TITLES else "quiz")
+    photo = _BANNER_ID.get(key) or BufferedInputFile(await banner(lang, kind), "banner.jpg")
     for _ in range(2):
         try:
             m = await bot.send_photo(chat_id, photo, caption=fit(text), parse_mode="HTML", **kw)
             if m.photo:
-                _BANNER_ID[lang] = m.photo[-1].file_id
+                _BANNER_ID[key] = m.photo[-1].file_id
             return m.message_id
         except TelegramRetryAfter as e:
             await asyncio.sleep(min(e.retry_after, 10))

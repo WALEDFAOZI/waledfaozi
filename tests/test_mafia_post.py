@@ -37,10 +37,11 @@ def test_comment_link_starts_the_channel_game_with_the_discussion_line():
         game = MG.games.get(CH.id)
         assert game is not None and game.scope == "channel"       # اللعبة تبقى في القناة
         assert MG.games.get(DISC.id) is None                       # لا لعبة في مجموعة التعليقات
-        assert "?comment=15678255" in game.discuss_line
+        assert game.discuss_url.endswith("?comment=1567825599")       # الرقم 15678255 + 99
         lobby = [c for c in h.session.calls if getattr(c, "chat_id", None) == CH.id
                  and type(c).__name__ in ("SendPhoto", "SendMessage")][-1]
-        assert "?comment=15678255" in (getattr(lobby, "caption", None) or getattr(lobby, "text", None) or "")
+        urls = [b.url for row in lobby.reply_markup.inline_keyboard for b in row if b.url]
+        assert any(u.endswith("?comment=1567825599") for u in urls)  # زر النقاش في القناة
     run(go())
 
 

@@ -1173,8 +1173,6 @@ T["en"]["mf_post_started_ch"] = "🎮 A new Mafia game is running in this post's
 T["ar"]["mf_post_go"] = "💬 افتح التعليقات"
 T["en"]["mf_post_go"] = "💬 Open the comments"
 
-T["ar"]["mf_discuss_line"] = '💬 <b>النقاش هنا:</b> <a href="{url}">افتح تعليقات المنشور</a> (اللعب والتصويت هنا في القناة)'
-T["en"]["mf_discuss_line"] = '💬 <b>Discussion here:</b> <a href="{url}">open the post comments</a> (playing and voting stay here in the channel)'
 T["ar"]["mf_post_ask"] = ("🔗 <b>أرسل رابط أي رسالة من داخل تعليقات المنشور</b>\n"
     "اضغط الرسالة في التعليقات ثم «نسخ الرابط».\n"
     "النقاش يكون داخل تعليقات ذلك المنشور، واللعب والتصويت يبقى في القناة.\n"
@@ -1187,3 +1185,8 @@ T["ar"]["mf_post_bad"] = "❌ هذا ما يبدو رابط تعليق داخل 
 T["en"]["mf_post_bad"] = "❌ This doesn't look like a comment link from your channel's post. Send a link like: <code>https://t.me/channel_name/123?comment=456</code>"
 T["ar"]["mf_post_started"] = "🎮 بدأت اللعبة في القناة، والنقاش في تعليقات المنشور 👇\n{link}"
 T["en"]["mf_post_started"] = "🎮 The game started in the channel; discussion is in the post's comments 👇\n{link}"
+
+T["ar"]["mf_discuss_line"] = "💬 <b>النقاش في تعليقات المنشور</b> 👇 (اللعب والتصويت هنا في القناة)"
+T["en"]["mf_discuss_line"] = "💬 <b>Discussion in the post's comments</b> 👇 (playing and voting stay here)"
+T["ar"]["mf_discuss_btn"] = "💬 النقاش في التعليقات"
+T["en"]["mf_discuss_btn"] = "💬 Discuss in comments"
