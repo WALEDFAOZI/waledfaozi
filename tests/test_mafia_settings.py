@@ -93,13 +93,15 @@ def test_three_quiet_rounds_kill_a_random_player():
         killers = [p.uid for p in g.players.values() if p.role == "killer"]
         doctor = next(p.uid for p in g.players.values() if p.role == "doctor")
         target = next(p.uid for p in g.players.values() if p.role == "citizen")
-        for _ in range(3):                                   # 3 ليالٍ: القتلة يختارون، والطبيب يحمي نفس الهدف
+        cits = [p.uid for p in g.players.values() if p.role == "citizen"][:2]
+        for night in range(3):                               # 3 ليالٍ: القتلة يختارون، والطبيب يحمي الهدف (لا يحمي نفس الشخص ليلتين متتاليتين)
+            tgt = cits[night % 2]                            # الهدف يتبدل بين مواطنين اثنين
             assert await wait_until(lambda: g.state == "night", 15)
             for k in killers:
-                await ptap(h, by_uid[k], f"mf:n:{g.gid}:killer:{target}")
-            await ptap(h, by_uid[doctor], f"mf:n:{g.gid}:doctor:{target}")
+                await ptap(h, by_uid[k], f"mf:n:{g.gid}:killer:{tgt}")
+            await ptap(h, by_uid[doctor], f"mf:n:{g.gid}:doctor:{tgt}")
             assert await wait_until(lambda: g.voting, 15)
-            assert g.players[target].alive                   # الطبيب أنقذ الهدف في هذه الليلة
+            assert g.players[tgt].alive                      # الطبيب أنقذ الهدف في هذه الليلة
             for u in users:
                 if g.players[u.id].alive and g.voting:
                     await gtap(h, u, f"mf:v:{g.gid}:0")       # الكل يتخطى

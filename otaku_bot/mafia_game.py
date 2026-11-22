@@ -86,6 +86,7 @@ class Game:
     day_secs: int = DAY_SECS
     discuss_secs: int = DISCUSS_SECS  # وقت النقاش في النهار قبل التصويت
     voting: bool = False              # التصويت مفتوح (بعد انتهاء النقاش)
+    last_protect: int | None = None   # من حماه الطبيب في الليلة الماضية: لا يُحمى مرتين متتاليتين
     reveal_death: bool = False        # إظهار دور القتيل/المطرود في الإعلان (افتراضيًا مخفي)
     day_mid: int | None = None        # رسالة التصويت الحالية (تُحدَّث مع كل صوت)
     day_text: str = ""
@@ -391,7 +392,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 opts = [q for q in alive if q.role != "killer"]
                 rows = [[btn(q.name[:24], f"mf:n:{g.gid}:killer:{q.uid}")] for q in opts]
             elif p.role == "doctor":
-                rows = [[btn(q.name[:24], f"mf:n:{g.gid}:doctor:{q.uid}")] for q in alive]
+                rows = [[btn(q.name[:24], f"mf:n:{g.gid}:doctor:{q.uid}")] for q in alive if q.uid != g.last_protect]
             elif p.role == "detective":
                 rows = [[btn(q.name[:24], f"mf:n:{g.gid}:{p.role}:{q.uid}")] for q in alive if q.uid != p.uid]
             else:
@@ -690,6 +691,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 alive_at_start = len(alive_players(g))
                 await night_phase(bot, g)
                 res = resolve_night(g)
+                g.last_protect = g.night_actions.get("doctor")   # الحماية تنتهي إن لم يحمِ الطبيب هذه الليلة
                 if res.victim is not None:
                     g.players[res.victim].alive = False
                 await announce_morning(bot, g, res)
@@ -864,6 +866,13 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.players[uid] = Player(uid, m.from_user.full_name)
         g.dirty = True
         await m.answer(t(L, "mf_joined_dm"), parse_mode="HTML")
+        if len(g.players) == M.MIN_PLAYERS:                 # اكتمل الحد الأدنى: المضيف يُبلَّغ مرة واحدة ويقدر يبدأ
+            Lh = db.get_lang(g.host_id)
+            try:
+                await m.bot.send_message(g.host_id, t(Lh, "mf_ready_host", n=len(g.players)), parse_mode="HTML",
+                                         reply_markup=kb([btn(t(Lh, "mf_start"), f"mf:s:{g.gid}")]))
+            except TelegramAPIError:
+                pass
 
     # ── إعدادات المضيف في الخاص ──────────────────────────
     def host_game(c: CallbackQuery, gid: int) -> Game | None:
@@ -1059,6 +1068,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
             return
         target = int(tgt)
         tp = g.players.get(target)
+        if role == "doctor" and target == g.last_protect:
+            await c.answer(t(L, "mf_protect_repeat"), show_alert=True)
+            return
         if not tp or not tp.alive or target == p.uid or (role == "killer" and tp.role == "killer"):
             if not (role == "doctor" and tp and tp.alive and target == p.uid):
                 await c.answer(t(L, "mf_bad_target"), show_alert=True)

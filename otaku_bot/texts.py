@@ -1356,3 +1356,8 @@ T["en"]["mf_role_shown"] = "🎭 Their role was: {role}"
 
 T["ar"]["mf_dm_removed"] = "⚠️ ما قدرت أرسل الدور لـ {names} (لم يفتحوا البوت بالخاص أو حظروه)، فتم استبعادهم.\n⏳ نفتح اللوبي {s} ثانية، ينضم غيرهم الآن."
 T["en"]["mf_dm_removed"] = "⚠️ I couldn't send a role to {names} (they haven't opened the bot or blocked it), so they were removed.\n⏳ The lobby reopens for {s} seconds for others to join."
+
+T["ar"]["mf_protect_repeat"] = "ما تقدر تحمي نفس الشخص ليلتين متتاليتين. اختر غيره."
+T["en"]["mf_protect_repeat"] = "You can't protect the same person two nights in a row. Pick someone else."
+T["ar"]["mf_ready_host"] = "✅ اكتمل الحد الأدنى ({n} لاعبين). تقدر تبدأ الآن، أو تنتظر انضمام غيرهم."
+T["en"]["mf_ready_host"] = "✅ Minimum reached ({n} players). You can start now, or wait for more to join."
