@@ -33,8 +33,9 @@ from .thread_anchor import anchor_id
 log = logging.getLogger(__name__)
 
 LOBBY_SECS = 300
-NIGHT_SECS = 120
-DAY_SECS = 180
+NIGHT_SECS = 60        # قتل المافيا
+DISCUSS_SECS = 180    # نقاش النهار قبل فتح التصويت
+DAY_SECS = 60         # التصويت
 MAX_ROUNDS = 15
 QUIET_ROUNDS = 3        # جولات متتالية بلا قتل ولا طرد، ثم يختار النظام لاعبًا عشوائيًا للخروج
 COOLDOWN_SECS = 60
@@ -82,6 +83,8 @@ class Game:
     lobby_secs: int = LOBBY_SECS     # أوقات قابلة للتعديل من الخاص
     night_secs: int = NIGHT_SECS
     day_secs: int = DAY_SECS
+    discuss_secs: int = DISCUSS_SECS  # وقت النقاش في النهار قبل التصويت
+    voting: bool = False              # التصويت مفتوح (بعد انتهاء النقاش)
     day_mid: int | None = None        # رسالة التصويت الحالية (تُحدَّث مع كل صوت)
     day_text: str = ""
     quiet: int = 0                    # عدّاد الجولات المتتالية بلا موت
@@ -307,13 +310,13 @@ def build_mafia_router(ctx: Ctx) -> Router:
         return "\n".join([t(L, "mf_cfg_title"), "", roles_line(g, L), "", t(L, "mf_cfg_hint")])
 
     # حدود الأوقات (ثانية) وخطوة التعديل لكل مرحلة
-    TIMES = {"lobby": (30, 600, 30), "night": (15, 300, 15), "day": (15, 300, 15)}
+    TIMES = {"lobby": (30, 600, 30), "night": (15, 300, 15), "discuss": (30, 600, 30), "day": (15, 300, 15)}
 
     def times_rows(g: Game) -> list:
         L = g.lang
-        val = {"lobby": g.lobby_secs, "night": g.night_secs, "day": g.day_secs}
+        val = {"lobby": g.lobby_secs, "night": g.night_secs, "discuss": g.discuss_secs, "day": g.day_secs}
         rows = []
-        for kind in ("lobby", "night", "day"):
+        for kind in ("lobby", "night", "discuss", "day"):
             lo, hi, step = TIMES[kind]
             rows.append([btn("➖", f"mf:tm:{g.gid}:{kind}:-"),
                          btn(t(L, f"mf_tm_{kind}", s=val[kind]), f"mf:tm:{g.gid}:{kind}:0"),
@@ -427,13 +430,29 @@ def build_mafia_router(ctx: Ctx) -> Router:
     async def day_phase(bot: Bot, g: Game) -> int | None:
         g.state = "day"
         g.votes = {}
+        g.voting = False
         L = g.lang
         alive = alive_players(g)
+        # ١) النقاش: بلا أزرار تصويت، والأحياء يُنبَّهون بمكان النقاش
+        g.day_text = t(L, "mf_discuss_live", r=g.round, s=g.discuss_secs, names=names(g, True))
+        g.day_markup = None
+        g.day_mid = await show(bot, g, g.day_text, None, status=True)
+        await notify_discuss_start(bot, g, alive)
+        deadline = time.monotonic() + g.discuss_secs
+        while time.monotonic() < deadline and g.state == "day" and not g.gone:
+            await asyncio.sleep(0.5)
+        if g.state != "day" or g.gone:
+            return None
+        # ٢) التصويت: تظهر الأزرار وتبدأ النافذة
         btns = [[btn(f"🗳 {p.name[:22]}", f"mf:v:{g.gid}:{p.uid}")] for p in alive]
         btns.append([btn(t(L, "mf_skip"), f"mf:v:{g.gid}:0")])
         g.day_text = t(L, "mf_day_live", r=g.round, s=g.day_secs, names=names(g, True))
         g.day_markup = kb(*btns)
-        g.day_mid = await show(bot, g, g.day_text, g.day_markup, status=True)
+        g.voting = True
+        if g.scope == "channel":
+            await show(bot, g, g.day_text, g.day_markup, status=True)
+        else:
+            await ledit(bot, g, g.day_mid, g.day_text, g.day_markup)
         await notify_vote_start(bot, g, alive)
         await notify_mayor(bot, g)
         deadline = time.monotonic() + g.day_secs
@@ -445,6 +464,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 reminded = True
                 await remind_vote(bot, g)
             await asyncio.sleep(0.5)
+        g.voting = False                                    # أُغلق التصويت: لا أصوات بعد الآن
         missed = [p for p in alive_players(g) if p.uid not in g.votes]
         if missed:                                          # من لم يصوّت: صوته يُحسب على نفسه (لا يطرد أحدًا)
             names_missed = "، ".join(esc(p.name) for p in missed)
@@ -528,6 +548,19 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.mayor_revealed = True
         await c.answer()
         await show(c.bot, g, t(g.lang, "mf_mayor_revealed", name=esc(m.name)), None)
+
+    async def notify_discuss_start(bot: Bot, g: Game, alive: list) -> None:
+        """بداية النهار: رسالة خاصة لكل حي فيها زر يودي لمكان النقاش."""
+        for p in alive:
+            Lp = db.get_lang(p.uid)
+            rows = await msg_rows(bot, g.chat_id, g.day_mid, "btn_go_discuss", Lp)
+            if not rows:
+                return
+            try:
+                await bot.send_message(p.uid, t(Lp, "mf_discuss_dm", s=g.discuss_secs), parse_mode="HTML",
+                                       reply_markup=kb(*rows))
+            except TelegramAPIError:
+                pass
 
     async def notify_vote_start(bot: Bot, g: Game, alive: list) -> None:
         """رسالة خاصة لكل حي فيها زر يفتح رسالة التصويت مباشرة (في التعليقات إن كانت اللعبة فيها)."""
@@ -683,7 +716,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         counter[0] += 1
         return Game(gid=counter[0], chat_id=chat_id, scope=scope, host_id=host_id, host_name=host_name,
                     lang=lang, reply_to=reply_to, thread=thread,
-                    lobby_secs=LOBBY_SECS, night_secs=NIGHT_SECS, day_secs=DAY_SECS)
+                    lobby_secs=LOBBY_SECS, night_secs=NIGHT_SECS, day_secs=DAY_SECS,
+                    discuss_secs=DISCUSS_SECS)
 
     async def open_lobby(bot: Bot, g: Game) -> bool:
         games[g.chat_id] = g
@@ -843,7 +877,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         await c.answer()
         await push_config(c.bot, g)
 
-    @pm.callback_query(F.data.regexp(r"^mf:tm:\d+:(lobby|night|day):[-+0]$"))
+    @pm.callback_query(F.data.regexp(r"^mf:tm:\d+:(lobby|night|discuss|day):[-+0]$"))
     async def cb_times(c: CallbackQuery):
         L = db.get_lang(c.from_user.id)
         _, _, gid, kind, op = c.data.split(":")
@@ -852,7 +886,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await c.answer(t(L, "mf_host_only"), show_alert=True)
             return
         lo, hi, step = TIMES[kind]
-        attr = {"lobby": "lobby_secs", "night": "night_secs", "day": "day_secs"}[kind]
+        attr = {"lobby": "lobby_secs", "night": "night_secs", "discuss": "discuss_secs", "day": "day_secs"}[kind]
         if op != "0":
             cur = getattr(g, attr)
             setattr(g, attr, max(lo, min(hi, cur + (step if op == "+" else -step))))
@@ -912,6 +946,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g = get_game(c, int(gid))
         if not g or g.state != "day":
             await c.answer(t(L, "mf_late"), show_alert=True)
+            return
+        if not g.voting:
+            await c.answer(t(L, "mf_discuss_wait"), show_alert=True)
             return
         voter = g.players.get(c.from_user.id)
         if not voter or not voter.alive:

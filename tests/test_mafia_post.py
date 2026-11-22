@@ -5,6 +5,7 @@ import datetime as dt
 from aiogram.types import Chat, CallbackQuery, Message, MessageOriginChannel, Update
 
 from harness import Harness, run
+from test_mafia_game import fast  # noqa: F401  (fixture)
 from otaku_bot import mafia_game as MG
 
 CH = Chat(id=-1001001, type="channel", username=None, title="قناتي")
@@ -127,7 +128,7 @@ def test_channel_game_keeps_announcements_visible():
                         data=f"mf:n:{g.gid}:killer:{victim.uid}",
                         message=Message(message_id=5, date=dt.datetime.now(), chat=Chat(id=p.uid, type="private"), text="."))
                 await h.dp.feed_update(h.bot, Update(update_id=h.uid + 100, callback_query=kc))
-        assert await wu(lambda: g.state == "day", 15)
+        assert await wu(lambda: g.voting, 15)
         # القناة: رسالة واحدة تعرض الحالة فقط. خبر القتل يصل للمشاركين خاصًّا مع رقم الجولة
         chan_texts = [(getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in h.session.calls
                       if type(c).__name__ in ("SendMessage", "SendPhoto", "EditMessageCaption", "EditMessageText",

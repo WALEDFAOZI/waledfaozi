@@ -1278,3 +1278,68 @@ T["en"]["mf_help_long"] = (
 "⚠️ If 3 rounds in a row have no death or vote, fate picks a random player to leave.\n"
 "━━━━━━━━━━━━━━━━\n"
 "<i>Roles stay secret until the end. Don't reveal yours!</i>")
+
+# ── النقاش قبل التصويت + أوقات جديدة ──
+T["ar"]["mf_discuss_live"] = '💬 <b>「 النهار {r} · وقت النقاش 」</b>\n━━━━━━━━━━━━\n⏳ {s} ثانية للنقاش\n👥 الأحياء:\n{names}\n━━━━━━━━━━━━\n<i>ناقشوا الآن في المجموعة أو التعليقات. بعد انتهاء الوقت تُفتح أزرار التصويت.</i>'
+T["en"]["mf_discuss_live"] = '💬 <b>Day {r} · Discussion</b>\n━━━━━━━━━━━━\n⏳ {s}s to discuss\n👥 Alive:\n{names}\n━━━━━━━━━━━━\n<i>Talk it out now. Voting buttons open when the time is up.</i>'
+T["ar"]["mf_discuss_dm"] = '💬 بدأ النهار، ووقت النقاش {s} ثانية.\nاضغط الزر وشارك في النقاش، وبعده يبدأ التصويت.'
+T["en"]["mf_discuss_dm"] = '💬 Day has begun. You have {s}s to discuss.\nTap the button to join the discussion; voting starts afterwards.'
+T["ar"]["btn_go_discuss"] = "💬 مكان النقاش"
+T["en"]["btn_go_discuss"] = "💬 Discussion"
+T["ar"]["mf_discuss_wait"] = "التصويت يفتح بعد انتهاء وقت النقاش."
+T["en"]["mf_discuss_wait"] = "Voting opens after the discussion ends."
+T["ar"]["mf_tm_night"] = "🔪 قتل المافيا: {s}ث"
+T["en"]["mf_tm_night"] = "🔪 Mafia kill: {s}s"
+T["ar"]["mf_tm_discuss"] = "💬 النقاش: {s}ث"
+T["en"]["mf_tm_discuss"] = "💬 Discussion: {s}s"
+T["ar"]["mf_tm_day"] = "🗳 التصويت: {s}ث"
+T["en"]["mf_tm_day"] = "🗳 Voting: {s}s"
+
+T["ar"]["mf_help_long"] = (
+"🎌 <b>المافيا · دليل اللعبة الكامل</b>\n━━━━━━━━━━━━━━━━\n"
+"🎯 <b>الهدف</b>\n"
+"• المواطنون (ومعهم العمدة والطبيب والمحقق والمجنون) يكشفون القتلة ويطردونهم بالتصويت.\n"
+"• القتلة يتخلصون من المواطنين حتى يتساووا معهم، أو يتجاوزوهم.\n\n"
+"🎭 <b>الأدوار</b>\n"
+"🔪 <b>القاتل:</b> كل ليلة يختار ضحية مع بقية القتلة، والأكثر أصواتًا يُقتل.\n"
+"🩺 <b>الطبيب:</b> كل ليلة يحمي لاعبًا (ويحق له حماية نفسه). إن كان الهدف محميًا، ينجو.\n"
+"🔍 <b>المحقق:</b> كل ليلة يكشف فريق لاعب: مافيا أو مواطنون.\n"
+"🎖 <b>العمدة:</b> من المواطنين. يكشف نفسه مرة واحدة في النهار، فيُحسب صوته مرتين من تلك اللحظة.\n"
+"🃏 <b>المجنون:</b> من المواطنين. إن طُرد بالتصويت يُكشف دوره، ويختار أحدًا يسحبه معه خلال 60 ثانية.\n"
+"👥 <b>المواطن:</b> لا قدرة له، قوته في النقاش والتصويت.\n\n"
+"🌙 <b>الليل</b>\n"
+"القتلة يختارون ضحية، والطبيب يحمي، والمحقق يكشف. كل ذلك من الخاص بالأزرار. وإن لم يختر القتلة أحدًا يختار البوت بالنيابة عنهم.\n\n"
+"🌅 <b>الصباح</b>\n"
+"يُعلن إن قُتل أحد، أو إن الضحية كانت محمية، أو إن ليلة هادئة مرت.\n\n"
+"☀️ <b>النهار</b>\n"
+"1️⃣ <b>النقاش:</b> تتكلمون في المجموعة أو التعليقات، وتصلك رسالة خاصة فيها زر يودي لمكان النقاش.\n"
+"2️⃣ <b>التصويت:</b> بعد انتهاء النقاش تُفتح الأزرار، فكل حي يطرد من يشتبه به أو يضغط «تخطّي».\n"
+"من لا يصوّت يُحسب صوته على نفسه ولا يطرد أحدًا.\n"
+"⚖️ يُطرد صاحب <b>الأصوات الأكثر</b>. التعادل على الأعلى = لا طرد.\n\n"
+"⏳ <b>الأوقات الافتراضية:</b> الانتظار 5 دقائق، والنقاش 3 دقائق، والتصويت دقيقة، وقتل المافيا دقيقة. والمضيف يعدّلها من إعداداته.\n"
+"⚠️ إذا مرت 3 جولات متتالية بلا قتل ولا طرد، يختار القدر لاعبًا عشوائيًا يخرج.\n"
+"━━━━━━━━━━━━━━━━\n"
+"<i>أسرار الأدوار تُكشف في النهاية فقط. لا تكشف دورك بنفسك!</i>")
+
+T["en"]["mf_help_long"] = (
+"🎌 <b>Mafia · Full guide</b>\n━━━━━━━━━━━━━━━━\n"
+"🎯 <b>Goal</b>\n"
+"• Citizens (with the Mayor, Doctor, Detective and Joker) find and vote out the killers.\n"
+"• Killers eliminate citizens until they equal or outnumber them.\n\n"
+"🎭 <b>Roles</b>\n"
+"🔪 <b>Killer:</b> each night picks a victim with the other killers; the most-voted dies.\n"
+"🩺 <b>Doctor:</b> each night protects one player (including self). A protected target survives.\n"
+"🔍 <b>Detective:</b> each night checks a player's team: mafia or citizens.\n"
+"🎖 <b>Mayor:</b> a citizen. Reveals once during the day; their vote then counts twice.\n"
+"🃏 <b>Joker:</b> a citizen. If voted out, the role is revealed and takes one living player along within 60 seconds.\n"
+"👥 <b>Citizen:</b> no power; strength in discussion and voting.\n\n"
+"🌙 <b>Night</b>: killers pick, doctor protects, detective checks; all with buttons in private. If no killer picks, the bot picks for them.\n\n"
+"🌅 <b>Morning</b>: announces a death, a protected target, or a quiet night.\n\n"
+"☀️ <b>Day</b>\n"
+"1️⃣ <b>Discussion:</b> talk in the group or comments; a private message with a button takes you there.\n"
+"2️⃣ <b>Voting:</b> when discussion ends the buttons open; every living player votes to eliminate a suspect, or skips. Not voting counts as a vote for yourself.\n"
+"⚖️ The player with the <b>most votes</b> is eliminated. A tie for first = no elimination.\n\n"
+"⏳ <b>Default times:</b> join 5 min, discussion 3 min, voting 1 min, mafia kill 1 min. The host can change them.\n"
+"⚠️ If 3 rounds in a row have no death or vote, fate picks a random player to leave.\n"
+"━━━━━━━━━━━━━━━━\n"
+"<i>Roles stay secret until the end. Don't reveal yours!</i>")

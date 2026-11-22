@@ -98,10 +98,10 @@ def test_three_quiet_rounds_kill_a_random_player():
             for k in killers:
                 await ptap(h, by_uid[k], f"mf:n:{g.gid}:killer:{target}")
             await ptap(h, by_uid[doctor], f"mf:n:{g.gid}:doctor:{target}")
-            assert await wait_until(lambda: g.state == "day", 15)
+            assert await wait_until(lambda: g.voting, 15)
             assert g.players[target].alive                   # الطبيب أنقذ الهدف في هذه الليلة
             for u in users:
-                if g.players[u.id].alive and g.state == "day":
+                if g.players[u.id].alive and g.voting:
                     await gtap(h, u, f"mf:v:{g.gid}:0")       # الكل يتخطى
             assert await wait_until(lambda: g.state == "night" or g.state == "done", 15)
         assert await wait_until(lambda: any("⚰️" in x for x in group_texts(h)), 15)
@@ -125,7 +125,7 @@ def test_morning_vote_dms_link_to_the_vote_and_non_voters_are_announced():
         for u in users:
             await h.say(u, f"/start mf_{g.gid}")
         await ptap(h, users[0], f"mf:s:{g.gid}")
-        assert await wu(lambda: g.state == "day", 15)
+        assert await wu(lambda: g.voting, 15)
         assert g.day_mid is not None
         for u in [u for u in users if g.players[u.id].alive]:   # كل حي تلقّى رسالة فيها زر يفتح التصويت
             dm = [c for c in dms_to(h, u.id) if "التصويت الصباحي" in (c.text or "")]
@@ -199,7 +199,7 @@ def test_vote_results_show_counts_without_naming_voters():
         for u in users:
             await h.say(u, f"/start mf_{g.gid}")
         await ptap(h, users[0], f"mf:s:{g.gid}")
-        assert await wu(lambda: g.state == "day", 15)
+        assert await wu(lambda: g.voting, 15)
         a = [u for u in users if g.players[u.id].alive]
         assert len(a) >= 4
         await gtap(h, a[0], f"mf:v:{g.gid}:{a[2].id}")
@@ -218,7 +218,7 @@ def test_mayor_reveals_once_during_the_day_and_is_announced():
     from otaku_bot import mafia_game as MGm
 
     async def go():
-        MGm.DAY_SECS = 30                                    # وقت كافٍ للضغط على زر الكشف حتى مع ضغط الجهاز
+        MGm.DAY_SECS, MGm.DISCUSS_SECS = 30, 1               # وقت كافٍ للضغط على زر الكشف حتى مع ضغط الجهاز
         h = Harness()
         h.db.fast_answer_ratio = lambda sid: 0.0
         users = [h.user(i, f"P{i}") for i in range(1, 9)]
@@ -236,7 +236,7 @@ def test_mayor_reveals_once_during_the_day_and_is_announced():
         for p in g.players.values():
             if p.role == "killer":
                 await ptap(h, next(u for u in users if u.id == p.uid), f"mf:n:{g.gid}:killer:{victim.uid}")
-        assert await wu(lambda: g.state == "day", 15)
+        assert await wu(lambda: g.voting, 15)
         assert g.players[mayor.uid].alive                      # العمدة ما زال حيًّا
         await ptap(h, mayor_user, f"mf:rv:{g.gid}")              # يكشف نفسه في النهار
         assert g.mayor_revealed

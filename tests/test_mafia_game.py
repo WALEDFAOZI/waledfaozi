@@ -13,11 +13,11 @@ GROUP = Chat(id=-2001, type="supergroup", title="شلة المافيا")
 
 @pytest.fixture(autouse=True)
 def fast():
-    old = (MG.LOBBY_SECS, MG.NIGHT_SECS, MG.DAY_SECS, MG.EDIT_GAP, MG.COOLDOWN_SECS)
-    MG.LOBBY_SECS, MG.NIGHT_SECS, MG.DAY_SECS, MG.EDIT_GAP, MG.COOLDOWN_SECS = 4, 3, 3, 0.2, 0
+    old = (MG.LOBBY_SECS, MG.NIGHT_SECS, MG.DAY_SECS, MG.DISCUSS_SECS, MG.EDIT_GAP, MG.COOLDOWN_SECS)
+    MG.LOBBY_SECS, MG.NIGHT_SECS, MG.DAY_SECS, MG.DISCUSS_SECS, MG.EDIT_GAP, MG.COOLDOWN_SECS = 4, 3, 3, 1, 0.2, 0
     MG.games.clear()
     yield
-    MG.LOBBY_SECS, MG.NIGHT_SECS, MG.DAY_SECS, MG.EDIT_GAP, MG.COOLDOWN_SECS = old
+    MG.LOBBY_SECS, MG.NIGHT_SECS, MG.DAY_SECS, MG.DISCUSS_SECS, MG.EDIT_GAP, MG.COOLDOWN_SECS = old
     MG.games.clear()
 
 
@@ -96,7 +96,7 @@ def test_full_game_roles_night_day_and_result():
         assert role_dm and "القاتل" in role_dm[-1]
         await h.tap(next(x for x in users if x.id == killer), f"mf:n:{g.gid}:killer:{victim}")
         await h.tap(next(x for x in users if x.id == doctor), f"mf:n:{g.gid}:doctor:{doctor}")   # الطبيب يحمي نفسه
-        assert await wait_until(lambda: g.state == "day"), g.state
+        assert await wait_until(lambda: g.voting), g.state
         assert not g.players[victim].alive                                  # القتيل مات في الليل
         assert any("سقط" in x and "P" in x for x in group_texts(h))
         new_msgs = [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto") and c.chat_id == GROUP.id]
