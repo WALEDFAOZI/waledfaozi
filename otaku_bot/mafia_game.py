@@ -222,7 +222,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         return "\n".join([
             t(L, "mf_title"), "",
             roles,
-            t(L, "mf_players", n=len(g.players), names=names(g)),
+            t(L, "mf_players", n=len(g.players), names="\n" + "\n".join(f"• {esc(p.name)}" for p in g.players.values()) if g.players else "—"),
             t(L, "mf_left", s=max(0, left), min=M.MIN_PLAYERS),
             "", t(L, "mf_howto"),
         ] + ([g.discuss_line] if g.discuss_line else []))
