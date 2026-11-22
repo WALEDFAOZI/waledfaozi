@@ -31,9 +31,9 @@ from .thread_anchor import anchor_id
 
 log = logging.getLogger(__name__)
 
-LOBBY_SECS = 150
-NIGHT_SECS = 60
-DAY_SECS = 90
+LOBBY_SECS = 300
+NIGHT_SECS = 120
+DAY_SECS = 180
 MAX_ROUNDS = 15
 QUIET_ROUNDS = 3        # جولات متتالية بلا قتل ولا طرد، ثم يختار النظام لاعبًا عشوائيًا للخروج
 COOLDOWN_SECS = 60
