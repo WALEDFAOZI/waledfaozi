@@ -128,10 +128,10 @@ def news_section(g: Game, key: tuple, items: list) -> str:
     """قسم في أخبار الجولة: «أخبار الصباح الأول» أو «أخبار النهار الأول» مع أخباره."""
     r, phase = key
     if g.lang == "en":
-        head = (f"🌅 <b>Morning {r} news</b>" if phase == "morning" else f"☀️ <b>Day {r} news</b>")
+        head = (f"🌙 <b>Night {r} news</b>" if phase == "night" else f"☀️ <b>Day {r} news</b>")
     else:
-        word = ORDINAL_AR_MASC.get(r, str(r))
-        head = (f"🌅 <b>أخبار الصباح {word}</b>" if phase == "morning" else f"☀️ <b>أخبار النهار {word}</b>")
+        head = (f"🌙 <b>أخبار الليلة {ORDINAL_AR.get(r, str(r))}</b>" if phase == "night"
+                else f"☀️ <b>أخبار النهار {ORDINAL_AR_MASC.get(r, str(r))}</b>")
     return head + "\n" + "\n".join(items)
 
 
@@ -206,7 +206,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 await flush_news(bot, g)                   # أخبار الجولة السابقة تصل قبل الحالة الجديدة
                 g.status_text, g.status_markup = text, with_discuss(g, markup)
             else:
-                g.news.append((g.round, "morning" if g.state == "night" else "day", text))
+                g.news.append((g.round, "night" if g.state == "night" else "day", text))
             await live.edit(bot, g.chat_id, g.live, channel_body(g), g.status_markup)
             return g.live
         mid = await send(bot, g, text, markup)
