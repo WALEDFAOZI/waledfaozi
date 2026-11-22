@@ -1353,3 +1353,6 @@ T["ar"]["mf_reveal_cfg"] = "👁 إظهار الدور عند الموت"
 T["en"]["mf_reveal_cfg"] = "👁 Reveal role on death"
 T["ar"]["mf_role_shown"] = "🎭 كان دوره: {role}"
 T["en"]["mf_role_shown"] = "🎭 Their role was: {role}"
+
+T["ar"]["mf_dm_removed"] = "⚠️ ما قدرت أرسل الدور لـ {names} (لم يفتحوا البوت بالخاص أو حظروه)، فتم استبعادهم.\n⏳ نفتح اللوبي {s} ثانية، ينضم غيرهم الآن."
+T["en"]["mf_dm_removed"] = "⚠️ I couldn't send a role to {names} (they haven't opened the bot or blocked it), so they were removed.\n⏳ The lobby reopens for {s} seconds for others to join."

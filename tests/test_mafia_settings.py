@@ -286,3 +286,29 @@ def test_reveal_on_death_is_off_by_default_and_toggles_from_settings():
         assert g.reveal_death is False
         g.start_now = True
     run(go())
+
+
+def test_failed_role_dm_removes_player_and_reopens_lobby_for_90s():
+    async def go():
+        from test_mafia_game import wait_until
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 7)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, users[0], "/mafia", 92)
+        g = MG.games[GROUP.id]
+        for u in users[1:]:
+            await h.say(u, f"/start mf_{g.gid}")
+        h.session.blocked_chats.add(users[2].id)                   # يحظر البوت فلا يصله دوره
+        await ptap(h, users[0], f"mf:s:{g.gid}")
+        assert await wait_until(lambda: users[2].id not in g.players, 15)
+        assert await wait_until(lambda: any("نفتح اللوبي" in x for x in group_texts_of(h)), 15)
+        assert g.state == "lobby"                                   # رجع للوبي ولم تنته اللعبة
+        g.start_now = True
+    run(go())
+
+
+def group_texts_of(h):
+    return [(getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in h.session.calls
+            if getattr(c, "chat_id", None) == GROUP.id]

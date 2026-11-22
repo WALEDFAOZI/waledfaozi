@@ -40,6 +40,7 @@ MAX_ROUNDS = 15
 QUIET_ROUNDS = 3        # جولات متتالية بلا قتل ولا طرد، ثم يختار النظام لاعبًا عشوائيًا للخروج
 COOLDOWN_SECS = 60
 EDIT_GAP = 3.0
+DM_RETRY_SECS = 90      # إن تعذّر إرسال الدور لبعض اللاعبين: يُفتح اللوبي من جديد لهذه المدة
 LOBBY_TICK = 10.0          # كم ثانية بين تحديثات عدّاد اللوبي
 GROUP_TYPES = {"group", "supergroup"}
 SPECIAL_ORDER = ["detective", "doctor", "mayor", "joker"]
@@ -358,12 +359,13 @@ def build_mafia_router(ctx: Ctx) -> Router:
         return ""
 
     # ── الانتظار ──────────────────────────────────────────
-    async def lobby_phase(bot: Bot, g: Game) -> None:
+    async def lobby_phase(bot: Bot, g: Game, secs: int | None = None) -> None:
         start = time.monotonic()
         last = 0.0
+        total = secs if secs is not None else g.lobby_secs
         while not g.start_now and g.state == "lobby":
             now = time.monotonic()
-            left = g.lobby_secs - (now - start)     # المضيف قد يزيد الوقت أثناء الانتظار
+            left = total - (now - start) if secs is not None else g.lobby_secs - (now - start)     # المضيف قد يزيد الوقت أثناء الانتظار
             if left <= 0:
                 return
             # تحديث فوري عند الانضمام/الخروج، وإلا كل LOBBY_TICK ثانية حتى ينزل العدّاد
@@ -623,13 +625,11 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await lobby_phase(bot, g)
             if g.state != "lobby":
                 return
-            if len(g.players) < M.MIN_PLAYERS:
-                await show(bot, g, t(L, "mf_too_few", min=M.MIN_PLAYERS), None)
-                return
-            if g.auto:
-                g.killers, g.specials = M.auto_config(len(g.players))
             while True:
                 if g.gone:
+                    return
+                if len(g.players) < M.MIN_PLAYERS:
+                    await show(bot, g, t(L, "mf_too_few", min=M.MIN_PLAYERS), None)
                     return
                 if g.auto:
                     g.killers, g.specials = M.auto_config(len(g.players))
@@ -651,12 +651,14 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 if not failed:
                     break
                 names = "، ".join(esc(g.players[u].name) for u in failed)
-                for u in failed:                              # لا يصل إليه دوره: يُستبعد، ونوزّع الأدوار من جديد
+                for u in failed:                              # لا يصل إليه دوره: يُستبعد
                     g.players.pop(u, None)
-                if len(g.players) < M.MIN_PLAYERS:
-                    await show(bot, g, t(L, "mf_dm_fail", names=names), None)
+                g.start_now = False
+                g.dirty = True
+                await show(bot, g, t(L, "mf_dm_removed", names=names, s=DM_RETRY_SECS), None)
+                await lobby_phase(bot, g, DM_RETRY_SECS)      # اللوبي يُفتح من جديد لمدة قصيرة لينضم غيرهم
+                if g.state != "lobby" or g.gone:
                     return
-                await show(bot, g, t(L, "mf_dm_removed", names=names), None)
             roles_map = {p.uid: p.role for p in g.players.values()}
             while True:
                 alive_at_start = len(alive_players(g))
