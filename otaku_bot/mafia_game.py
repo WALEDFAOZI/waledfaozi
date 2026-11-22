@@ -132,8 +132,8 @@ def news_section(g: Game, key: tuple, items: list) -> str:
     if g.lang == "en":
         head = (f"🌙 <b>Night {r} news</b>" if phase == "night" else f"☀️ <b>Day {r} news</b>")
     else:
-        head = (f"🌙 <b>أخبار الليلة {ORDINAL_AR.get(r, str(r))}</b>" if phase == "night"
-                else f"☀️ <b>أخبار النهار {ORDINAL_AR_MASC.get(r, str(r))}</b>")
+        head = (f"🌙 <b>「 أخبار الليلة {ORDINAL_AR.get(r, str(r))} 」</b>" if phase == "night"
+                else f"☀️ <b>「 أخبار النهار {ORDINAL_AR_MASC.get(r, str(r))} 」</b>")
     return head + "\n" + "\n".join(items)
 
 

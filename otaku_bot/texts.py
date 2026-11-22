@@ -744,7 +744,7 @@ T["en"].update({
     "ps_anime_soon": "🎭 The character list for this type is coming soon.",
 })
 
-T["ar"]['mf_title'] = '🎌 <b>المافيا · لعبة أنمي</b>'
+T["ar"]["mf_title"] = '🎌 <b>「 المافيا 」</b>\n<i>لعبة الظلال والخيانة</i>'
 T["ar"]['mf_host'] = '🎩 المضيف: {h}'
 T["ar"]['mf_killers'] = 'القتلة'
 T["ar"]['mf_killers_btn'] = '🔪 القتلة: {k}'
@@ -776,20 +776,20 @@ T["ar"]['mf_dm_fail'] = '❌ ما قدرت أرسل الأدوار لبعض ال
 T["ar"]['mf_n_killer'] = '🔪 اختر ضحية الليلة (زملاؤك يختارون معك، والأكثر أصواتًا يُقتل):'
 T["ar"]['mf_n_doctor'] = '🩺 اختر من تحميه الليلة:'
 T["ar"]['mf_n_detective'] = '🔍 اختر من تكشف فريقه:'
-T["ar"]["mf_night_live"] = '🌙 <b>الليلة {r}</b>\n⏳ {s} ثانية\n👥 الأحياء ({n}): {names}\n\n<i>القتلة والطبيب والمحقق يتصرفون من الخاص. الباقون ينتظرون الصباح.</i>'
-T["ar"]["mf_day_live"] = '☀️ <b>النهار {r}</b>\n⏳ {s} ثانية\n👥 الأحياء: {names}\n\n🗳 اضغط اسم من تشك فيه، أو «تخطّي» إن ما عندك شك. الطرد يحتاج أغلبية مطلقة من الأحياء.'
-T["ar"]['mf_morning_dead'] = '🔪 تم قتل <b>{name}</b> على يد المافيا 💀'
-T["ar"]['mf_morning_saved'] = '🛡 المافيا حاولت قتل أحد الليلة، لكن الشخص كان محميًا!'
-T["ar"]['mf_morning_quiet'] = '☀️ ليلة هادئة… لم يمت أحد الليلة.'
-T["ar"]['mf_executed'] = '⚖️ طُرد <b>{name}</b> بالتصويت. (دوره سرّي حتى النهاية)'
-T["ar"]['mf_no_exec'] = '⚖️ لم تكتمل الأغلبية، ولم يُطرد أحد اليوم.'
+T["ar"]["mf_night_live"] = '🌙 <b>「 الليلة {r} · ظلام القرية 」</b>\n━━━━━━━━━━━━\n⏳ {s} ثانية\n👥 الأحياء ({n}):\n{names}\n━━━━━━━━━━━━\n<i>القتلة يتهامسون في الظلام… والطبيب يترقب، والمحقق يبحث عن الحقيقة. الباقون ينتظرون الفجر.</i>'
+T["ar"]["mf_day_live"] = '☀️ <b>「 النهار {r} · حكم الجماعة 」</b>\n━━━━━━━━━━━━\n⏳ {s} ثانية\n👥 الأحياء:\n{names}\n━━━━━━━━━━━━\n⚖️ <i>من تشك فيه؟ اضغط اسمه… أو «تخطّي» إن كنت ما تزال تتردد. الحكم يحتاج أغلبية مطلقة.</i>'
+T["ar"]["mf_morning_dead"] = '💀 <b>「 سقط {name} في الظلام… 」</b>\nضربة القاتل لم تُرحم، والقرية تستيقظ على الفاجعة.'
+T["ar"]["mf_morning_saved"] = '🛡 <b>「 ضربة القاتل ارتدت… 」</b>\nالطبيب سبق السكين في اللحظة الأخيرة، ونجا الضحية من الموت.'
+T["ar"]["mf_morning_quiet"] = '🌅 <b>「 فجر هادئ… أو هذا ما يبدو 」</b>\nلم يسقط أحد الليلة، لكن الخوف يتسلل بين الجميع.'
+T["ar"]["mf_executed"] = '⚖️ <b>「 حُكم عليه بالتصويت 」</b>\n<b>{name}</b> سقط في ساحة الحكم، ودوره يبقى سرًّا حتى النهاية.'
+T["ar"]["mf_no_exec"] = '⚖️ <b>「 لم يُحسم الحكم 」</b>\nالأصوات تفرّقت، ولم يُطرد أحد اليوم.'
 T["ar"]['mf_detect_res'] = '🔍 النتيجة: <b>{name}</b> من فريق {team}.'
-T["ar"]['mf_end_town'] = '🎉 فاز المواطنون! تم القضاء على كل القتلة.'
-T["ar"]['mf_end_mafia'] = '🔪 فازت المافيا! تساووا مع المواطنين.'
+T["ar"]["mf_end_town"] = '🎉 <b>「 انتهت الحكاية… فاز المواطنون 」</b>\nتم القضاء على كل القتلة، ونجت القرية.'
+T["ar"]["mf_end_mafia"] = '🔪 <b>「 انتهت الحكاية… فازت المافيا 」</b>\nتساوى القتلة مع الباقين، وسقطت القرية في الظلام.'
 T["ar"]['mf_end_solo'] = '🃏 فاز المجنون وحده!'
-T["ar"]['mf_end_draw'] = '🤝 انتهت اللعبة بالتعادل (وصلت للحد الأقصى من الجولات).'
+T["ar"]["mf_end_draw"] = '🤝 <b>「 انتهت الحكاية بالتعادل 」</b>\nوصلت اللعبة للحد الأقصى من الجولات دون حسم.'
 T["ar"]['mf_end'] = '🏁 <b>انتهت اللعبة!</b>\n{head}\n\n<b>الأدوار:</b>\n{reveal}\n\n<i>الجولات: {rounds}</i>'
-T["ar"]['mf_stopped'] = '⛔ أُلغيت اللعبة.'
+T["ar"]["mf_stopped"] = '⛔ <b>「 توقفت الحكاية قبل نهايتها 」</b>\nأُلغيت اللعبة.'
 T["ar"]['mf_quit_live'] = '🚪 {name} غادر اللعبة وخرج منها.'
 T["ar"]['mf_busy'] = '⏳ فيه لعبة شغالة في هذه المجموعة الآن.'
 T["ar"]['mf_cool'] = '⏱ انتظر قليلًا قبل لعبة مافيا جديدة.'
@@ -1128,7 +1128,7 @@ T["en"]["mf_vote_status"] = "🗳 <b>{name}</b> voted.\n📊 Voted: {done} of {t
 T["ar"]["mf_quiet_death"] = "⚰️ مرت 3 جولات بدون قتل ولا طرد، فاختار القدر <b>{name}</b> ليخرج من اللعبة 💀"
 T["en"]["mf_quiet_death"] = "⚰️ Three rounds passed with no death or vote, so fate chose <b>{name}</b> to leave the game 💀"
 
-T["ar"]["mf_self_votes"] = "⏳ لم يصوّت: {names}\n↩️ صوت كل واحد منهم اعتُبر على نفسه، فلا يطرد أحدًا."
+T["ar"]["mf_self_votes"] = '⏳ <b>「 من بقي صامتًا 」</b>\n{names}\n<i>صوت كل واحد منهم اعتُبر على نفسه، فلا يُطرد أحد بسببه.</i>'
 T["en"]["mf_self_votes"] = "⏳ Did not vote: {names}\n↩️ Each of their votes counts for themselves, so it eliminates nobody."
 T["ar"]["mf_vote_dm"] = "🗳 بدأ التصويت الصباحي في اللعبة.\nاضغط الزر وصوّت قبل انتهاء الوقت. من لا يصوّت يُحسب صوته على نفسه ↩️"
 T["en"]["mf_vote_dm"] = "🗳 Morning voting has started.\nTap the button and vote before time runs out. If you don't vote, your vote counts for yourself ↩️"
@@ -1137,7 +1137,7 @@ T["en"]["btn_go_vote"] = "🗳 Vote now"
 T["ar"]["mf_vote_note"] = "ℹ️ من لا يصوّت يُحسب صوته على نفسه."
 T["en"]["mf_vote_note"] = "ℹ️ If you don't vote, your vote counts for yourself."
 
-T["ar"]["mf_vote_results"] = "📊 <b>نتائج التصويت</b> (بدون أسماء المصوتين):\n{lines}"
+T["ar"]["mf_vote_results"] = '📊 <b>「 حصيلة الأصوات 」</b>\n━━━━━━━━━━━━\n{lines}'
 T["en"]["mf_vote_results"] = "📊 <b>Vote results</b> (voters are not named):\n{lines}"
 T["ar"]["mf_vote_skip"] = "• ⏭ تخطّي: {n}"
 T["en"]["mf_vote_skip"] = "• ⏭ Skip: {n}"
@@ -1197,31 +1197,32 @@ T["ar"]["mf_mayor_dm"] = "🎖 بدأ التصويت الصباحي. تقدر ت
 T["en"]["mf_mayor_dm"] = "🎖 Morning voting has started. You can reveal yourself now (once only), and your vote counts twice from then on."
 T["ar"]["mf_reveal_btn"] = "🎖 اكشف نفسي"
 T["en"]["mf_reveal_btn"] = "🎖 Reveal myself"
-T["ar"]["mf_mayor_revealed"] = "🎖 <b>{name}</b> هو العمدة! صوته يُحسب مرتين من الآن."
+T["ar"]["mf_mayor_revealed"] = '🎖 <b>「 الكشف! 」</b>\nالعمدة <b>{name}</b> يكشف عن نفسه أمام الجميع!\nمن الآن يُحسب صوته مرتين.'
 T["en"]["mf_mayor_revealed"] = "🎖 <b>{name}</b> is the Mayor! Their vote counts twice from now on."
 T["ar"]["mf_already_revealed"] = "العمدة كشف نفسه من قبل."
 T["en"]["mf_already_revealed"] = "The mayor has already revealed."
 
-T["ar"]["mf_vote_pending"] = "⏳ <b>لم يصوّتوا بعد:</b> {names}"
+T["ar"]["mf_vote_pending"] = '⏳ <b>「 ما زالوا يترددون… 」</b>\n{names}'
 T["en"]["mf_vote_pending"] = "⏳ <b>Not voted yet:</b> {names}"
-T["ar"]["mf_vote_all"] = "✅ <b>الكل صوّت</b>"
+T["ar"]["mf_vote_all"] = '✅ <b>「 اكتمل الحكم 」</b> الكل صوّت.'
 T["en"]["mf_vote_all"] = "✅ <b>Everyone voted</b>"
 
 T["ar"]["mf_dm_removed"] = "⚠️ ما قدرت أرسل الدور لـ {names} (لم يفتحوا البوت بالخاص أو حظروه)، فتم استبعادهم وإعادة توزيع الأدوار."
 T["en"]["mf_dm_removed"] = "⚠️ I couldn't send a role to {names} (they haven't opened the bot or blocked it). They were removed and roles were dealt again."
-T["ar"]["mf_night_remind"] = "⏰ تذكير: الليل ينتهي قريبًا، تصرّف الآن من الأزرار قبل فوات الوقت."
+T["ar"]["mf_night_remind"] = '⏰ <b>「 الفجر يقترب… 」</b>\nتصرّف الآن من الأزرار قبل أن يفوت الوقت.'
 T["en"]["mf_night_remind"] = "⏰ Reminder: night ends soon, act now with the buttons."
-T["ar"]["mf_vote_remind"] = "⏰ تذكير: لم تصوّت بعد! صوّت قبل انتهاء الوقت، ومن لا يصوّت يُحسب صوته على نفسه."
+T["ar"]["mf_vote_remind"] = '⏰ <b>「 لم تُدلِ بصوتك بعد! 」</b>\nصوّت قبل أن يُغلق باب الحكم، ومن يصمت يُحسب صوته على نفسه.'
 T["en"]["mf_vote_remind"] = "⏰ Reminder: you haven't voted yet! Vote before time runs out; if you don't, your vote counts for yourself."
 T["ar"]["mf_gone_stop"] = "⚠️ توقفت لعبة المافيا لأن الرسالة الحيّة حُذفت. ابدأ لعبة جديدة."
 T["en"]["mf_gone_stop"] = "⚠️ The mafia game stopped because its live message was deleted. Start a new game."
 
-T["ar"]["mf_mayor_warn"] = "🎖 العمدة <b>{name}</b> كشف نفسه! انتبه منه: تقدرون تقتلونه، لكن الطبيب قد يحميه. أو اكسبوه إلى صفكم، لأن صوته إذا صوّت عليكم يُحسب مرتين."
+T["ar"]["mf_mayor_warn"] = '🎖 <b>「 تحذير… العمدة بيننا 」</b>\nالعمدة <b>{name}</b> كشف نفسه! تقدرون تقتلونه، لكن الطبيب قد يحميه. أو اكسبوه إلى صفكم… فصوته إذا صوّت عليكم يُحسب مرتين.'
 T["en"]["mf_mayor_warn"] = "🎖 The Mayor <b>{name}</b> revealed! Be careful: you can kill them, but the doctor may protect them. Or win them over, since their vote counts twice against you."
-T["ar"]["mf_joker_out"] = "🃏 <b>{name}</b> هو المجنون! اختاروا: من تسحبونه معه؟ ({s} ثانية، وإن لم يختر أحد يختار البوت)."
+T["ar"]["mf_joker_out"] = '🃏 <b>「 الضحكة الأخيرة… 」</b>\n<b>{name}</b> هو المجنون! قبل أن يُسحب إلى الظلام، يختار أحدكم ليرافقه. ({s} ثانية، وإن صمتّم اختار القدر.)'
 T["en"]["mf_joker_out"] = "🃏 <b>{name}</b> was the Joker! Choose who they take with them ({s} seconds; if no one chooses, the bot does)."
-T["ar"]["mf_joker_took"] = "🃏 <b>{joker}</b> سحب معه <b>{victim}</b> قبل أن يخرج!"
+T["ar"]["mf_joker_took"] = '🃏 <b>「 لن يخرج وحده… 」</b>\n<b>{joker}</b> سحب معه <b>{victim}</b> إلى الظلام!'
 T["en"]["mf_joker_took"] = "🃏 <b>{joker}</b> took <b>{victim}</b> with them!"
 
 T["ar"]["mf_desc_joker"] = "🃏 أنت المجنون، من المواطنين. لا قدرة لك ليلًا. إن طُردت بالتصويت يُكشف دورك، ويختار أحد الأحياء يسحبه معك خلال 60 ثانية، وإلا يختار البوت."
 T["en"]["mf_desc_joker"] = "🃏 You're the Joker, on the citizens' side. No night power. If voted out, your role is revealed and someone alive is taken with you within 60 seconds, otherwise the bot picks."
+

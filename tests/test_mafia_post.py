@@ -132,11 +132,11 @@ def test_channel_game_keeps_announcements_visible():
         chan_texts = [(getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in h.session.calls
                       if type(c).__name__ in ("SendMessage", "SendPhoto", "EditMessageCaption", "EditMessageText",
                                               "EditMessageMedia") and c.chat_id == CH.id]
-        assert not any("تم قتل" in x for x in chan_texts), "أخبار الجولات لا تبقى في القناة"
+        assert not any("سقط " in x for x in chan_texts), "أخبار الجولات لا تبقى في القناة"
         assert len([c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto")
                     and c.chat_id == CH.id]) == 1, "القناة تبقى برسالة واحدة"
         news = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id != CH.id
-                and "أخبار الليلة الأولى" in (c.text or "") and "تم قتل" in (c.text or "")]
+                and "أخبار الليلة الأولى" in (c.text or "") and "سقط" in (c.text or "")]
         assert news, "أخبار الجولة تصل للمشاركين خاصًّا مع رقم الجولة"
         # المضيف لا يظهر أبدًا في رسائل القناة (ولم ينضم للعب)
         assert not any("Owner" in x for x in chan_texts), "اسم المضيف ظهر في القناة"
