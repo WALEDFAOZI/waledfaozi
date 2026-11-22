@@ -59,6 +59,21 @@ class Config:
             raise ConfigError("عدد القتلة لازم يكون أقل من بقية اللاعبين، وإلا يفوز القتلة من البداية")
 
 
+def auto_config(n_players: int) -> tuple[int, list[str]]:
+    """إعداد تلقائي حسب عدد اللاعبين: عدد القتلة والأدوار الخاصة، ويمرّ دائمًا من التحقق."""
+    n = max(MIN_PLAYERS, min(MAX_PLAYERS, n_players))
+    killers = 1 if n <= 6 else 2 if n <= 8 else 3 if n <= 11 else 4
+    specials = ["detective"] if n >= 6 else []
+    if n >= 7:
+        specials.append("doctor")
+    if n >= 9:
+        specials.append("guard")
+    if n >= 12:
+        specials.append("joker")
+    Config(killers=killers, specials=specials).validate(n)
+    return killers, specials
+
+
 def assign(player_ids: list[int], cfg: Config, rng: random.Random) -> dict[int, str]:
     """يوزّع الأدوار عشوائيًا. يرجع {uid: role_key}."""
     cfg.validate(len(player_ids))

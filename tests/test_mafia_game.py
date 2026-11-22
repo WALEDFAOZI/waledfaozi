@@ -96,7 +96,9 @@ def test_full_game_roles_night_day_and_result():
         await h.tap(next(x for x in users if x.id == doctor), f"mf:n:{g.gid}:doctor:{doctor}")   # الطبيب يحمي نفسه
         assert await wait_until(lambda: g.state == "day"), g.state
         assert not g.players[victim].alive                                  # القتيل مات في الليل
-        assert any("وجدوا" in x and "P" in x for x in group_texts(h))
+        assert any("تم قتل" in x and "المافيا" in x and "P" in x for x in group_texts(h))
+        new_msgs = [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto") and c.chat_id == GROUP.id]
+        assert len(new_msgs) >= 4                # اللوبي + الليل + النهار + الصباح ...: كل مرحلة رسالة جديدة
         alive = [u for u in users if g.players[u.id].alive]
         for u in alive:
             if u.id != killer:

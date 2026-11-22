@@ -72,6 +72,10 @@ class Game:
     start_now: bool = False
     me: str = ""                    # اسم البوت (لرابط الانضمام)
     cfg_msg: int | None = None       # رسالة إعدادات المضيف في الخاص
+    auto: bool = True                # الأدوار تلقائية حسب العدد (تنطفئ عند أي تعديل يدوي)
+    lobby_secs: int = LOBBY_SECS     # أوقات قابلة للتعديل من الخاص
+    night_secs: int = NIGHT_SECS
+    day_secs: int = DAY_SECS
 
 
 games: dict[int, Game] = {}
@@ -116,11 +120,18 @@ def build_mafia_router(ctx: Ctx) -> Router:
                                thread=g.thread if g.scope == "group" else None)
 
     async def show(bot: Bot, g: Game, text: str, markup=None) -> None:
-        """الرسالة الحيّة الواحدة: تُعدَّل دائمًا فلا تتراكم."""
-        if g.live is None:
-            g.live = await send(bot, g, text, markup)
+        """كل مرحلة رسالة جديدة في المجموعات. في القنوات تُعدَّل رسالة واحدة (لتفادي الإغراق)."""
+        if g.scope == "channel" and g.live is not None:
+            await live.edit(bot, g.chat_id, g.live, text, markup)
             return
-        await live.edit(bot, g.chat_id, g.live, text, markup)
+        mid = await send(bot, g, text, markup)
+        if g.live is None:
+            g.live = mid
+
+    async def lobby_edit(bot: Bot, g: Game, text: str, markup=None) -> None:
+        """اللوبي وحده يُعدَّل في مكانه: يعرض المنضمين والعدّاد."""
+        if g.live is not None:
+            await live.edit(bot, g.chat_id, g.live, text, markup)
 
     async def dm(bot: Bot, uid: int, text: str, markup=None) -> bool:
         try:
@@ -165,12 +176,28 @@ def build_mafia_router(ctx: Ctx) -> Router:
         L = g.lang
         return "\n".join([t(L, "mf_cfg_title"), "", roles_line(g, L), "", t(L, "mf_cfg_hint")])
 
+    # حدود الأوقات (ثانية) وخطوة التعديل لكل مرحلة
+    TIMES = {"lobby": (30, 600, 30), "night": (15, 300, 15), "day": (15, 300, 15)}
+
+    def times_rows(g: Game) -> list:
+        L = g.lang
+        val = {"lobby": g.lobby_secs, "night": g.night_secs, "day": g.day_secs}
+        rows = []
+        for kind in ("lobby", "night", "day"):
+            lo, hi, step = TIMES[kind]
+            rows.append([btn("➖", f"mf:tm:{g.gid}:{kind}:-"),
+                         btn(t(L, f"mf_tm_{kind}", s=val[kind]), f"mf:tm:{g.gid}:{kind}:0"),
+                         btn("➕", f"mf:tm:{g.gid}:{kind}:+")])
+        return rows
+
     def config_markup(g: Game):
         L = g.lang
-        rows = [[btn("➖", f"mf:k:{g.gid}:-"), btn(t(L, "mf_killers_btn", k=g.killers), f"mf:k:{g.gid}:0"),
-                 btn("➕", f"mf:k:{g.gid}:+")]]
+        rows = [[btn(t(L, "mf_auto_btn") + (" ✅" if g.auto else ""), f"mf:a:{g.gid}")]]
+        rows += [[btn("➖", f"mf:k:{g.gid}:-"), btn(t(L, "mf_killers_btn", k=g.killers), f"mf:k:{g.gid}:0"),
+                  btn("➕", f"mf:k:{g.gid}:+")]]
         sp = [btn(("✅ " if r in g.specials else "") + t(L, "mf_r_" + r), f"mf:r:{g.gid}:{r}") for r in SPECIAL_ORDER]
         rows += [sp[:2], sp[2:]]
+        rows += times_rows(g)
         rows.append([btn(t(L, "mf_start"), f"mf:s:{g.gid}"), btn(t(L, "mf_cancel"), f"mf:x:{g.gid}")])
         return kb(*rows)
 
@@ -195,16 +222,16 @@ def build_mafia_router(ctx: Ctx) -> Router:
 
     # ── الانتظار ──────────────────────────────────────────
     async def lobby_phase(bot: Bot, g: Game) -> None:
-        end = time.monotonic() + LOBBY_SECS
+        start = time.monotonic()
         last = 0.0
         while not g.start_now and g.state == "lobby":
-            left = end - time.monotonic()
+            left = g.lobby_secs - (time.monotonic() - start)     # المضيف قد يزيد الوقت أثناء الانتظار
             if left <= 0:
                 return
             if g.dirty and time.monotonic() - last >= EDIT_GAP:
                 g.dirty = False
                 last = time.monotonic()
-                await show(bot, g, lobby_text(g, int(left)), lobby_markup(g))
+                await lobby_edit(bot, g, lobby_text(g, int(left)), lobby_markup(g))
             await asyncio.sleep(0.5)
 
     # ── الليل ─────────────────────────────────────────────
@@ -226,9 +253,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
             else:
                 continue
             await dm(bot, p.uid, t(L, f"mf_n_{p.role}"), kb(*rows, *back))
-        await show(bot, g, t(L, "mf_night_live", r=g.round, s=NIGHT_SECS, n=len(alive), names=names(g, True)),
+        await show(bot, g, t(L, "mf_night_live", r=g.round, s=g.night_secs, n=len(alive), names=names(g, True)),
                    kb(*await open_private_rows(bot, L)))
-        deadline = time.monotonic() + NIGHT_SECS
+        deadline = time.monotonic() + g.night_secs
         while time.monotonic() < deadline and g.state == "night" and not night_complete(g):
             await asyncio.sleep(0.5)
 
@@ -253,8 +280,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         alive = alive_players(g)
         btns = [[btn(f"🗳 {p.name[:22]}", f"mf:v:{g.gid}:{p.uid}")] for p in alive]
         btns.append([btn(t(L, "mf_skip"), f"mf:v:{g.gid}:0")])
-        await show(bot, g, t(L, "mf_day_live", r=g.round, s=DAY_SECS, names=names(g, True)), kb(*btns))
-        deadline = time.monotonic() + DAY_SECS
+        await show(bot, g, t(L, "mf_day_live", r=g.round, s=g.day_secs, names=names(g, True)), kb(*btns))
+        deadline = time.monotonic() + g.day_secs
         while time.monotonic() < deadline and g.state == "day":
             if all(p.uid in g.votes for p in alive_players(g)):
                 break
@@ -305,6 +332,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
             if len(g.players) < M.MIN_PLAYERS:
                 await show(bot, g, t(L, "mf_too_few", min=M.MIN_PLAYERS), None)
                 return
+            if g.auto:
+                g.killers, g.specials = M.auto_config(len(g.players))
             cfg = M.Config(killers=g.killers, specials=list(g.specials))
             try:
                 roles = M.assign(list(g.players), cfg, rng)
@@ -365,12 +394,13 @@ def build_mafia_router(ctx: Ctx) -> Router:
     def new_game(chat_id: int, scope: str, host_id: int, host_name: str, reply_to, thread, lang: str) -> Game:
         counter[0] += 1
         return Game(gid=counter[0], chat_id=chat_id, scope=scope, host_id=host_id, host_name=host_name,
-                    lang=lang, reply_to=reply_to, thread=thread)
+                    lang=lang, reply_to=reply_to, thread=thread,
+                    lobby_secs=LOBBY_SECS, night_secs=NIGHT_SECS, day_secs=DAY_SECS)
 
     async def open_lobby(bot: Bot, g: Game) -> bool:
         games[g.chat_id] = g
         g.me = (await bot.get_me()).username
-        g.live = await send(bot, g, lobby_text(g, LOBBY_SECS), lobby_markup(g))
+        g.live = await send(bot, g, lobby_text(g, g.lobby_secs), lobby_markup(g))
         if g.live is None:
             games.pop(g.chat_id, None)
             return False
@@ -479,6 +509,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if not g:
             await c.answer(t(L, "mf_host_only"), show_alert=True)
             return
+        g.auto = False
         if op == "+":
             g.killers = min(g.killers + 1, max(1, len(g.players)))
         elif op == "-":
@@ -495,6 +526,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if not g:
             await c.answer(t(L, "mf_host_only"), show_alert=True)
             return
+        g.auto = False
         if role in g.specials:
             g.specials.remove(role)
         else:
@@ -502,6 +534,37 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.dirty = True
         await c.answer()
         await push_config(c.bot, g)
+
+    @pm.callback_query(F.data.regexp(r"^mf:a:\d+$"))
+    async def cb_auto(c: CallbackQuery):
+        L = db.get_lang(c.from_user.id)
+        g = host_game(c, int(c.data.split(":")[2]))
+        if not g:
+            await c.answer(t(L, "mf_host_only"), show_alert=True)
+            return
+        g.auto = True
+        g.killers, g.specials = M.auto_config(max(M.MIN_PLAYERS, len(g.players)))
+        g.dirty = True
+        await c.answer()
+        await push_config(c.bot, g)
+
+    @pm.callback_query(F.data.regexp(r"^mf:tm:\d+:(lobby|night|day):[-+0]$"))
+    async def cb_times(c: CallbackQuery):
+        L = db.get_lang(c.from_user.id)
+        _, _, gid, kind, op = c.data.split(":")
+        g = host_game(c, int(gid))
+        if not g:
+            await c.answer(t(L, "mf_host_only"), show_alert=True)
+            return
+        lo, hi, step = TIMES[kind]
+        attr = {"lobby": "lobby_secs", "night": "night_secs", "day": "day_secs"}[kind]
+        if op != "0":
+            cur = getattr(g, attr)
+            setattr(g, attr, max(lo, min(hi, cur + (step if op == "+" else -step))))
+        g.dirty = True
+        await c.answer()
+        if op != "0":
+            await push_config(c.bot, g)
 
     @pm.callback_query(F.data.regexp(r"^mf:s:\d+$"))
     async def cb_start(c: CallbackQuery):
@@ -511,6 +574,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await c.answer(t(L, "mf_host_only"), show_alert=True)
             return
         try:
+            if g.auto:
+                g.killers, g.specials = M.auto_config(len(g.players))
             M.Config(killers=g.killers, specials=list(g.specials)).validate(len(g.players))
         except M.ConfigError as e:
             await c.answer(str(e)[:190], show_alert=True)
