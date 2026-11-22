@@ -89,6 +89,8 @@ class Game:
     discuss_line: str = ""            # سطر «النقاش في التعليقات» (القناة)
     discuss_url: str = ""             # رابط تعليقات المنشور: يظهر كزر في رسالة القناة
     mayor_revealed: bool = False      # العمدة كشف نفسه: صوته يُحسب مرتين من تلك اللحظة
+    gone: bool = False                # الرسالة الحيّة حُذفت: تتوقف اللعبة
+    joker_pick: int | None = None     # من سحب المجنون معه بعد طرده
     day_markup: object = None
 
 
@@ -207,17 +209,43 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 g.status_text, g.status_markup = text, with_discuss(g, markup)
             else:
                 g.news.append((g.round, "night" if g.state == "night" else "day", text))
-            await live.edit(bot, g.chat_id, g.live, channel_body(g), g.status_markup)
+            await ledit(bot, g, g.live, channel_body(g), g.status_markup)
             return g.live
         mid = await send(bot, g, text, markup)
         if g.live is None:
             g.live = mid
         return mid
 
+    async def joker_pick(bot: Bot, g: Game, joker_uid: int) -> None:
+        """المجنون طُرد: يكشف دوره، ويختار أحد الأحياء يسحبه معه خلال 60 ثانية، وإلا يختار البوت."""
+        L = g.lang
+        others = [p for p in alive_players(g) if p.uid != joker_uid]
+        if not others or g.gone:
+            return
+        g.state, g.joker_pick = "joker", None
+        rows = [[btn(p.name[:24], f"mf:jk:{g.gid}:{p.uid}")] for p in others]
+        await show(bot, g, t(L, "mf_joker_out", name=esc(g.players[joker_uid].name), s=60), kb(*rows), status=True)
+        deadline = time.monotonic() + 60
+        while time.monotonic() < deadline and g.joker_pick is None and not g.gone:
+            await asyncio.sleep(0.5)
+        victim = g.joker_pick if g.joker_pick is not None else rng.choice(sorted(p.uid for p in others))
+        g.players[victim].alive = False
+        g.joker_pick = victim
+        g.state = "day"
+        await show(bot, g, t(L, "mf_joker_took", joker=esc(g.players[joker_uid].name), victim=esc(g.players[victim].name)), None)
+
+    def mark_gone(g: Game) -> None:
+        g.gone = True
+        g.state = "done"
+
+    async def ledit(bot: Bot, g: Game, mid: int, text: str, markup=None, media=None) -> bool:
+        """تعديل الرسالة الحيّة: إن حُذفت توقف اللعبة."""
+        return await live.edit(bot, g.chat_id, mid, text, markup, media=media, on_gone=lambda: mark_gone(g))
+
     async def lobby_edit(bot: Bot, g: Game, text: str, markup=None) -> None:
         """اللوبي وحده يُعدَّل في مكانه: يعرض المنضمين والعدّاد."""
         if g.live is not None:
-            await live.edit(bot, g.chat_id, g.live, text, markup)
+            await ledit(bot, g, g.live, text, markup)
 
     async def dm(bot: Bot, uid: int, text: str, markup=None) -> bool:
         try:
@@ -335,6 +363,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         L = g.lang
         back = await back_rows(bot, g.chat_id, g.live, L)               # زر العودة إلى رسالة اللعبة
         alive = alive_players(g)
+        mayor = mayor_of(g)
+        mayor_warn = t(L, "mf_mayor_warn", name=esc(mayor.name)) if (mayor and g.mayor_revealed) else ""
         for p in alive:
             if p.role == "killer":
                 opts = [q for q in alive if q.role != "killer"]
@@ -345,11 +375,18 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 rows = [[btn(q.name[:24], f"mf:n:{g.gid}:{p.role}:{q.uid}")] for q in alive if q.uid != p.uid]
             else:
                 continue
-            await dm(bot, p.uid, t(L, f"mf_n_{p.role}"), kb(*rows, *back))
+            text = t(L, f"mf_n_{p.role}")
+            if p.role == "killer" and mayor_warn:
+                text += "\n\n" + mayor_warn
+            await dm(bot, p.uid, text, kb(*rows, *back))
         await show(bot, g, t(L, "mf_night_live", r=g.round, s=g.night_secs, n=len(alive), names=names(g, True)),
                    kb(*await open_private_rows(bot, L)), status=True)
         deadline = time.monotonic() + g.night_secs
+        reminded = False
         while time.monotonic() < deadline and g.state == "night" and not night_complete(g):
+            if not reminded and time.monotonic() > deadline - g.night_secs / 2:
+                reminded = True
+                await remind_night(bot, g)
             await asyncio.sleep(0.5)
 
     def resolve_night(g: Game):
@@ -388,9 +425,13 @@ def build_mafia_router(ctx: Ctx) -> Router:
         await notify_vote_start(bot, g, alive)
         await notify_mayor(bot, g)
         deadline = time.monotonic() + g.day_secs
+        reminded = False
         while time.monotonic() < deadline and g.state == "day":
             if all(p.uid in g.votes for p in alive_players(g)):
                 break
+            if not reminded and time.monotonic() > deadline - g.day_secs / 2:
+                reminded = True
+                await remind_vote(bot, g)
             await asyncio.sleep(0.5)
         missed = [p for p in alive_players(g) if p.uid not in g.votes]
         if missed:                                          # من لم يصوّت: صوته يُحسب على نفسه (لا يطرد أحدًا)
@@ -413,6 +454,29 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await show(bot, g, t(L, "mf_vote_results", lines="\n".join(lines)), None)
         ballots = {v: tgt for v, tgt in g.votes.items() if tgt}
         return M.vote({p.uid for p in alive_players(g)}, ballots, weights)
+
+    async def remind_night(bot: Bot, g: Game) -> None:
+        """تذكير خاص لمن لم يتصرف بعد في الليل (القاتل والطبيب والمحقق)."""
+        pending = [p for p in alive_players(g) if
+                   (p.role == "killer" and p.uid not in g.night_picks) or
+                   (p.role in ("doctor", "detective") and p.uid not in g.acted)]
+        for p in pending:
+            Lp = db.get_lang(p.uid)
+            try:
+                await bot.send_message(p.uid, t(Lp, "mf_night_remind"), parse_mode="HTML")
+            except TelegramAPIError:
+                pass
+
+    async def remind_vote(bot: Bot, g: Game) -> None:
+        """تذكير خاص لمن لم يصوّت بعد، مع زر يفتح رسالة التصويت."""
+        pending = [p for p in alive_players(g) if p.uid not in g.votes]
+        for p in pending:
+            Lp = db.get_lang(p.uid)
+            rows = await msg_rows(bot, g.chat_id, g.day_mid, "btn_go_vote", Lp)
+            try:
+                await bot.send_message(p.uid, t(Lp, "mf_vote_remind"), parse_mode="HTML", reply_markup=kb(*rows))
+            except TelegramAPIError:
+                pass
 
     def mayor_of(g: Game):
         return next((p for p in g.players.values() if p.role == "mayor" and p.alive), None)
@@ -510,24 +574,35 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 return
             if g.auto:
                 g.killers, g.specials = M.auto_config(len(g.players))
-            cfg = M.Config(killers=g.killers, specials=list(g.specials))
-            try:
-                roles = M.assign(list(g.players), cfg, rng)
-            except M.ConfigError as e:
-                await show(bot, g, t(L, "mf_config_err", e=esc(str(e))), None)
-                return
-            for uid, role in roles.items():
-                g.players[uid].role = role
-            failed = []
-            for p in g.players.values():
-                ok = await dm(bot, p.uid, t(L, "mf_role_dm", icon=ICON[p.role], role=t(L, "mf_r_" + p.role),
-                                            desc=t(L, "mf_desc_" + p.role),
-                                            team=t(L, "mf_team_" + M.ROLES[p.role][1])))
-                if not ok:
-                    failed.append(esc(p.name))
-            if failed:
-                await show(bot, g, t(L, "mf_dm_fail", names="، ".join(failed)), None)
-                return
+            while True:
+                if g.gone:
+                    return
+                if g.auto:
+                    g.killers, g.specials = M.auto_config(len(g.players))
+                cfg = M.Config(killers=g.killers, specials=list(g.specials))
+                try:
+                    roles = M.assign(list(g.players), cfg, rng)
+                except M.ConfigError as e:
+                    await show(bot, g, t(L, "mf_config_err", e=esc(str(e))), None)
+                    return
+                for uid, role in roles.items():
+                    g.players[uid].role = role
+                failed = []
+                for p in g.players.values():
+                    ok = await dm(bot, p.uid, t(L, "mf_role_dm", icon=ICON[p.role], role=t(L, "mf_r_" + p.role),
+                                                desc=t(L, "mf_desc_" + p.role),
+                                                team=t(L, "mf_team_" + M.ROLES[p.role][1])))
+                    if not ok:
+                        failed.append(p.uid)
+                if not failed:
+                    break
+                names = "، ".join(esc(g.players[u].name) for u in failed)
+                for u in failed:                              # لا يصل إليه دوره: يُستبعد، ونوزّع الأدوار من جديد
+                    g.players.pop(u, None)
+                if len(g.players) < M.MIN_PLAYERS:
+                    await show(bot, g, t(L, "mf_dm_fail", names=names), None)
+                    return
+                await show(bot, g, t(L, "mf_dm_removed", names=names), None)
             roles_map = {p.uid: p.role for p in g.players.values()}
             while True:
                 alive_at_start = len(alive_players(g))
@@ -548,6 +623,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
                     g.players[out].alive = False
                     last = g.players[out].role
                     await show(bot, g, t(L, "mf_executed", name=esc(g.players[out].name)), None)
+                    if last == "joker":
+                        await joker_pick(bot, g, out)
                 else:
                     await show(bot, g, t(L, "mf_no_exec"), None)
                 died_this_round = len(alive_players(g)) < alive_at_start     # قتل أو طرد أو انسحاب
@@ -560,6 +637,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
                         g.players[pick].alive = False
                         g.quiet = 0
                         await show(bot, g, t(L, "mf_quiet_death", name=esc(g.players[pick].name)), None)
+                await flush_news(bot, g)                       # أخبار التصويت تصل فور انتهائه
+                if g.gone:
+                    return
                 w = M.winner(roles_map, {p.uid for p in alive_players(g)}, last_voted=last)
                 if w:
                     await finish(bot, g, w)
@@ -574,6 +654,11 @@ def build_mafia_router(ctx: Ctx) -> Router:
             log.exception("mafia crashed in %s", g.chat_id)
         finally:
             g.state = "done"
+            if g.gone:
+                try:
+                    await bot.send_message(g.host_id, t(g.lang, "mf_gone_stop"))
+                except TelegramAPIError:
+                    pass
             try:
                 await flush_news(bot, g)                  # أي خبر متبقٍ (مثلًا عند الإلغاء) يصل للمشاركين
             except Exception:  # noqa: BLE001
@@ -785,6 +870,22 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if g.task:
             g.task.cancel()
 
+    @cbs.callback_query(F.data.regexp(r"^mf:jk:\d+:\d+$"))
+    async def cb_joker_pick(c: CallbackQuery):
+        L = db.group_lang(c.message.chat.id)
+        _, _, gid, tgt = c.data.split(":")
+        g = get_game(c, int(gid))
+        if not g or g.state != "joker" or g.joker_pick is not None:
+            await c.answer(t(L, "mf_late"), show_alert=True)
+            return
+        presser = g.players.get(c.from_user.id)
+        target = int(tgt)
+        if not presser or not presser.alive or target == presser.uid or target not in g.players or not g.players[target].alive:
+            await c.answer(t(L, "mf_bad_target"), show_alert=True)
+            return
+        g.joker_pick = target
+        await c.answer()
+
     @cbs.callback_query(F.data.regexp(r"^mf:v:\d+:\d+$"))
     async def cb_vote(c: CallbackQuery):
         L = db.group_lang(c.message.chat.id)
@@ -812,9 +913,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
             text = g.day_text + "\n\n" + status
             if g.scope == "channel":
                 g.status_text = text
-                await live.edit(c.bot, g.chat_id, g.day_mid, channel_body(g), g.status_markup)
+                await ledit(c.bot, g, g.day_mid, channel_body(g), g.status_markup)
             else:
-                await live.edit(c.bot, g.chat_id, g.day_mid, text, g.day_markup)
+                await ledit(c.bot, g, g.day_mid, text, g.day_markup)
 
     @cbs.callback_query(F.data.regexp(r"^mf:i:\d+$"))
     async def cb_info(c: CallbackQuery):

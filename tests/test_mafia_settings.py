@@ -232,11 +232,39 @@ def test_mayor_reveals_once_during_the_day_and_is_announced():
         assert await wu(lambda: g.state in ("night", "day"), 15)
         mayor = next(p for p in g.players.values() if p.role == "mayor")
         mayor_user = next(u for u in users if u.id == mayor.uid)
+        victim = next(p for p in g.players.values() if p.role == "citizen")   # القتلة يختارون مواطنًا غير العمدة
+        for p in g.players.values():
+            if p.role == "killer":
+                await ptap(h, next(u for u in users if u.id == p.uid), f"mf:n:{g.gid}:killer:{victim.uid}")
         assert await wu(lambda: g.state == "day", 15)
+        assert g.players[mayor.uid].alive                      # العمدة ما زال حيًّا
         await ptap(h, mayor_user, f"mf:rv:{g.gid}")              # يكشف نفسه في النهار
         assert g.mayor_revealed
         assert any(mayor.name in x and "هو العمدة" in x for x in group_texts(h))   # يُعلن الاسم
         await ptap(h, mayor_user, f"mf:rv:{g.gid}")              # مرة واحدة فقط
         assert sum(1 for x in group_texts(h) if "هو العمدة" in x) == 1
         MGm.DAY_SECS = 3
+    run(go())
+
+
+def test_deleted_live_message_stops_the_game_and_tells_the_host():
+    from test_mafia_game import wait_until as wu
+    from otaku_bot import mafia_game as MGm
+
+    async def go():
+        MGm.games.clear()
+        MGm.cooldown.clear()
+        h = Harness()
+        users = [h.user(i, f"P{i}") for i in range(1, 4)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, users[0], "/mafia", 97)
+        g = MGm.games[GROUP.id]
+        h.session.edit_gone = True                              # الرسالة الحيّة حُذفت
+        await h.say(users[1], f"/start mf_{g.gid}")             # الانضمام يعدّل الرسالة الحيّة
+        assert await wu(lambda: g.gone, 10)
+        assert g.state == "done"
+        assert await wu(lambda: any("توقفت لعبة المافيا" in (getattr(c, "text", None) or "") for c in h.session.calls
+                                    if type(c).__name__ == "SendMessage" and c.chat_id == users[0].id), 10)
+        h.session.edit_gone = False
     run(go())

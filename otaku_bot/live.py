@@ -110,7 +110,11 @@ async def send(bot: Bot, chat_id: int, text: str, markup=None, lang: str = "ar",
     return None
 
 
-async def edit(bot: Bot, chat_id: int, mid: int, text: str, markup=None, media=None) -> bool:
+GONE_MARKERS = ("message to edit not found", "message can't be edited", "message_id_invalid", "message to delete not found",
+                "message is not found")
+
+
+async def edit(bot: Bot, chat_id: int, mid: int, text: str, markup=None, media=None, on_gone=None) -> bool:
     """يعدّل التعليق والأزرار، وإن أُعطيت media يغيّر الصورة أيضًا. True إن نجح أو لم يتغير شيء.
     عند حد تليجرام ينتظر قليلًا ويعيد المحاولة مرة واحدة، حتى لا تضيع آخر حالة (مثل النتيجة النهائية)."""
     for attempt in (1, 2):
@@ -124,7 +128,11 @@ async def edit(bot: Bot, chat_id: int, mid: int, text: str, markup=None, media=N
                                              reply_markup=markup)
             return True
         except TelegramBadRequest as e:
-            return "not modified" in str(e).lower()
+            low = str(e).lower()
+            if on_gone and any(m in low for m in GONE_MARKERS):   # الرسالة الحيّة حُذفت: نبلّغ المستدعي
+                on_gone()
+                return False
+            return "not modified" in low
         except TelegramRetryAfter as e:
             if attempt == 2:
                 return False

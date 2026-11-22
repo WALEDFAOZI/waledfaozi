@@ -43,6 +43,9 @@ class FakeSession(BaseSession):
 
     async def make_request(self, bot, method, timeout=None):
         self.calls.append(method)
+        if getattr(self, "edit_gone", False) and type(method).__name__ in (
+                "EditMessageCaption", "EditMessageText", "EditMessageMedia"):
+            raise TelegramBadRequest(method=method, message="Bad Request: message to edit not found")
         if isinstance(method, (SendMessage, EditMessageText, SendPhoto, EditMessageMedia, SendDocument)):
             if getattr(method, "chat_id", None) in self.blocked_chats:
                 raise TelegramForbiddenError(method=method, message="Forbidden: bot was blocked by the user")
