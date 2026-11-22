@@ -86,6 +86,7 @@ class Game:
     log: list = field(default_factory=list)   # القناة: آخر الإعلانات تبقى داخل الرسالة الواحدة
     status_text: str = ""             # القناة: الحالة الحالية (ليل/نهار/نهاية)
     status_markup: object = None
+    discuss_line: str = ""            # سطر «النقاش هنا» مع رابط تعليقات المنشور (القناة)
     day_markup: object = None
 
 
@@ -94,17 +95,17 @@ cooldown: dict[int, float] = {}
 counter = [0]
 
 
-_POST_LINK = re.compile(r"t\.me/(?:c/(\d+)|([A-Za-z0-9_]{4,}))/(\d+)")
+_POST_LINK = re.compile(r"t\.me/(?:c/(\d+)|([A-Za-z0-9_]{4,}))/(\d+)\?comment=(\d+)")
 
 
-def parse_post_link(text: str) -> tuple[str | None, str | None, int] | None:
-    """يرجع (اسم القناة، معرّفها الداخلي لروابط t.me/c، معرّف المنشور) أو None."""
+def parse_post_link(text: str) -> tuple[str | None, str | None, int, int] | None:
+    """رابط رسالة من داخل تعليقات منشور: (اسم القناة، معرّفها الداخلي لروابط t.me/c، معرّف المنشور، معرّف التعليق)."""
     m = _POST_LINK.search(text)
     if not m:
         return None
-    if m.group(1):                                 # رابط خاص: t.me/c/<id>/<post>
-        return None, m.group(1), int(m.group(3))
-    return m.group(2), None, int(m.group(3))
+    if m.group(1):                                 # رابط خاص: t.me/c/<id>/<post>?comment=<id>
+        return None, m.group(1), int(m.group(3)), int(m.group(4))
+    return m.group(2), None, int(m.group(3)), int(m.group(4))
 
 
 def comment_link(username: str | None, channel_id: int, post_id: int, copy_id: int) -> str:
@@ -156,14 +157,15 @@ def build_mafia_router(ctx: Ctx) -> Router:
     def channel_body(g: Game) -> str:
         """نص الرسالة الواحدة في القناة: آخر الإعلانات ثم الحالة الحالية، ضمن الحد."""
         status = g.status_text
-        budget = CHANNEL_CAP - len(status) - 2
+        head = [g.discuss_line] if g.discuss_line else []
+        budget = CHANNEL_CAP - len(status) - 2 - sum(len(x) + 2 for x in head)
         chosen: list[str] = []
         for entry in reversed(g.log):
             if len(entry) + 2 > budget:
                 break
             chosen.append(entry)
             budget -= len(entry) + 2
-        return "\n\n".join(list(reversed(chosen)) + [status])
+        return "\n\n".join(head + list(reversed(chosen)) + [status])
 
     async def show(bot: Bot, g: Game, text: str, markup=None, status: bool = False) -> int | None:
         """المجموعات: كل رسالة جديدة. القناة: رسالة واحدة تحمل آخر الإعلانات والحالة الحالية."""
@@ -217,7 +219,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             t(L, "mf_players", n=len(g.players), names=names(g)),
             t(L, "mf_left", s=max(0, left), min=M.MIN_PLAYERS),
             "", t(L, "mf_howto"),
-        ])
+        ] + ([g.discuss_line] if g.discuss_line else []))
 
     def lobby_markup(g: Game):
         L = g.lang
@@ -807,6 +809,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
 
     @pm.message(PostPick.link, F.text)
     async def on_post_link(m: Message, state: FSMContext):
+        """المضيف أرسل رابط تعليق داخل المنشور: اللعبة تبقى في القناة، والنقاش يكون في التعليقات."""
         L = db.get_lang(m.from_user.id)
         data = await state.get_data()
         chat_id = data.get("channel")
@@ -818,39 +821,30 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if not found:
             await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
             return
-        username, internal, post_id = found
-        if internal is not None and str(chat_id) != f"-100{internal}":
-            await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
-            return
+        username, internal, post_id, comment_id = found
         try:
             ch = await m.bot.get_chat(chat_id)
         except TelegramAPIError:
-            await m.answer(t(L, "mf_post_nocopy"), parse_mode="HTML")
+            await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
             return
         if username and (ch.username or "").lower() != username.lower():
             await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
             return
-        copy = db.get_post_copy(chat_id, post_id)
-        if not copy:
-            await m.answer(t(L, "mf_post_nocopy"), parse_mode="HTML")
+        if internal is not None and str(chat_id) != f"-100{internal}":
+            await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
             return
-        why = busy_or_cool(copy["group_id"])
+        why = busy_or_cool(chat_id)
         if why:
             await m.answer(t(L, "mf_busy" if why == "busy" else "mf_cool"))
             return
         await state.clear()
-        title = ch.title or "القناة"
-        g = new_game(copy["group_id"], "group", m.from_user.id, title, copy["copy_id"], None, db.group_lang(copy["group_id"]))
+        url = comment_link(ch.username, chat_id, post_id, comment_id)
+        g = new_game(chat_id, "channel", m.from_user.id, ch.title or "القناة", None, None, db.group_lang(chat_id))
+        g.discuss_line = t(db.group_lang(chat_id), "mf_discuss_line", url=esc(url))
         if not await open_lobby(m.bot, g):
-            await m.answer(t(L, "mf_post_nocopy"), parse_mode="HTML")
+            await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
             return
-        link = comment_link(ch.username, chat_id, post_id, copy["copy_id"])
-        await m.answer(t(L, "mf_post_started", link=link), parse_mode="HTML")
-        try:
-            await m.bot.send_message(chat_id, t(db.group_lang(chat_id), "mf_post_started_ch", link=link),
-                                     parse_mode="HTML", reply_markup=kb([btn(t(db.group_lang(chat_id), "mf_post_go"), url=link)]))
-        except TelegramAPIError:
-            pass
+        await m.answer(t(L, "mf_post_started", link=url), parse_mode="HTML")
 
     @pm.callback_query(F.data.regexp(r"^mf:cc:-?\d+$"))
     async def cb_start_in_channel(c: CallbackQuery):

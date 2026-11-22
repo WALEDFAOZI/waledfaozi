@@ -108,10 +108,6 @@ CREATE TABLE IF NOT EXISTS teams(
   id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE COLLATE NOCASE, leader INTEGER NOT NULL,
   hidden INTEGER NOT NULL DEFAULT 0, created_at REAL NOT NULL
 );
-CREATE TABLE IF NOT EXISTS post_copies(
-  channel_id INTEGER NOT NULL, post_id INTEGER NOT NULL, group_id INTEGER NOT NULL,
-  copy_id INTEGER NOT NULL, seen_at REAL NOT NULL, PRIMARY KEY(channel_id, post_id)
-);
 CREATE TABLE IF NOT EXISTS channel_links(
   chat_id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, title TEXT, added_at REAL NOT NULL
 );
@@ -410,18 +406,6 @@ class DB:
                 "INSERT INTO channel_links(chat_id,user_id,title,added_at) VALUES(?,?,?,?) "
                 "ON CONFLICT(chat_id) DO UPDATE SET user_id=excluded.user_id, title=excluded.title",
                 (chat_id, user_id, title, time.time()))
-
-    def save_post_copy(self, channel_id: int, post_id: int, group_id: int, copy_id: int) -> None:
-        """نسخة منشور القناة التلقائية في مجموعة التعليقات: نرد عليها داخل تعليقات المنشور."""
-        with self.conn:
-            self.conn.execute(
-                "INSERT OR REPLACE INTO post_copies (channel_id, post_id, group_id, copy_id, seen_at) VALUES (?,?,?,?,?)",
-                (channel_id, post_id, group_id, copy_id, time.time()))
-
-    def get_post_copy(self, channel_id: int, post_id: int) -> dict | None:
-        r = self.conn.execute("SELECT group_id, copy_id FROM post_copies WHERE channel_id=? AND post_id=?",
-                              (channel_id, post_id)).fetchone()
-        return dict(r) if r else None
 
     def channel_owner(self, chat_id: int) -> int | None:
         r = self.conn.execute("SELECT user_id FROM channel_links WHERE chat_id=?", (chat_id,)).fetchone()
