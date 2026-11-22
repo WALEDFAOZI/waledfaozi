@@ -132,5 +132,8 @@ def test_channel_game_keeps_announcements_visible():
         assert any("تم قتل" in x and "النهار" in x for x in chan_texts), "خبر القتل يجب أن يبقى ظاهرًا مع حالة النهار"
         assert len([c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto")
                     and c.chat_id == CH.id]) == 1, "القناة تبقى برسالة واحدة"
+        # المضيف لا يظهر أبدًا في رسائل القناة (ولم ينضم للعب)
+        assert not any("Owner" in x for x in chan_texts), "اسم المضيف ظهر في القناة"
+        assert owner.id not in g.players
         assert not g.players[victim.uid].alive                 # الضحية مات فعلًا
     run(go())
