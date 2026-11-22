@@ -310,27 +310,37 @@ def _cards_banner(title_ar: str, title_en: str, tag: str, cards: list, theme: tu
         cx = x0 + w / 2
         c.d.rounded_rectangle(c.B((x0, y0, x1, y1)), radius=18 * S, fill=(20, 10, 24, 235),
                               outline=(255, 220, 90, 255) if key == "outsider" else (255, 255, 255, 230), width=4 * S)
+        u = (w * 0.5) / 100.0
+        if key == "killer":                              # الغطاء والرداء خلف الشخصية، والوجه يبقى ظاهرًا فوقهما
+            _draw_hood(c, cx, 430, u)
         draw_mascot(c, cx, 430, w * 0.5, mood, key, jacket)
-        if key == "killer":                              # القاتل: غطاء مدبّب، رداء داكن بحواف حمراء، وسكين
-            red = (200, 30, 50, 255)
-            c.d.polygon(c.P([(cx - w * 0.5, 600), (cx - w * 0.5, 478), (cx, 462), (cx + w * 0.5, 478), (cx + w * 0.5, 600)]),
-                        fill=(22, 8, 14, 255), outline=red, width=4 * S)          # الرداء
-            c.d.polygon(c.P([(cx - w * 0.44, 470), (cx, 452), (cx + w * 0.44, 470), (cx + w * 0.48, 490), (cx, 480),
-                             (cx - w * 0.48, 490)]), fill=red)                    # حاشية حمراء على الكتفين
-            c.d.polygon(c.P([(cx - w * 0.47, 420), (cx, 318), (cx + w * 0.47, 420), (cx + w * 0.36, 398),
-                             (cx, 388), (cx - w * 0.36, 398)]),
-                        fill=(16, 10, 18, 255), outline=red, width=3 * S)         # الغطاء المدبّب
-            c.d.line(c.P([(cx - w * 0.47, 420), (cx, 318), (cx + w * 0.47, 420)]), fill=red, width=3 * S)
-            for ex in (cx - w * 0.15, cx + w * 0.15):                              # عينان حمراوان متوهجتان
-                c.d.ellipse(c.B((ex - 7, 412, ex + 7, 428)), fill=red)
-            c.d.polygon(c.P([(cx + w * 0.30, 500), (cx + w * 0.44, 418), (cx + w * 0.48, 424), (cx + w * 0.36, 506)]),
-                        fill=(210, 220, 235, 255), outline=BLACK, width=2 * S)    # نصل السكين
-            c.d.rectangle(c.B((cx + w * 0.28, 500, cx + w * 0.40, 512)), fill=(90, 50, 30, 255), outline=BLACK)
+        if key == "killer":                              # عينان حمراوان وسكين في اليد
+            for ex in (cx - 17 * u, cx + 17 * u):
+                c.d.ellipse(c.B((ex - 6 * u, 430 + 9 * u - 6 * u, ex + 6 * u, 430 + 9 * u + 6 * u)), fill=(230, 20, 50, 255))
+            _draw_knife(c, cx + 52 * u, 430 + 50 * u, u)
         _role_icon(c, key, x0 + 30, y0 + 30, 20)
         c.d.rounded_rectangle(c.B((x0 + 8, 536, x1 - 8, 590)), radius=12 * S, fill=(0, 0, 0, 200))
         c.text((cx, 563), label, "ar", c.fit(label, "ar", 34, w - 24), fill=(255, 255, 255), stroke=3)
     return c.jpeg(grain=0.04)
 
+
+
+def _draw_hood(c: Canvas, cx: float, cy: float, u: float) -> None:
+    """غطاء مدبّب أسود بحافة حمراء، ورداء داكن خلفه (يُرسم قبل الشخصية)."""
+    red = (230, 40, 60, 255)
+    dark = (52, 34, 48, 255)
+    def P(pts):
+        return c.P([(cx + x * u, cy + y * u) for x, y in pts])
+    c.d.polygon(P([(-74, 118), (-70, 56), (-58, 26), (0, -84), (58, 26), (70, 56), (74, 118)]),
+                fill=dark, outline=red, width=int(6 * S))
+    c.d.line(P([(-58, 26), (0, -84), (58, 26)]), fill=red, width=int(5 * S), joint="curve")
+
+
+def _draw_knife(c: Canvas, x: float, y: float, u: float) -> None:
+    """سكين بنصل فضي ومقبض بني، في يد الشخصية."""
+    c.d.polygon(c.P([(x - 4 * u, y - 46 * u), (x + 6 * u, y - 46 * u), (x + 6 * u, y - 4 * u), (x, y), (x - 4 * u, y - 4 * u)]),
+                fill=(214, 222, 235, 255), outline=BLACK, width=int(2 * S))
+    c.d.rectangle(c.B((x - 9 * u, y - 4 * u, x + 9 * u, y + 8 * u)), fill=(96, 52, 30, 255), outline=BLACK, width=int(2 * S))
 
 def make_mafia_banner(lang: str = "ar", handle: str = "@Otaku1GalaxyBot") -> bytes:
     """لافتة المافيا: أدوار اللعبة (القاتل، الطبيب، المحقق، الحارس، المواطن) بأشكالها وأيقوناتها."""

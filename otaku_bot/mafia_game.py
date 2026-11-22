@@ -117,6 +117,10 @@ def comment_link(username: str | None, channel_id: int, post_id: int, copy_id: i
     return f"https://t.me/c/{cid}/{post_id}?comment={copy_id}"
 
 
+ORDINAL_AR = {1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة", 5: "الخامسة",
+              6: "السادسة", 7: "السابعة", 8: "الثامنة", 9: "التاسعة", 10: "العاشرة"}
+
+
 def roles_line(g: Game, L: str) -> str:
     parts = [f"🔪 {t(L, 'mf_killers')}: {g.killers}"] + [f"{ICON[r]} {t(L, 'mf_r_' + r)}" for r in g.specials]
     return " · ".join(parts)
@@ -166,7 +170,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         r = g.news[0][0]
         body = "\n\n".join(text for _, text in g.news)
         g.news = []
-        text = t(g.lang, "mf_news", r=r, body=body)
+        text = t(g.lang, "mf_news", r=r, ord=ORDINAL_AR.get(r, str(r)), body=body)
         for uid in list(g.players):
             try:
                 await bot.send_message(uid, text, parse_mode="HTML")

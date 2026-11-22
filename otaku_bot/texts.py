@@ -1191,5 +1191,6 @@ T["en"]["mf_discuss_line"] = "💬 <b>Discussion in the post's comments</b> 👇
 T["ar"]["mf_discuss_btn"] = "💬 النقاش في التعليقات"
 T["en"]["mf_discuss_btn"] = "💬 Discuss in comments"
 
-T["ar"]["mf_news"] = "📰 <b>أخبار الجولة {r}</b>\n\n{body}"
-T["en"]["mf_news"] = "📰 <b>Round {r} news</b>\n\n{body}"
+
+T["ar"]["mf_news"] = "📰 <b>أخبار الليلة {ord}</b>\n\n{body}"
+T["en"]["mf_news"] = "📰 <b>Night {r} news</b>\n\n{body}"
