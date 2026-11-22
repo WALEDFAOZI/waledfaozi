@@ -1133,3 +1133,12 @@ T["ar"]["mf_vote_status"] = "🗳 <b>{name}</b> صوّت.\n📊 صوّتوا: {d
 T["en"]["mf_vote_status"] = "🗳 <b>{name}</b> voted.\n📊 Voted: {done} of {total} · Left: {left}"
 T["ar"]["mf_quiet_death"] = "⚰️ مرت 3 جولات بدون قتل ولا طرد، فاختار القدر <b>{name}</b> ليخرج من اللعبة 💀"
 T["en"]["mf_quiet_death"] = "⚰️ Three rounds passed with no death or vote, so fate chose <b>{name}</b> to leave the game 💀"
+
+T["ar"]["mf_self_votes"] = "⏳ لم يصوّت: {names}\n↩️ صوت كل واحد منهم اعتُبر على نفسه، فلا يطرد أحدًا."
+T["en"]["mf_self_votes"] = "⏳ Did not vote: {names}\n↩️ Each of their votes counts for themselves, so it eliminates nobody."
+T["ar"]["mf_vote_dm"] = "🗳 بدأ التصويت الصباحي في اللعبة.\nاضغط الزر وصوّت قبل انتهاء الوقت. من لا يصوّت يُحسب صوته على نفسه ↩️"
+T["en"]["mf_vote_dm"] = "🗳 Morning voting has started.\nTap the button and vote before time runs out. If you don't vote, your vote counts for yourself ↩️"
+T["ar"]["btn_go_vote"] = "🗳 صوّت الآن"
+T["en"]["btn_go_vote"] = "🗳 Vote now"
+T["ar"]["mf_vote_note"] = "ℹ️ من لا يصوّت يُحسب صوته على نفسه."
+T["en"]["mf_vote_note"] = "ℹ️ If you don't vote, your vote counts for yourself."

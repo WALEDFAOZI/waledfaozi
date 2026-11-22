@@ -58,3 +58,11 @@ async def open_private_rows(bot: Bot, L: str) -> list:
 
 def with_rows(markup: InlineKeyboardMarkup, rows: list) -> InlineKeyboardMarkup:
     return kb(*markup.inline_keyboard, *rows)
+
+
+async def msg_rows(bot: Bot, chat_id: int, mid: int | None, label_key: str, L: str) -> list:
+    """زر يفتح رسالة معيّنة في الدردشة (داخل تعليقات المنشور إن كانت الرسالة فيها)."""
+    if not mid:
+        return []
+    username, _ = await chat_info(bot, chat_id)
+    return [[btn(t(L, label_key), url=msg_url(chat_id, username, mid))]]

@@ -22,7 +22,7 @@ from . import progress
 from .bot import btn, chan_row, esc, kb
 from .ctx import Ctx
 from . import live
-from .links import back_rows, open_private_rows, with_rows
+from .links import back_rows, msg_rows, open_private_rows, with_rows
 from .texts import t
 from .thread_anchor import anchor_id
 
@@ -289,13 +289,30 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.day_text = t(L, "mf_day_live", r=g.round, s=g.day_secs, names=names(g, True))
         g.day_markup = kb(*btns)
         g.day_mid = await show(bot, g, g.day_text, g.day_markup)
+        await notify_vote_start(bot, g, alive)
         deadline = time.monotonic() + g.day_secs
         while time.monotonic() < deadline and g.state == "day":
             if all(p.uid in g.votes for p in alive_players(g)):
                 break
             await asyncio.sleep(0.5)
+        missed = [p for p in alive_players(g) if p.uid not in g.votes]
+        if missed:                                          # من لم يصوّت: صوته يُحسب على نفسه (لا يطرد أحدًا)
+            names_missed = "، ".join(esc(p.name) for p in missed)
+            await show(bot, g, t(L, "mf_self_votes", names=names_missed), None)
         ballots = {v: tgt for v, tgt in g.votes.items() if tgt}
         return M.vote({p.uid for p in alive_players(g)}, ballots)
+
+    async def notify_vote_start(bot: Bot, g: Game, alive: list) -> None:
+        """رسالة خاصة لكل حي فيها زر يفتح رسالة التصويت مباشرة (في التعليقات إن كانت اللعبة فيها)."""
+        for p in alive:
+            Lp = db.get_lang(p.uid)
+            rows = await msg_rows(bot, g.chat_id, g.day_mid, "btn_go_vote", Lp)
+            if not rows:
+                return
+            try:
+                await bot.send_message(p.uid, t(Lp, "mf_vote_dm"), parse_mode="HTML", reply_markup=kb(*rows))
+            except TelegramAPIError:
+                pass                                        # لم يبدأ البوت بالخاص
 
     # ── إعلانات ───────────────────────────────────────────
     async def announce_morning(bot: Bot, g: Game, res: M.Result) -> None:
@@ -633,6 +650,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             alive = alive_players(g)
             done = sum(1 for p in alive if p.uid in g.votes)
             status = t(L, "mf_vote_status", name=esc(voter.name), done=done, total=len(alive), left=len(alive) - done)
+            status += "\n" + t(L, "mf_vote_note")
             await live.edit(c.bot, g.chat_id, g.day_mid, g.day_text + "\n\n" + status, g.day_markup)
 
     @cbs.callback_query(F.data.regexp(r"^mf:i:\d+$"))

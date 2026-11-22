@@ -105,3 +105,30 @@ def test_three_quiet_rounds_kill_a_random_player():
         dead = [p for p in g.players.values() if not p.alive]
         assert len(dead) == 1
     run(go())
+
+
+def test_morning_vote_dms_link_to_the_vote_and_non_voters_are_announced():
+    from test_mafia_game import dms_to, group_texts, wait_until as wu
+    from otaku_bot import mafia_game as MGm
+
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 6)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, users[0], "/mafia", 91)
+        g = MGm.games[GROUP.id]
+        for u in users:
+            await h.say(u, f"/start mf_{g.gid}")
+        await ptap(h, users[0], f"mf:s:{g.gid}")
+        assert await wu(lambda: g.state == "day", 15)
+        assert g.day_mid is not None
+        for u in users:                                      # كل حي تلقّى رسالة فيها زر يفتح التصويت
+            dm = [c for c in dms_to(h, u.id) if "التصويت الصباحي" in (c.text or "")]
+            assert dm, u.first_name
+            urls = [b.url for row in dm[-1].reply_markup.inline_keyboard for b in row if b.url]
+            assert urls and f"/{g.day_mid}" in urls[0] and urls[0].startswith("https://t.me/")
+        assert await wu(lambda: any("لم يصوّت" in x for x in group_texts(h)), 15)
+        assert any("على نفسه" in x for x in group_texts(h))
+    run(go())
