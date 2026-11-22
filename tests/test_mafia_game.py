@@ -173,3 +173,31 @@ def test_help_deep_link_sends_full_explanation_in_private():
         assert "دليل اللعبة الكامل" in text and "الهدف" in text and "الليل" in text
         assert len(text) <= 4096
     run(go())
+
+
+def test_lobby_countdown_ticks_down_without_joins():
+    h = Harness()
+    old_secs, old_tick = MG.LOBBY_SECS, MG.LOBBY_TICK
+
+    async def go():
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        host = h.user(1, "Host")
+        h.db.upsert_user(host.id, host.first_name)
+        await gcmd(h, host, "/mafia", 77)
+        g = MG.games[GROUP.id]
+        assert await wait_until(lambda: g.lobby_secs > 0 and g.state == "lobby", 3)
+        await asyncio.sleep(2.3)                                  # بلا أي انضمام
+        import re
+        nums = []
+        for c in h.session.calls:
+            if type(c).__name__ in ("EditMessageText", "EditMessageCaption") and c.chat_id == GROUP.id:
+                m = re.search(r"تبدأ بعد (\d+) ثانية", getattr(c, "text", None) or getattr(c, "caption", None) or "")
+                if m:
+                    nums.append(int(m.group(1)))
+        assert len(nums) >= 2 and nums[-1] < nums[0], nums        # العدّاد ينزل
+        g.start_now = True
+    try:
+        MG.LOBBY_SECS, MG.LOBBY_TICK = 30, 0.5
+        run(go())
+    finally:
+        MG.LOBBY_SECS, MG.LOBBY_TICK = old_secs, old_tick

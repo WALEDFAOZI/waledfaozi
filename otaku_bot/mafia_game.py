@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import math
 import random
 import time
 from dataclasses import dataclass, field
@@ -38,6 +39,7 @@ MAX_ROUNDS = 15
 QUIET_ROUNDS = 3        # جولات متتالية بلا قتل ولا طرد، ثم يختار النظام لاعبًا عشوائيًا للخروج
 COOLDOWN_SECS = 60
 EDIT_GAP = 3.0
+LOBBY_TICK = 10.0          # كم ثانية بين تحديثات عدّاد اللوبي
 GROUP_TYPES = {"group", "supergroup"}
 SPECIAL_ORDER = ["detective", "doctor", "mayor", "joker"]
 ICON = {"killer": "🔪", "citizen": "🧑", "detective": "🔍", "doctor": "🩺", "mayor": "🎖", "joker": "🃏"}
@@ -353,13 +355,16 @@ def build_mafia_router(ctx: Ctx) -> Router:
         start = time.monotonic()
         last = 0.0
         while not g.start_now and g.state == "lobby":
-            left = g.lobby_secs - (time.monotonic() - start)     # المضيف قد يزيد الوقت أثناء الانتظار
+            now = time.monotonic()
+            left = g.lobby_secs - (now - start)     # المضيف قد يزيد الوقت أثناء الانتظار
             if left <= 0:
                 return
-            if g.dirty and time.monotonic() - last >= EDIT_GAP:
+            # تحديث فوري عند الانضمام/الخروج، وإلا كل LOBBY_TICK ثانية حتى ينزل العدّاد
+            due = (g.dirty and now - last >= EDIT_GAP) or now - last >= LOBBY_TICK
+            if due:
                 g.dirty = False
-                last = time.monotonic()
-                await lobby_edit(bot, g, lobby_text(g, int(left)), lobby_markup(g))
+                last = now
+                await lobby_edit(bot, g, lobby_text(g, math.ceil(left)), lobby_markup(g))
             await asyncio.sleep(0.5)
 
     # ── الليل ─────────────────────────────────────────────
