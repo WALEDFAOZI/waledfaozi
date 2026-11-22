@@ -211,3 +211,30 @@ def test_vote_results_show_counts_without_naming_voters():
         for voter in a[:2] + [a[3]]:
             assert voter.first_name not in res                              # لا أسماء المصوتين
     run(go())
+
+
+def test_mayor_reveals_once_during_the_day_and_is_announced():
+    from test_mafia_game import wait_until as wu, group_texts
+    from otaku_bot import mafia_game as MGm
+
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 9)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, users[0], "/mafia", 96)
+        g = MGm.games[GROUP.id]
+        for u in users:
+            await h.say(u, f"/start mf_{g.gid}")
+        await ptap(h, users[0], f"mf:s:{g.gid}")
+        assert await wu(lambda: g.state in ("night", "day"), 15)
+        mayor = next(p for p in g.players.values() if p.role == "mayor")
+        mayor_user = next(u for u in users if u.id == mayor.uid)
+        assert await wu(lambda: g.state == "day", 15)
+        await ptap(h, mayor_user, f"mf:rv:{g.gid}")              # يكشف نفسه في النهار
+        assert g.mayor_revealed
+        assert any(mayor.name in x and "هو العمدة" in x for x in group_texts(h))   # يُعلن الاسم
+        await ptap(h, mayor_user, f"mf:rv:{g.gid}")              # مرة واحدة فقط
+        assert sum(1 for x in group_texts(h) if "هو العمدة" in x) == 1
+    run(go())

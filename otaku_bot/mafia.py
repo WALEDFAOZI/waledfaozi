@@ -25,8 +25,9 @@ ROLES = {
     "detective": ("المحقق", TOWN),
     "doctor": ("الطبيب", TOWN),
     "joker": ("المجنون", SOLO),
+    "mayor": ("العمدة", TOWN),
 }
-SPECIAL = ("detective", "doctor", "joker")   # فريدة: لا يتكرر أي منها
+SPECIAL = ("detective", "doctor", "mayor", "joker")   # فريدة: لا يتكرر أي منها
 MIN_CITIZENS = 3
 MIN_PLAYERS = 5
 MAX_PLAYERS = 15
@@ -65,6 +66,8 @@ def auto_config(n_players: int) -> tuple[int, list[str]]:
     specials = ["detective"] if n >= 6 else []
     if n >= 7:
         specials.append("doctor")
+    if n >= 8:
+        specials.append("mayor")
     if n >= 12:
         specials.append("joker")
     Config(killers=killers, specials=specials).validate(n)
@@ -118,12 +121,13 @@ def resolve_night(roles: dict[int, str], alive: set[int], night: Night) -> Resul
     return Result(victim=victim, saved=saved, detective=det)
 
 
-def vote(alive: set[int], ballots: dict[int, int]) -> int | None:
-    """ballots = {voter: target}. يطرد الهدف إن حصل على أغلبية مطلقة من الأحياء. وإلا لا طرد."""
+def vote(alive: set[int], ballots: dict[int, int], weights: dict[int, int] | None = None) -> int | None:
+    """ballots = {voter: target}. weights = أصوات إضافية للصوت (مثل العمدة بعد الكشف).
+    يطرد الهدف إن حصل على أغلبية مطلقة من الأحياء. وإلا لا طرد."""
     counts: dict[int, int] = {}
     for voter, target in ballots.items():
         if voter in alive and target in alive and target != voter:
-            counts[target] = counts.get(target, 0) + 1
+            counts[target] = counts.get(target, 0) + (weights or {}).get(voter, 1)
     if not counts:
         return None
     target, votes = max(counts.items(), key=lambda kv: kv[1])

@@ -39,8 +39,8 @@ QUIET_ROUNDS = 3        # جولات متتالية بلا قتل ولا طرد�
 COOLDOWN_SECS = 60
 EDIT_GAP = 3.0
 GROUP_TYPES = {"group", "supergroup"}
-SPECIAL_ORDER = ["detective", "doctor", "joker"]
-ICON = {"killer": "🔪", "citizen": "🧑", "detective": "🔍", "doctor": "🩺", "joker": "🃏"}
+SPECIAL_ORDER = ["detective", "doctor", "mayor", "joker"]
+ICON = {"killer": "🔪", "citizen": "🧑", "detective": "🔍", "doctor": "🩺", "mayor": "🎖", "joker": "🃏"}
 
 
 @dataclass
@@ -88,6 +88,7 @@ class Game:
     status_markup: object = None
     discuss_line: str = ""            # سطر «النقاش في التعليقات» (القناة)
     discuss_url: str = ""             # رابط تعليقات المنشور: يظهر كزر في رسالة القناة
+    mayor_revealed: bool = False      # العمدة كشف نفسه: صوته يُحسب مرتين من تلك اللحظة
     day_markup: object = None
 
 
@@ -364,6 +365,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.day_markup = kb(*btns)
         g.day_mid = await show(bot, g, g.day_text, g.day_markup, status=True)
         await notify_vote_start(bot, g, alive)
+        await notify_mayor(bot, g)
         deadline = time.monotonic() + g.day_secs
         while time.monotonic() < deadline and g.state == "day":
             if all(p.uid in g.votes for p in alive_players(g)):
@@ -375,20 +377,60 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await show(bot, g, t(L, "mf_self_votes", names=names_missed), None)
         tally: dict[int, int] = {}
         skips = 0
+        weights = vote_weights(g)
         for voter_uid, tgt in g.votes.items():
             if voter_uid not in {p.uid for p in alive_players(g)}:
                 continue
             if tgt:
-                tally[tgt] = tally.get(tgt, 0) + 1
+                tally[tgt] = tally.get(tgt, 0) + weights.get(voter_uid, 1)
             else:
-                skips += 1
+                skips += weights.get(voter_uid, 1)
         if tally or skips:
             lines = [f"• {esc(g.players[u].name)}: {n}" for u, n in sorted(tally.items(), key=lambda kv: -kv[1])]
             if skips:
                 lines.append(t(L, "mf_vote_skip", n=skips))
             await show(bot, g, t(L, "mf_vote_results", lines="\n".join(lines)), None)
         ballots = {v: tgt for v, tgt in g.votes.items() if tgt}
-        return M.vote({p.uid for p in alive_players(g)}, ballots)
+        return M.vote({p.uid for p in alive_players(g)}, ballots, weights)
+
+    def mayor_of(g: Game):
+        return next((p for p in g.players.values() if p.role == "mayor" and p.alive), None)
+
+    def vote_weights(g: Game) -> dict[int, int]:
+        """صوت العمدة يُحسب مرتين بعد أن يكشف نفسه (ما دام حيًّا)."""
+        m = mayor_of(g)
+        return {m.uid: 2} if (m and g.mayor_revealed) else {}
+
+    async def notify_mayor(bot: Bot, g: Game) -> None:
+        """في بداية التصويت: رسالة خاصة للعمدة فيها زر «اكشف نفسي» (مرة واحدة فقط)."""
+        m = mayor_of(g)
+        if not m or g.mayor_revealed:
+            return
+        Lm = db.get_lang(m.uid)
+        try:
+            await bot.send_message(m.uid, t(Lm, "mf_mayor_dm"), parse_mode="HTML", reply_markup=kb(
+                [btn(t(Lm, "mf_reveal_btn"), f"mf:rv:{g.gid}")]))
+        except TelegramAPIError:
+            pass
+
+    @pm.callback_query(F.data.regexp(r"^mf:rv:\d+$"))
+    async def cb_reveal(c: CallbackQuery):
+        """العمدة يكشف نفسه أثناء النهار قبل إغلاق التصويت، مرة واحدة فقط."""
+        L = db.get_lang(c.from_user.id)
+        g = next((x for x in games.values() if x.gid == int(c.data.split(":")[2])), None)
+        if not g or g.state != "day":
+            await c.answer(t(L, "mf_late"), show_alert=True)
+            return
+        m = g.players.get(c.from_user.id)
+        if not m or not m.alive or m.role != "mayor":
+            await c.answer(t(L, "mf_not_yours"), show_alert=True)
+            return
+        if g.mayor_revealed:
+            await c.answer(t(L, "mf_already_revealed"), show_alert=True)
+            return
+        g.mayor_revealed = True
+        await c.answer()
+        await show(c.bot, g, t(g.lang, "mf_mayor_revealed", name=esc(m.name)), None)
 
     async def notify_vote_start(bot: Bot, g: Game, alive: list) -> None:
         """رسالة خاصة لكل حي فيها زر يفتح رسالة التصويت مباشرة (في التعليقات إن كانت اللعبة فيها)."""
@@ -646,7 +688,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         await c.answer()
         await push_config(c.bot, g)
 
-    @pm.callback_query(F.data.regexp(r"^mf:r:\d+:(detective|doctor|joker)$"))
+    @pm.callback_query(F.data.regexp(r"^mf:r:\d+:(detective|doctor|mayor|joker)$"))
     async def cb_roles(c: CallbackQuery):
         L = db.get_lang(c.from_user.id)
         _, _, gid, role = c.data.split(":")
