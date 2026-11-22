@@ -272,6 +272,11 @@ def build_mafia_router(ctx: Ctx) -> Router:
         for killer_uid, tgt in g.night_picks.items():
             if g.players.get(killer_uid) and g.players[killer_uid].alive and tgt in alive:   # من غادر لا يقتل
                 counts[tgt] = counts.get(tgt, 0) + 1
+        killers_alive = any(p.role == "killer" and p.alive for p in g.players.values())
+        if not counts and killers_alive:                     # لم يختر القتلة الأحياء أحدًا: يختار البوت بالنيابة عنهم
+            pool = [p.uid for p in alive_players(g) if p.role != "killer"]
+            if pool:
+                counts[rng.choice(sorted(pool))] = 1
         kill = None
         if counts:
             top = max(counts.values())
@@ -303,6 +308,20 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if missed:                                          # من لم يصوّت: صوته يُحسب على نفسه (لا يطرد أحدًا)
             names_missed = "، ".join(esc(p.name) for p in missed)
             await show(bot, g, t(L, "mf_self_votes", names=names_missed), None)
+        tally: dict[int, int] = {}
+        skips = 0
+        for voter_uid, tgt in g.votes.items():
+            if voter_uid not in {p.uid for p in alive_players(g)}:
+                continue
+            if tgt:
+                tally[tgt] = tally.get(tgt, 0) + 1
+            else:
+                skips += 1
+        if tally or skips:
+            lines = [f"• {esc(g.players[u].name)}: {n}" for u, n in sorted(tally.items(), key=lambda kv: -kv[1])]
+            if skips:
+                lines.append(t(L, "mf_vote_skip", n=skips))
+            await show(bot, g, t(L, "mf_vote_results", lines="\n".join(lines)), None)
         ballots = {v: tgt for v, tgt in g.votes.items() if tgt}
         return M.vote({p.uid for p in alive_players(g)}, ballots)
 

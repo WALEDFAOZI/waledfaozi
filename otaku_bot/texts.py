@@ -1142,3 +1142,8 @@ T["ar"]["btn_go_vote"] = "🗳 صوّت الآن"
 T["en"]["btn_go_vote"] = "🗳 Vote now"
 T["ar"]["mf_vote_note"] = "ℹ️ من لا يصوّت يُحسب صوته على نفسه."
 T["en"]["mf_vote_note"] = "ℹ️ If you don't vote, your vote counts for yourself."
+
+T["ar"]["mf_vote_results"] = "📊 <b>نتائج التصويت</b> (بدون أسماء المصوتين):\n{lines}"
+T["en"]["mf_vote_results"] = "📊 <b>Vote results</b> (voters are not named):\n{lines}"
+T["ar"]["mf_vote_skip"] = "• ⏭ تخطّي: {n}"
+T["en"]["mf_vote_skip"] = "• ⏭ Skip: {n}"

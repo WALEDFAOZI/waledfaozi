@@ -80,30 +80,33 @@ def test_three_quiet_rounds_kill_a_random_player():
     async def go():
         h = Harness()
         h.db.fast_answer_ratio = lambda sid: 0.0
-        users = [h.user(i, f"P{i}") for i in range(1, 6)]
+        users = [h.user(i, f"P{i}") for i in range(1, 8)]
         for u in users:
             h.db.upsert_user(u.id, u.first_name)
-        await gcmd(h, users[0], "/mafia", 90)
+        await gcmd(h, users[0], "/mafia", 95)
         g = MGm.games[GROUP.id]
         for u in users:
             await h.say(u, f"/start mf_{g.gid}")
         await ptap(h, users[0], f"mf:s:{g.gid}")
-        assert await wait_until(lambda: g.state == "night", 10)
-        for _ in range(400):
-            if any("⚰️" in x for x in group_texts(h)):
-                break
-            if g.state == "day":
-                for u in users:
-                    if g.players[u.id].alive:
-                        await gtap(h, u, f"mf:v:{g.gid}:0")     # الكل يتخطى التصويت
-            await asyncio.sleep(0.1)
-        texts = group_texts(h)                                  # بالترتيب الزمني
-        i_death = next(i for i, x in enumerate(texts) if "⚰️" in x)
-        i_day3 = next(i for i, x in enumerate(texts) if "النهار 3" in x)
-        assert not any("⚰️" in x for x in texts[:i_day3]), "مات أحد قبل الجولة الثالثة"
-        assert i_death > i_day3, "يجب أن يحدث الموت بعد الجولة الهادئة الثالثة"
+        assert await wait_until(lambda: g.state == "night", 15)
+        by_uid = {u.id: u for u in users}
+        killers = [p.uid for p in g.players.values() if p.role == "killer"]
+        doctor = next(p.uid for p in g.players.values() if p.role == "doctor")
+        target = next(p.uid for p in g.players.values() if p.role == "citizen")
+        for _ in range(3):                                   # 3 ليالٍ: القتلة يختارون، والطبيب يحمي نفس الهدف
+            assert await wait_until(lambda: g.state == "night", 15)
+            for k in killers:
+                await ptap(h, by_uid[k], f"mf:n:{g.gid}:killer:{target}")
+            await ptap(h, by_uid[doctor], f"mf:n:{g.gid}:doctor:{target}")
+            assert await wait_until(lambda: g.state == "day", 15)
+            assert g.players[target].alive                   # الطبيب أنقذ الهدف في هذه الليلة
+            for u in users:
+                if g.players[u.id].alive and g.state == "day":
+                    await gtap(h, u, f"mf:v:{g.gid}:0")       # الكل يتخطى
+            assert await wait_until(lambda: g.state == "night" or g.state == "done", 15)
+        assert await wait_until(lambda: any("⚰️" in x for x in group_texts(h)), 15)
         dead = [p for p in g.players.values() if not p.alive]
-        assert len(dead) == 1
+        assert len(dead) == 1                                # الموت العشوائي بعد الجولات الهادئة (أي لاعب)
     run(go())
 
 
@@ -124,7 +127,7 @@ def test_morning_vote_dms_link_to_the_vote_and_non_voters_are_announced():
         await ptap(h, users[0], f"mf:s:{g.gid}")
         assert await wu(lambda: g.state == "day", 15)
         assert g.day_mid is not None
-        for u in users:                                      # كل حي تلقّى رسالة فيها زر يفتح التصويت
+        for u in [u for u in users if g.players[u.id].alive]:   # كل حي تلقّى رسالة فيها زر يفتح التصويت
             dm = [c for c in dms_to(h, u.id) if "التصويت الصباحي" in (c.text or "")]
             assert dm, u.first_name
             urls = [b.url for row in dm[-1].reply_markup.inline_keyboard for b in row if b.url]
@@ -157,4 +160,54 @@ def test_killer_who_leaves_after_picking_cannot_kill():
         await gtap(h, k_user, f"mf:l:{g.gid}")                              # ثم ينسحب في الليل نفسه
         assert await wu(lambda: g.state in ("day", "done"), 15)   # القاتل خرج: يفوز المواطنون بعد الليل
         assert g.players[victim.uid].alive, "من انسحب لا يجوز أن يقتل"
+    run(go())
+
+
+def test_mafia_that_picks_nobody_gets_a_victim_chosen_by_the_bot():
+    from test_mafia_game import wait_until as wu
+    from otaku_bot import mafia_game as MGm
+
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 6)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, users[0], "/mafia", 93)
+        g = MGm.games[GROUP.id]
+        for u in users:
+            await h.say(u, f"/start mf_{g.gid}")
+        await ptap(h, users[0], f"mf:s:{g.gid}")
+        assert await wu(lambda: g.state in ("day", "done"), 15)      # لا أحد من القتلة يختار
+        dead = [p for p in g.players.values() if not p.alive]
+        assert len(dead) == 1 and dead[0].role != "killer"           # البوت اختار ضحية من غير القتلة
+    run(go())
+
+
+def test_vote_results_show_counts_without_naming_voters():
+    from test_mafia_game import gtap, group_texts, wait_until as wu
+    from otaku_bot import mafia_game as MGm
+
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 6)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, users[0], "/mafia", 94)
+        g = MGm.games[GROUP.id]
+        for u in users:
+            await h.say(u, f"/start mf_{g.gid}")
+        await ptap(h, users[0], f"mf:s:{g.gid}")
+        assert await wu(lambda: g.state == "day", 15)
+        a = [u for u in users if g.players[u.id].alive]
+        assert len(a) >= 4
+        await gtap(h, a[0], f"mf:v:{g.gid}:{a[2].id}")
+        await gtap(h, a[1], f"mf:v:{g.gid}:{a[2].id}")
+        await gtap(h, a[3], f"mf:v:{g.gid}:0")
+        assert await wu(lambda: any("نتائج التصويت" in x for x in group_texts(h)), 15)
+        res = [x for x in group_texts(h) if "نتائج التصويت" in x][-1]
+        assert f"{a[2].first_name}: 2" in res and "تخطّي: 1" in res          # العدد يظهر
+        for voter in a[:2] + [a[3]]:
+            assert voter.first_name not in res                              # لا أسماء المصوتين
     run(go())
