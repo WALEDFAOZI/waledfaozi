@@ -6,7 +6,7 @@
 • الأدوار الخاصة (محقق، طبيب، مجنون) فريدة: لا يحملها لاعبان. القاتل وحده يتكرر.
 • البداية: القتلة أقل من غيرهم، حتى لا يفوز القتلة من أول لحظة.
 • الليل: القتلة يختارون ضحية واحدة. الطبيب يحمي، والمحقق يكشف فريقًا.
-• النهار: تصويت بالأغلبية المطلقة لطرد لاعب. التعادل = لا طرد.
+• النهار: يُطرد صاحب الأصوات الأكثر. التعادل على الأعلى = لا طرد.
 • الفوز: المواطنون إن لم يبق قاتل. القتلة إن تساووا مع غيرهم أو تفوّقوا. المجنون يفوز وحده إذا طُرد بالتصويت.
 """
 from __future__ import annotations
@@ -123,17 +123,16 @@ def resolve_night(roles: dict[int, str], alive: set[int], night: Night) -> Resul
 
 def vote(alive: set[int], ballots: dict[int, int], weights: dict[int, int] | None = None) -> int | None:
     """ballots = {voter: target}. weights = أصوات إضافية للصوت (مثل العمدة بعد الكشف).
-    يطرد الهدف إن حصل على أغلبية مطلقة من الأحياء. وإلا لا طرد."""
+    يُطرد صاحب الأصوات الأكثر (أغلبية نسبية). إن تعادل اثنان أو أكثر على الأعلى فلا طرد."""
     counts: dict[int, int] = {}
     for voter, target in ballots.items():
         if voter in alive and target in alive and target != voter:
             counts[target] = counts.get(target, 0) + (weights or {}).get(voter, 1)
     if not counts:
         return None
-    target, votes = max(counts.items(), key=lambda kv: kv[1])
-    if votes * 2 > len(alive):
-        return target
-    return None
+    top = max(counts.values())
+    leaders = [t for t, v in counts.items() if v == top]
+    return leaders[0] if len(leaders) == 1 else None
 
 
 def winner(roles: dict[int, str], alive: set[int], last_voted: str | None = None) -> str | None:

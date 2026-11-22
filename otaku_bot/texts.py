@@ -750,7 +750,7 @@ T["ar"]['mf_killers'] = 'القتلة'
 T["ar"]['mf_killers_btn'] = '🔪 القتلة: {k}'
 T["ar"]['mf_players'] = '👥 المنضمون ({n}): {names}'
 T["ar"]['mf_left'] = '⏳ تبدأ بعد {s} ثانية، ويلزم {min} لاعبين على الأقل'
-T["ar"]["mf_howto"] = '📖 <b>كيف تلعب المافيا؟</b>\n🎯 <b>الهدف:</b> المواطنون يكشفون القتلة ويطردونهم، والقتلة يقتلون حتى يتساووا مع الباقين.\n1️⃣ انضم بزر «انضم». عند البدء تصلك رسالة خاصة فيها دورك (سرّي).\n2️⃣ <b>الليل:</b> القتلة يختارون ضحية، والطبيب يحمي، والمحقق يكشف فريقًا. كل ذلك من الخاص بالأزرار.\n3️⃣ <b>الصباح:</b> يُعلن من قُتل، أو أن الضحية كانت محمية.\n4️⃣ <b>النهار:</b> ناقشوا في المجموعة، ثم كل حي يصوّت لطرد من يشتبه به، أو يضغط «تخطّي».\n⚖️ الطرد يحتاج <b>أغلبية مطلقة</b> من الأحياء (أكثر من نصفهم)، وإلا لا يُطرد أحد.\n⏳ إذا مرت 3 جولات بدون قتل ولا طرد، يختار النظام لاعبًا عشوائيًا يخرج.\n🏆 المواطنون يفوزون بطرد كل القتلة، والقتلة يفوزون إذا تساووا مع الباقين.'
+T["ar"]["mf_howto"] = '📖 <b>كيف تلعب المافيا؟</b>\n🎯 <b>الهدف:</b> المواطنون يكشفون القتلة ويطردونهم، والقتلة يقتلون حتى يتساووا مع الباقين.\n1️⃣ انضم بزر «انضم». عند البدء تصلك رسالة خاصة فيها دورك (سرّي).\n2️⃣ <b>الليل:</b> القتلة يختارون ضحية، والطبيب يحمي، والمحقق يكشف فريقًا. كل ذلك من الخاص بالأزرار.\n3️⃣ <b>الصباح:</b> يُعلن من قُتل، أو أن الضحية كانت محمية.\n4️⃣ <b>النهار:</b> ناقشوا في المجموعة، ثم كل حي يصوّت لطرد من يشتبه به، أو يضغط «تخطّي».\n⚖️ يُطرد صاحب <b>الأصوات الأكثر</b>، وإن تعادل الأعلى لا يُطرد أحد.\n⏳ إذا مرت 3 جولات بدون قتل ولا طرد، يختار النظام لاعبًا عشوائيًا يخرج.\n🏆 المواطنون يفوزون بطرد كل القتلة، والقتلة يفوزون إذا تساووا مع الباقين.'
 T["ar"]['mf_join'] = '✋ انضم'
 T["ar"]['mf_leave'] = '🚪 انسحب'
 T["ar"]['mf_start'] = '▶️ ابدأ'
@@ -777,7 +777,7 @@ T["ar"]['mf_n_killer'] = '🔪 اختر ضحية الليلة (زملاؤك يخ
 T["ar"]['mf_n_doctor'] = '🩺 اختر من تحميه الليلة:'
 T["ar"]['mf_n_detective'] = '🔍 اختر من تكشف فريقه:'
 T["ar"]["mf_night_live"] = '🌙 <b>「 الليلة {r} · ظلام القرية 」</b>\n━━━━━━━━━━━━\n⏳ {s} ثانية\n👥 الأحياء ({n}):\n{names}\n━━━━━━━━━━━━\n<i>القتلة يتهامسون في الظلام… والطبيب يترقب، والمحقق يبحث عن الحقيقة. الباقون ينتظرون الفجر.</i>'
-T["ar"]["mf_day_live"] = '☀️ <b>「 النهار {r} · حكم الجماعة 」</b>\n━━━━━━━━━━━━\n⏳ {s} ثانية\n👥 الأحياء:\n{names}\n━━━━━━━━━━━━\n⚖️ <i>من تشك فيه؟ اضغط اسمه… أو «تخطّي» إن كنت ما تزال تتردد. الحكم يحتاج أغلبية مطلقة.</i>'
+T["ar"]["mf_day_live"] = '☀️ <b>「 النهار {r} · حكم الجماعة 」</b>\n━━━━━━━━━━━━\n⏳ {s} ثانية\n👥 الأحياء:\n{names}\n━━━━━━━━━━━━\n⚖️ <i>من تشك فيه؟ اضغط اسمه… أو «تخطّي» إن كنت ما تزال تتردد. يُطرد الأكثر أصواتًا، والتعادل على الأعلى = لا طرد.</i>'
 T["ar"]["mf_morning_dead"] = '💀 <b>「 سقط {name} في الظلام… 」</b>\nضربة القاتل لم تُرحم، والقرية تستيقظ على الفاجعة.'
 T["ar"]["mf_morning_saved"] = '🛡 <b>「 ضربة القاتل ارتدت… 」</b>\nالطبيب سبق السكين في اللحظة الأخيرة، ونجا الضحية من الموت.'
 T["ar"]["mf_morning_quiet"] = '🌅 <b>「 فجر هادئ… أو هذا ما يبدو 」</b>\nلم يسقط أحد الليلة، لكن الخوف يتسلل بين الجميع.'
@@ -817,7 +817,7 @@ T["en"]['mf_killers'] = 'Killers'
 T["en"]['mf_killers_btn'] = '🔪 Killers: {k}'
 T["en"]['mf_players'] = '👥 Players ({n}): {names}'
 T["en"]['mf_left'] = '⏳ Starts in {s}s, at least {min} players needed'
-T["en"]["mf_howto"] = '📖 <b>How to play Mafia</b>\n🎯 <b>Goal:</b> Citizens find and eliminate the killers; killers win when they equal the rest.\n1️⃣ Join with «Join». At the start you get a private message with your secret role.\n2️⃣ <b>Night:</b> killers pick a victim; the doctor and guard protect; the detective checks a team. All privately, with buttons.\n3️⃣ <b>Morning:</b> the result is announced: who was killed, or that the target was protected.\n4️⃣ <b>Day:</b> discuss in the group, then every living player votes to eliminate a suspect, or taps «Skip».\n⚖️ Elimination needs an <b>absolute majority</b> of the living; otherwise nobody is eliminated.\n⏳ If 3 rounds pass with no death or vote, the game picks a random player to leave.\n🏆 Citizens win by eliminating all killers; killers win when they equal the rest.'
+T["en"]["mf_howto"] = '📖 <b>How to play Mafia</b>\n🎯 <b>Goal:</b> Citizens find and eliminate the killers; killers win when they equal the rest.\n1️⃣ Join with «Join». At the start you get a private message with your secret role.\n2️⃣ <b>Night:</b> killers pick a victim; the doctor and guard protect; the detective checks a team. All privately, with buttons.\n3️⃣ <b>Morning:</b> the result is announced: who was killed, or that the target was protected.\n4️⃣ <b>Day:</b> discuss in the group, then every living player votes to eliminate a suspect, or taps «Skip».\n⚖️ The player with the <b>most votes</b> is eliminated; a tie for first means nobody is.\n⏳ If 3 rounds pass with no death or vote, the game picks a random player to leave.\n🏆 Citizens win by eliminating all killers; killers win when they equal the rest.'
 T["en"]['mf_join'] = '✋ Join'
 T["en"]['mf_leave'] = '🚪 Leave'
 T["en"]['mf_start'] = '▶️ Start'
@@ -844,7 +844,7 @@ T["en"]['mf_n_killer'] = "🔪 Pick tonight's victim (your fellow killers choose
 T["en"]['mf_n_doctor'] = '🩺 Pick who to protect tonight:'
 T["en"]['mf_n_detective'] = '🔍 Pick whose team to check:'
 T["en"]["mf_night_live"] = '🌙 <b>Night {r}</b>\n⏳ {s}s\n👥 Alive ({n}): {names}\n\n<i>Killers, doctor and detective act in private. Everyone else waits for morning.</i>'
-T["en"]["mf_day_live"] = '☀️ <b>Day {r}</b>\n⏳ {s}s\n👥 Alive: {names}\n\n🗳 Tap the name of your suspect, or «Skip» if you have none. Elimination needs an absolute majority of the living.'
+T["en"]["mf_day_live"] = '☀️ <b>Day {r}</b>\n⏳ {s}s\n👥 Alive: {names}\n\n🗳 Tap the name of your suspect, or «Skip» if you have none. The player with the most votes is eliminated; a tie for first means nobody is.'
 T["en"]['mf_morning_dead'] = '🔪 <b>{name}</b> was killed by the mafia 💀'
 T["en"]['mf_morning_saved'] = '🛡 The mafia tried to kill someone tonight, but the target was protected!'
 T["en"]['mf_morning_quiet'] = '☀️ A quiet night… nobody died.'
@@ -1253,7 +1253,7 @@ T["ar"]["mf_help_long"] = (
 "يُعلن إن قُتل أحد، أو إن الضحية كانت محمية، أو إن ليلة هادئة مرت.\n\n"
 "☀️ <b>النهار</b>\n"
 "تناقشون في التعليقات أو القناة، ثم كل حي يصوّت لطرد من يشتبه به، أو «تخطّي». من لا يصوّت يُحسب صوته على نفسه ولا يطرد أحدًا.\n"
-"⚖️ الطرد يحتاج <b>أغلبية مطلقة</b> من الأحياء. التعادل = لا طرد.\n\n"
+"⚖️ يُطرد صاحب <b>الأصوات الأكثر</b>. التعادل على الأعلى = لا طرد.\n\n"
 "⏳ <b>الأوقات:</b> الانتظار 5 دقائق، والليل والنهار يعدّلهما المضيف من إعداداته.\n"
 "⚠️ إذا مرت 3 جولات متتالية بلا قتل ولا طرد، يختار القدر لاعبًا عشوائيًا يخرج.\n"
 "━━━━━━━━━━━━━━━━\n"
@@ -1273,7 +1273,7 @@ T["en"]["mf_help_long"] = (
 "🌙 <b>Night</b>: killers pick, doctor protects, detective checks; all with buttons in private. If no killer picks, the bot picks for them.\n\n"
 "🌅 <b>Morning</b>: announces a death, a protected target, or a quiet night.\n\n"
 "☀️ <b>Day</b>: discuss, then every living player votes to eliminate a suspect, or skips. Not voting counts as a vote for yourself (eliminates nobody).\n"
-"⚖️ Elimination needs an <b>absolute majority</b> of the living. A tie = no elimination.\n\n"
+"⚖️ The player with the <b>most votes</b> is eliminated. A tie for first = no elimination.\n\n"
 "⏳ <b>Timers</b>: 5 minutes to join; the host sets night and day times.\n"
 "⚠️ If 3 rounds in a row have no death or vote, fate picks a random player to leave.\n"
 "━━━━━━━━━━━━━━━━\n"

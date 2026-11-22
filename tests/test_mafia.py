@@ -52,14 +52,14 @@ def test_night_kill_and_protection():
     assert r.detective == (3, M.TOWN)
 
 
-def test_vote_needs_absolute_majority_and_ignores_dead():
+def test_vote_eliminates_the_most_voted_and_ties_mean_nobody():
     alive = {1, 2, 3, 4, 5}
-    assert M.vote(alive, {1: 2, 3: 2, 4: 2}) == 2                # 3 من 5 أغلبية
-    assert M.vote(alive, {1: 2, 3: 2}) is None                  # 2 من 5 ليست أغلبية
-    assert M.vote(alive, {1: 2, 3: 4, 5: 3, 2: 5}) is None      # تشتت = لا طرد
-    assert M.vote(alive, {1: 4, 3: 4, 5: 4, 2: 5}) == 4         # 3 من 5 أغلبية مطلقة
-    assert M.vote({1, 2, 3}, {4: 1, 2: 1}) is None              # صوت الميت لا يُحسب (صوت واحد من 3)
-    assert M.vote({1, 2, 3}, {4: 1, 2: 1, 3: 1}) == 1          # صوتان من 3 أحياء = أغلبية
+    assert M.vote(alive, {1: 2, 3: 2}) == 2                     # صوتان مقابل لا شيء: يُطرد الأكثر
+    assert M.vote(alive, {1: 2, 3: 2, 4: 2, 5: 3}) == 2        # 3 مقابل 1: يُطرد
+    assert M.vote(alive, {1: 2, 3: 4, 5: 3, 2: 5}) is None     # كل واحد صوت لشخص: تعادل = لا طرد
+    assert M.vote(alive, {1: 2, 3: 2, 2: 4, 5: 4}) is None     # 2 و4 بصوتين لكل منهما: تعادل = لا طرد
+    assert M.vote({1, 2, 3}, {4: 1, 2: 1}) == 1                # صوت الميت لا يُحسب، وصوتان لـ 1 يكفيان
+    assert M.vote({1, 2, 3}, {4: 1}) is None                   # لا أصوات حيّة = لا طرد
 
 
 def test_win_conditions():
@@ -72,7 +72,7 @@ def test_win_conditions():
 
 def test_mayor_double_vote_changes_the_outcome_only_with_weight():
     alive = {1, 2, 3, 4, 5}
-    ballots = {1: 2, 3: 2}                       # صوتان لـ 2 من خمسة أحياء: لا يكفي للطرد
+    ballots = {1: 2, 3: 4}                       # صوت لكل مرشح: تعادل
     assert M.vote(alive, ballots) is None
-    assert M.vote(alive, ballots, {1: 2}) == 2   # صوت العمدة مرتان: أغلبية مطلقة
+    assert M.vote(alive, ballots, {1: 2}) == 2   # صوت العمدة مرتان يرجّح الكفة
     assert "mayor" in M.ROLES and "mayor" in M.SPECIAL
