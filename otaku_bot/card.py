@@ -311,12 +311,21 @@ def _cards_banner(title_ar: str, title_en: str, tag: str, cards: list, theme: tu
         c.d.rounded_rectangle(c.B((x0, y0, x1, y1)), radius=18 * S, fill=(20, 10, 24, 235),
                               outline=(255, 220, 90, 255) if key == "outsider" else (255, 255, 255, 230), width=4 * S)
         draw_mascot(c, cx, 430, w * 0.5, mood, key, jacket)
-        if key == "killer":                              # القاتل: غطاء أسود وعينان حمراوان
-            c.d.ellipse(c.B((cx - w * 0.42, 352, cx + w * 0.42, 430)), fill=(12, 8, 12, 255), outline=BLACK, width=3 * S)
-            c.d.polygon(c.P([(cx - w * 0.42, 430), (cx + w * 0.42, 430), (cx + w * 0.5, 600), (cx - w * 0.5, 600)]),
-                        fill=(12, 8, 12, 235))
-            for ex in (cx - w * 0.14, cx + w * 0.14):
-                c.d.ellipse(c.B((ex - 6, 402, ex + 6, 416)), fill=(255, 40, 60, 255))
+        if key == "killer":                              # القاتل: غطاء مدبّب، رداء داكن بحواف حمراء، وسكين
+            red = (200, 30, 50, 255)
+            c.d.polygon(c.P([(cx - w * 0.5, 600), (cx - w * 0.5, 478), (cx, 462), (cx + w * 0.5, 478), (cx + w * 0.5, 600)]),
+                        fill=(22, 8, 14, 255), outline=red, width=4 * S)          # الرداء
+            c.d.polygon(c.P([(cx - w * 0.44, 470), (cx, 452), (cx + w * 0.44, 470), (cx + w * 0.48, 490), (cx, 480),
+                             (cx - w * 0.48, 490)]), fill=red)                    # حاشية حمراء على الكتفين
+            c.d.polygon(c.P([(cx - w * 0.47, 420), (cx, 318), (cx + w * 0.47, 420), (cx + w * 0.36, 398),
+                             (cx, 388), (cx - w * 0.36, 398)]),
+                        fill=(16, 10, 18, 255), outline=red, width=3 * S)         # الغطاء المدبّب
+            c.d.line(c.P([(cx - w * 0.47, 420), (cx, 318), (cx + w * 0.47, 420)]), fill=red, width=3 * S)
+            for ex in (cx - w * 0.15, cx + w * 0.15):                              # عينان حمراوان متوهجتان
+                c.d.ellipse(c.B((ex - 7, 412, ex + 7, 428)), fill=red)
+            c.d.polygon(c.P([(cx + w * 0.30, 500), (cx + w * 0.44, 418), (cx + w * 0.48, 424), (cx + w * 0.36, 506)]),
+                        fill=(210, 220, 235, 255), outline=BLACK, width=2 * S)    # نصل السكين
+            c.d.rectangle(c.B((cx + w * 0.28, 500, cx + w * 0.40, 512)), fill=(90, 50, 30, 255), outline=BLACK)
         _role_icon(c, key, x0 + 30, y0 + 30, 20)
         c.d.rounded_rectangle(c.B((x0 + 8, 536, x1 - 8, 590)), radius=12 * S, fill=(0, 0, 0, 200))
         c.text((cx, 563), label, "ar", c.fit(label, "ar", 34, w - 24), fill=(255, 255, 255), stroke=3)
