@@ -269,13 +269,17 @@ def build_mafia_router(ctx: Ctx) -> Router:
         roles = {p.uid: p.role for p in g.players.values()}
         alive = {p.uid for p in alive_players(g)}
         counts: dict[int, int] = {}
-        for tgt in g.night_picks.values():
-            counts[tgt] = counts.get(tgt, 0) + 1
+        for killer_uid, tgt in g.night_picks.items():
+            if g.players.get(killer_uid) and g.players[killer_uid].alive and tgt in alive:   # من غادر لا يقتل
+                counts[tgt] = counts.get(tgt, 0) + 1
         kill = None
         if counts:
             top = max(counts.values())
             kill = rng.choice(sorted(u for u, c in counts.items() if c == top))
-        protect = {r: g.night_actions[r] for r in ("doctor", "guard") if r in g.night_actions}
+        protect = {}
+        for r in ("doctor", "guard"):                       # الحماية تسري فقط إن كان صاحب الدور ما زال حيًّا
+            if r in g.night_actions and g.night_actions[r] in alive and any(p.role == r and p.alive for p in g.players.values()):
+                protect[r] = g.night_actions[r]
         return M.resolve_night(roles, alive, M.Night(kill=kill, protect=protect))
 
     # ── النهار ────────────────────────────────────────────
@@ -379,6 +383,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 return
             roles_map = {p.uid: p.role for p in g.players.values()}
             while True:
+                alive_at_start = len(alive_players(g))
                 await night_phase(bot, g)
                 res = resolve_night(g)
                 if res.victim is not None:
@@ -398,7 +403,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
                     await show(bot, g, t(L, "mf_executed", name=esc(g.players[out].name)), None)
                 else:
                     await show(bot, g, t(L, "mf_no_exec"), None)
-                if res.victim is not None or out is not None:
+                died_this_round = len(alive_players(g)) < alive_at_start     # قتل أو طرد أو انسحاب
+                if res.victim is not None or out is not None or died_this_round:
                     g.quiet = 0
                 else:
                     g.quiet += 1

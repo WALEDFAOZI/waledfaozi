@@ -132,3 +132,29 @@ def test_morning_vote_dms_link_to_the_vote_and_non_voters_are_announced():
         assert await wu(lambda: any("لم يصوّت" in x for x in group_texts(h)), 15)
         assert any("على نفسه" in x for x in group_texts(h))
     run(go())
+
+
+def test_killer_who_leaves_after_picking_cannot_kill():
+    from test_mafia_game import gtap, wait_until as wu
+    from otaku_bot import mafia_game as MGm
+
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 6)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, users[0], "/mafia", 92)
+        g = MGm.games[GROUP.id]
+        for u in users:
+            await h.say(u, f"/start mf_{g.gid}")
+        await ptap(h, users[0], f"mf:s:{g.gid}")
+        assert await wu(lambda: g.state == "night", 15)
+        killer = next(p for p in g.players.values() if p.role == "killer")
+        victim = next(p for p in g.players.values() if p.role != "killer" and p.uid != killer.uid)
+        k_user = next(u for u in users if u.id == killer.uid)
+        await h.tap(k_user, f"mf:n:{g.gid}:killer:{victim.uid}")          # يختار ضحية
+        await gtap(h, k_user, f"mf:l:{g.gid}")                              # ثم ينسحب في الليل نفسه
+        assert await wu(lambda: g.state in ("day", "done"), 15)   # القاتل خرج: يفوز المواطنون بعد الليل
+        assert g.players[victim.uid].alive, "من انسحب لا يجوز أن يقتل"
+    run(go())
