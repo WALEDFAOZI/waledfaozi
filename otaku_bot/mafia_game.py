@@ -83,7 +83,7 @@ class Game:
     day_mid: int | None = None        # رسالة التصويت الحالية (تُحدَّث مع كل صوت)
     day_text: str = ""
     quiet: int = 0                    # عدّاد الجولات المتتالية بلا موت
-    log: list = field(default_factory=list)   # القناة: آخر الإعلانات تبقى داخل الرسالة الواحدة
+    news: list = field(default_factory=list)  # القناة: أخبار الجولة (رقم الجولة، النص) تُرسل خاصًّا للمشاركين
     status_text: str = ""             # القناة: الحالة الحالية (ليل/نهار/نهاية)
     status_markup: object = None
     discuss_line: str = ""            # سطر «النقاش في التعليقات» (القناة)
@@ -156,26 +156,31 @@ def build_mafia_router(ctx: Ctx) -> Router:
     CHANNEL_CAP = 1000
 
     def channel_body(g: Game) -> str:
-        """نص الرسالة الواحدة في القناة: آخر الإعلانات ثم الحالة الحالية، ضمن الحد."""
-        status = g.status_text
-        head = [g.discuss_line] if g.discuss_line else []
-        budget = CHANNEL_CAP - len(status) - 2 - sum(len(x) + 2 for x in head)
-        chosen: list[str] = []
-        for entry in reversed(g.log):
-            if len(entry) + 2 > budget:
-                break
-            chosen.append(entry)
-            budget -= len(entry) + 2
-        return "\n\n".join(head + list(reversed(chosen)) + [status])
+        """رسالة القناة: الحالة الحالية فقط (وسطر النقاش)، بلا سجل قديم."""
+        return "\n\n".join(([g.discuss_line] if g.discuss_line else []) + [g.status_text])
+
+    async def flush_news(bot: Bot, g: Game) -> None:
+        """يرسل أخبار الجولة في رسالة خاصة واحدة لكل مشارك، مع رقم الجولة."""
+        if not g.news:
+            return
+        r = g.news[0][0]
+        body = "\n\n".join(text for _, text in g.news)
+        g.news = []
+        text = t(g.lang, "mf_news", r=r, body=body)
+        for uid in list(g.players):
+            try:
+                await bot.send_message(uid, text, parse_mode="HTML")
+            except TelegramAPIError:
+                pass                                       # لم يبدأ البوت بالخاص
 
     async def show(bot: Bot, g: Game, text: str, markup=None, status: bool = False) -> int | None:
         """المجموعات: كل رسالة جديدة. القناة: رسالة واحدة تحمل آخر الإعلانات والحالة الحالية."""
         if g.scope == "channel" and g.live is not None:
             if status:
+                await flush_news(bot, g)                   # أخبار الجولة السابقة تصل قبل الحالة الجديدة
                 g.status_text, g.status_markup = text, with_discuss(g, markup)
             else:
-                g.log.append(text)
-                g.log = g.log[-12:]
+                g.news.append((g.round, text))
             await live.edit(bot, g.chat_id, g.live, channel_body(g), g.status_markup)
             return g.live
         mid = await send(bot, g, text, markup)
@@ -502,6 +507,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
             log.exception("mafia crashed in %s", g.chat_id)
         finally:
             g.state = "done"
+            try:
+                await flush_news(bot, g)                  # أي خبر متبقٍ (مثلًا عند الإلغاء) يصل للمشاركين
+            except Exception:  # noqa: BLE001
+                pass
             if games.get(g.chat_id) is g:
                 games.pop(g.chat_id, None)
             cooldown[g.chat_id] = time.monotonic()

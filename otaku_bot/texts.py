@@ -1190,3 +1190,6 @@ T["ar"]["mf_discuss_line"] = "💬 <b>النقاش في تعليقات المن�
 T["en"]["mf_discuss_line"] = "💬 <b>Discussion in the post's comments</b> 👇 (playing and voting stay here)"
 T["ar"]["mf_discuss_btn"] = "💬 النقاش في التعليقات"
 T["en"]["mf_discuss_btn"] = "💬 Discuss in comments"
+
+T["ar"]["mf_news"] = "📰 <b>أخبار الجولة {r}</b>\n\n{body}"
+T["en"]["mf_news"] = "📰 <b>Round {r} news</b>\n\n{body}"

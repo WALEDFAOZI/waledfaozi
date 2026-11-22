@@ -128,13 +128,16 @@ def test_channel_game_keeps_announcements_visible():
                         message=Message(message_id=5, date=dt.datetime.now(), chat=Chat(id=p.uid, type="private"), text="."))
                 await h.dp.feed_update(h.bot, Update(update_id=h.uid + 100, callback_query=kc))
         assert await wu(lambda: g.state == "day", 15)
-        # القناة: رسالة واحدة. خبر القتل يجب أن يبقى داخلها حتى بعد بدء النهار
+        # القناة: رسالة واحدة تعرض الحالة فقط. خبر القتل يصل للمشاركين خاصًّا مع رقم الجولة
         chan_texts = [(getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in h.session.calls
                       if type(c).__name__ in ("SendMessage", "SendPhoto", "EditMessageCaption", "EditMessageText",
                                               "EditMessageMedia") and c.chat_id == CH.id]
-        assert any("تم قتل" in x and "النهار" in x for x in chan_texts), "خبر القتل يجب أن يبقى ظاهرًا مع حالة النهار"
+        assert not any("تم قتل" in x for x in chan_texts), "أخبار الجولات لا تبقى في القناة"
         assert len([c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto")
                     and c.chat_id == CH.id]) == 1, "القناة تبقى برسالة واحدة"
+        news = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id != CH.id
+                and "أخبار الجولة 1" in (c.text or "") and "تم قتل" in (c.text or "")]
+        assert news, "أخبار الجولة تصل للمشاركين خاصًّا مع رقم الجولة"
         # المضيف لا يظهر أبدًا في رسائل القناة (ولم ينضم للعب)
         assert not any("Owner" in x for x in chan_texts), "اسم المضيف ظهر في القناة"
         assert owner.id not in g.players
