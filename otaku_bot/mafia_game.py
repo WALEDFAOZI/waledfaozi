@@ -270,7 +270,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
     # ── النصوص ────────────────────────────────────────────
     def names(g: Game, alive_only: bool = False) -> str:
         ps = [p for p in g.players.values() if p.alive or not alive_only]
-        return "، ".join(esc(p.name) for p in ps) or "—"
+        return "\n".join(f"• {esc(p.name)}" for p in ps) or "—"
 
     def lobby_text(g: Game, left: int) -> str:
         """رسالة البدء: مرتبة ومختصرة. الشرح الكامل في الخاص (زر «شرح اللعبة»)."""
