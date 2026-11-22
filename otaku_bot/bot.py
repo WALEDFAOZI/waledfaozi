@@ -13,7 +13,8 @@ from aiogram.filters import Command, CommandObject
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (BufferedInputFile, CallbackQuery, ChatMemberUpdated, FSInputFile, InlineKeyboardButton,
-                           InlineKeyboardMarkup, InputMediaPhoto, Message)
+                           InlineKeyboardMarkup, InlineQuery, InlineQueryResultArticle, InputMediaPhoto,
+                           InputTextMessageContent, Message)
 
 from . import board, card, leave_nudge, progress, ties
 from .config import LEVELS, ROOT
@@ -39,6 +40,7 @@ class Feedback(StatesGroup):
 
 FEEDBACK_KINDS = ("feat", "anime", "bug", "note")
 FEEDBACK_PER_DAY = 5
+INVITE_JOIN_XP = 40          # مكافأة من يدخل بدعوة صديق بعد أول اختبار كامل
 FEEDBACK_PENDING_MAX = 10
 
 
@@ -128,6 +130,34 @@ def build_router(ctx: Ctx) -> Router:
     r.message.filter(F.chat.type == "private")                    # الخاص فقط؛ المجموعات لها router مستقل (group.py)
     r.callback_query.filter(F.message.chat.type == "private")
     r.callback_query.outer_middleware(ClearState())
+
+    @r.inline_query()
+    async def on_inline(q: InlineQuery):
+        """@البوت في أي محادثة: تحدٍّ ونتيجتك جاهزان. المستخدم هو من يرسلهما بنفسه."""
+        uid = q.from_user.id
+        u = db.get_user(uid)
+        L = db.get_lang(uid)
+        link = f"https://t.me/{await bot_username(q.bot)}?start=inv_{uid}"
+        if u is None:
+            name = "؟"
+        elif u["lb_hidden"]:
+            name = "مجهول 🎭"
+        else:
+            name = esc(pub(u))
+
+        def article(rid: str, title: str, text: str):
+            return InlineQueryResultArticle(
+                id=rid, title=title,
+                input_message_content=InputTextMessageContent(message_text=text, parse_mode="HTML",
+                                                              disable_web_page_preview=True),
+                reply_markup=kb([btn(t(L, "inl_go"), url=link)]))
+
+        results = [article("c", t(L, "inl_challenge_title"), t(L, "inl_challenge", name=name))]
+        best = u["best_score"] if u else None
+        if best:
+            results.append(article("r", t(L, "inl_result_title", score=f"{best:.1f}"),
+                                   t(L, "inl_result", name=name, score=f"{best:.1f}", title=esc(title_for(best, L)))))
+        await q.answer(results, cache_time=20, is_personal=True)
 
     @r.chat_member()
     async def on_channel_member(ev: ChatMemberUpdated, bot: Bot):
@@ -637,9 +667,11 @@ def build_router(ctx: Ctx) -> Router:
         score = compute_score(answers)
         suspicious = mode == "full" and db.fast_answer_ratio(sid) > SUSPECT_FAST_RATIO
         db.finish_session(sid, tg_id, score, mode, counted=not suspicious)
+        join_bonus = None
         if mode == "full" and not suspicious and db.pending_inviter(tg_id):
             if await subscribed(bot, tg_id) is not False:        # لا يُحسب إلا بعد الاشتراك بالقناة
                 await credit_invite(bot, tg_id)
+                join_bonus = progress.bonus(db, tg_id, "invite_join", xp=INVITE_JOIN_XP)
         title = title_for(score, L)
         brk = category_breakdown(answers)
         pct = db.percentile(score) if mode == "full" else None
@@ -654,6 +686,8 @@ def build_router(ctx: Ctx) -> Router:
         parts += ["", t(L, "res_cat")]
         for cat, (ok, total) in sorted(brk.items(), key=lambda kv: -kv[1][0] / kv[1][1]):
             parts.append(f"• {cat_label(L, cat)}: {ok}/{total}")
+        if join_bonus and join_bonus.xp:
+            parts.append(t(L, "inv_join_bonus", xp=join_bonus.xp))
         if suspicious:
             parts += ["", t(L, "res_suspect")]
         elif mode != "full":
@@ -678,10 +712,10 @@ def build_router(ctx: Ctx) -> Router:
                     pass
 
         rows = [again]
-        if mode == "full":
-            link = f"https://t.me/{username}?start=ch_{sid}"
-            share = t(L, "share_text", score=f"{score:.1f}", title=title)
-            rows.append([btn(t(L, "btn_share"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")])
+        share = t(L, "share_text", score=f"{score:.1f}", title=title)
+        link = (f"https://t.me/{username}?start=ch_{sid}" if mode == "full"
+                else f"https://t.me/{username}?start=inv_{tg_id}")
+        rows.append([btn(t(L, "btn_share"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")])
         if db.session_shown(sid):
             rows.append([btn(t(L, "btn_report"), f"rp:{sid}:0")])
         rows += chan_row(L)

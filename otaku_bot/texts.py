@@ -1106,3 +1106,16 @@ T["en"]["sp_vote_dm_live"] = "🗳 Voting has started in private. Open the bot a
 
 T["ar"]["leave_nudge"] = "👋 لاحظنا أنك غادرت {ch}\nارجع لها عشان ما يفوتك الجديد من الأنمي والتحديات 🎌"
 T["en"]["leave_nudge"] = "👋 We noticed you left {ch}\nCome back so you don't miss new anime and challenges 🎌"
+
+T["ar"]["inl_challenge_title"] = "⚔️ تحدّي الأوتاكو"
+T["en"]["inl_challenge_title"] = "⚔️ Otaku challenge"
+T["ar"]["inl_challenge"] = "⚔️ {name} يتحداك في اختبار الأوتاكو!\nشف كم تجيب من 10 🔥"
+T["en"]["inl_challenge"] = "⚔️ {name} challenges you in the Otaku quiz!\nSee how many of 10 you get 🔥"
+T["ar"]["inl_go"] = "🎯 ابدأ التحدي"
+T["en"]["inl_go"] = "🎯 Start the challenge"
+T["ar"]["inl_result_title"] = "🏆 نتيجتي: {score}/10"
+T["en"]["inl_result_title"] = "🏆 My score: {score}/10"
+T["ar"]["inl_result"] = "🏆 {name} حصل على <b>{score}/10</b> — {title}\nتقدر تتفوق عليه؟ 👇"
+T["en"]["inl_result"] = "🏆 {name} scored <b>{score}/10</b> — {title}\nCan you beat that? 👇"
+T["ar"]["inv_join_bonus"] = "🎁 مكافأة الانضمام بالدعوة: +{xp} خبرة"
+T["en"]["inv_join_bonus"] = "🎁 Invite bonus: +{xp} XP"
