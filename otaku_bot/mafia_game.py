@@ -619,6 +619,32 @@ def build_mafia_router(ctx: Ctx) -> Router:
             progress.record(db, p.uid, "group", correct=g.round, won=p.uid in won)
 
     # ── الحلقة الرئيسية ───────────────────────────────────
+    async def end_too_few(bot: Bot, g: Game) -> None:
+        """لم يكتمل العدد: تُحذف رسالة اللوبي من القناة/المجموعة، وفي المجموعة يبقى التنبيه ثوانٍ ثم يُحذف."""
+        L = g.lang
+        lobby = g.live
+        g.state = "done"
+        g.start_now = True                                  # يوقف أي انتظار متبقٍ
+        notice = None
+        if g.scope != "channel":
+            notice = await show(bot, g, t(L, "mf_too_few", min=M.MIN_PLAYERS), None)
+
+        async def _delete(ids: list) -> None:
+            for mid in ids:
+                if mid is None:
+                    continue
+                try:
+                    await bot.delete_message(g.chat_id, mid)
+                except TelegramAPIError:
+                    pass
+
+        await _delete([lobby])                              # رسالة اللوبي تختفي فورًا
+        if notice is not None and notice != lobby:
+            async def _later():
+                await asyncio.sleep(10)
+                await _delete([notice])
+            asyncio.create_task(_later())
+
     async def run(bot: Bot, g: Game) -> None:
         L = g.lang
         try:
@@ -629,7 +655,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 if g.gone:
                     return
                 if len(g.players) < M.MIN_PLAYERS:
-                    await show(bot, g, t(L, "mf_too_few", min=M.MIN_PLAYERS), None)
+                    await end_too_few(bot, g)
                     return
                 if g.auto:
                     g.killers, g.specials = M.auto_config(len(g.players))

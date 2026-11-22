@@ -312,3 +312,24 @@ def test_failed_role_dm_removes_player_and_reopens_lobby_for_90s():
 def group_texts_of(h):
     return [(getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in h.session.calls
             if getattr(c, "chat_id", None) == GROUP.id]
+
+
+def test_too_few_players_deletes_the_lobby_message():
+    from test_mafia_game import wait_until
+
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 4)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, users[0], "/mafia", 93)
+        g = MG.games[GROUP.id]
+        for u in users[1:]:
+            await h.say(u, f"/start mf_{g.gid}")
+        lobby_mid = g.live
+        g.lobby_secs = 1
+        assert await wait_until(lambda: GROUP.id not in MG.games, 15)
+        deleted = [c for c in h.session.calls if type(c).__name__ == "DeleteMessage" and c.message_id == lobby_mid]
+        assert deleted, "رسالة اللوبي لازم تُحذف"
+    run(go())
