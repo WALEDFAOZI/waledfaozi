@@ -15,6 +15,7 @@ import time
 from dataclasses import dataclass, field
 
 from aiogram import Bot, F, Router
+from aiogram.dispatcher.event.bases import SkipHandler
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest, TelegramForbiddenError, TelegramRetryAfter
 from aiogram.filters import Command, CommandObject
 from aiogram.types import CallbackQuery, ChatMemberUpdated, Message, ReplyParameters
@@ -113,6 +114,16 @@ _BG_TASKS: set = set()   # مهام خلفية قصيرة (حذف رسائل م�
 
 def build_group_router(ctx: Ctx) -> Router:
     root = Router(name="groups")
+
+    @root.message(F.is_automatic_forward)
+    async def record_post_copy(m: Message):
+        """نسخة منشور القناة التلقائية في مجموعة التعليقات: نحفظ معرّفها لنرد عليها داخل تعليقات المنشور."""
+        origin = getattr(m, "forward_origin", None)
+        chat = getattr(origin, "chat", None)
+        post_id = getattr(origin, "message_id", None)
+        if chat is not None and post_id:
+            ctx.db.save_post_copy(chat.id, post_id, m.chat.id, m.message_id)
+        raise SkipHandler()
     r = Router(name="group_msgs")                       # أوامر المجموعات
     r.message.filter(F.chat.type.in_(GROUP_TYPES))
     cb = Router(name="group_cbs")                       # أزرار المجموعات والقنوات

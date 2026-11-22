@@ -23,6 +23,9 @@ from .bot import btn, chan_row, esc, kb
 from .ctx import Ctx
 from . import live
 from .links import back_rows, msg_rows, open_private_rows, with_rows
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+import re
 from .texts import t
 from .thread_anchor import anchor_id
 
@@ -86,6 +89,27 @@ class Game:
 games: dict[int, Game] = {}
 cooldown: dict[int, float] = {}
 counter = [0]
+
+
+_POST_LINK = re.compile(r"t\.me/(?:c/(\d+)|([A-Za-z0-9_]{4,}))/(\d+)")
+
+
+def parse_post_link(text: str) -> tuple[str | None, str | None, int] | None:
+    """يرجع (اسم القناة، معرّفها الداخلي لروابط t.me/c، معرّف المنشور) أو None."""
+    m = _POST_LINK.search(text)
+    if not m:
+        return None
+    if m.group(1):                                 # رابط خاص: t.me/c/<id>/<post>
+        return None, m.group(1), int(m.group(3))
+    return m.group(2), None, int(m.group(3))
+
+
+def comment_link(username: str | None, channel_id: int, post_id: int, copy_id: int) -> str:
+    """رابط تعليقات المنشور: يفتح المنشور على شاشة التعليقات."""
+    if username:
+        return f"https://t.me/{username}/{post_id}?comment={copy_id}"
+    cid = str(channel_id)[4:] if str(channel_id).startswith("-100") else str(channel_id)
+    return f"https://t.me/c/{cid}/{post_id}?comment={copy_id}"
 
 
 def roles_line(g: Game, L: str) -> str:
@@ -725,7 +749,83 @@ def build_mafia_router(ctx: Ctx) -> Router:
             return
         await c.message.answer(t(L, "mf_pick_channel"), reply_markup=kb(*rows))
 
+    class PostPick(StatesGroup):
+        link = State()
+
     @pm.callback_query(F.data.regexp(r"^mf:cs:-?\d+$"))
+    async def cb_channel_choice(c: CallbackQuery):
+        """اختيار مكان النقاش: القناة نفسها، أو تعليقات منشور."""
+        L = db.get_lang(c.from_user.id)
+        chat_id = int(c.data.split(":")[2])
+        if db.channel_owner(chat_id) != c.from_user.id:
+            await c.answer(t(L, "mf_host_only"), show_alert=True)
+            return
+        await c.answer()
+        await c.message.answer(t(L, "mf_place_pick"), parse_mode="HTML", reply_markup=kb(
+            [btn(t(L, "mf_place_channel"), f"mf:cc:{chat_id}")],
+            [btn(t(L, "mf_place_post"), f"mf:cp:{chat_id}")]))
+
+    @pm.callback_query(F.data.regexp(r"^mf:cp:-?\d+$"))
+    async def cb_post_place(c: CallbackQuery, state: FSMContext):
+        """النقاش في تعليقات منشور: ينتظر رابط المنشور من المضيف."""
+        L = db.get_lang(c.from_user.id)
+        chat_id = int(c.data.split(":")[2])
+        if db.channel_owner(chat_id) != c.from_user.id:
+            await c.answer(t(L, "mf_host_only"), show_alert=True)
+            return
+        await c.answer()
+        await state.set_state(PostPick.link)
+        await state.update_data(channel=chat_id)
+        await c.message.answer(t(L, "mf_post_ask"), parse_mode="HTML")
+
+    @pm.message(PostPick.link, F.text)
+    async def on_post_link(m: Message, state: FSMContext):
+        L = db.get_lang(m.from_user.id)
+        data = await state.get_data()
+        chat_id = data.get("channel")
+        if not chat_id or db.channel_owner(chat_id) != m.from_user.id:
+            await state.clear()
+            await m.answer(t(L, "mf_host_only"))
+            return
+        found = parse_post_link(m.text or "")
+        if not found:
+            await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
+            return
+        username, internal, post_id = found
+        if internal is not None and str(chat_id) != f"-100{internal}":
+            await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
+            return
+        try:
+            ch = await m.bot.get_chat(chat_id)
+        except TelegramAPIError:
+            await m.answer(t(L, "mf_post_nocopy"), parse_mode="HTML")
+            return
+        if username and (ch.username or "").lower() != username.lower():
+            await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
+            return
+        copy = db.get_post_copy(chat_id, post_id)
+        if not copy:
+            await m.answer(t(L, "mf_post_nocopy"), parse_mode="HTML")
+            return
+        why = busy_or_cool(copy["group_id"])
+        if why:
+            await m.answer(t(L, "mf_busy" if why == "busy" else "mf_cool"))
+            return
+        await state.clear()
+        title = ch.title or "القناة"
+        g = new_game(copy["group_id"], "group", m.from_user.id, title, copy["copy_id"], None, db.group_lang(copy["group_id"]))
+        if not await open_lobby(m.bot, g):
+            await m.answer(t(L, "mf_post_nocopy"), parse_mode="HTML")
+            return
+        link = comment_link(ch.username, chat_id, post_id, copy["copy_id"])
+        await m.answer(t(L, "mf_post_started", link=link), parse_mode="HTML")
+        try:
+            await m.bot.send_message(chat_id, t(db.group_lang(chat_id), "mf_post_started_ch", link=link),
+                                     parse_mode="HTML", reply_markup=kb([btn(t(db.group_lang(chat_id), "mf_post_go"), url=link)]))
+        except TelegramAPIError:
+            pass
+
+    @pm.callback_query(F.data.regexp(r"^mf:cc:-?\d+$"))
     async def cb_start_in_channel(c: CallbackQuery):
         L = db.get_lang(c.from_user.id)
         chat_id = int(c.data.split(":")[2])
