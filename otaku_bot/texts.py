@@ -1222,3 +1222,6 @@ T["ar"]["mf_joker_out"] = "🃏 <b>{name}</b> هو المجنون! اختارو�
 T["en"]["mf_joker_out"] = "🃏 <b>{name}</b> was the Joker! Choose who they take with them ({s} seconds; if no one chooses, the bot does)."
 T["ar"]["mf_joker_took"] = "🃏 <b>{joker}</b> سحب معه <b>{victim}</b> قبل أن يخرج!"
 T["en"]["mf_joker_took"] = "🃏 <b>{joker}</b> took <b>{victim}</b> with them!"
+
+T["ar"]["mf_desc_joker"] = "🃏 أنت المجنون، من المواطنين. لا قدرة لك ليلًا. إن طُردت بالتصويت يُكشف دورك، ويختار أحد الأحياء يسحبه معك خلال 60 ثانية، وإلا يختار البوت."
+T["en"]["mf_desc_joker"] = "🃏 You're the Joker, on the citizens' side. No night power. If voted out, your role is revealed and someone alive is taken with you within 60 seconds, otherwise the bot picks."

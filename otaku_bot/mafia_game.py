@@ -623,7 +623,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                     g.players[out].alive = False
                     last = g.players[out].role
                     await show(bot, g, t(L, "mf_executed", name=esc(g.players[out].name)), None)
-                    if last == "joker":
+                    if last == "joker":                           # يكشف دوره ويسحب معه أحدًا (لا يفوز وحده)
                         await joker_pick(bot, g, out)
                 else:
                     await show(bot, g, t(L, "mf_no_exec"), None)
@@ -908,7 +908,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
             alive = alive_players(g)
             done = sum(1 for p in alive if p.uid in g.votes)
             pending = [esc(p.name) for p in alive if p.uid not in g.votes]
-            status = (t(L, "mf_vote_pending", names="، ".join(pending)) if pending else t(L, "mf_vote_all"))
+            status = (t(L, "mf_vote_pending", names="\n" + "\n".join(f"• {n}" for n in pending)) if pending
+                      else t(L, "mf_vote_all"))
             status += "\n" + t(L, "mf_vote_note")
             text = g.day_text + "\n\n" + status
             if g.scope == "channel":

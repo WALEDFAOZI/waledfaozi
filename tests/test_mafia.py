@@ -65,9 +65,9 @@ def test_vote_needs_absolute_majority_and_ignores_dead():
 def test_win_conditions():
     roles = {1: "killer", 2: "citizen", 3: "citizen", 4: "citizen", 5: "joker"}
     assert M.winner(roles, {2, 3, 4, 5}) == M.TOWN                 # القاتل مات
-    assert M.winner(roles, {1, 2, 5}) == M.MAFIA                   # قاتل مقابل مواطن واحد (+ المجنون لا يحسب)
+    assert M.winner(roles, {1, 2}) == M.MAFIA                      # قاتل مقابل مواطن واحد
     assert M.winner(roles, {1, 2, 3, 4, 5}) is None                 # اللعبة مستمرة
-    assert M.winner(roles, {1, 2, 3, 4, 5}, last_voted="joker") == M.SOLO   # المجنون طُرد بالتصويت
+    assert M.winner(roles, {1, 2, 3, 4, 5}, last_voted="joker") is None    # المجنون من المواطنين: طرده لا ينهي اللعبة
 
 
 def test_mayor_double_vote_changes_the_outcome_only_with_weight():

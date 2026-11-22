@@ -24,7 +24,7 @@ ROLES = {
     "killer": ("القاتل", MAFIA),
     "detective": ("المحقق", TOWN),
     "doctor": ("الطبيب", TOWN),
-    "joker": ("المجنون", SOLO),
+    "joker": ("المجنون", TOWN),
     "mayor": ("العمدة", TOWN),
 }
 SPECIAL = ("detective", "doctor", "mayor", "joker")   # فريدة: لا يتكرر أي منها
@@ -139,10 +139,8 @@ def vote(alive: set[int], ballots: dict[int, int], weights: dict[int, int] | Non
 def winner(roles: dict[int, str], alive: set[int], last_voted: str | None = None) -> str | None:
     """يرجع الفريق الفائز أو None لاستمرار اللعبة.
     last_voted: مفتاح دور الطرد الأخير (إن كان المجنون فيفوز وحده)."""
-    if last_voted == "joker":
-        return SOLO
     killers = [u for u in alive if roles.get(u) == "killer"]
-    others = [u for u in alive if roles.get(u) != "killer" and roles.get(u) != "joker"]
+    others = [u for u in alive if roles.get(u) != "killer"]           # المجنون من المواطنين
     if not killers:
         return TOWN
     if len(killers) >= len(others):
