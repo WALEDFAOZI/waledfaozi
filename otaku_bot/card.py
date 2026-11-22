@@ -280,9 +280,6 @@ def _role_icon(c: Canvas, key: str, cx: float, cy: float, r: float) -> None:
         c.d.ellipse(c.B((cx - r * 0.7, cy - r * 0.7, cx + r * 0.35, cy + r * 0.35)), outline=BLACK, width=w * 2,
                     fill=(200, 230, 255, 255))
         c.d.line(c.P([(cx + r * 0.2, cy + r * 0.2), (cx + r, cy + r)]), fill=BLACK, width=w * 2)
-    elif key == "guard":                                 # درع
-        c.d.polygon(c.P([(cx - r * 0.8, cy - r), (cx + r * 0.8, cy - r), (cx + r * 0.8, cy), (cx, cy + r),
-                         (cx - r * 0.8, cy)]), fill=(180, 190, 200, 255), outline=BLACK)
     else:                                                # شخص عادي
         c.d.ellipse(c.B((cx - r * 0.4, cy - r, cx + r * 0.4, cy - r * 0.2)), fill=(240, 200, 170, 255), outline=BLACK)
         c.d.polygon(c.P([(cx - r * 0.7, cy + r), (cx + r * 0.7, cy + r), (cx + r * 0.4, cy), (cx - r * 0.4, cy)]),
@@ -343,11 +340,11 @@ def _draw_knife(c: Canvas, x: float, y: float, u: float) -> None:
     c.d.rectangle(c.B((x - 9 * u, y - 4 * u, x + 9 * u, y + 8 * u)), fill=(96, 52, 30, 255), outline=BLACK, width=int(2 * S))
 
 def make_mafia_banner(lang: str = "ar", handle: str = "@Otaku1GalaxyBot") -> bytes:
-    """لافتة المافيا: أدوار اللعبة (القاتل، الطبيب، المحقق، الحارس، المواطن) بأشكالها وأيقوناتها."""
+    """لافتة المافيا: أدوار اللعبة (القاتل، الطبيب، المحقق، المواطن) بأشكالها وأيقوناتها."""
     cards = [("killer", "القاتل", (20, 14, 20), "smile"), ("doctor", "الطبيب", (235, 245, 250), "happy"),
-             ("detective", "المحقق", (40, 70, 130), "star"), ("guard", "الحارس", (30, 110, 70), "smile"),
+             ("detective", "المحقق", (40, 70, 130), "star"),
              ("citizen", "المواطن", (120, 120, 130), "smile"), ("citizen", "المواطن", (150, 110, 90), "happy")]
-    return _cards_banner("المافيا", "MAFIA", "القتلة · الطبيب · المحقق · الحارس · المواطنون", cards,
+    return _cards_banner("المافيا", "MAFIA", "القتلة · الطبيب · المحقق · المواطنون", cards,
                          ((10, 6, 18), (72, 8, 26), (200, 30, 60)), "mafia")
 
 

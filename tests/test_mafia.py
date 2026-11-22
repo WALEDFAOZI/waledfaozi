@@ -13,7 +13,7 @@ def test_config_rules():
     with pytest.raises(M.ConfigError):
         M.Config(killers=1, specials=["doctor", "doctor"]).validate(8)          # دور خاص مكرر
     with pytest.raises(M.ConfigError):
-        M.Config(killers=2, specials=["detective", "doctor", "guard"]).validate(6)   # مواطنون < 3
+        M.Config(killers=2, specials=["detective", "doctor"]).validate(6)   # مواطنون < 3
     with pytest.raises(M.ConfigError):
         M.Config(killers=3).validate(6)                                         # القتلة ≥ غيرهم
     with pytest.raises(M.ConfigError):

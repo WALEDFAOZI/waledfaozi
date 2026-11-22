@@ -39,8 +39,8 @@ QUIET_ROUNDS = 3        # جولات متتالية بلا قتل ولا طرد�
 COOLDOWN_SECS = 60
 EDIT_GAP = 3.0
 GROUP_TYPES = {"group", "supergroup"}
-SPECIAL_ORDER = ["detective", "doctor", "guard", "joker"]
-ICON = {"killer": "🔪", "citizen": "🧑", "detective": "🔍", "doctor": "🩺", "guard": "🛡", "joker": "🃏"}
+SPECIAL_ORDER = ["detective", "doctor", "joker"]
+ICON = {"killer": "🔪", "citizen": "🧑", "detective": "🔍", "doctor": "🩺", "joker": "🃏"}
 
 
 @dataclass
@@ -68,7 +68,7 @@ class Game:
     live: int | None = None
     round: int = 0
     night_picks: dict = field(default_factory=dict)     # قاتل -> هدف
-    night_actions: dict = field(default_factory=dict)   # doctor/guard -> هدف
+    night_actions: dict = field(default_factory=dict)   # doctor -> هدف
     acted: set = field(default_factory=set)             # الأدوار غير القاتلة التي تصرّفت هذه الليلة
     votes: dict = field(default_factory=dict)
     task: asyncio.Task | None = None
@@ -135,7 +135,7 @@ def night_complete(g: Game) -> bool:
         if k.role == "killer" and k.uid not in g.night_picks:
             return False
     for p in alive_players(g):
-        if p.role in ("doctor", "guard", "detective") and p.uid not in g.acted:
+        if p.role in ("doctor", "detective") and p.uid not in g.acted:
             return False
     return True
 
@@ -319,7 +319,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 rows = [[btn(q.name[:24], f"mf:n:{g.gid}:killer:{q.uid}")] for q in opts]
             elif p.role == "doctor":
                 rows = [[btn(q.name[:24], f"mf:n:{g.gid}:doctor:{q.uid}")] for q in alive]
-            elif p.role in ("guard", "detective"):
+            elif p.role == "detective":
                 rows = [[btn(q.name[:24], f"mf:n:{g.gid}:{p.role}:{q.uid}")] for q in alive if q.uid != p.uid]
             else:
                 continue
@@ -347,7 +347,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             top = max(counts.values())
             kill = rng.choice(sorted(u for u, c in counts.items() if c == top))
         protect = {}
-        for r in ("doctor", "guard"):                       # الحماية تسري فقط إن كان صاحب الدور ما زال حيًّا
+        for r in ("doctor",):                       # الحماية تسري فقط إن كان صاحب الدور ما زال حيًّا
             if r in g.night_actions and g.night_actions[r] in alive and any(p.role == r and p.alive for p in g.players.values()):
                 protect[r] = g.night_actions[r]
         return M.resolve_night(roles, alive, M.Night(kill=kill, protect=protect))
@@ -646,7 +646,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         await c.answer()
         await push_config(c.bot, g)
 
-    @pm.callback_query(F.data.regexp(r"^mf:r:\d+:(detective|doctor|guard|joker)$"))
+    @pm.callback_query(F.data.regexp(r"^mf:r:\d+:(detective|doctor|joker)$"))
     async def cb_roles(c: CallbackQuery):
         L = db.get_lang(c.from_user.id)
         _, _, gid, role = c.data.split(":")
@@ -758,7 +758,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         await c.answer(t(L, "mf_info_toast")[:190], show_alert=True)
 
     # ── الخاص: أفعال الليل ────────────────────────────────
-    @pm.callback_query(F.data.regexp(r"^mf:n:\d+:(killer|doctor|guard|detective):\d+$"))
+    @pm.callback_query(F.data.regexp(r"^mf:n:\d+:(killer|doctor|detective):\d+$"))
     async def cb_night(c: CallbackQuery):
         L = db.get_lang(c.from_user.id)
         _, _, gid, role, tgt = c.data.split(":")

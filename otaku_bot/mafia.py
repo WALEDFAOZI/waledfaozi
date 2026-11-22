@@ -3,9 +3,9 @@
 هذا الجزء نقي (بلا تليجرام) لتسهيل اختباره؛ الرسائل الخاصة والأزرار تأتي فوقه لاحقًا.
 القواعد:
 • المضيف يحدد عدد القتلة (≥1). المواطنون العاديون (غير القتلة والأدوار الخاصة) ≥ 3.
-• الأدوار الخاصة (محقق، طبيب، حارس، مجنون) فريدة: لا يحملها لاعبان. القاتل وحده يتكرر.
+• الأدوار الخاصة (محقق، طبيب، مجنون) فريدة: لا يحملها لاعبان. القاتل وحده يتكرر.
 • البداية: القتلة أقل من غيرهم، حتى لا يفوز القتلة من أول لحظة.
-• الليل: القتلة يختارون ضحية واحدة. الطبيب والحارس يحميان، والمحقق يكشف فريقًا.
+• الليل: القتلة يختارون ضحية واحدة. الطبيب يحمي، والمحقق يكشف فريقًا.
 • النهار: تصويت بالأغلبية المطلقة لطرد لاعب. التعادل = لا طرد.
 • الفوز: المواطنون إن لم يبق قاتل. القتلة إن تساووا مع غيرهم أو تفوّقوا. المجنون يفوز وحده إذا طُرد بالتصويت.
 """
@@ -24,10 +24,9 @@ ROLES = {
     "killer": ("القاتل", MAFIA),
     "detective": ("المحقق", TOWN),
     "doctor": ("الطبيب", TOWN),
-    "guard": ("الحارس", TOWN),
     "joker": ("المجنون", SOLO),
 }
-SPECIAL = ("detective", "doctor", "guard", "joker")   # فريدة: لا يتكرر أي منها
+SPECIAL = ("detective", "doctor", "joker")   # فريدة: لا يتكرر أي منها
 MIN_CITIZENS = 3
 MIN_PLAYERS = 5
 MAX_PLAYERS = 15
@@ -66,8 +65,6 @@ def auto_config(n_players: int) -> tuple[int, list[str]]:
     specials = ["detective"] if n >= 6 else []
     if n >= 7:
         specials.append("doctor")
-    if n >= 9:
-        specials.append("guard")
     if n >= 12:
         specials.append("joker")
     Config(killers=killers, specials=specials).validate(n)
@@ -94,20 +91,20 @@ def assign(player_ids: list[int], cfg: Config, rng: random.Random) -> dict[int, 
 class Night:
     """أفعال الليل: كل قيمة هي uid الهدف، أو None إن لم يتصرف صاحب الدور."""
     kill: int | None = None           # ما اتفق عليه القتلة (الأغلبية أو الأول)
-    protect: dict[str, int] = field(default_factory=dict)   # {"doctor": uid, "guard": uid}
+    protect: dict[str, int] = field(default_factory=dict)   # {"doctor": uid}
     check: int | None = None          # المحقق يكشف فريق هذا الهدف
 
 
 @dataclass
 class Result:
     victim: int | None                 # من مات في الليل (None = لا أحد)
-    saved: bool = False                # هل أنقذه الطبيب أو الحارس
+    saved: bool = False                # هل أنقذه الطبيب
     detective: tuple[int, str] | None = None   # (الهدف، الفريق) لو كشف المحقق
 
 
 def resolve_night(roles: dict[int, str], alive: set[int], night: Night) -> Result:
     kill = night.kill if night.kill in alive else None
-    protected = {night.protect.get(r) for r in ("doctor", "guard")} - {None}
+    protected = {night.protect.get(r) for r in ("doctor",)} - {None}
     victim = None
     saved = False
     if kill is not None:
