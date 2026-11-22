@@ -81,19 +81,24 @@ async def send(bot: Bot, chat_id: int, text: str, markup=None, lang: str = "ar",
 
 
 async def edit(bot: Bot, chat_id: int, mid: int, text: str, markup=None, media=None) -> bool:
-    """يعدّل التعليق والأزرار، وإن أُعطيت media يغيّر الصورة أيضًا. True إن نجح أو لم يتغير شيء."""
-    try:
-        if media is None:
-            await bot.edit_message_caption(chat_id=chat_id, message_id=mid, caption=fit(text),
-                                           parse_mode="HTML", reply_markup=markup)
-        else:
-            await bot.edit_message_media(chat_id=chat_id, message_id=mid,
-                                         media=InputMediaPhoto(media=media, caption=fit(text), parse_mode="HTML"),
-                                         reply_markup=markup)
-        return True
-    except TelegramBadRequest as e:
-        return "not modified" in str(e).lower()
-    except TelegramRetryAfter:
-        return False
-    except TelegramAPIError:
-        return False
+    """يعدّل التعليق والأزرار، وإن أُعطيت media يغيّر الصورة أيضًا. True إن نجح أو لم يتغير شيء.
+    عند حد تليجرام ينتظر قليلًا ويعيد المحاولة مرة واحدة، حتى لا تضيع آخر حالة (مثل النتيجة النهائية)."""
+    for attempt in (1, 2):
+        try:
+            if media is None:
+                await bot.edit_message_caption(chat_id=chat_id, message_id=mid, caption=fit(text),
+                                               parse_mode="HTML", reply_markup=markup)
+            else:
+                await bot.edit_message_media(chat_id=chat_id, message_id=mid,
+                                             media=InputMediaPhoto(media=media, caption=fit(text), parse_mode="HTML"),
+                                             reply_markup=markup)
+            return True
+        except TelegramBadRequest as e:
+            return "not modified" in str(e).lower()
+        except TelegramRetryAfter as e:
+            if attempt == 2:
+                return False
+            await asyncio.sleep(min(e.retry_after, 5))
+        except TelegramAPIError:
+            return False
+    return False
