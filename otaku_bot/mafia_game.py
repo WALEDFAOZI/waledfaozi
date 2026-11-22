@@ -271,14 +271,19 @@ def build_mafia_router(ctx: Ctx) -> Router:
         return "، ".join(esc(p.name) for p in ps) or "—"
 
     def lobby_text(g: Game, left: int) -> str:
+        """رسالة البدء: مرتبة ومختصرة. الشرح الكامل في الخاص (زر «شرح اللعبة»)."""
         L = g.lang
-        roles = roles_line(g, L)
+        players = "\n".join(f"  • {esc(p.name)}" for p in g.players.values()) if g.players else "  —"
         return "\n".join([
-            t(L, "mf_title"), "",
-            roles,
-            t(L, "mf_players", n=len(g.players), names="\n" + "\n".join(f"• {esc(p.name)}" for p in g.players.values()) if g.players else "—"),
+            t(L, "mf_title"),
+            "━━━━━━━━━━━━━━━━",
+            f"🎭 {t(L, 'mf_roles_label')}: {roles_line(g, L)}",
+            "",
+            f"👥 <b>{t(L, 'mf_players_label')}</b> ({len(g.players)}):",
+            players,
+            "━━━━━━━━━━━━━━━━",
             t(L, "mf_left", s=max(0, left), min=M.MIN_PLAYERS),
-            "", t(L, "mf_howto"),
+            f"<i>{t(L, 'mf_join_hint')}</i>",
         ] + ([g.discuss_line] if g.discuss_line else []))
 
     def with_discuss(g: Game, markup):
@@ -291,7 +296,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
     def lobby_markup(g: Game):
         L = g.lang
         join_url = f"https://t.me/{g.me}?start=mf_{g.gid}"
-        return with_discuss(g, kb([btn(t(L, "mf_join"), url=join_url), btn(t(L, "mf_leave"), f"mf:l:{g.gid}")], *chan_row(L)))
+        help_url = f"https://t.me/{g.me}?start=mfh"
+        return with_discuss(g, kb([btn(t(L, "mf_join"), url=join_url), btn(t(L, "mf_leave"), f"mf:l:{g.gid}")],
+                                  [btn(t(L, "mf_help_btn"), url=help_url)], *chan_row(L)))
 
     def config_text(g: Game) -> str:
         L = g.lang
@@ -748,6 +755,13 @@ def build_mafia_router(ctx: Ctx) -> Router:
         await show(c.bot, g, t(L, "mf_quit_live", name=esc(g.players[uid].name)), None)
 
     # ── الانضمام: رابط يفتح الخاص مع البوت (يثبت أن اللاعب فتح البوت) ──
+    @pm.message(CommandStart(deep_link=True, magic=F.args == "mfh"))
+    async def on_help_start(m: Message):
+        """شرح اللعبة في الخاص: رسالة مفصلة من زر «شرح اللعبة» في رسالة البدء."""
+        L = db.get_lang(m.from_user.id)
+        db.upsert_user(m.from_user.id, m.from_user.full_name)
+        await m.answer(t(L, "mf_help_long"), parse_mode="HTML")
+
     @pm.message(CommandStart(deep_link=True, magic=F.args.startswith("mf_")))
     async def on_join_start(m: Message):
         L = db.get_lang(m.from_user.id)

@@ -68,11 +68,13 @@ def test_full_game_roles_night_day_and_result():
         lobby = [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto") and c.chat_id == GROUP.id][-1]
         lobby_text = getattr(lobby, "text", None) or getattr(lobby, "caption", None) or ""
         assert lobby.reply_parameters.message_id == 77                       # كل رسالة ترد على صاحب الأمر
-        assert "كيف تلعب" in lobby_text                                      # الشرح واضح للمنضم
+        assert "المافيا" in lobby_text and "شرح اللعبة" in lobby_text         # رسالة البدء مرتبة وتدل على الشرح
+        assert "كيف تلعب" not in lobby_text                                  # الشرح الكامل في الخاص لا في القروب
         assert "المضيف" not in lobby_text                                    # لا يظهر اسم المضيف في الانتظار
         lobby_buttons = [b for row in lobby.reply_markup.inline_keyboard for b in row]
         assert all(b.callback_data is None or b.callback_data.startswith("mf:l:") for b in lobby_buttons)   # لا أزرار إعداد في القروب
         assert any(b.url and "start=mf_" in b.url for b in lobby_buttons)    # زر انضم يفتح الخاص
+        assert any(b.url and b.url.endswith("start=mfh") for b in lobby_buttons)  # زر شرح اللعبة يفتح الخاص
         for u in users[1:]:
             await h.say(u, f"/start mf_{g.gid}")                             # الانضمام يمر بالخاص
         assert len(g.players) == 5 and 1 not in g.players                    # المضيف لم ينضم تلقائيًا
@@ -155,4 +157,19 @@ def test_leaving_mid_game_counts_as_elimination_and_cancel_works():
         await h.tap(users[0], f"mf:x:{g.gid}")                            # المضيف يلغي من خاصه
         assert await wait_until(lambda: GROUP.id not in MG.games, 5)
         assert any("أُلغيت" in x for x in group_texts(h))
+    run(go())
+
+
+def test_help_deep_link_sends_full_explanation_in_private():
+    h = Harness()
+
+    async def go():
+        user = h.user(41, "Helper")
+        h.db.upsert_user(user.id, user.first_name)
+        await h.say(user, "/start mfh")
+        msgs = dms_to(h, user.id)
+        assert msgs, "شرح اللعبة لازم يوصل في الخاص"
+        text = msgs[-1].text
+        assert "دليل اللعبة الكامل" in text and "الهدف" in text and "الليل" in text
+        assert len(text) <= 4096
     run(go())
