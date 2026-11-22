@@ -94,9 +94,9 @@ def set_bot_username(username: str | None) -> None:
     _BOTU["u"] = (username or "").lstrip("@")
 
 
-def chan_row(L: str, bot_link: bool = True) -> list[list[InlineKeyboardButton]]:
-    """صف زر «قناتنا» مع زر «بوت اللعبة» جنبه، أو لا شيء إن لم تُضبط قناة.
-    bot_link=False حين تحتوي الرسالة أصلًا على زر يفتح البوت (فلا يتكرر)."""
+def chan_row(L: str, bot_link: bool = False) -> list[list[InlineKeyboardButton]]:
+    """صف زر «قناتنا»، أو لا شيء إن لم تُضبط قناة.
+    bot_link=True (المجموعات والقنوات فقط): يضيف زر «بوت اللعبة» جنبه، إلا إن كانت الرسالة فيها زر يفتح البوت أصلًا."""
     ch = (_CHAN["get"]() or "").lstrip("@")
     if not ch:
         return []

@@ -303,7 +303,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         join_url = f"https://t.me/{g.me}?start=mf_{g.gid}"
         help_url = f"https://t.me/{g.me}?start=mfh"
         return with_discuss(g, kb([btn(t(L, "mf_join"), url=join_url), btn(t(L, "mf_leave"), f"mf:l:{g.gid}")],
-                                  [btn(t(L, "mf_help_btn"), url=help_url)], *chan_row(L, bot_link=False)))
+                                  [btn(t(L, "mf_help_btn"), url=help_url)], *chan_row(L, bot_link=True)))
 
     def config_text(g: Game) -> str:
         L = g.lang
@@ -603,7 +603,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         reveal = "\n".join(
             f"{ICON[p.role]} {esc(p.name)} — {t(L, 'mf_r_' + p.role)}{' ✅' if p.uid in won else ''}"
             for p in g.players.values())
-        await show(bot, g, t(L, "mf_end", head=head, reveal=reveal, rounds=g.round), kb(*chan_row(L)) or None, status=True)
+        await show(bot, g, t(L, "mf_end", head=head, reveal=reveal, rounds=g.round), kb(*chan_row(L, bot_link=True)) or None, status=True)
         for p in g.players.values():
             if db.is_admin(p.uid):
                 continue

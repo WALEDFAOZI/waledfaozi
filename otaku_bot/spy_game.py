@@ -190,7 +190,7 @@ def build_spy_router(ctx: Ctx) -> Router:
     def lobby_markup(g: Game):
         L = g.lang
         return kb([btn(t(L, "sp_join"), f"sp:j:{g.gid}"), btn(t(L, "sp_leave"), f"sp:l:{g.gid}")],
-                  [btn(t(L, "sp_start"), f"sp:s:{g.gid}"), btn(t(L, "sp_cancel"), f"sp:x:{g.gid}")], *chan_row(L))
+                  [btn(t(L, "sp_start"), f"sp:s:{g.gid}"), btn(t(L, "sp_cancel"), f"sp:x:{g.gid}")], *chan_row(L, bot_link=True))
 
     async def lobby_phase(bot: Bot, g: Game) -> None:
         end = time.monotonic() + LOBBY_SECS
@@ -386,7 +386,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         ]
         if guessed:
             lines.append(t(L, "sp_guessed", g=esc(loc(guessed, L))))
-        await show(bot, g, "\n".join(lines), kb(*chan_row(L)) or None)
+        await show(bot, g, "\n".join(lines), kb(*chan_row(L, bot_link=True)) or None)
         for p in g.players.values():
             if db.is_admin(p.uid):
                 continue
