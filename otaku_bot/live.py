@@ -28,6 +28,17 @@ TITLES = {
     "ord": ("أيّها أقدم؟", "WHICH IS OLDER?"), "images": ("أسئلة صور", "PICTURE QUIZ"),
     "mafia": ("المافيا", "MAFIA"), "spy": ("برا السالفة", "ODD ONE OUT"),
 }
+# شكل كل لعبة في اللافتة: تعبير الشخصية، وسطر الوصف (عربي، إنجليزي)
+KIND_STYLE = {
+    "quiz": ("crown", "1400+ سؤال · ألعاب · تحديات", "1400+ questions · games · challenges"),
+    "sudden": ("sweat", "آخر من يبقى يفوز!", "Last one standing wins!"),
+    "tf": ("happy", "صح أو خطأ؟ بسرعة!", "True or false? Quick!"),
+    "song": ("star", "خمّن الأنمي من الأغنية", "Guess the anime from the song"),
+    "char": ("dizzy", "من هي هذي الشخصية؟", "Who is this character?"),
+    "quote": ("happy", "من قال هذا الاقتباس؟", "Who said this quote?"),
+    "ord": ("smile", "رتّب الأنمي حسب السنة", "Order the anime by year"),
+    "images": ("star", "خمّن من الصورة", "Guess from the picture"),
+}
 _BANNER: dict[tuple[str, str], bytes] = {}
 _BANNER_ID: dict[tuple[str, str], str] = {}      # معرّف الملف في تليجرام بعد أول إرسال
 _TAG = re.compile(r"<(/?)(b|i|u|s|code|pre|a)\b[^>]*>")
@@ -55,8 +66,15 @@ def fit(text: str, limit: int = CAPTION_MAX) -> str:
 async def banner(lang: str, kind: str = "quiz") -> bytes:
     key = (lang, kind if kind in TITLES else "quiz")
     if key not in _BANNER:
-        ar, en = TITLES[key[1]]
-        _BANNER[key] = await asyncio.to_thread(card.make_banner, lang, "@Otaku1GalaxyBot", ar, en)
+        if key[1] == "mafia":
+            _BANNER[key] = await asyncio.to_thread(card.make_mafia_banner, lang)
+        elif key[1] == "spy":
+            _BANNER[key] = await asyncio.to_thread(card.make_spy_banner, lang)
+        else:
+            ar, en = TITLES[key[1]]
+            mood, tag_ar, tag_en = KIND_STYLE.get(key[1], KIND_STYLE["quiz"])
+            _BANNER[key] = await asyncio.to_thread(card.make_banner, lang, "@Otaku1GalaxyBot", ar, en,
+                                                   mood, tag_ar, tag_en)
     return _BANNER[key]
 
 

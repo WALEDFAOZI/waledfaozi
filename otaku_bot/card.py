@@ -9,7 +9,7 @@ import hashlib
 import math
 import re
 
-from .art import BLACK, PAPER, Canvas, find_font, has_jp
+from .art import BLACK, PAPER, S, Canvas, find_font, has_jp
 from .config import CATEGORY_LABELS, CATEGORY_LABELS_EN
 from .mascot import draw_mascot, mood_for
 
@@ -243,7 +243,8 @@ def make_sudden_card(name: str, streak: int, level: int, best: int, lang: str = 
 
 
 def make_banner(lang: str = "ar", handle: str = "@Otaku1GalaxyBot", title_ar: str = "اختبار الأوتاكو",
-                title_en: str = "OTAKU QUIZ") -> bytes:
+                title_en: str = "OTAKU QUIZ", mood: str = "crown", tag_ar: str | None = None,
+                tag_en: str | None = None) -> bytes:
     """لافتة اللعبة: عنوانها حسب نوع اللعبة (المافيا، برا السالفة، الاختبار...)."""
     _need_font()
     c = Canvas(1280, 640, "banner")
@@ -252,14 +253,80 @@ def make_banner(lang: str = "ar", handle: str = "@Otaku1GalaxyBot", title_ar: st
     c.halftone((700, 0, 1280, 300), (0, 0, 0), toward=(1, -1), alpha=45, max_r=4.2, spacing=12)
     c.speed_lines((420, 330), 200, 900, n=110)
     c.sakura(16, (20, 20, 1260, 620), (10, 22))
-    draw_mascot(c, 330, 360, 330, "crown", "banner", (255, 99, 132))
+    draw_mascot(c, 330, 360, 330, mood, "banner", (255, 99, 132))
     if has_jp():
         c.text((820, 118), "オタク", "jp", 84, fill=(255, 235, 140), stroke=6, rotate=-6, arabic=False)
     c.starburst((880, 330), 330, 270, spikes=18, fill=PAPER, width=5)
     c.text((880, 310), title_ar, "ar", c.fit(title_ar, "ar", 92, 480), fill=(255, 255, 255), stroke=8, shadow=5, rotate=-2)
     c.text((880, 410), title_en, "display", 62, fill=(255, 220, 90), stroke=6, shadow=3, arabic=False, rotate=-2)
     _ribbon(c, (640, 496, 1130, 566), (214, 40, 80))
-    tag = "1400+ سؤال · ألعاب · تحديات" if lang == "ar" else "1400+ questions · games · challenges"
+    tag = (tag_ar or "1400+ سؤال · ألعاب · تحديات") if lang == "ar" else (tag_en or "1400+ questions · games · challenges")
     c.text((885, 531), tag, "ar", c.fit(tag, "ar", 34, 430), fill=(255, 255, 255), stroke=3)
     c.hanko((1165, 150), 70, "10", "/10", angle=-12)
     return c.jpeg(grain=0.04)
+
+
+def _role_icon(c: Canvas, key: str, cx: float, cy: float, r: float) -> None:
+    """أيقونة الدور بأشكال بسيطة (بدون إيموجي): خنجر، صليب، عدسة، درع، شخص."""
+    w = int(3 * S)
+    if key == "killer":                                  # خنجر
+        c.d.polygon(c.P([(cx - 4, cy - r), (cx + 4, cy - r), (cx + 4, cy + r * 0.3), (cx, cy + r * 0.55),
+                         (cx - 4, cy + r * 0.3)]), fill=(220, 225, 235, 255), outline=BLACK)
+        c.d.rectangle(c.B((cx - 9, cy + r * 0.3, cx + 9, cy + r * 0.6)), fill=(120, 60, 30, 255), outline=BLACK)
+    elif key == "doctor":                                # صليب طبي
+        c.d.rectangle(c.B((cx - r * 0.3, cy - r, cx + r * 0.3, cy + r)), fill=(230, 40, 60, 255), outline=BLACK)
+        c.d.rectangle(c.B((cx - r, cy - r * 0.3, cx + r, cy + r * 0.3)), fill=(230, 40, 60, 255), outline=BLACK)
+    elif key == "detective":                             # عدسة مكبّرة
+        c.d.ellipse(c.B((cx - r * 0.7, cy - r * 0.7, cx + r * 0.35, cy + r * 0.35)), outline=BLACK, width=w * 2,
+                    fill=(200, 230, 255, 255))
+        c.d.line(c.P([(cx + r * 0.2, cy + r * 0.2), (cx + r, cy + r)]), fill=BLACK, width=w * 2)
+    elif key == "guard":                                 # درع
+        c.d.polygon(c.P([(cx - r * 0.8, cy - r), (cx + r * 0.8, cy - r), (cx + r * 0.8, cy), (cx, cy + r),
+                         (cx - r * 0.8, cy)]), fill=(180, 190, 200, 255), outline=BLACK)
+    else:                                                # شخص عادي
+        c.d.ellipse(c.B((cx - r * 0.4, cy - r, cx + r * 0.4, cy - r * 0.2)), fill=(240, 200, 170, 255), outline=BLACK)
+        c.d.polygon(c.P([(cx - r * 0.7, cy + r), (cx + r * 0.7, cy + r), (cx + r * 0.4, cy), (cx - r * 0.4, cy)]),
+                    fill=(90, 120, 200, 255), outline=BLACK)
+
+
+def _cards_banner(title_ar: str, title_en: str, tag: str, cards: list, theme: tuple, seed: str) -> bytes:
+    """لافتة بعنوان وشريط ووصف، وصفّ من البطاقات (شخصية + أيقونة + اسم)."""
+    _need_font()
+    c = Canvas(1280, 640, seed)
+    top, bottom, accent = theme
+    c.gradient(top, bottom)
+    c.halftone((0, 330, 1280, 640), accent, toward=(0, 1), alpha=40, max_r=3.6, spacing=14)
+    c.speed_lines((640, 200), 150, 900, n=90, color=accent, alpha=35)
+    c.text((640, 150), title_ar, "ar", c.fit(title_ar, "ar", 130, 700), fill=(255, 255, 255), stroke=10, shadow=6)
+    c.text((640, 232), title_en, "display", 70, fill=(255, 220, 90), stroke=6, shadow=3, arabic=False)
+    _ribbon(c, (200, 262, 1080, 322), accent)
+    c.text((640, 292), tag, "ar", c.fit(tag, "ar", 34, 760), fill=(255, 255, 255), stroke=3)
+    for i, (key, label, jacket, mood) in enumerate(cards):
+        x0 = 50 + i * 244
+        x1, y0, y1 = x0 + 220, 350, 600
+        c.d.rounded_rectangle(c.B((x0, y0, x1, y1)), radius=18 * S, fill=(20, 10, 24, 235),
+                              outline=(255, 220, 90, 255) if key == "outsider" else (255, 255, 255, 230), width=4 * S)
+        draw_mascot(c, x0 + 110, 430, 110, mood, key, jacket)
+        _role_icon(c, key, x0 + 34, y0 + 34, 22)
+        c.d.rounded_rectangle(c.B((x0 + 10, 536, x1 - 10, 590)), radius=12 * S, fill=(0, 0, 0, 200))
+        c.text((x0 + 110, 563), label, "ar", c.fit(label, "ar", 36, 200), fill=(255, 255, 255), stroke=3)
+    return c.jpeg(grain=0.04)
+
+
+def make_mafia_banner(lang: str = "ar", handle: str = "@Otaku1GalaxyBot") -> bytes:
+    """لافتة المافيا: أدوار اللعبة (القاتل، الطبيب، المحقق، الحارس، المواطن) بأشكالها وأيقوناتها."""
+    cards = [("killer", "القاتل", (60, 20, 30), "sweat"), ("doctor", "الطبيب", (235, 245, 250), "happy"),
+             ("detective", "المحقق", (40, 70, 130), "star"), ("guard", "الحارس", (30, 110, 70), "smile"),
+             ("citizen", "المواطن", (120, 120, 130), "smile")]
+    return _cards_banner("المافيا", "MAFIA", "القتلة · الطبيب · المحقق · الحارس · المواطنون", cards,
+                         ((10, 6, 18), (72, 8, 26), (200, 30, 60)), "mafia")
+
+
+def make_spy_banner(lang: str = "ar", handle: str = "@Otaku1GalaxyBot") -> bytes:
+    """لافتة برا السالفة: لاعبون يتشابهون، ومتطفل واحد مختلف."""
+    same = [("player", "لاعب", (60, 90, 150), "smile")] * 4
+    cards = [("player", "لاعب", (60, 90, 150), "smile"), ("player", "لاعب", (60, 90, 150), "happy"),
+             ("player", "لاعب", (60, 90, 150), "star"), ("outsider", "المتطفل", (230, 170, 40), "sweat"),
+             ("player", "لاعب", (60, 90, 150), "smile")]
+    return _cards_banner("برا السالفة", "ODD ONE OUT", "الكل يعرف الموضوع... إلا واحد!", cards,
+                         ((8, 16, 30), (20, 50, 90), (60, 160, 230)), "spy")
