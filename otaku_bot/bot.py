@@ -87,10 +87,23 @@ def badge_label(b, L: str) -> str:
 _CHAN = {"get": lambda: ""}   # يضبطها build_router: القناة الحالية (قابلة للتعديل من لوحة الأدمن)
 
 
-def chan_row(L: str) -> list[list[InlineKeyboardButton]]:
-    """صف زر «تعال للقناة وتفاعل مع الأوتاكو»، أو لا شيء إن لم تُضبط قناة."""
+_BOTU = {"u": ""}   # اسم البوت (يُضبط عند التشغيل) لزر «بوت اللعبة» بجانب زر القناة
+
+
+def set_bot_username(username: str | None) -> None:
+    _BOTU["u"] = (username or "").lstrip("@")
+
+
+def chan_row(L: str, bot_link: bool = True) -> list[list[InlineKeyboardButton]]:
+    """صف زر «قناتنا» مع زر «بوت اللعبة» جنبه، أو لا شيء إن لم تُضبط قناة.
+    bot_link=False حين تحتوي الرسالة أصلًا على زر يفتح البوت (فلا يتكرر)."""
     ch = (_CHAN["get"]() or "").lstrip("@")
-    return [[btn(t(L, "btn_channel"), url=f"https://t.me/{ch}")]] if ch else []
+    if not ch:
+        return []
+    row = [btn(t(L, "btn_channel"), url=f"https://t.me/{ch}")]
+    if bot_link and _BOTU["u"]:
+        row.append(btn(t(L, "btn_bot_game"), url=f"https://t.me/{_BOTU['u']}"))
+    return [row]
 
 
 def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,

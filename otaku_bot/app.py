@@ -144,6 +144,11 @@ async def run(settings: Settings) -> None:
             wait = min(60, 3 * attempt)
             log.warning("cannot reach Telegram yet (%s). retry #%d in %ds", e, attempt, wait)
             await asyncio.sleep(wait)
+    try:   # اسم البوت لزر «بوت اللعبة» بجانب زر القناة
+        from .bot import set_bot_username
+        set_bot_username((await bot.get_me()).username)
+    except (TelegramNetworkError, TelegramServerError, TelegramRetryAfter, asyncio.TimeoutError, OSError):
+        log.warning("cannot read bot username yet; bot button will appear after restart")
     try:   # زر «القائمة» الدائم بجانب خانة الكتابة
         await bot.set_my_commands([
             BotCommand(command="start", description="القائمة الرئيسية 🎌"),

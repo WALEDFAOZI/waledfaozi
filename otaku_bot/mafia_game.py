@@ -303,7 +303,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         join_url = f"https://t.me/{g.me}?start=mf_{g.gid}"
         help_url = f"https://t.me/{g.me}?start=mfh"
         return with_discuss(g, kb([btn(t(L, "mf_join"), url=join_url), btn(t(L, "mf_leave"), f"mf:l:{g.gid}")],
-                                  [btn(t(L, "mf_help_btn"), url=help_url)], *chan_row(L)))
+                                  [btn(t(L, "mf_help_btn"), url=help_url)], *chan_row(L, bot_link=False)))
 
     def config_text(g: Game) -> str:
         L = g.lang
@@ -539,7 +539,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await c.answer(t(L, "mf_late"), show_alert=True)
             return
         m = g.players.get(c.from_user.id)
-        if not m or not m.alive or m.role != "mayor":
+        if not m:
+            await c.answer(t(L, "mf_not_player"), show_alert=True)
+            return
+        if not m.alive or m.role != "mayor":
             await c.answer(t(L, "mf_not_yours"), show_alert=True)
             return
         if g.mayor_revealed:
@@ -933,7 +936,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
             return
         presser = g.players.get(c.from_user.id)
         target = int(tgt)
-        if not presser or not presser.alive or target == presser.uid or target not in g.players or not g.players[target].alive:
+        if not presser:
+            await c.answer(t(L, "mf_not_player"), show_alert=True)
+            return
+        if not presser.alive or target == presser.uid or target not in g.players or not g.players[target].alive:
             await c.answer(t(L, "mf_bad_target"), show_alert=True)
             return
         g.joker_pick = target
@@ -951,7 +957,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await c.answer(t(L, "mf_discuss_wait"), show_alert=True)
             return
         voter = g.players.get(c.from_user.id)
-        if not voter or not voter.alive:
+        if not voter:
+            await c.answer(t(L, "mf_not_player"), show_alert=True)
+            return
+        if not voter.alive:
             await c.answer(t(L, "mf_not_alive"), show_alert=True)
             return
         target = int(tgt)
@@ -989,7 +998,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await c.answer(t(L, "mf_late"), show_alert=True)
             return
         p = g.players.get(c.from_user.id)
-        if not p or not p.alive or p.role != role:
+        if not p:
+            await c.answer(t(L, "mf_not_player"), show_alert=True)
+            return
+        if not p.alive or p.role != role:
             await c.answer(t(L, "mf_not_yours"), show_alert=True)
             return
         target = int(tgt)

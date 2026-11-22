@@ -1343,3 +1343,8 @@ T["en"]["mf_help_long"] = (
 "⚠️ If 3 rounds in a row have no death or vote, fate picks a random player to leave.\n"
 "━━━━━━━━━━━━━━━━\n"
 "<i>Roles stay secret until the end. Don't reveal yours!</i>")
+
+T["ar"]["btn_bot_game"] = "🎮 بوت اللعبة"
+T["en"]["btn_bot_game"] = "🎮 Game bot"
+T["ar"]["mf_not_player"] = "أنت لست مشاركًا في هذه اللعبة."
+T["en"]["mf_not_player"] = "You are not a player in this game."
