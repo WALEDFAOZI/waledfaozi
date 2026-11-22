@@ -578,7 +578,7 @@ def build_admin_router(ctx: Ctx) -> Router:
             await send_one(m.bot, m.chat.id, text, photo[3:] if photo else None)         # معاينة
             await state.update_data(bc_sel=[])
             await m.answer("👆 هذه معاينة رسالتك. اختر الوجهات بالضغط عليها (✅ = تُرسل)، ثم أرسل:",
-                           reply_markup=bc_keyboard([]))
+                           reply_markup=await bc_keyboard([], m.bot))
 
         elif act == "channel":
             await state.clear()
@@ -615,8 +615,17 @@ def build_admin_router(ctx: Ctx) -> Router:
             [btn("💾 تفعيل النسخ الأسبوعي", "ad:ab:1"), btn("💾 إيقافه", "ad:ab:0")],
             [btn("🛟 أرسل نسخة لقناة النسخ الآن", "ad:cb")],
             [btn("👥 ألعاب المجموعات: " + ("✅ تعمل (اضغط للإيقاف)" if db.get_setting("grp_enabled", "1") == "1" else "❌ متوقفة (اضغط للتشغيل)"), "ad:grp")],
+            [btn("👋 رسالة من يغادر القناة: " + ("✅ مفعّلة (اضغط للإيقاف)" if db.get_setting("leave_nudge", "1") == "1" else "❌ متوقفة (اضغط للتشغيل)"), "ad:ln")],
             [btn("📢 تغيير/تعطيل القناة", "ad:ch")], BACK)
         return text, markup
+
+    @r.callback_query(F.data == "ad:ln")
+    async def cb_leave_nudge_toggle(c: CallbackQuery):
+        on = db.get_setting("leave_nudge", "1") == "1"
+        db.set_setting("leave_nudge", "0" if on else "1")
+        await c.answer("👋 أُوقفت رسالة المغادرة" if on else "👋 عادت رسالة المغادرة", show_alert=True)
+        text, markup = settings_view()
+        await nav(c, text, markup)
 
     @r.callback_query(F.data == "ad:grp")
     async def cb_groups_toggle(c: CallbackQuery):
@@ -867,20 +876,35 @@ def build_admin_router(ctx: Ctx) -> Router:
         ("groups", "👥 المجموعات"),
     ]
 
-    def bc_targets(sel: list[str], bot: Bot) -> list[tuple[Bot, int, str, object]]:
-        """قائمة (البوت، المعرّف، النوع، قاعدة البيانات) لكل الوجهات المحددة."""
+    async def own_channel_id(bot: Bot) -> int | None:
+        """معرّف قناتك الإلزامية، لاستبعادها من الرسالة الجماعية نهائيًا."""
+        ch = ctx.channel()
+        if not ch:
+            return None
+        try:
+            return (await bot.get_chat(ch)).id
+        except TelegramAPIError:
+            return None
+
+    async def bc_targets(sel: list[str], bot: Bot) -> list[tuple[Bot, int, str, object]]:
+        """قائمة (البوت، المعرّف، النوع، قاعدة البيانات) لكل الوجهات المحددة، بلا قناتك."""
         out: list[tuple[Bot, int, str, object]] = []
+        own = await own_channel_id(bot)
         for kind in sel:
             ids = db.broadcast_targets(None) if kind == "users" else db.broadcast_chats(kind)
+            if kind == "channels" and own is not None:
+                ids = [i for i in ids if i != own]
             out += [(bot, i, kind, db) for i in ids]
         return out
 
-    def bc_counts() -> dict[str, int]:
-        return {"users": len(db.broadcast_targets(None)), "channels": len(db.broadcast_chats("channels")),
+    async def bc_counts(bot: Bot) -> dict[str, int]:
+        own = await own_channel_id(bot)
+        channels = [i for i in db.broadcast_chats("channels") if i != own]
+        return {"users": len(db.broadcast_targets(None)), "channels": len(channels),
                 "groups": len(db.broadcast_chats("groups"))}
 
-    def bc_keyboard(sel: list[str]):
-        counts = bc_counts()
+    async def bc_keyboard(sel: list[str], bot: Bot):
+        counts = await bc_counts(bot)
         rows = [[btn(("✅ " if k in sel else "⬜ ") + f"{label} ({counts[k]})", f"ad:bt:{k}")] for k, label in BC_KEYS]
         total = sum(counts[k] for k in sel)
         rows.append([btn(f"📤 أرسل إلى المحدد ({total})", "ad:bgo")])
@@ -900,7 +924,7 @@ def build_admin_router(ctx: Ctx) -> Router:
         await state.update_data(bc_sel=sel)
         await c.answer()
         try:
-            await c.message.edit_reply_markup(reply_markup=bc_keyboard(sel))
+            await c.message.edit_reply_markup(reply_markup=await bc_keyboard(sel, c.bot))
         except TelegramAPIError:
             pass
 
@@ -929,7 +953,7 @@ def build_admin_router(ctx: Ctx) -> Router:
             await c.answer(f"انتظر {int(wait // 60) + 1} دقيقة قبل رسالة جماعية أخرى", show_alert=True)
             return
         await c.answer()
-        n = len(bc_targets(sel, c.bot))
+        n = len(await bc_targets(sel, c.bot))
         await c.message.answer(f"⚠️ سيُرسَل هذا إلى <b>{n}</b> وجهة. متأكد؟", parse_mode="HTML", reply_markup=kb(
             [btn("✅ نعم، أرسل", "ad:bg")], [btn("❌ إلغاء", "ad:home")]))
 
@@ -974,7 +998,7 @@ def build_admin_router(ctx: Ctx) -> Router:
         if wait > 0:
             await c.answer("انتظر قليلًا قبل رسالة جماعية أخرى", show_alert=True)
             return
-        targets = bc_targets(list(data["bc_sel"]), c.bot)
+        targets = await bc_targets(list(data["bc_sel"]), c.bot)
         db.set_setting("last_broadcast", str(time.time()))
         await state.clear()
         await c.answer("بدأ الإرسال في الخلفية ✅")

@@ -12,10 +12,10 @@ from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 from aiogram.filters import Command, CommandObject
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import (BufferedInputFile, CallbackQuery, FSInputFile, InlineKeyboardButton,
+from aiogram.types import (BufferedInputFile, CallbackQuery, ChatMemberUpdated, FSInputFile, InlineKeyboardButton,
                            InlineKeyboardMarkup, InputMediaPhoto, Message)
 
-from . import board, card, progress, ties
+from . import board, card, leave_nudge, progress, ties
 from .config import LEVELS, ROOT
 from .ctx import Ctx
 from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
@@ -128,6 +128,11 @@ def build_router(ctx: Ctx) -> Router:
     r.message.filter(F.chat.type == "private")                    # الخاص فقط؛ المجموعات لها router مستقل (group.py)
     r.callback_query.filter(F.message.chat.type == "private")
     r.callback_query.outer_middleware(ClearState())
+
+    @r.chat_member()
+    async def on_channel_member(ev: ChatMemberUpdated, bot: Bot):
+        """من خرج من القناة الإلزامية يصله تذكير خاص واحد (إن كان قد بدأ البوت)."""
+        await leave_nudge.on_channel_change(ev, bot, db, ctx.channel())
     timers: dict[tuple[int, int], asyncio.Task] = {}
     sub_ok: dict[int, float] = {}      # من ثبت اشتراكه: لا نسأل تليجرام عنه ثانية قبل 30 ثانية (توازن بين السرعة وكشف من غادر القناة)
     me_cache: dict[str, str] = {}

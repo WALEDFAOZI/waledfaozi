@@ -1085,6 +1085,10 @@ class DB:
         table = {"channels": "channel_links", "groups": "group_chats"}[kind]
         return [r["chat_id"] for r in self.conn.execute(f"SELECT chat_id FROM {table}")]
 
+    def can_message(self, tg_id: int) -> bool:
+        """المستخدم معروف للبوت ولم يحظره، فيمكن مراسلته في الخاص."""
+        return self.conn.execute("SELECT 1 FROM users WHERE tg_id=? AND blocked=0", (tg_id,)).fetchone() is not None
+
     def mark_blocked(self, tg_id: int) -> None:
         with self.conn:
             self.conn.execute("UPDATE users SET blocked=1 WHERE tg_id=?", (tg_id,))

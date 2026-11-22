@@ -1103,3 +1103,6 @@ T["ar"]["btn_open_private"] = "💬 افتح الخاص"
 T["en"]["btn_open_private"] = "💬 Open private chat"
 T["ar"]["sp_vote_dm_live"] = "🗳 التصويت بدأ في الخاص. افتح البوت واختر من تظن أنه المتطفل."
 T["en"]["sp_vote_dm_live"] = "🗳 Voting has started in private. Open the bot and pick who you think is the outsider."
+
+T["ar"]["leave_nudge"] = "👋 لاحظنا أنك غادرت {ch}\nارجع لها عشان ما يفوتك الجديد من الأنمي والتحديات 🎌"
+T["en"]["leave_nudge"] = "👋 We noticed you left {ch}\nCome back so you don't miss new anime and challenges 🎌"

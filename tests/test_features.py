@@ -403,3 +403,28 @@ def test_leaving_group_removes_it_from_records():
     h.db.touch_group(-100555, "x")
     h.db.forget_chat(-100555)
     assert -100555 not in h.db.broadcast_chats("groups")
+
+
+def test_broadcast_never_sends_to_our_own_channel():
+    from types import SimpleNamespace
+
+    async def go():
+        h = Harness(channel="@Mine")
+        h.db.add_admin(5, owner=True)
+        o = h.user(5, "Owner")
+
+        async def fake_get_chat(chat_id, **kw):
+            return SimpleNamespace(id=-100777 if chat_id == "@Mine" else -100999)
+        h.bot.get_chat = fake_get_chat                       # قناتنا = -100777 في هذا الاختبار
+        h.db.link_channel(-100777, 5, "قناتي")               # قناتنا مرتبطة في السجل، ولا تُرسل إليها أبدًا
+        h.db.link_channel(-100999, 5, "قناة أخرى")
+        await h.tap(o, "ad:bc")
+        await h.say(o, "إعلان للقنوات فقط")
+        await h.tap(o, "ad:bt:channels")
+        await h.tap(o, "ad:bgo")
+        assert "<b>1</b>" in h.session.texts()[-1]          # القناة الأخرى فقط في العدد
+        await h.tap(o, "ad:bg")
+        await asyncio.gather(*h.ctx.tasks)
+        got = {c.chat_id for c in h.session.calls if getattr(c, "text", None) == "إعلان للقنوات فقط"}
+        assert -100999 in got and -100777 not in got
+    run(go())
