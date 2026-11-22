@@ -85,6 +85,7 @@ class Game:
     day_secs: int = DAY_SECS
     discuss_secs: int = DISCUSS_SECS  # وقت النقاش في النهار قبل التصويت
     voting: bool = False              # التصويت مفتوح (بعد انتهاء النقاش)
+    reveal_death: bool = False        # إظهار دور القتيل/المطرود في الإعلان (افتراضيًا مخفي)
     day_mid: int | None = None        # رسالة التصويت الحالية (تُحدَّث مع كل صوت)
     day_text: str = ""
     quiet: int = 0                    # عدّاد الجولات المتتالية بلا موت
@@ -327,7 +328,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
 
     def config_markup(g: Game):
         L = g.lang
-        rows = [[btn(t(L, "mf_auto_btn") + (" ✅" if g.auto else ""), f"mf:a:{g.gid}")]]
+        rows = [[btn(t(L, "mf_auto_btn") + (" ✅" if g.auto else ""), f"mf:a:{g.gid}")],
+                [btn(t(L, "mf_reveal_cfg") + (" ✅" if g.reveal_death else ""), f"mf:rd:{g.gid}")]]
         rows += [[btn("➖", f"mf:k:{g.gid}:-"), btn(t(L, "mf_killers_btn", k=g.killers), f"mf:k:{g.gid}:0"),
                   btn("➕", f"mf:k:{g.gid}:+")]]
         sp = [btn(("✅ " if r in g.specials else "") + t(L, "mf_r_" + r), f"mf:r:{g.gid}:{r}") for r in SPECIAL_ORDER]
@@ -584,6 +586,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         L = g.lang
         if res.victim is not None:
             text = t(L, "mf_morning_dead", name=esc(g.players[res.victim].name))
+            if g.reveal_death:
+                text += "\n" + role_line(g, res.victim)
         elif res.saved:
             text = t(L, "mf_morning_saved")
         else:
@@ -672,7 +676,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 if out is not None:
                     g.players[out].alive = False
                     last = g.players[out].role
-                    await show(bot, g, t(L, "mf_executed", name=esc(g.players[out].name)), None)
+                    text = t(L, "mf_executed", name=esc(g.players[out].name))
+                    if g.reveal_death and last != "joker":        # المجنون يُكشف دوره أصلًا
+                        text += "\n" + role_line(g, out)
+                    await show(bot, g, text, None)
                     if last == "joker":                           # يكشف دوره ويسحب معه أحدًا (لا يفوز وحده)
                         await joker_pick(bot, g, out)
                 else:
@@ -865,6 +872,22 @@ def build_mafia_router(ctx: Ctx) -> Router:
             g.specials.remove(role)
         else:
             g.specials.append(role)
+        g.dirty = True
+        await c.answer()
+        await push_config(c.bot, g)
+
+    def role_line(g: Game, uid: int) -> str:
+        L = g.lang
+        return t(L, "mf_role_shown", role=t(L, "mf_r_" + g.players[uid].role))
+
+    @pm.callback_query(F.data.regexp(r"^mf:rd:\d+$"))
+    async def cb_reveal_cfg(c: CallbackQuery):
+        L = db.get_lang(c.from_user.id)
+        g = host_game(c, int(c.data.split(":")[2]))
+        if not g:
+            await c.answer(t(L, "mf_host_only"), show_alert=True)
+            return
+        g.reveal_death = not g.reveal_death
         g.dirty = True
         await c.answer()
         await push_config(c.bot, g)

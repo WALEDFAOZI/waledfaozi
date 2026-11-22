@@ -268,3 +268,21 @@ def test_deleted_live_message_stops_the_game_and_tells_the_host():
                                     if type(c).__name__ == "SendMessage" and c.chat_id == users[0].id), 10)
         h.session.edit_gone = False
     run(go())
+
+
+def test_reveal_on_death_is_off_by_default_and_toggles_from_settings():
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 6)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, users[0], "/mafia", 91)
+        g = MG.games[GROUP.id]
+        assert g.reveal_death is False                                  # افتراضيًا مخفي
+        await ptap(h, users[0], f"mf:rd:{g.gid}")
+        assert g.reveal_death is True
+        await ptap(h, users[0], f"mf:rd:{g.gid}")
+        assert g.reveal_death is False
+        g.start_now = True
+    run(go())

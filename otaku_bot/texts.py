@@ -1348,3 +1348,8 @@ T["ar"]["btn_bot_game"] = "🎮 بوت اللعبة"
 T["en"]["btn_bot_game"] = "🎮 Game bot"
 T["ar"]["mf_not_player"] = "أنت لست مشاركًا في هذه اللعبة."
 T["en"]["mf_not_player"] = "You are not a player in this game."
+
+T["ar"]["mf_reveal_cfg"] = "👁 إظهار الدور عند الموت"
+T["en"]["mf_reveal_cfg"] = "👁 Reveal role on death"
+T["ar"]["mf_role_shown"] = "🎭 كان دوره: {role}"
+T["en"]["mf_role_shown"] = "🎭 Their role was: {role}"
