@@ -103,6 +103,8 @@ def test_full_game_roles_night_day_and_result():
         for u in alive:
             if u.id != killer:
                 await gtap(h, u, f"mf:v:{g.gid}:{killer}")                  # أربعة أصوات من خمسة أحياء
+                if u is users[0]:
+                    assert any("صوّت" in x and "باقي" in x for x in group_texts(h))   # الرسالة تقول من صوّت وكم باقي
         assert await wait_until(lambda: g.state == "done"), g.state
         texts = group_texts(h)
         assert any("فاز المواطنون" in x for x in texts)

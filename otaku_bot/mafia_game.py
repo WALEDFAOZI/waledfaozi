@@ -76,6 +76,9 @@ class Game:
     lobby_secs: int = LOBBY_SECS     # أوقات قابلة للتعديل من الخاص
     night_secs: int = NIGHT_SECS
     day_secs: int = DAY_SECS
+    day_mid: int | None = None        # رسالة التصويت الحالية (تُحدَّث مع كل صوت)
+    day_text: str = ""
+    day_markup: object = None
 
 
 games: dict[int, Game] = {}
@@ -119,14 +122,15 @@ def build_mafia_router(ctx: Ctx) -> Router:
                                reply_to=g.reply_to if g.scope == "group" else None,
                                thread=g.thread if g.scope == "group" else None)
 
-    async def show(bot: Bot, g: Game, text: str, markup=None) -> None:
+    async def show(bot: Bot, g: Game, text: str, markup=None) -> int | None:
         """كل مرحلة رسالة جديدة في المجموعات. في القنوات تُعدَّل رسالة واحدة (لتفادي الإغراق)."""
         if g.scope == "channel" and g.live is not None:
             await live.edit(bot, g.chat_id, g.live, text, markup)
-            return
+            return g.live
         mid = await send(bot, g, text, markup)
         if g.live is None:
             g.live = mid
+        return mid
 
     async def lobby_edit(bot: Bot, g: Game, text: str, markup=None) -> None:
         """اللوبي وحده يُعدَّل في مكانه: يعرض المنضمين والعدّاد."""
@@ -280,7 +284,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
         alive = alive_players(g)
         btns = [[btn(f"🗳 {p.name[:22]}", f"mf:v:{g.gid}:{p.uid}")] for p in alive]
         btns.append([btn(t(L, "mf_skip"), f"mf:v:{g.gid}:0")])
-        await show(bot, g, t(L, "mf_day_live", r=g.round, s=g.day_secs, names=names(g, True)), kb(*btns))
+        g.day_text = t(L, "mf_day_live", r=g.round, s=g.day_secs, names=names(g, True))
+        g.day_markup = kb(*btns)
+        g.day_mid = await show(bot, g, g.day_text, g.day_markup)
         deadline = time.monotonic() + g.day_secs
         while time.monotonic() < deadline and g.state == "day":
             if all(p.uid in g.votes for p in alive_players(g)):
@@ -612,6 +618,11 @@ def build_mafia_router(ctx: Ctx) -> Router:
             return
         g.votes[voter.uid] = target
         await c.answer(t(L, "mf_voted"))
+        if g.day_mid and g.day_text:
+            alive = alive_players(g)
+            done = sum(1 for p in alive if p.uid in g.votes)
+            status = t(L, "mf_vote_status", name=esc(voter.name), done=done, total=len(alive), left=len(alive) - done)
+            await live.edit(c.bot, g.chat_id, g.day_mid, g.day_text + "\n\n" + status, g.day_markup)
 
     @cbs.callback_query(F.data.regexp(r"^mf:i:\d+$"))
     async def cb_info(c: CallbackQuery):
