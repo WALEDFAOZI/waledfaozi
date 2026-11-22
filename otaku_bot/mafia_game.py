@@ -83,6 +83,9 @@ class Game:
     day_mid: int | None = None        # رسالة التصويت الحالية (تُحدَّث مع كل صوت)
     day_text: str = ""
     quiet: int = 0                    # عدّاد الجولات المتتالية بلا موت
+    log: list = field(default_factory=list)   # القناة: آخر الإعلانات تبقى داخل الرسالة الواحدة
+    status_text: str = ""             # القناة: الحالة الحالية (ليل/نهار/نهاية)
+    status_markup: object = None
     day_markup: object = None
 
 
@@ -148,11 +151,29 @@ def build_mafia_router(ctx: Ctx) -> Router:
                                reply_to=g.reply_to if g.scope == "group" else None,
                                thread=g.thread if g.scope == "group" else None)
 
+    CHANNEL_CAP = 1000
+
+    def channel_body(g: Game) -> str:
+        """نص الرسالة الواحدة في القناة: آخر الإعلانات ثم الحالة الحالية، ضمن الحد."""
+        status = g.status_text
+        budget = CHANNEL_CAP - len(status) - 2
+        chosen: list[str] = []
+        for entry in reversed(g.log):
+            if len(entry) + 2 > budget:
+                break
+            chosen.append(entry)
+            budget -= len(entry) + 2
+        return "\n\n".join(list(reversed(chosen)) + [status])
+
     async def show(bot: Bot, g: Game, text: str, markup=None, status: bool = False) -> int | None:
-        """الإعلانات (قتل، تصويت، نتائج...) رسائل جديدة دائمًا حتى لا تُمحى.
-        حالة المرحلة الحالية (ليل/نهار) في القنوات تُعدَّل في رسالة واحدة لتفادي الإغراق."""
-        if g.scope == "channel" and status and g.live is not None:
-            await live.edit(bot, g.chat_id, g.live, text, markup)
+        """المجموعات: كل رسالة جديدة. القناة: رسالة واحدة تحمل آخر الإعلانات والحالة الحالية."""
+        if g.scope == "channel" and g.live is not None:
+            if status:
+                g.status_text, g.status_markup = text, markup
+            else:
+                g.log.append(text)
+                g.log = g.log[-12:]
+            await live.edit(bot, g.chat_id, g.live, channel_body(g), g.status_markup)
             return g.live
         mid = await send(bot, g, text, markup)
         if g.live is None:
@@ -388,7 +409,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         reveal = "\n".join(
             f"{ICON[p.role]} {esc(p.name)} — {t(L, 'mf_r_' + p.role)}{' ✅' if p.uid in won else ''}"
             for p in g.players.values())
-        await show(bot, g, t(L, "mf_end", head=head, reveal=reveal, rounds=g.round), kb(*chan_row(L)) or None)
+        await show(bot, g, t(L, "mf_end", head=head, reveal=reveal, rounds=g.round), kb(*chan_row(L)) or None, status=True)
         for p in g.players.values():
             if db.is_admin(p.uid):
                 continue
@@ -701,7 +722,12 @@ def build_mafia_router(ctx: Ctx) -> Router:
             done = sum(1 for p in alive if p.uid in g.votes)
             status = t(L, "mf_vote_status", name=esc(voter.name), done=done, total=len(alive), left=len(alive) - done)
             status += "\n" + t(L, "mf_vote_note")
-            await live.edit(c.bot, g.chat_id, g.day_mid, g.day_text + "\n\n" + status, g.day_markup)
+            text = g.day_text + "\n\n" + status
+            if g.scope == "channel":
+                g.status_text = text
+                await live.edit(c.bot, g.chat_id, g.day_mid, channel_body(g), g.status_markup)
+            else:
+                await live.edit(c.bot, g.chat_id, g.day_mid, text, g.day_markup)
 
     @cbs.callback_query(F.data.regexp(r"^mf:i:\d+$"))
     async def cb_info(c: CallbackQuery):
