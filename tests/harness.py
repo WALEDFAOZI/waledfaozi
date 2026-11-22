@@ -168,3 +168,12 @@ def run(coro):
 def last_menu_call(h):
     """آخر رسالة أو صورة فيها أزرار (بعد /start يكون الترحيب صورة بانر + نص)."""
     return [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto") and c.reply_markup is not None][-1]
+
+
+# الرسائل الحيّة للألعاب صارت صورًا بتعليق: نقرأ التعليق كنص في الاختبارات
+from aiogram.methods import EditMessageCaption as _EMC, EditMessageMedia as _EMM, SendPhoto as _SP  # noqa: E402
+
+_EMM.text = property(lambda self: getattr(getattr(self, "media", None), "caption", None))
+for _cls in (_SP, _EMC):
+    if "text" not in _cls.__dict__ and not hasattr(_cls, "text"):
+        _cls.text = property(lambda self: getattr(self, "caption", None))

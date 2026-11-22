@@ -19,7 +19,7 @@ from aiogram.exceptions import TelegramAPIError, TelegramBadRequest, TelegramFor
 from aiogram.filters import Command, CommandObject
 from aiogram.types import CallbackQuery, ChatMemberUpdated, Message, ReplyParameters
 
-from . import board, progress
+from . import board, live, progress
 from .bot import btn, esc, kb
 from .ctx import Ctx
 from .games import load_games, order_rounds, quote_rounds, char_rounds, song_rounds, tf_rounds
@@ -89,6 +89,7 @@ class Game:
     scope: str = "group"            # group | channel
     live: int | None = None         # الرسالة الحيّة الوحيدة: غرفة الانتظار ثم الأسئلة (تُعدَّل ولا تتراكم)
     live_photo: bool = False
+    live_media: str | None = None      # ما تعرضه الرسالة الحيّة الآن: "banner" أو معرّف/رابط الصورة
     lobby_secs: float = 30
     q_secs: float = 15
     max_players: int = 40
@@ -149,7 +150,9 @@ def build_group_router(ctx: Ctx) -> Router:
         return uid == g.host_id or await is_group_admin(bot, g.chat_id, uid)
 
     async def send(bot: Bot, g: Game, text: str, markup=None, photo: str | None = None) -> int | None:
-        return await send_to(bot, g.chat_id, g.reply_to, g.thread, text, markup, photo)
+        """الرسالة الحيّة الوحيدة للعبة: تبدأ بلافتة وتُعدَّل بعد ذلك (لا رسائل جديدة)."""
+        return await live.send(bot, g.chat_id, text, markup, lang=g.lang, reply_to=g.reply_to, thread=g.thread,
+                               on_error=lambda e: send_errors.__setitem__(g.chat_id, e[:120]))
 
     async def send_to(bot: Bot, chat_id: int, reply_to: int | None, thread: int | None, text: str, markup=None,
                       photo: str | None = None) -> int | None:
@@ -182,19 +185,9 @@ def build_group_router(ctx: Ctx) -> Router:
         return None
 
     async def edit(bot: Bot, g: Game, mid: int | None, text: str, markup=None, caption: bool = False) -> None:
-        if not mid:
-            return
-        try:
-            if caption:
-                await bot.edit_message_caption(chat_id=g.chat_id, message_id=mid, caption=text, parse_mode="HTML",
-                                               reply_markup=markup)
-            else:
-                await bot.edit_message_text(text, chat_id=g.chat_id, message_id=mid, parse_mode="HTML", reply_markup=markup)
-        except TelegramRetryAfter as e:
-            if e.retry_after <= 3:
-                await asyncio.sleep(e.retry_after)
-        except TelegramAPIError:
-            pass                                             # «not modified» أو الرسالة اختفت: لا يهم
+        """تعديل التعليق والأزرار للرسالة الحيّة (الصورة تبقى كما هي)."""
+        if mid:
+            await live.edit(bot, g.chat_id, mid, text, markup)
 
     async def delete_msg(bot: Bot, g: Game, mid: int | None) -> None:
         if mid:
@@ -204,16 +197,18 @@ def build_group_router(ctx: Ctx) -> Router:
                 pass
 
     async def live_show(bot: Bot, g: Game, text: str, markup=None, photo: str | None = None) -> bool:
-        """رسالة حيّة واحدة: نعدّلها إن أمكن، وإن تغيّر نوعها (نص ↔ صورة) نرسل الجديدة ونحذف السابقة."""
-        if g.live and not photo and not g.live_photo:
-            await edit(bot, g, g.live, text, markup)
-            return True
-        old = g.live
-        mid = await send(bot, g, text, markup, photo)
-        if mid is None:
-            return False
-        g.live, g.live_photo = mid, bool(photo)
-        await delete_msg(bot, g, old)
+        """الرسالة الحيّة الوحيدة: تُعدَّل دائمًا. تتغير صورتها فقط عند الحاجة (صورة جولة، أو العودة للافتة)."""
+        if g.live is None:
+            mid = await send(bot, g, text, markup)
+            if mid is None:
+                return False
+            g.live, g.live_photo, g.live_media = mid, True, "banner"
+        want = photo or "banner"
+        media = None
+        if want != g.live_media:
+            media = photo or await live.banner_media(g.lang)
+        if await live.edit(bot, g.chat_id, g.live, text, markup, media=media):
+            g.live_media = want
         return True
 
     async def reply(m: Message, text: str, markup=None) -> None:
@@ -432,9 +427,7 @@ def build_group_router(ctx: Ctx) -> Router:
         me = (await bot.get_me()).username
         markup = kb([btn(t(g.lang, "gp_try_btn"), url=f"https://t.me/{me}?start=src_contest")],
                     *([[btn(t(g.lang, "gp_top_btn"), "gp:t")]] if g.scope == "group" else []), *sub_row(g.lang))
-        old = g.live
-        await send(bot, g, t(g.lang, "gp_final", w=win, n=len(g.players), rows="\n".join(lines)), markup)   # الرسالة الجديدة الوحيدة
-        await delete_msg(bot, g, old)
+        await live_show(bot, g, t(g.lang, "gp_final", w=win, n=len(g.players), rows="\n".join(lines)), markup)   # نفس الرسالة الحيّة
         keep = rk[:CH_KEEP] if g.scope == "channel" else rk               # القنوات الكبيرة: أفضل 50 فقط في القاعدة
         champ_ids = {p.id for p in champs}
         for p in keep:                                                      # الأدمن لا يدخل الترتيب

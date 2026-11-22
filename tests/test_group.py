@@ -41,13 +41,21 @@ async def gtap(h, user, data, msg_id=500, reply_to=None):
     await h.dp.feed_update(h.bot, Update(update_id=h.uid, callback_query=cb))
 
 
+def shown_text(c):
+    """نص أي رسالة ظهرت في الجولة: نص، أو تعليق صورة، أو تعديل تعليق أو وسائط."""
+    t = getattr(c, "text", None) or getattr(c, "caption", None)
+    if not t and getattr(c, "media", None) is not None:
+        t = getattr(c.media, "caption", None)
+    return t or ""
+
+
 def sent(h):
     return [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto") and c.chat_id == GROUP.id]
 
 
 def shows(h):
     """كل ما ظهر في المجموعة: رسائل جديدة + تعديلات الرسالة الحيّة."""
-    return [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto", "EditMessageText", "EditMessageCaption")
+    return [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto", "EditMessageText", "EditMessageCaption", "EditMessageMedia")
             and c.chat_id == GROUP.id]
 
 
@@ -66,7 +74,7 @@ async def play_out(h, users, timeout=8.0):
     """يضغط (الخيار 0) لكل لاعب على كل سؤال جديد حتى تنتهي اللعبة."""
     done, t0 = set(), asyncio.get_event_loop().time()
     while asyncio.get_event_loop().time() - t0 < timeout:
-        if any("انتهت اللعبة" in (c.text or "") for c in sent(h) if type(c).__name__ == "SendMessage"):
+        if any("انتهت اللعبة" in (getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in shows(h)):
             await asyncio.sleep(0.05)
             return True
         c = last_with(h, "gp:a:")
@@ -96,13 +104,13 @@ def test_full_game_replies_to_command_and_saves_results():
         await gtap(h, b, f"gp:j:{gid}")                         # انضمام مكرر لا يضاعفه
         assert await play_out(h, [a, b]), "اللعبة لم تنتهِ"
         msgs = sent(h)
-        assert len(msgs) == 2                                   # رسالة حيّة واحدة (غرفة ← أسئلة) + رسالة النهاية فقط: لا تراكم
-        edits = [c for c in h.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == GROUP.id]
+        assert len(msgs) == 1                                   # رسالة حيّة واحدة فقط: تُعدَّل ولا تتراكم
+        edits = [c for c in h.session.calls if type(c).__name__ in ("EditMessageCaption", "EditMessageMedia") and c.chat_id == GROUP.id]
         assert len(edits) >= 20                                 # الأسئلة والعدّاد والكشف كلها تعديلات
-        assert any(type(c).__name__ == "DeleteMessage" for c in h.session.calls)    # الحيّة تُحذف عند النهاية
+        assert not any(type(c).__name__ == "DeleteMessage" for c in h.session.calls)   # لا تُحذف الحيّة في النهاية
         assert all(c.reply_parameters and c.reply_parameters.message_id == 77 for c in msgs)   # الرد على صاحب الأمر دائمًا
-        final = [c for c in msgs if "انتهت اللعبة" in (c.text or "")][0]
-        assert "Ali" in final.text and "Bob" in final.text
+        final = [shown_text(c) for c in shows(h) if "انتهت اللعبة" in shown_text(c)][-1]
+        assert "Ali" in final and "Bob" in final
         assert len(h.db.conn.execute("SELECT 1 FROM group_results WHERE chat_id=?", (GROUP.id,)).fetchall()) == 2
         await gsay(h, a, "/gtop", mid=80)
         assert "متصدرو المجموعة" in sent(h)[-1].text and sent(h)[-1].reply_parameters.message_id == 80
@@ -116,14 +124,14 @@ def test_too_few_players_busy_and_stop():
         a, b = h.user(1, "Ali"), h.user(2, "Bob")
         await start_lobby(h, a)
         await start_lobby(h, b, mid=9)                          # لعبة شغالة
-        assert any("فيه لعبة شغالة" in (c.text or "") for c in sent(h))
+        assert any("فيه لعبة شغالة" in (c.text or "") for c in shows(h))
         await asyncio.sleep(0.9)
-        edits = [c for c in h.session.calls if type(c).__name__ == "EditMessageText"]
-        assert any("ما اكتمل العدد" in e.text for e in edits)
+        edits = [c for c in h.session.calls if type(c).__name__ in ("EditMessageText", "EditMessageCaption", "EditMessageMedia")]
+        assert any("ما اكتمل العدد" in shown_text(e) for e in edits)
         # إيقاف: غير المضيف وغير الأدمن مرفوض، والمضيف مقبول
         await start_lobby(h, a, mid=11)
         await gsay(h, b, "/gstop", mid=12)
-        assert any("لصاحب الأمر" in (c.text or "") for c in sent(h))
+        assert any("لصاحب الأمر" in (c.text or "") for c in shows(h))
         await gsay(h, a, "/gstop", mid=13)
         await asyncio.sleep(0.1)
         assert any("تم إيقاف اللعبة" in (c.text or "") for c in shows(h))
@@ -161,7 +169,7 @@ def test_bot_admin_is_hidden_and_excluded_from_group_board():
         await gtap(h, owner, f"gp:j:{gid}")
         await gtap(h, b, f"gp:j:{gid}")
         assert await play_out(h, [owner, b])
-        everything = " ".join((c.text or "") for c in sent(h))
+        everything = " ".join((c.text or "") for c in shows(h))
         assert "OwnerReal" not in everything and "مجهول" in everything
         assert [r["name"] for r in h.db.group_top(GROUP.id)] == ["Bob"]
     run(go())
@@ -273,8 +281,13 @@ def chan_sent(h):
     return [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto") and c.chat_id == CHAN.id]
 
 
+def chan_final(h):
+    """آخر رسالة في القناة تحمل نص النتيجة النهائية (رسالة جديدة أو تعديل)."""
+    return [c for c in chan_shows(h) if "انتهت اللعبة" in shown_text(c)][-1]
+
+
 def chan_shows(h):
-    return [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto", "EditMessageText", "EditMessageCaption")
+    return [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto", "EditMessageText", "EditMessageCaption", "EditMessageMedia")
             and c.chat_id == CHAN.id]
 
 
@@ -302,7 +315,7 @@ async def bot_added_to_channel(h, user, rights=True):
 async def chan_play_out(h, users, timeout=10.0):
     done, t0 = set(), asyncio.get_event_loop().time()
     while asyncio.get_event_loop().time() - t0 < timeout:
-        if any("انتهت اللعبة" in (c.text or "") for c in chan_sent(h)):
+        if any("انتهت اللعبة" in shown_text(c) for c in chan_sent(h) + [c for c in h.session.calls if type(c).__name__ in ("EditMessageCaption", "EditMessageMedia") and c.chat_id == CHAN.id]):
             return True
         for c in reversed(chan_shows(h)):
             ds = [d for d in buttons(c) if (d or "").startswith("gp:a:")]
@@ -340,10 +353,10 @@ def test_channel_contest_flow_single_live_message_and_final_top():
             await ctap(h, u, f"gp:j:{gid}")
         await h.tap(owner, f"ch:s:{CHAN.id}")                       # ابدأ الآن من الخاص
         assert await chan_play_out(h, players, timeout=45), "المسابقة لم تنتهِ"
-        assert len(chan_sent(h)) == 2                              # الغرفة الحيّة + النتيجة النهائية فقط
-        assert any(type(c).__name__ == "DeleteMessage" and c.chat_id == CHAN.id for c in h.session.calls)
-        final = chan_sent(h)[-1]
-        assert "👥 300" in final.text and final.reply_parameters is None
+        assert len(chan_sent(h)) == 1                              # رسالة حيّة واحدة فقط: تُعدَّل إلى النتيجة النهائية
+        assert not any(type(c).__name__ == "DeleteMessage" and c.chat_id == CHAN.id for c in h.session.calls)
+        final = [shown_text(c) for c in chan_shows(h) if "انتهت اللعبة" in shown_text(c)][-1]
+        assert "👥 300" in final and chan_sent(h)[0].reply_parameters is None
         rows = h.db.conn.execute("SELECT COUNT(*) n FROM group_results WHERE chat_id=?", (CHAN.id,)).fetchone()["n"]
         assert rows == group.CH_KEEP                               # أفضل 50 فقط في القاعدة
         assert h.db.conn.execute("SELECT COUNT(*) n FROM users WHERE tg_id>=100").fetchone()["n"] == group.CH_KEEP
@@ -421,13 +434,13 @@ def test_channel_contest_runs_with_a_single_participant_and_empty_lobby_message(
         gid = buttons(chan_sent(h)[0])[0].split(":")[2]
         await ctap(h, solo, f"gp:j:{gid}")                          # مشارك واحد فقط: تبدأ المسابقة
         assert await chan_play_out(h, [solo], timeout=15)
-        assert any("👥 1" in (c.text or "") for c in chan_sent(h))
+        assert any("👥 1" in shown_text(c) for c in chan_shows(h))
         h2 = Harness()                                              # ولو لم يشارك أحد: رسالة واضحة
         h2.db.upsert_user(5, "Owner"); h2.db.link_channel(CHAN.id, 5, CHAN.title)
         await h2.tap(h2.user(5, "Owner"), f"ch:n:{CHAN.id}:tf")
         await asyncio.sleep(1.2)
-        edits = [c for c in h2.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == CHAN.id]
-        assert any("ما شارك أحد" in e.text for e in edits)
+        edits = [c for c in h2.session.calls if type(c).__name__ in ("EditMessageText", "EditMessageCaption", "EditMessageMedia") and c.chat_id == CHAN.id]
+        assert any("ما شارك أحد" in shown_text(e) for e in edits)
     run(go())
 
 
@@ -468,7 +481,7 @@ def test_channel_contest_requires_subscription_and_shows_subscribe_button():
         t0 = asyncio.get_event_loop().time()
         answered = set()
         while asyncio.get_event_loop().time() - t0 < 20 and not done:
-            if any("انتهت اللعبة" in (c.text or "") for c in chan_sent(h)):
+            if any("انتهت اللعبة" in shown_text(c) for c in chan_sent(h) + [c for c in h.session.calls if type(c).__name__ in ("EditMessageCaption", "EditMessageMedia") and c.chat_id == CHAN.id]):
                 break
             for c in reversed(chan_shows(h)):
                 ds = [d for d in buttons(c) if (d or "").startswith("gp:a:")]
@@ -478,12 +491,12 @@ def test_channel_contest_requires_subscription_and_shows_subscribe_button():
                         await ctap(h, a, ds[0]); await ctap(h, b, ds[0])
                     break
             await asyncio.sleep(0.05)
-        final = chan_sent(h)[-1]
+        final = chan_final(h)
         assert "انتهت اللعبة" in final.text
         assert [x.url for row in final.reply_markup.inline_keyboard for x in row if x.url] == [
             "https://t.me/otaku_test_bot?start=src_contest", "https://t.me/Anime1Galaxy"]
         # ... وعند الكشف تبقى أزرار الاشتراك
-        reveals = [c for c in h.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == CHAN.id and "الجواب" in (c.text or "")]
+        reveals = [c for c in h.session.calls if type(c).__name__ in ("EditMessageText", "EditMessageCaption", "EditMessageMedia") and c.chat_id == CHAN.id and "الجواب" in shown_text(c)]
         assert reveals and all(any(x.url for row in c.reply_markup.inline_keyboard for x in row) for c in reveals)
     run(go())
 
@@ -502,7 +515,7 @@ def test_channel_final_excludes_player_who_left_our_channel():
         t0 = asyncio.get_event_loop().time()
         answered, left = set(), False
         while asyncio.get_event_loop().time() - t0 < 20:
-            if any("انتهت اللعبة" in (c.text or "") for c in chan_sent(h)):
+            if any("انتهت اللعبة" in shown_text(c) for c in chan_sent(h) + [c for c in h.session.calls if type(c).__name__ in ("EditMessageCaption", "EditMessageMedia") and c.chat_id == CHAN.id]):
                 break
             for c in reversed(chan_shows(h)):
                 ds = [d for d in buttons(c) if (d or "").startswith("gp:a:")]
@@ -518,7 +531,7 @@ def test_channel_final_excludes_player_who_left_our_channel():
                                     cell.cell_contents.clear()
                     break
             await asyncio.sleep(0.05)
-        final = chan_sent(h)[-1]
+        final = chan_final(h)
         assert "انتهت اللعبة" in final.text and "Ann" not in final.text
         assert h.db.conn.execute("SELECT COUNT(*) n FROM group_results WHERE tg_id=10").fetchone()["n"] == 0
     run(go())
@@ -537,10 +550,10 @@ def test_leave_before_start_final_has_try_button_not_play_hint_in_channel_and_gr
         await ctap(h, a, f"gp:j:{gid}"); await ctap(h, b, f"gp:j:{gid}")
         await ctap(h, a, f"gp:u:{gid}")                                         # آن تنسحب قبل البدء
         await ctap(h, a, f"gp:u:{gid}")                                         # مرة ثانية: لا شيء
-        lobby_edits = [c for c in h.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == CHAN.id]
+        lobby_edits = [c for c in h.session.calls if type(c).__name__ in ("EditMessageText", "EditMessageCaption", "EditMessageMedia") and c.chat_id == CHAN.id]
         await h.tap(owner, f"ch:s:{CHAN.id}")
         assert await chan_play_out(h, [a, b], timeout=20)
-        final = chan_sent(h)[-1]
+        final = chan_final(h)
         assert "/play" not in final.text and "لعبة جديدة" not in final.text           # حُذف السطر الأخير
         assert "Bob" in final.text and "Ann" not in final.text                        # آن لم تعد مشاركة
         btn_try = [x for row in final.reply_markup.inline_keyboard for x in row if x.url and "src_contest" in x.url]
@@ -560,7 +573,7 @@ def test_leave_before_start_final_has_try_button_not_play_hint_in_channel_and_gr
         await gtap(g2, y, f"gp:u:{gid2}")                                          # بوب ينسحب
         await gtap(g2, y, f"gp:j:{gid2}")                                          # ثم يعود
         assert await play_out(g2, [x, y])
-        fin = [c for c in sent(g2) if "انتهت اللعبة" in (c.text or "")][-1]
+        fin = [c for c in shows(g2) if "انتهت اللعبة" in shown_text(c)][-1]
         assert "/play" not in fin.text and "Bob" in fin.text
         assert any(b2.url and "src_contest" in b2.url for row in fin.reply_markup.inline_keyboard for b2 in row)
         assert "gp:t" in buttons(fin)
@@ -578,7 +591,7 @@ def test_lobby_is_three_minutes_and_countdown_actually_ticks():
             h = Harness()
             await start_lobby(h, h.user(1, "Ali"), "tf", mid=80)
             await asyncio.sleep(4.5)
-            edits = [c.text for c in h.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == GROUP.id]
+            edits = [shown_text(c) for c in h.session.calls if type(c).__name__ in ("EditMessageText", "EditMessageCaption", "EditMessageMedia") and c.chat_id == GROUP.id]
             nums = {int(x.split("تبدأ بعد <b>")[1].split("</b>")[0]) for x in edits if "تبدأ بعد" in x}
             assert len(nums) >= 2, nums                      # العدّاد يتغيّر بدل أن يبقى ثابتًا
         finally:

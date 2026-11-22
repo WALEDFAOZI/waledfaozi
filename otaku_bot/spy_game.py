@@ -25,6 +25,7 @@ from .bot import btn, chan_row, esc, kb
 from .config import ROOT
 from .ctx import Ctx
 from .names import loc
+from . import live
 from .links import back_rows, open_private_rows
 from .texts import t
 from .thread_anchor import anchor_id
@@ -146,33 +147,15 @@ def build_spy_router(ctx: Ctx) -> Router:
 
     # ── إرسال وتعديل ────────────────────────────────────────
     async def send(bot: Bot, g: Game, text: str, markup=None) -> int | None:
-        kw = {"chat_id": g.chat_id, "parse_mode": "HTML", "reply_markup": markup}
-        if g.reply_to:
-            kw["reply_parameters"] = ReplyParameters(message_id=g.reply_to, allow_sending_without_reply=True)
-        if g.thread:
-            kw["message_thread_id"] = g.thread
-        for _ in range(2):
-            try:
-                return (await bot.send_message(text=text, **kw)).message_id
-            except TelegramRetryAfter as e:
-                await asyncio.sleep(min(e.retry_after, 10))
-            except TelegramAPIError as e:
-                log.warning("spy send failed in %s: %s", g.chat_id, e)
-                return None
-        return None
+        """الرسالة الحيّة الوحيدة للعبة: تبدأ بلافتة وتُعدَّل بعد ذلك."""
+        return await live.send(bot, g.chat_id, text, markup, lang=g.lang, reply_to=g.reply_to, thread=g.thread)
 
     async def show(bot: Bot, g: Game, text: str, markup=None) -> None:
         """الرسالة الحيّة الواحدة: تُعدَّل فلا تتراكم."""
         if g.live is None:
             g.live = await send(bot, g, text, markup)
             return
-        try:
-            await bot.edit_message_text(text, chat_id=g.chat_id, message_id=g.live, parse_mode="HTML", reply_markup=markup)
-        except TelegramRetryAfter as e:
-            if e.retry_after <= 3:
-                await asyncio.sleep(e.retry_after)
-        except TelegramAPIError:
-            pass
+        await live.edit(bot, g.chat_id, g.live, text, markup)
 
     async def dm(bot: Bot, uid: int, text: str, markup=None) -> bool:
         try:

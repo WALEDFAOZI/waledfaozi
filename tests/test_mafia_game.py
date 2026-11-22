@@ -50,7 +50,8 @@ def dms_to(h, uid):
 
 def group_texts(h):
     return [(getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in h.session.calls
-            if type(c).__name__ in ("SendMessage", "EditMessageText") and c.chat_id == GROUP.id]
+            if type(c).__name__ in ("SendMessage", "SendPhoto", "EditMessageText", "EditMessageCaption", "EditMessageMedia")
+            and c.chat_id == GROUP.id]
 
 
 def test_full_game_roles_night_day_and_result():
@@ -64,10 +65,11 @@ def test_full_game_roles_night_day_and_result():
         await gcmd(h, host, "/mafia", 77)
         g = MG.games[GROUP.id]
         assert g.host_id == 1 and 1 not in g.players                         # المضيف يُضاف إن انضم فقط
-        lobby = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id == GROUP.id][-1]
+        lobby = [c for c in h.session.calls if type(c).__name__ in ("SendMessage", "SendPhoto") and c.chat_id == GROUP.id][-1]
+        lobby_text = getattr(lobby, "text", None) or getattr(lobby, "caption", None) or ""
         assert lobby.reply_parameters.message_id == 77                       # كل رسالة ترد على صاحب الأمر
-        assert "كيف تلعب" in lobby.text                                      # الشرح واضح للمنضم
-        assert "المضيف" not in lobby.text                                    # لا يظهر اسم المضيف في الانتظار
+        assert "كيف تلعب" in lobby_text                                      # الشرح واضح للمنضم
+        assert "المضيف" not in lobby_text                                    # لا يظهر اسم المضيف في الانتظار
         lobby_buttons = [b for row in lobby.reply_markup.inline_keyboard for b in row]
         assert all(b.callback_data is None or b.callback_data.startswith("mf:l:") for b in lobby_buttons)   # لا أزرار إعداد في القروب
         assert any(b.url and "start=mf_" in b.url for b in lobby_buttons)    # زر انضم يفتح الخاص

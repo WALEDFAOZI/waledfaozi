@@ -54,8 +54,9 @@ async def wait_until(cond, timeout=20.0):
 
 
 def group_texts(h):
-    return [(getattr(c, "text", None) or "") for c in h.session.calls
-            if type(c).__name__ in ("SendMessage", "EditMessageText") and c.chat_id == GROUP.id]
+    return [(getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in h.session.calls
+            if type(c).__name__ in ("SendMessage", "SendPhoto", "EditMessageText", "EditMessageCaption", "EditMessageMedia")
+            and c.chat_id == GROUP.id]
 
 
 def test_full_game_rounds_vote_and_guess():
