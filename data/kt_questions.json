@@ -4998,5 +4998,870 @@
 "ar": "وش أكثر شخصية تحس إنها تعلم التواضع بالفعل؟",
 "en": "Which character do you think teaches humility through actions?",
 "id": 1000
+},
+{
+"ar": "وش أول شخصية أنمي تذكرها لما تفكر في الشجاعة؟",
+"en": "Which anime character comes to mind first when you think of courage?",
+"id": 1001
+},
+{
+"ar": "هل سبق وضحكت لحد ما دمعت من مشهد أنمي؟",
+"en": "Have you ever laughed until you teared up at an anime scene?",
+"id": 1002
+},
+{
+"ar": "وش أحسن بداية لأنمي شفتها؟",
+"en": "What's the best opening of an anime you've seen?",
+"id": 1003
+},
+{
+"ar": "لو تقدر تجمع فريق أحلامك من شخصيات أنمي، مين يكون معك؟",
+"en": "If you could assemble your dream team of anime characters, who would be on it?",
+"id": 1004
+},
+{
+"ar": "وش أكثر أنمي يخليك تحس إنك تبي تتعلم رسم؟",
+"en": "Which anime makes you want to learn drawing?",
+"id": 1005
+},
+{
+"ar": "هل تفضل الأنمي الطويل ولا الأنمي القصير اللي يخلص بسرعة؟",
+"en": "Do you prefer long anime or short ones that finish quickly?",
+"id": 1006
+},
+{
+"ar": "وش أكثر لحظة تحس فيها إن الشخصية كبرت قدام عينيك؟",
+"en": "What's the moment you felt a character grew up right before your eyes?",
+"id": 1007
+},
+{
+"ar": "هل سبق وتابعت أنمي بسبب مقطع قصير انتشر؟",
+"en": "Have you ever watched an anime because of a viral short clip?",
+"id": 1008
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يستحق يكون له فيلم جديد؟",
+"en": "Which anime do you think deserves a new movie?",
+"id": 1009
+},
+{
+"ar": "لو تقدر تختار شخصية تشاركك وجبة الفطور، مين؟",
+"en": "If you could pick a character to share breakfast with, who?",
+"id": 1010
+},
+{
+"ar": "وش أكثر أنمي تحس إن الموسيقى فيه تميز الحلقات؟",
+"en": "Which anime has music that makes the episodes stand out?",
+"id": 1011
+},
+{
+"ar": "هل سبق وتمنيت لو تكون مقاتل في أنمي؟",
+"en": "Have you ever wished you were a fighter in an anime?",
+"id": 1012
+},
+{
+"ar": "وش أكثر مشهد حماسي خلاك تقوم من مكانك؟",
+"en": "Which exciting scene made you jump out of your seat?",
+"id": 1013
+},
+{
+"ar": "لو تقدر تعيد مشهد من أنمي بنفس الطريقة، أي مشهد؟",
+"en": "If you could replay a scene from anime exactly, which scene would it be?",
+"id": 1014
+},
+{
+"ar": "وش أكثر شخصية تحس إنها تشبه طريقة تفكيرك؟",
+"en": "Which character do you think thinks like you?",
+"id": 1015
+},
+{
+"ar": "هل سبق وحسيت إنك فهمت أنمي بعد ما شفته مرتين؟",
+"en": "Have you ever understood an anime only after the second watch?",
+"id": 1016
+},
+{
+"ar": "وش أكثر أنمي تحسه كان صادم بالنهاية؟",
+"en": "Which anime had a shocking ending in your view?",
+"id": 1017
+},
+{
+"ar": "لو تقدر تضيف شخصية للمسلسل الأكثر شهرة، وش بتكون؟",
+"en": "If you could add a character to the most famous series, what would they be?",
+"id": 1018
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يحتاج تفسير حتى تفهمه؟",
+"en": "Which anime do you feel needs an explanation to be understood?",
+"id": 1019
+},
+{
+"ar": "هل تفضل الأنمي المبني على حياة يومية ولا الأنمي المبني على مغامرات؟",
+"en": "Do you prefer slice-of-life anime or adventure anime?",
+"id": 1020
+},
+{
+"ar": "وش أكثر حلقة تحس إنها تعلم الحب الحقيقي؟",
+"en": "Which episode teaches real love in your view?",
+"id": 1021
+},
+{
+"ar": "لو تقدر تجعل شخصية أنمي تحكم بلدك، مين تختار؟",
+"en": "If you could make an anime character rule your country, who would you choose?",
+"id": 1022
+},
+{
+"ar": "وش أكثر أنمي يخليك تحب الطبيعة أكثر؟",
+"en": "Which anime makes you love nature more?",
+"id": 1023
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت تشرب شاي بالنعناع؟",
+"en": "Have you ever watched anime while drinking mint tea?",
+"id": 1024
+},
+{
+"ar": "وش أكثر شخصية تحس إنها مرحة حتى في أصعب الأوقات؟",
+"en": "Which character is cheerful even in the hardest times?",
+"id": 1025
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يعلمك التواضع بدون ما يقولها؟",
+"en": "Which anime teaches humility without saying it, in your view?",
+"id": 1026
+},
+{
+"ar": "لو تقدر تسمع صوت شخصية أنمي تتكلم معك كل صباح، مين؟",
+"en": "If an anime character could talk to you every morning, whose voice would you want?",
+"id": 1027
+},
+{
+"ar": "وش أكثر حلقة تحسها تستحق تشوفها مع أهلك؟",
+"en": "Which episode do you think deserves watching with your family?",
+"id": 1028
+},
+{
+"ar": "هل سبق وتابعت أنمي وانت تستعد لامتحان؟",
+"en": "Have you ever watched anime while preparing for an exam?",
+"id": 1029
+},
+{
+"ar": "وش أكثر أنمي تحس إن أول حلقة فيه كانت أحلى من أي شيء؟",
+"en": "Which anime had a first episode better than anything else in your view?",
+"id": 1030
+},
+{
+"ar": "لو تقدر تحط شخصية في مدينة الرياض، مين؟",
+"en": "If you could put a character in Riyadh, who would it be?",
+"id": 1031
+},
+{
+"ar": "وش أكثر نهاية تحس إنها تستاهل تتكرر؟",
+"en": "Which ending deserves to be repeated?",
+"id": 1032
+},
+{
+"ar": "هل سبق وفكرت إن الأنمي فن يستحق التقدير؟",
+"en": "Have you ever thought that anime is an art that deserves appreciation?",
+"id": 1033
+},
+{
+"ar": "وش أكثر شخصية تحس إنها تعلم الناس الصبر؟",
+"en": "Which character do you think teaches people patience?",
+"id": 1034
+},
+{
+"ar": "لو تقدر تختار شخصية تكون مدرب رياضة لك، مين؟",
+"en": "If you could pick a character to be your sports coach, who?",
+"id": 1035
+},
+{
+"ar": "وش أكثر أنمي تحس إنه حقق نجاح عالمي كبير؟",
+"en": "Which anime do you think achieved big global success?",
+"id": 1036
+},
+{
+"ar": "هل سبق وتابعت أنمي على الشاطئ؟",
+"en": "Have you ever watched anime at the beach?",
+"id": 1037
+},
+{
+"ar": "وش أكثر حلقة تحس إنها تعلم الثقة بالنفس؟",
+"en": "Which episode teaches self-confidence?",
+"id": 1038
+},
+{
+"ar": "لو تقدر تعيش يوم كامل بقوة شخصية أنمي، مين؟",
+"en": "If you could live one full day with an anime character's power, who?",
+"id": 1039
+},
+{
+"ar": "وش أكثر أنمي تحس إن أفكاره مختلفة عن أي شيء شفته؟",
+"en": "Which anime has ideas unlike anything you've seen?",
+"id": 1040
+},
+{
+"ar": "هل تحب الأنمي اللي فيه أكشن مع رومانسية؟",
+"en": "Do you like anime that mixes action with romance?",
+"id": 1041
+},
+{
+"ar": "وش أكثر شخصية تحسها تعلمت الاعتماد على الآخرين؟",
+"en": "Which character learned to rely on others, in your view?",
+"id": 1042
+},
+{
+"ar": "هل سبق وتابعت أنمي بعد أكلة مفضلة؟",
+"en": "Have you ever watched anime after your favorite meal?",
+"id": 1043
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يعلمك الفخر بالنفس؟",
+"en": "Which anime teaches self-pride in your view?",
+"id": 1044
+},
+{
+"ar": "لو تقدر تختار مكان تدرس فيه شخصية أنمي، أين؟",
+"en": "If you could pick a place for an anime character to study, where?",
+"id": 1045
+},
+{
+"ar": "وش أكثر حلقة تحس إنها حزينة لكنها جميلة؟",
+"en": "Which episode is sad but beautiful in your view?",
+"id": 1046
+},
+{
+"ar": "هل سبق وحسيت إن شخصية أنمي تعرفك حقًا؟",
+"en": "Have you ever felt an anime character really knows you?",
+"id": 1047
+},
+{
+"ar": "وش أكثر أنمي تحسه يعلم عن الصداقة الحقيقية؟",
+"en": "Which anime teaches real friendship in your view?",
+"id": 1048
+},
+{
+"ar": "لو تقدر تضيف شخصية سحرية للمدرسة، وش بتكون؟",
+"en": "If you could add a magic character to school, what would they be?",
+"id": 1049
+},
+{
+"ar": "وش أكثر لحظة في أنمي تحسها كانت ملحمية؟",
+"en": "Which moment in anime felt epic to you?",
+"id": 1050
+},
+{
+"ar": "هل تحب الأنمي اللي فيه أبطال يعيشون في القرى؟",
+"en": "Do you like anime where heroes live in villages?",
+"id": 1051
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يعطيك الأمل في الغد؟",
+"en": "Which anime gives you hope for tomorrow?",
+"id": 1052
+},
+{
+"ar": "لو تقدر تسوي حفلة لشخصيات أنمي، مين يحضر؟",
+"en": "If you could throw a party for anime characters, who would come?",
+"id": 1053
+},
+{
+"ar": "وش أكثر شخصية تحس إنها تحب ضحكة الناس؟",
+"en": "Which character loves making people laugh, in your view?",
+"id": 1054
+},
+{
+"ar": "هل سبق وتابعت أنمي مع صديق بعيد عبر الإنترنت؟",
+"en": "Have you ever watched anime with a far-away friend online?",
+"id": 1055
+},
+{
+"ar": "وش أكثر حلقة تحسها أعادت لك الحماس للحياة؟",
+"en": "Which episode brought back your enthusiasm for life?",
+"id": 1056
+},
+{
+"ar": "لو تقدر تختار سلاح لشخصية الأنمي المفضلة، وش بيكون؟",
+"en": "If you could pick a weapon for your favorite anime character, what would it be?",
+"id": 1057
+},
+{
+"ar": "وش أكثر أنمي تحس إنه كان أول خطوة لك في عالم الأنمي؟",
+"en": "Which anime was your first step into the anime world?",
+"id": 1058
+},
+{
+"ar": "هل تحب الأنمي اللي فيه أطفال يحاربون الأشرار؟",
+"en": "Do you like anime where kids fight villains?",
+"id": 1059
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يستاهل كل التقدير؟",
+"en": "Which anime do you think deserves all the appreciation?",
+"id": 1060
+},
+{
+"ar": "لو تقدر تختار شخصية تطبخ لك، مين؟",
+"en": "If you could pick a character to cook for you, who?",
+"id": 1061
+},
+{
+"ar": "وش أكثر حلقة تحس إنها تصلح كدرس في الحياة؟",
+"en": "Which episode works as a life lesson in your view?",
+"id": 1062
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت تتكلم مع الشخصيات بصوت عالي؟",
+"en": "Have you ever watched anime and talked to the characters out loud?",
+"id": 1063
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يعطيك إحساس بالهدوء والسكينة؟",
+"en": "Which anime gives you a feeling of calm and peace?",
+"id": 1064
+},
+{
+"ar": "لو تقدر تختار اسم لفصل دراسي كأنه أنمي، وش بيكون؟",
+"en": "If you could name a classroom like an anime, what would it be called?",
+"id": 1065
+},
+{
+"ar": "وش أكثر شخصية تحسها شجاعة في مواجهة الخوف؟",
+"en": "Which character do you think is brave while facing fear?",
+"id": 1066
+},
+{
+"ar": "هل تحب الأنمي اللي فيه قصص عن الحيوانات الخارقة؟",
+"en": "Do you like anime with stories about superpowered animals?",
+"id": 1067
+},
+{
+"ar": "وش أكثر أنمي يعلم عن العائلة والوفاء؟",
+"en": "Which anime teaches about family and loyalty?",
+"id": 1068
+},
+{
+"ar": "لو تقدر تسافر مع شخصية أنمي لبلد جديد، مين وأي بلد؟",
+"en": "If you could travel with an anime character to a new country, who and which country?",
+"id": 1069
+},
+{
+"ar": "وش أكثر حلقة تحس إنها تحتاج تعيد مشاهدة؟",
+"en": "Which episode do you feel needs to be rewatched?",
+"id": 1070
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت ترسم بنفس الوقت؟",
+"en": "Have you ever watched anime while drawing at the same time?",
+"id": 1071
+},
+{
+"ar": "وش أكثر أنمي تحس إن شخصياته مثيرة للاهتمام؟",
+"en": "Which anime has characters you find fascinating?",
+"id": 1072
+},
+{
+"ar": "لو تقدر تتحول لشخصية أنمي ليوم واحد، وش بتسوي أول شي؟",
+"en": "If you became an anime character for a day, what would you do first?",
+"id": 1073
+},
+{
+"ar": "وش أكثر حلقة تحسها تعلم الصدق؟",
+"en": "Which episode teaches honesty in your view?",
+"id": 1074
+},
+{
+"ar": "هل سبق وتابعت أنمي عن الرياضة الجماعية وحسيت بالحماس؟",
+"en": "Have you ever watched a team-sports anime and felt the excitement?",
+"id": 1075
+},
+{
+"ar": "وش أكثر أنمي تحس إنه بيكون حلم كل مؤلف؟",
+"en": "Which anime do you think would be every author's dream?",
+"id": 1076
+},
+{
+"ar": "لو تقدر تختار شخصية تحميك من الأشرار، مين؟",
+"en": "If you could pick a character to protect you from villains, who?",
+"id": 1077
+},
+{
+"ar": "وش أكثر أنمي تحس إنه تعلمت منه اللطف؟",
+"en": "Which anime taught you kindness?",
+"id": 1078
+},
+{
+"ar": "هل تحب الأنمي اللي فيه أبطال يحبون الفن والموسيقى؟",
+"en": "Do you like anime where heroes love art and music?",
+"id": 1079
+},
+{
+"ar": "وش أكثر حلقة فيها تضحية تحس إنها أعظم شيء؟",
+"en": "Which sacrifice episode do you think is the greatest?",
+"id": 1080
+},
+{
+"ar": "لو تقدر تختار شخصية تكون صديقتك المقربة، مين؟",
+"en": "If you could pick a character to be your close friend, who?",
+"id": 1081
+},
+{
+"ar": "وش أكثر أنمي يخليك تفكر في المستقبل؟",
+"en": "Which anime makes you think about the future?",
+"id": 1082
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت مع رفقة في البر؟",
+"en": "Have you ever watched anime while camping with friends?",
+"id": 1083
+},
+{
+"ar": "وش أكثر شخصية تحس إنها تملك حكمة الكبار؟",
+"en": "Which character has the wisdom of elders, in your view?",
+"id": 1084
+},
+{
+"ar": "لو تقدر تختار مكان تشوف فيه أنمي للمرة الأولى مرة ثانية، وين؟",
+"en": "If you could choose a place to watch an anime for the first time again, where?",
+"id": 1085
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يحتاج يعاد بجودة أعلى؟",
+"en": "Which anime do you think needs a higher-quality remake?",
+"id": 1086
+},
+{
+"ar": "هل تحب الأنمي اللي فيه أحداث في مدينة بين الجبال؟",
+"en": "Do you like anime set in a city between mountains?",
+"id": 1087
+},
+{
+"ar": "وش أكثر حلقة تحس إنها تعطيك نصيحة للحياة؟",
+"en": "Which episode gives you life advice?",
+"id": 1088
+},
+{
+"ar": "لو تقدر تختار شخصية تكون معلمتك، مين؟",
+"en": "If you could pick a character to be your teacher, who?",
+"id": 1089
+},
+{
+"ar": "وش أكثر أنمي تحسه يخلي الناس يتكلمون عن الأخلاق؟",
+"en": "Which anime makes people talk about morals?",
+"id": 1090
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت تنتظر الأذان؟",
+"en": "Have you ever watched anime while waiting for the call to prayer?",
+"id": 1091
+},
+{
+"ar": "وش أكثر شخصية تحس إنها تجمع بين القوة والطيبة؟",
+"en": "Which character combines strength and kindness, in your view?",
+"id": 1092
+},
+{
+"ar": "لو تقدر تختار اسم مدينة في أنمي تحبها، وش بيكون؟",
+"en": "If you could pick a city from an anime you love, which would it be?",
+"id": 1093
+},
+{
+"ar": "وش أكثر حلقة تحسها تعلم عن الأمل بعد اليأس؟",
+"en": "Which episode teaches hope after despair?",
+"id": 1094
+},
+{
+"ar": "هل تحب الأنمي اللي فيه أبطال يتعاونون مع الحيوانات الأليفة؟",
+"en": "Do you like anime where heroes cooperate with pets?",
+"id": 1095
+},
+{
+"ar": "وش أكثر أنمي تحسه يقدم شخصيات نسائية قوية؟",
+"en": "Which anime presents strong female characters, in your view?",
+"id": 1096
+},
+{
+"ar": "لو تقدر تختار شخصية تعلمك الرسم، مين؟",
+"en": "If you could pick a character to teach you drawing, who?",
+"id": 1097
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يعلم العلاقات الأسرية؟",
+"en": "Which anime teaches family relationships?",
+"id": 1098
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت في مقعد الطائرة؟",
+"en": "Have you ever watched anime in an airplane seat?",
+"id": 1099
+},
+{
+"ar": "وش أكثر شخصية تحس إنها تفهم الآخرين بسرعة؟",
+"en": "Which character understands others quickly, in your view?",
+"id": 1100
+},
+{
+"ar": "لو تقدر تختار قوة لشخصية أنمي تحبها، وش بتكون؟",
+"en": "If you could give a power to your favorite anime character, what would it be?",
+"id": 1101
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يحسن مزاجك بعد يوم تعبان؟",
+"en": "Which anime improves your mood after a tiring day?",
+"id": 1102
+},
+{
+"ar": "هل تحب الأنمي اللي فيه قصص عن الإيمان؟",
+"en": "Do you like anime with stories about faith?",
+"id": 1103
+},
+{
+"ar": "وش أكثر حلقة تحس إنها كانت مفاجأة لطيفة؟",
+"en": "Which episode was a pleasant surprise?",
+"id": 1104
+},
+{
+"ar": "لو تقدر تختار شخصية تكون جارك، مين؟",
+"en": "If you could pick a character to be your neighbor, who?",
+"id": 1105
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يعلم الصبر على الصعوبات؟",
+"en": "Which anime teaches patience through hardships?",
+"id": 1106
+},
+{
+"ar": "هل سبق وتابعت أنمي بالتزامن مع مباراة؟",
+"en": "Have you ever watched anime while a match was on?",
+"id": 1107
+},
+{
+"ar": "وش أكثر شخصية تحسها تحب العدل؟",
+"en": "Which character do you think loves justice?",
+"id": 1108
+},
+{
+"ar": "لو تقدر تختار شخصية أنمي تكون مغني، مين؟",
+"en": "If you could pick an anime character to be a singer, who?",
+"id": 1109
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يعلم قيمة الوقت؟",
+"en": "Which anime teaches the value of time?",
+"id": 1110
+},
+{
+"ar": "هل تحب الأنمي اللي فيه أبطال يسافرون عبر الفضاء؟",
+"en": "Do you like anime where heroes travel through space?",
+"id": 1111
+},
+{
+"ar": "وش أكثر حلقة تحسها تعلم الإخلاص؟",
+"en": "Which episode teaches sincerity?",
+"id": 1112
+},
+{
+"ar": "لو تقدر تختار شخصية تطير معك في السماء، مين؟",
+"en": "If you could pick a character to fly with you in the sky, who?",
+"id": 1113
+},
+{
+"ar": "وش أكثر أنمي تحس إنه أثّر في جيلك كله؟",
+"en": "Which anime do you think influenced your whole generation?",
+"id": 1114
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت تشرب القهوة في الصباح؟",
+"en": "Have you ever watched anime while drinking coffee in the morning?",
+"id": 1115
+},
+{
+"ar": "وش أكثر شخصية تحسها تحب الحرية؟",
+"en": "Which character loves freedom, in your view?",
+"id": 1116
+},
+{
+"ar": "لو تقدر تختار قائد فريق من أنمي للمدرسة، مين؟",
+"en": "If you could pick an anime team captain for school, who?",
+"id": 1117
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يعلم الاعتذار بشكل جميل؟",
+"en": "Which anime teaches apology beautifully?",
+"id": 1118
+},
+{
+"ar": "هل تحب الأنمي اللي فيه مغامرات في الصحراء؟",
+"en": "Do you like anime with desert adventures?",
+"id": 1119
+},
+{
+"ar": "وش أكثر حلقة تحسها تعلم الحذر؟",
+"en": "Which episode teaches caution?",
+"id": 1120
+},
+{
+"ar": "لو تقدر تختار شخصية تحميك في الليل، مين؟",
+"en": "If you could pick a character to watch over you at night, who?",
+"id": 1121
+},
+{
+"ar": "وش أكثر أنمي تحس إنه ينقل الثقافة اليابانية بجمال؟",
+"en": "Which anime portrays Japanese culture beautifully?",
+"id": 1122
+},
+{
+"ar": "هل سبق وتابعت أنمي في المدرسة الثانوية؟",
+"en": "Have you ever watched anime in high school?",
+"id": 1123
+},
+{
+"ar": "وش أكثر شخصية تحس إنها بتكون بطل عظيم؟",
+"en": "Which character do you think will become a great hero?",
+"id": 1124
+},
+{
+"ar": "لو تقدر تختار شخصية تعلمك الطبخ، مين؟",
+"en": "If you could pick a character to teach you cooking, who?",
+"id": 1125
+},
+{
+"ar": "وش أكثر أنمي تحسه يعلم أن الفشل ليس النهاية؟",
+"en": "Which anime teaches that failure isn't the end?",
+"id": 1126
+},
+{
+"ar": "هل تحب الأنمي اللي فيه أبطال يعيشون في عالم افتراضي؟",
+"en": "Do you like anime where heroes live in a virtual world?",
+"id": 1127
+},
+{
+"ar": "وش أكثر حلقة تحسها تعلم عن الوحدة والصداقة؟",
+"en": "Which episode teaches about loneliness and friendship?",
+"id": 1128
+},
+{
+"ar": "لو تقدر تختار شخصية تكون زميلتك في الدراسة، مين؟",
+"en": "If you could pick a character to be your study partner, who?",
+"id": 1129
+},
+{
+"ar": "وش أكثر أنمي تحس إنه بيفضل معك طول حياتك؟",
+"en": "Which anime do you think will stay with you your whole life?",
+"id": 1130
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت تنتظر طلبك في المطعم؟",
+"en": "Have you ever watched anime while waiting for your order at a restaurant?",
+"id": 1131
+},
+{
+"ar": "وش أكثر شخصية تحسها تحب مساعدة الناس؟",
+"en": "Which character loves helping people, in your view?",
+"id": 1132
+},
+{
+"ar": "لو تقدر تختار شخصية تكون رفيقتك في السفر، مين؟",
+"en": "If you could pick a character as your travel companion, who?",
+"id": 1133
+},
+{
+"ar": "وش أكثر أنمي تحس إن صوره تخليك تحب الألوان؟",
+"en": "Which anime's visuals make you love colors?",
+"id": 1134
+},
+{
+"ar": "هل تحب الأنمي اللي فيه أبطال يحمون الكوكب؟",
+"en": "Do you like anime where heroes protect the planet?",
+"id": 1135
+},
+{
+"ar": "وش أكثر حلقة تحسها تعلم عن الإيثار؟",
+"en": "Which episode teaches selflessness?",
+"id": 1136
+},
+{
+"ar": "لو تقدر تختار شخصية تشبهك في الشكل، مين؟",
+"en": "If you could pick a character who looks like you, who?",
+"id": 1137
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يحترم عقول المشاهدين؟",
+"en": "Which anime respects its viewers' minds, in your view?",
+"id": 1138
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت تتعلم لغة جديدة؟",
+"en": "Have you ever watched anime while learning a new language?",
+"id": 1139
+},
+{
+"ar": "وش أكثر شخصية تحسها تستحق أن تكون ملكة الأنمي؟",
+"en": "Which character do you think deserves to be the queen of anime?",
+"id": 1140
+},
+{
+"ar": "لو تقدر تختار شخصية تكون مدربتك في الرياضة، مين؟",
+"en": "If you could pick a character to be your fitness coach, who?",
+"id": 1141
+},
+{
+"ar": "وش أكثر أنمي تحسه يخليك تفكر في العدالة؟",
+"en": "Which anime makes you think about justice?",
+"id": 1142
+},
+{
+"ar": "هل تحب الأنمي اللي فيه مشاهد فيها ثلج؟",
+"en": "Do you like anime with snow scenes?",
+"id": 1143
+},
+{
+"ar": "وش أكثر حلقة تحسها تعلم عن المسؤولية؟",
+"en": "Which episode teaches responsibility?",
+"id": 1144
+},
+{
+"ar": "لو تقدر تختار شخصية تكون معك في الحرب، مين؟",
+"en": "If you could pick a character to be with you in war, who?",
+"id": 1145
+},
+{
+"ar": "وش أكثر أنمي تحسه يعطيك شعور بالدفء؟",
+"en": "Which anime gives you a feeling of warmth?",
+"id": 1146
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت تتابع مباراة بالتلفزيون؟",
+"en": "Have you ever watched anime while watching a match on TV?",
+"id": 1147
+},
+{
+"ar": "وش أكثر شخصية تحسها تحب تعلم الآخرين؟",
+"en": "Which character loves teaching others, in your view?",
+"id": 1148
+},
+{
+"ar": "لو تقدر تختار شخصية تطبخ الكعك، مين؟",
+"en": "If you could pick a character who bakes cake, who?",
+"id": 1149
+},
+{
+"ar": "وش أكثر أنمي تحس إن عالمه مليء بالتفاصيل؟",
+"en": "Which anime has a world full of details, in your view?",
+"id": 1150
+},
+{
+"ar": "هل تحب الأنمي اللي فيه أبطال يبنون مدنهم بأنفسهم؟",
+"en": "Do you like anime where heroes build their own cities?",
+"id": 1151
+},
+{
+"ar": "وش أكثر حلقة تحسها تعلم عن الإخلاص في العمل؟",
+"en": "Which episode teaches dedication at work?",
+"id": 1152
+},
+{
+"ar": "لو تقدر تختار شخصية تحكي لك القصص قبل النوم، مين؟",
+"en": "If you could pick a character to tell you bedtime stories, who?",
+"id": 1153
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يتحدث عن الحرية بشكل جميل؟",
+"en": "Which anime talks about freedom beautifully?",
+"id": 1154
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت في حديقة الحيوانات؟",
+"en": "Have you ever watched anime at a zoo?",
+"id": 1155
+},
+{
+"ar": "وش أكثر شخصية تحسها تحب القراءة؟",
+"en": "Which character loves reading, in your view?",
+"id": 1156
+},
+{
+"ar": "لو تقدر تختار شخصية تكون صديقتك في الفصل، مين؟",
+"en": "If you could pick a character to be your classmate, who?",
+"id": 1157
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يطرح أسئلة عميقة عن الموت؟",
+"en": "Which anime asks deep questions about death?",
+"id": 1158
+},
+{
+"ar": "هل تحب الأنمي اللي فيه مغامرات في الغابات الكثيفة؟",
+"en": "Do you like anime with adventures in dense forests?",
+"id": 1159
+},
+{
+"ar": "وش أكثر حلقة تحسها تعلم عن الامتنان؟",
+"en": "Which episode teaches gratitude?",
+"id": 1160
+},
+{
+"ar": "لو تقدر تختار شخصية تكون مع عائلتك في العيد، مين؟",
+"en": "If you could pick a character to spend Eid with your family, who?",
+"id": 1161
+},
+{
+"ar": "وش أكثر أنمي تحسه يحفز على التعلم؟",
+"en": "Which anime motivates learning?",
+"id": 1162
+},
+{
+"ar": "هل سبق وتابعت أنمي في عيد الميلاد؟",
+"en": "Have you ever watched anime at Christmas?",
+"id": 1163
+},
+{
+"ar": "وش أكثر شخصية تحسها تحب السلام؟",
+"en": "Which character loves peace, in your view?",
+"id": 1164
+},
+{
+"ar": "لو تقدر تختار شخصية تقود سيارة سباق، مين؟",
+"en": "If you could pick a character to drive a race car, who?",
+"id": 1165
+},
+{
+"ar": "وش أكثر أنمي تحس إن نهايته تعلم القبول؟",
+"en": "Which anime's ending teaches acceptance?",
+"id": 1166
+},
+{
+"ar": "هل تحب الأنمي اللي فيه مدن تحت الماء؟",
+"en": "Do you like anime with underwater cities?",
+"id": 1167
+},
+{
+"ar": "وش أكثر حلقة تحسها تعلم عن الصبر في الحب؟",
+"en": "Which episode teaches patience in love?",
+"id": 1168
+},
+{
+"ar": "لو تقدر تختار شخصية تقرأ لك الشعر، مين؟",
+"en": "If you could pick a character to read poetry to you, who?",
+"id": 1169
+},
+{
+"ar": "وش أكثر أنمي تحس إنه يحكي عن الأحلام الكبيرة؟",
+"en": "Which anime talks about big dreams?",
+"id": 1170
+},
+{
+"ar": "هل سبق وتابعت أنمي وأنت تسافر بالقطار السريع؟",
+"en": "Have you ever watched anime on a fast train?",
+"id": 1171
+},
+{
+"ar": "وش أكثر شخصية تحسها تحب الأطفال؟",
+"en": "Which character loves children, in your view?",
+"id": 1172
+},
+{
+"ar": "لو تقدر تختار شخصية تكون معلمة الرسم لك، مين؟",
+"en": "If you could pick a character to teach you painting, who?",
+"id": 1173
 }
 ]

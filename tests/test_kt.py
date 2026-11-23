@@ -7,8 +7,8 @@ from otaku_bot import kt
 
 def test_bank_has_1000_unique_bilingual_questions():
     qs = kt.questions()
-    assert len(qs) == 1000
-    assert len({q["ar"] for q in qs}) == 1000
+    assert len(qs) >= 1000
+    assert len({q["ar"] for q in qs}) == len(qs)
     assert all(q["ar"] and q["en"] for q in qs)
 
 
