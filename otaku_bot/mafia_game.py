@@ -188,8 +188,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
     CHANNEL_CAP = 1000
 
     def channel_body(g: Game) -> str:
-        """رسالة القناة: الحالة الحالية فقط (وسطر النقاش)، بلا سجل قديم."""
-        return "\n\n".join(([g.discuss_line] if g.discuss_line else []) + [g.status_text])
+        """رسالة القناة: الحالة الحالية فقط (وسطر النقاش)، بلا سجل قديم. أثناء اللعب: عدد المافيا المتبقين."""
+        killers = sum(1 for p in g.players.values() if p.alive and p.role == "killer")
+        left = [t(g.lang, "mf_killers_left", n=killers)] if g.state not in ("lobby", "done") else []
+        return "\n\n".join(([g.discuss_line] if g.discuss_line else []) + [g.status_text] + left)
 
     async def flush_news(bot: Bot, g: Game) -> None:
         """يرسل أخبار كل جولة في رسالة خاصة واحدة لكل مشارك: أخبار الصباح وأخبار النهار منفصلتان."""

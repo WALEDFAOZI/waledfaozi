@@ -1664,3 +1664,6 @@ T["en"]["mf_you_voted"] = "🗳 <b>You were voted out…</b>\nThe village voted 
 
 T["ar"]["mf_morning_dead_many"] = "💀 <b>「 سقط {names} في الظلام… 」</b>\nضربات القتلة لم تُرحم، والقرية تستيقظ على الفاجعة."
 T["en"]["mf_morning_dead_many"] = "💀 <b>{names} fell in the dark…</b>\nThe killers struck, and the village wakes to tragedy."
+
+T["ar"]["mf_killers_left"] = "🔪 <b>المافيا المتبقون: {n}</b>"
+T["en"]["mf_killers_left"] = "🔪 <b>Mafia left: {n}</b>"
