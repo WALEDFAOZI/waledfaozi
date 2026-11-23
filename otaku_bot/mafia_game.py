@@ -387,6 +387,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.night_picks, g.night_actions, g.acted = {}, {}, set()
         L = g.lang
         back = await back_rows(bot, g.chat_id, g.live, L)               # زر العودة إلى رسالة اللعبة
+        await post_discuss(bot, g, t(L, "mf_night_comment", r=g.round))  # إشعار في تعليقات المنشور
         alive = alive_players(g)
         mayor = mayor_of(g)
         mayor_warn = t(L, "mf_mayor_warn", name=esc(mayor.name)) if (mayor and g.mayor_revealed) else ""

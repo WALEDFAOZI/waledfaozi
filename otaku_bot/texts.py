@@ -1667,3 +1667,8 @@ T["en"]["mf_morning_dead_many"] = "💀 <b>{names} fell in the dark…</b>\nThe 
 
 T["ar"]["mf_killers_left"] = "🔪 <b>المافيا المتبقون: {n}</b>"
 T["en"]["mf_killers_left"] = "🔪 <b>Mafia left: {n}</b>"
+
+T["ar"]["mf_night_comment"] = "🌙 <b>بدأت الليلة {r}…</b>\nالمافيا يتهامسون في الظلام، والباقون ينتظرون الفجر."
+T["en"]["mf_night_comment"] = "🌙 <b>Night {r} has begun…</b>\nThe mafia are whispering in the dark, and everyone else waits for dawn."
+T["ar"]["mf_no_exec"] = '⚖️ <b>「 لم يُحسم الحكم 」</b>\nالتعادل على الأعلى أصواتًا = لا طرد، فلم يُطرد أحد اليوم.'
+T["en"]["mf_no_exec"] = '⚖️ <b>No verdict</b>\nA tie for the most votes means no elimination, so nobody was voted out today.'
