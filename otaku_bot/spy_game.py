@@ -181,7 +181,6 @@ def build_spy_router(ctx: Ctx) -> Router:
         L = g.lang
         return "\n".join([
             t(L, "sp_title"), "",
-            t(L, "sp_host", h=esc(g.host_name)),
             t(L, "sp_players", n=len(g.players), names=names(g)),
             t(L, "sp_left", s=max(0, left), min=MIN_PLAYERS, max=MAX_PLAYERS),
             "", t(L, "sp_howto"),
@@ -189,8 +188,8 @@ def build_spy_router(ctx: Ctx) -> Router:
 
     def lobby_markup(g: Game):
         L = g.lang
-        return kb([btn(t(L, "sp_join"), f"sp:j:{g.gid}"), btn(t(L, "sp_leave"), f"sp:l:{g.gid}")],
-                  [btn(t(L, "sp_start"), f"sp:s:{g.gid}"), btn(t(L, "sp_cancel"), f"sp:x:{g.gid}", style="danger")], *chan_row(L, bot_link=True))
+        return kb([btn(t(L, "sp_join"), f"sp:j:{g.gid}", style="success"), btn(t(L, "sp_leave"), f"sp:l:{g.gid}", style="danger")],
+                  [btn(t(L, "sp_start"), f"sp:s:{g.gid}"), btn(t(L, "sp_cancel"), f"sp:x:{g.gid}")], *chan_row(L, bot_link=True))
 
     async def lobby_phase(bot: Bot, g: Game) -> None:
         end = time.monotonic() + LOBBY_SECS
