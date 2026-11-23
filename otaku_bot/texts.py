@@ -314,7 +314,7 @@ T["ar"].update({
     "an_rp_ok": "شكرًا! سنراجع هذا العمل 🙏",
 })
 T["en"].update({
-    "btn_anime": "🎬 Suggest me an anime",
+    "btn_anime": "🎬 Suggest anime",
     "an_menu": "🎬 <b>Suggest me an anime</b>\nPick what suits you, or leave it to luck 🎲\n<i>A carefully curated list with no crude content.</i>",
     "an_surprise": "🎲 Surprise me", "an_family": "👨‍👩‍👧 All ages", "an_genre": "🎭 By genre", "an_len": "⏱ By length",
     "an_pick_genre": "🎭 Pick a genre:", "an_pick_len": "⏱ Pick a length:",
@@ -518,7 +518,7 @@ T["ar"].update({
     "gp_top_plain": "🏆 متصدرو المجموعة (🏆 انتصارات · 🎮 ألعاب · ⭐ نقاط)\n{all}",
 })
 T["en"].update({
-    "btn_group": "👥 Challenge in a group",
+    "btn_group": "👥 Group challenge",
     "gpm_text": "👥 <b>Challenge in a group</b>\n1️⃣ Tap the button and pick the group (the bot gets added)\n2️⃣ Give it permission to send messages\n3️⃣ Type <b>/play</b> in the group and the game starts in 30 seconds!\n\n<i>If the bot is already in the group, just type /play.</i>",
     "gpm_btn": "➕ Pick a group", "gp_top_btn": "🏆 Group ranking",
     "gp_top": "🏆 <b>Group leaderboard</b>\n<i>🏆 wins · 🎮 games · ⭐ points</i>\n\n📅 <b>This week</b>\n{week}\n\n🌍 <b>All time</b>\n{all}",
@@ -536,7 +536,7 @@ T["ar"].update({
     "gp_lobby_ch": "🎮 <b>مسابقة: {kind}</b>\n\n⏳ تبدأ بعد <b>{left}</b> ثانية — اضغط «شارك»!\n👥 المشاركون: <b>{n}</b>\n<i>سؤال كل 30 ثانية، والأسرع يكسب نقاطًا أكثر.</i>",
 })
 T["en"].update({
-    "btn_channel_game": "📢 Challenge in a channel",
+    "btn_channel_game": "📢 Channel challenge",
     "ch_intro": "📢 <b>Challenge in a channel</b>\n1️⃣ Tap “Pick channel” and add the bot as admin (post + edit + delete messages)\n2️⃣ You'll get the contest type menu here\n3️⃣ Then 3 minutes to join, then questions (30s each), and the top 10 are shown at the end.\n\n<i>Bot already in your channel? Type /play there (I'll delete your post and send the menu here), or pick from your channels below.</i>",
     "ch_add_btn": "➕ Pick a channel", "ch_linked": "📢 Channel: <b>{title}</b>\nPick the contest type:",
     "ch_rights_warn": "⚠️ The bot needs permission to <b>post and edit messages</b> in the channel.",
@@ -1613,3 +1613,6 @@ T["ar"]["inl_group_go"] = "➕ أضفني لمجموعتك"
 T["en"]["inl_group_go"] = "➕ Add me to your group"
 T["ar"]["kt_title_plain"] = "🎌 كت · سؤال عن الأنمي"
 T["en"]["kt_title_plain"] = "🎌 Kt · An anime question"
+
+T["ar"]["kt_title"] = "🎌 <b>كت</b>"
+T["en"]["kt_title"] = "🎌 <b>Kt</b>"

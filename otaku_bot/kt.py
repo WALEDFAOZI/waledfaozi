@@ -52,10 +52,7 @@ def build_kt_router(ctx) -> Router:
 
     def render(q: dict, lang: str) -> str:
         body = q["en"] if lang == "en" else q["ar"]
-        return f"{t(lang, 'kt_title')}\n\n<b>{esc(body)}</b>"
-
-    def markup(lang: str):
-        return kb([btn(t(lang, "kt_next"), "kt:n")])
+        return f"{t(lang, 'kt_title')} <b>{esc(body)}</b>"
 
     @r.message(F.text.regexp(TRIGGER))
     async def on_trigger(m: Message):
@@ -65,7 +62,7 @@ def build_kt_router(ctx) -> Router:
         if q is None:
             await m.answer(t(lang, "kt_empty"))
             return
-        await m.answer(render(q, lang), parse_mode="HTML", reply_markup=markup(lang))
+        await m.reply(render(q, lang), parse_mode="HTML")
 
     @r.message(CommandStart(deep_link=True, magic=F.args == "kt"))
     async def on_inline_kt(m: Message):
@@ -76,7 +73,7 @@ def build_kt_router(ctx) -> Router:
         if q is None:
             await m.answer(t(lang, "kt_empty"))
             return
-        await m.answer(render(q, lang), parse_mode="HTML", reply_markup=markup(lang))
+        await m.answer(render(q, lang), parse_mode="HTML")
 
     @r.callback_query(F.data == "kt:n")
     async def on_next(c: CallbackQuery):
@@ -87,8 +84,8 @@ def build_kt_router(ctx) -> Router:
         if q is None:
             return
         try:
-            await c.message.edit_text(render(q, lang), parse_mode="HTML", reply_markup=markup(lang))
+            await c.message.edit_text(render(q, lang), parse_mode="HTML")
         except Exception:  # noqa: BLE001 - الرسالة قديمة أو محذوفة: نرسل سؤالًا جديدًا
-            await c.message.answer(render(q, lang), parse_mode="HTML", reply_markup=markup(lang))
+            await c.message.answer(render(q, lang), parse_mode="HTML")
 
     return r
