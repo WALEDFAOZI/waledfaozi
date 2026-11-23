@@ -1655,3 +1655,6 @@ T["ar"]["mf_vote_killer"] = "🗳 <b>صوّتت الجماعة على {name}، �
 T["en"]["mf_vote_killer"] = "🗳 <b>The town voted out {name}, who was Mafia! 🔪</b>"
 T["ar"]["mf_vote_other"] = "🗳 <b>صوّتت الجماعة على {name}، وكان {role}.</b>"
 T["en"]["mf_vote_other"] = "🗳 <b>The town voted out {name}, who was {role}.</b>"
+
+T["ar"]["mf_you_died"] = "🩸 <b>تم قتلك…</b>\nضربة القاتل وصلت إليك في الظلام، والقرية ستستيقظ بدونك. تابع اللعبة بصمت، ولا تكشف دورك."
+T["en"]["mf_you_died"] = "🩸 <b>You were killed…</b>\nThe killer's blow reached you in the dark, and the village will wake without you. Watch the game in silence, and don't reveal your role."

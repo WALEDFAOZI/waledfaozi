@@ -594,6 +594,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
             text = t(L, "mf_morning_dead", name=esc(g.players[res.victim].name))
             if g.reveal_death:
                 text += "\n" + role_line(g, res.victim)
+            victim = g.players[res.victim]                  # القتيل يتلقى رسالته الدرامية في الخاص
+            await dm(bot, victim.uid, t(db.get_lang(victim.uid), "mf_you_died"))
         elif res.saved:
             text = t(L, "mf_morning_saved")
         else:
