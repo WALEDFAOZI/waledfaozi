@@ -110,6 +110,8 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp.include_router(build_mafia_router(ctx))    # قبل المجموعات: أزرار المافيا
     dp.include_router(build_spy_router(ctx))      # برا السالفة
     dp.include_router(build_swap_router(ctx))     # تبادل الشخصيات (قبل start العادي)
+    from .kt import build_kt_router
+    dp.include_router(build_kt_router(ctx))       # لعبة «كت» (تقبل الكلمة في الخاص والمجموعات)
     dp.include_router(build_arcade_router(ctx))   # ألعاب ثنائية (قبل start العادي: روابط التحدّي)
     dp.include_router(build_online_router(ctx))   # لعب أونلاين
     dp.include_router(build_mafia_online_router(ctx))  # مافيا أونلاين (طابور + غرف خاصة)
