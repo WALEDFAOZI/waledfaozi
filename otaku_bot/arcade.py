@@ -88,6 +88,7 @@ class Match:
     scope: str = "p"                   # p: خاص مع كل لاعب | c: رسالة واحدة في مجموعة أو قناة
     chat_id: int | None = None
     mid: int | None = None             # رسالة المجموعة/القناة الحيّة
+    inline_id: str | None = None       # رسالة الوضع الداخلي (inline): تُعدَّل بمعرّفها، ولا توجد دردشة
 
 
 matches: dict[int, Match] = {}
@@ -199,9 +200,16 @@ def build_arcade_router(ctx: Ctx) -> Router:
                 for c in range(C4_COLS)]
         return text, kb(cols)
 
+    def chat_lang(m: Match) -> str:
+        return db.group_lang(m.chat_id) if m.chat_id else L_(m.players[0])
+
     async def show_chat(bot: Bot, m: Match, lang: str = "ar", markup_override=None) -> None:
         text, markup = render_chat(m, lang)
         try:
+            if m.inline_id:
+                await bot.edit_message_text(text, inline_message_id=m.inline_id, parse_mode="HTML",
+                                            reply_markup=markup_override if markup_override is not None else markup)
+                return
             if m.mid:
                 await bot.edit_message_text(text, chat_id=m.chat_id, message_id=m.mid, parse_mode="HTML",
                                             reply_markup=markup_override if markup_override is not None else markup)
@@ -236,7 +244,7 @@ def build_arcade_router(ctx: Ctx) -> Router:
         png = await asyncio.to_thread(make_match_card, m.kind, board, names, title, summary, scores)
         if not png:
             return
-        targets = [m.chat_id] if m.scope == "c" else list(m.players)
+        targets = [m.chat_id] if m.chat_id else list(m.players)
         for chat in targets:
             try:
                 await bot.send_photo(chat, BufferedInputFile(png, "result.jpg"), caption=summary)
@@ -244,13 +252,17 @@ def build_arcade_router(ctx: Ctx) -> Router:
                 pass
 
     async def finish(bot: Bot, m: Match, result_for: dict[int, str], summary: str = "") -> None:
-        lang = db.group_lang(m.chat_id) if m.scope == "c" else L_(m.players[0])
+        lang = chat_lang(m)
         if m.scope == "c":
             text, _ = render_chat(m, lang)
             body = "\n".join([text.split("\n")[0], summary]) if summary else text
             try:
-                await bot.edit_message_text(body, chat_id=m.chat_id, message_id=m.mid, parse_mode="HTML",
-                                            reply_markup=kb([btn(t(lang, "ar_again"), "ar:m")]))
+                if m.inline_id:
+                    await bot.edit_message_text(body, inline_message_id=m.inline_id, parse_mode="HTML",
+                                                reply_markup=kb([btn(t(lang, "ar_again"), "ar:m")]))
+                else:
+                    await bot.edit_message_text(body, chat_id=m.chat_id, message_id=m.mid, parse_mode="HTML",
+                                                reply_markup=kb([btn(t(lang, "ar_again"), "ar:m")]))
             except TelegramAPIError:
                 pass
         else:
@@ -277,7 +289,7 @@ def build_arcade_router(ctx: Ctx) -> Router:
         if win is None:
             return False
         record(m, None if win == "draw" else (0 if win == sym_of(m, m.players[0]) else 1))
-        lang = db.group_lang(m.chat_id) if m.scope == "c" else L_(m.players[0])
+        lang = chat_lang(m)
         if win == "draw":
             summary = t(lang, "ar_chat_draw")
         else:
@@ -433,7 +445,7 @@ def build_arcade_router(ctx: Ctx) -> Router:
         if max(m.score) >= 2:
             winner = 0 if m.score[0] > m.score[1] else 1
             record(m, winner)
-            lang = db.group_lang(m.chat_id) if m.scope == "c" else L_(m.players[0])
+            lang = chat_lang(m)
             summary = t(lang, "ar_chat_win", name=chat_name(m, m.players[winner]))
             if m.scope == "c":
                 await finish(c.bot, m, {}, summary)
@@ -492,6 +504,40 @@ def build_arcade_router(ctx: Ctx) -> Router:
         starter = None if chat.type == "channel" else uid
         await chat_create(c.bot, chat.id, kind, starter, c.from_user.full_name)
 
+    inline_matches: dict[str, int] = {}
+
+    @r.callback_query(F.data.regexp(r"^ar:ij:(xo|rps|c4)$"))
+    async def cb_inline_join(c: CallbackQuery):
+        """من رسالة الوضع الداخلي: أول ضغطة تفتح المباراة في نفس الرسالة، وأول لاعبين يلعبان."""
+        kind = c.data.split(":")[2]
+        iid = c.inline_message_id
+        uid, L = c.from_user.id, L_(c.from_user.id)
+        if not iid:
+            await c.answer(t(L, "ar_not_now"), show_alert=True)
+            return
+        gid = inline_matches.get(iid)
+        m = matches.get(gid) if gid else None
+        if m is None:
+            counter[0] += 1
+            m = Match(gid=counter[0], kind=kind, players=[], names={}, scope="c", chat_id=None,
+                      inline_id=iid, state="join")
+            m.board = [None] * 9 if kind == "xo" else [[None] * C4_COLS for _ in range(C4_ROWS)]
+            matches[m.gid] = m
+            inline_matches[iid] = m.gid
+        if m.state != "join" or uid in m.players:
+            await c.answer(t(L, "ar_chat_full" if m.state != "join" else "ar_chat_already"), show_alert=True)
+            return
+        if uid in user_match:
+            await c.answer(t(L, "ar_busy"), show_alert=True)
+            return
+        await c.answer()
+        m.players.append(uid)
+        m.names[uid] = c.from_user.full_name
+        user_match[uid] = m.gid
+        if len(m.players) == 2:
+            m.state = "play"
+        await show_all(c.bot, m)
+
     @r.callback_query(F.data.regexp(r"^ar:j:\d+$"))
     async def cb_chat_join(c: CallbackQuery):
         gid = int(c.data.split(":")[2])
@@ -513,6 +559,16 @@ def build_arcade_router(ctx: Ctx) -> Router:
         if len(m.players) == 2:
             m.state = "play"
         await show_all(c.bot, m)
+
+    @r.callback_query(F.data.regexp(r"^ar:k:(xo|rps|c4)$"))
+    async def cb_game_pick(c: CallbackQuery):
+        """لعبة واحدة من القائمة: خياران فقط، أونلاين أو تحدّي صديق."""
+        kind = c.data.split(":")[2]
+        L = L_(c.from_user.id)
+        await c.answer()
+        await c.message.answer(t(L, "ar_pick_mode", game=t(L, "ar_title_" + kind)), parse_mode="HTML",
+                               reply_markup=kb([btn(t(L, "ar_online_btn"), f"ar:q:{kind}"),
+                                                btn(t(L, "ar_friend_btn"), f"ar:f:{kind}")]))
 
     @r.callback_query(F.data == "ar:m")
     async def cb_menu(c: CallbackQuery):

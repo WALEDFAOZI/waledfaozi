@@ -134,7 +134,8 @@ def games_kb(L: str, images: bool = False) -> InlineKeyboardMarkup:
         rows.append([btn(t(L, "btn_images"), "ct:images")])
     rows += [[btn(t(L, "g_tf"), "g:tf")], [btn(t(L, "g_song"), "g:song")], [btn(t(L, "g_ord"), "g:ord")],
              [btn(t(L, "g_char"), "g:char")], [btn(t(L, "g_quote"), "g:quote")], [btn(t(L, "btn_persona"), "ps:s")],
-             [btn(t(L, "btn_two_player"), "ar:m")],
+             [btn(t(L, "ar_title_xo"), "ar:k:xo"), btn(t(L, "ar_title_rps"), "ar:k:rps")],
+             [btn(t(L, "ar_title_c4"), "ar:k:c4")],
              [btn(t(L, "btn_menu"), "menu")]]
     return kb(*rows)
 
@@ -199,10 +200,13 @@ def build_router(ctx: Ctx) -> Router:
                          f"https://t.me/{bot_me}?startgroup=play"),
         ]
         if db.game_on("arcade"):
-            for kind in ("xo", "c4", "rps"):
-                inv = arcade.make_invite(uid, kind)
-                games.append(game_article(f"g_{kind}", "ar_title_" + kind, "inl_game_text", "inl_game_go",
-                                          f"https://t.me/{bot_me}?start=ar_{inv}"))
+            for kind in ("xo", "c4", "rps"):             # تُلعب في نفس الرسالة المرسلة
+                games.append(InlineQueryResultArticle(
+                    id=f"g_{kind}", title=t(L, "ar_title_" + kind),
+                    input_message_content=InputTextMessageContent(
+                        message_text=t(L, "ar_inline_start", game=t(L, "ar_title_" + kind), names="—"),
+                        parse_mode="HTML", disable_web_page_preview=True),
+                    reply_markup=kb([btn(t(L, "ar_join_btn"), f"ar:ij:{kind}", style="success")])))
         for rid, title_key, kind in (("g_sudden", "btn_sudden", "sudden"), ("g_quiz", "btn_full", "quiz"),
                                      ("g_images", "btn_images", "images"), ("g_tf", "g_tf", "tf")):
             games.append(game_article(rid, title_key, "inl_game_text", "inl_game_go",

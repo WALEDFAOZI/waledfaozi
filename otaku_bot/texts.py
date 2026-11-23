@@ -1616,3 +1616,11 @@ T["en"]["kt_title_plain"] = "🎌 Kt · An anime question"
 
 T["ar"]["kt_title"] = "🎌 كت انمي"
 T["en"]["kt_title"] = "🎌 Kt anime"
+
+T["ar"]["ar_inline_start"] = "🎮 <b>{game}</b>\nاضغط «انضم للتحدي» وابدأ اللعب في هذه الرسالة."
+T["en"]["ar_inline_start"] = "🎮 <b>{game}</b>\nTap «Join the challenge» and play right in this message."
+
+T["ar"]["ar_pick_mode"] = "🎲 <b>{game}</b>\nكيف تبي تلعب؟"
+T["en"]["ar_pick_mode"] = "🎲 <b>{game}</b>\nHow do you want to play?"
+T["ar"]["ar_online_btn"] = "🌐 لعب أونلاين"
+T["en"]["ar_online_btn"] = "🌐 Play online"
