@@ -742,6 +742,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
             raise
         except Exception:  # noqa: BLE001
             log.exception("mafia crashed in %s", g.chat_id)
+            try:                                              # الخطأ يظهر في القناة/المجموعة بدل أن تقف اللعبة بصمت
+                await show(bot, g, t(L, "mf_crashed"), None)
+            except Exception:  # noqa: BLE001
+                pass
         finally:
             g.state = "done"
             if g.gone:

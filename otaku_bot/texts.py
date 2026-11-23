@@ -1647,3 +1647,6 @@ T["en"]["sp_end_btn"] = "❌ Cancel game"
 
 T["ar"]["sp_countdown"] = "⏳ تبدأ بعد {s} ثانية، ويلزم {min}–{max} لاعبين"
 T["en"]["sp_countdown"] = "⏳ Starts in {s}s, needs {min}–{max} players"
+
+T["ar"]["mf_crashed"] = "⚠️ توقفت اللعبة بسبب خطأ فني. ابدأ لعبة جديدة بـ /mafia"
+T["en"]["mf_crashed"] = "⚠️ The game stopped because of a technical error. Start a new one with /mafia"
