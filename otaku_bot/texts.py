@@ -1595,3 +1595,6 @@ T["en"]["gp_top_title_plain"] = "🏆 Group leaderboard"
 
 T["ar"]["btn_two_player"] = "🎲 ألعاب ثنائية: إكس أو، حجرة ورقة مقص، أربعة في صف"
 T["en"]["btn_two_player"] = "🎲 Two-player games: Tic-tac-toe, RPS, Connect Four"
+
+T["ar"]["btn_discover"] = "🧬 اكتشف نمطك"
+T["en"]["btn_discover"] = "🧬 Discover your type"

@@ -224,23 +224,9 @@ def build_online_router(ctx: Ctx) -> Router:
                 lambda x: x in user_match or any(x == y for y, _ in queue[kind])))
         return False
 
-    @r.callback_query(F.data == "on:nt")
-    async def cb_notify(c: CallbackQuery):
-        L = L_(c.from_user.id)
-        db.upsert_user(c.from_user.id, c.from_user.full_name)
-        on = online_notify.toggle(db, c.from_user.id)
-        await c.answer(t(L, "on_notify_on" if on else "on_notify_off"), show_alert=True)
-        from .bot import menu_kb            # القائمة الرئيسية نفسها، مع تحديث حالة الزر مكانها
-        try:
-            await c.message.edit_reply_markup(reply_markup=menu_kb(
-                L, None, images=db.category_counts(L).get("images", 0) >= 10, notify_on=on))
-        except TelegramAPIError:
-            pass
-
-    @r.callback_query(F.data == "on:m")
-    async def cb_menu(c: CallbackQuery):
-        await c.answer()
-        L = L_(c.from_user.id)
+    def online_menu_markup(uid: int):
+        """قائمة اللعب أونلاين. زر الإشعار داخلها، وحالته تظهر على الزر (✅ شغال / 🔕 مقفل)."""
+        L = L_(uid)
         rows = []
         for k in KINDS:
             n = len(queue[k])
@@ -248,7 +234,26 @@ def build_online_router(ctx: Ctx) -> Router:
             rows.append([btn(label, f"on:j:{k}")])
         rows.append([btn(t(L, "btn_mafia_online"), "mo:j"), btn(t(L, "mo_help_btn"), "mo:h")])
         rows.append([btn(t(L, "ar_menu_btn"), "ar:m")])
-        await c.message.answer(t(L, "on_menu"), parse_mode="HTML", reply_markup=kb(*rows, [btn(t(L, "btn_menu"), "menu")]))
+        on = online_notify.is_on(db, uid)
+        rows.append([btn(t(L, "btn_online_notify") + (" ✅" if on else " 🔕"), "on:nt")])
+        return kb(*rows, [btn(t(L, "btn_menu"), "menu")])
+
+    @r.callback_query(F.data == "on:nt")
+    async def cb_notify(c: CallbackQuery):
+        L = L_(c.from_user.id)
+        db.upsert_user(c.from_user.id, c.from_user.full_name)
+        on = online_notify.toggle(db, c.from_user.id)
+        await c.answer(t(L, "on_notify_on" if on else "on_notify_off"), show_alert=True)
+        try:
+            await c.message.edit_reply_markup(reply_markup=online_menu_markup(c.from_user.id))
+        except TelegramAPIError:
+            pass
+
+    @r.callback_query(F.data == "on:m")
+    async def cb_menu(c: CallbackQuery):
+        await c.answer()
+        L = L_(c.from_user.id)
+        await c.message.answer(t(L, "on_menu"), parse_mode="HTML", reply_markup=online_menu_markup(c.from_user.id))
 
     @r.callback_query(F.data.regexp(r"^on:j:(quiz|tf|sudden|images)$"))
     async def cb_join(c: CallbackQuery):
