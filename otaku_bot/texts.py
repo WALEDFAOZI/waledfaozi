@@ -1644,3 +1644,6 @@ T["en"]["gpm_top"] = "🏆 Ranking"
 
 T["ar"]["sp_end_btn"] = "❌ إلغاء اللعبة"
 T["en"]["sp_end_btn"] = "❌ Cancel game"
+
+T["ar"]["sp_countdown"] = "⏳ تبدأ بعد {s} ثانية، ويلزم {min}–{max} لاعبين"
+T["en"]["sp_countdown"] = "⏳ Starts in {s}s, needs {min}–{max} players"

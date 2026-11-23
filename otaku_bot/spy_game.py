@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import asyncio
+import math
 import json
 import logging
 import random
@@ -35,7 +36,7 @@ log = logging.getLogger(__name__)
 MIN_PLAYERS, MAX_PLAYERS = 3, 12
 ROUNDS = 10
 EXTRA_MAX = 10
-LOBBY_SECS = 150
+LOBBY_SECS = 180
 NEXT_SECS = 60
 ASK_SECS = 60
 ANSWER_SECS = 60
@@ -182,7 +183,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         return "\n".join([
             t(L, "sp_title"), "",
             t(L, "sp_players", n=len(g.players), names=names(g)),
-            t(L, "sp_left", s=max(0, left), min=MIN_PLAYERS, max=MAX_PLAYERS),
+            t(L, "sp_countdown", s=max(0, left), min=MIN_PLAYERS, max=MAX_PLAYERS),
             "", t(L, "sp_howto"),
         ])
 
@@ -198,9 +199,10 @@ def build_spy_router(ctx: Ctx) -> Router:
             left = end - time.monotonic()
             if left <= 0:
                 return
-            if g.dirty and time.monotonic() - last >= EDIT_GAP:
-                g.dirty, last = False, time.monotonic()
-                await show(bot, g, lobby_text(g, int(left)), lobby_markup(g))
+            now = time.monotonic()
+            if (g.dirty and now - last >= EDIT_GAP) or now - last >= 10:    # العداد ينزل كل 10 ثوانٍ
+                g.dirty, last = False, now
+                await show(bot, g, lobby_text(g, math.ceil(left)), lobby_markup(g))
             await asyncio.sleep(0.5)
 
     # ── الجولات ─────────────────────────────────────────────
