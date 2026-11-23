@@ -241,6 +241,7 @@ def build_online_router(ctx: Ctx) -> Router:
             label = t(L, f"on_kind_{k}") + (t(L, "on_queue_n", n=n) if n else "")
             rows.append([btn(label, f"on:j:{k}")])
         rows.append([btn(t(L, "btn_mafia_online"), "mo:j"), btn(t(L, "mo_help_btn"), "mo:h")])
+        rows.append([btn(t(L, "ar_menu_btn"), "ar:m")])
         await c.message.answer(t(L, "on_menu"), parse_mode="HTML", reply_markup=kb(*rows, [btn(t(L, "btn_menu"), "menu")]))
 
     @r.callback_query(F.data.regexp(r"^on:j:(quiz|tf|sudden|images)$"))
