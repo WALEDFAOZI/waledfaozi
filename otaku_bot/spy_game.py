@@ -32,7 +32,7 @@ from .thread_anchor import anchor_id
 
 log = logging.getLogger(__name__)
 
-MIN_PLAYERS, MAX_PLAYERS = 4, 12
+MIN_PLAYERS, MAX_PLAYERS = 3, 12
 ROUNDS = 10
 EXTRA_MAX = 10
 LOBBY_SECS = 150
