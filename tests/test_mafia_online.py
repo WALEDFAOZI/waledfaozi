@@ -9,11 +9,11 @@ from otaku_bot import mafia_online as MO
 
 @pytest.fixture(autouse=True)
 def fast_online():
-    old = (MO.QUEUE_SECS, MO.NIGHT_SECS, MO.TALK_SECS, MO.VOTE_SECS, MO.MSG_GAP)
-    MO.QUEUE_SECS, MO.NIGHT_SECS, MO.TALK_SECS, MO.VOTE_SECS, MO.MSG_GAP = 1, 1, 1, 1, 0
-    MO.queue.clear(); MO.rooms.clear(); MO.user_room.clear(); MO.queue_token[0] += 1
+    old = (MO.QUEUE_SECS, MO.NIGHT_SECS, MO.TALK_SECS, MO.VOTE_SECS, MO.MSG_GAP, MO.FILL_SECS)
+    MO.QUEUE_SECS, MO.NIGHT_SECS, MO.TALK_SECS, MO.VOTE_SECS, MO.MSG_GAP, MO.FILL_SECS = 1, 1, 1, 1, 0, 1
+    MO.queue.clear(); MO.rooms.clear(); MO.user_room.clear(); MO.queue_token[0] += 1; MO.fill_pending[0] = False
     yield
-    MO.QUEUE_SECS, MO.NIGHT_SECS, MO.TALK_SECS, MO.VOTE_SECS, MO.MSG_GAP = old
+    MO.QUEUE_SECS, MO.NIGHT_SECS, MO.TALK_SECS, MO.VOTE_SECS, MO.MSG_GAP, MO.FILL_SECS = old
     MO.queue.clear(); MO.rooms.clear(); MO.user_room.clear(); MO.queue_token[0] += 1
 
 
@@ -69,3 +69,28 @@ def test_talk_relays_name_and_dead_or_fast_messages_are_blocked():
         assert len(relayed) == len(users)                           # يصل للجميع
         assert all(sender.name in c.text for c in relayed)          # باسم المرسل
     run(go())
+
+
+def _roles_for(n):
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, n + 1)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        for u in users:
+            await h.tap(u, "mo:j")
+        assert await wait_until(lambda: bool(MO.rooms), 10)
+        room = next(iter(MO.rooms.values()))
+        roles = sorted(s.role for s in room.seats.values())
+        MO.rooms.clear(); MO.user_room.clear()
+        room.task.cancel()
+        return roles
+    return run(go())
+
+
+def test_eight_players_get_a_mayor_and_twelve_get_a_joker():
+    eight = _roles_for(8)
+    assert "mayor" in eight and "joker" not in eight
+    twelve = _roles_for(12)
+    assert "mayor" in twelve and "joker" in twelve

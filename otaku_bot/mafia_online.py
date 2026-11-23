@@ -2,7 +2,7 @@
 
 محرّك المجموعة والقناة (mafia_game.py) لا يُمسّ. هنا نفس القواعد الأساسية (من mafia.py) مع
 عرض يناسب الأونلاين: كل لاعب يتلقى الحالة في الخاص، والنقاش نصّ يصل للجميع باسم المرسل.
-الأدوار المتاحة: قاتل، طبيب، محقق، مواطن. (العمدة والمجنون للمجموعة فقط.)
+الأدوار: قاتل، محقق، طبيب (من 6)، عمدة (من 8)، مجنون (من 12)، ومواطن. نفس شروط المجموعة.
 """
 from __future__ import annotations
 
@@ -23,7 +23,8 @@ from .texts import t
 
 log = logging.getLogger(__name__)
 MIN_PLAYERS = 5
-START_AT = 8          # يبدأ فورًا عند اكتمال هذا العدد
+START_AT = 8          # عند اكتمال هذا العدد تبدأ فترة انتظار قصيرة ليلحق بها غيرهم
+FILL_SECS = 30        # مدة فترة الانتظار هذه (تنتهي مبكرًا عند MAX_PLAYERS)
 MAX_PLAYERS = 15
 QUEUE_SECS = 180      # إن لم يكتمل START_AT: يبدأ بعد هذه المدة إن وُجد MIN_PLAYERS
 NIGHT_SECS = 60
@@ -31,7 +32,7 @@ TALK_SECS = 180
 VOTE_SECS = 60
 MSG_GAP = 3.0         # ثوانٍ بين رسالتين من اللاعب نفسه
 MSG_MAX = 300         # أقصى طول للرسالة
-ICON = {"killer": "🔪", "citizen": "🧑", "detective": "🔍", "doctor": "🩺"}
+ICON = {"killer": "🔪", "citizen": "🧑", "detective": "🔍", "doctor": "🩺", "mayor": "🎖", "joker": "🃏"}
 
 
 @dataclass
@@ -51,6 +52,8 @@ class Room:
     night_picks: dict = field(default_factory=dict)     # قاتل -> هدف
     night_actions: dict = field(default_factory=dict)   # دور -> هدف
     last_protect: int | None = None
+    mayor_revealed: bool = False
+    joker_pick: int | None = None
     votes: dict = field(default_factory=dict)
     last_sent: dict = field(default_factory=dict)       # uid -> وقت آخر رسالة نقاش
     task: asyncio.Task | None = None
@@ -58,6 +61,7 @@ class Room:
 
 queue: list[tuple[int, str]] = []        # (uid, الاسم)
 queue_token = [0]                         # يتغيّر كلما فرغ الطابور، فتتوقف مؤقتات قديمة
+fill_pending = [False]                    # فترة الانتظار (ملء الغرفة) جارية
 rooms: dict[int, Room] = {}
 user_room: dict[int, int] = {}
 counter = [0]
@@ -111,6 +115,16 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
             queue.clear()
             queue_token[0] += 1
 
+    async def _fill(bot: Bot) -> None:
+        """بعد اكتمال 8: ينتظر FILL_SECS ليلحق غيرهم، ثم يبدأ بمن في الطابور (حتى 15)."""
+        await asyncio.sleep(FILL_SECS)
+        fill_pending[0] = False
+        if len(queue) >= MIN_PLAYERS:
+            take = queue[:MAX_PLAYERS]
+            del queue[:len(take)]
+            queue_token[0] += 1
+            start_room(bot, take)
+
     @r.callback_query(F.data == "mo:j")
     async def cb_join(c: CallbackQuery):
         uid, L = c.from_user.id, L_(c.from_user.id)
@@ -126,12 +140,15 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
         queue.append((uid, esc(c.from_user.full_name)))
         if was_empty:
             start_watch(c.bot)
-        if len(queue) >= START_AT:
-            take = queue[:START_AT]
-            del queue[:START_AT]
+        if len(queue) >= MAX_PLAYERS:
+            take = queue[:MAX_PLAYERS]
+            del queue[:MAX_PLAYERS]
             queue_token[0] += 1
             start_room(c.bot, take)
             return
+        if len(queue) >= START_AT and not fill_pending[0]:
+            fill_pending[0] = True
+            asyncio.get_event_loop().create_task(_fill(c.bot))
         await c.message.answer(t(L, "mo_queued", n=len(queue), s=QUEUE_SECS, min=MIN_PLAYERS), parse_mode="HTML",
                                reply_markup=kb([btn(t(L, "mo_cancel_btn"), "mo:c")]))
 
@@ -148,7 +165,7 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
         rid = counter[0]
         n = len(take)
         killers = M.auto_config(max(MIN_PLAYERS, n))[0]
-        specials = ["detective"] + (["doctor"] if n >= 6 else [])
+        specials = ["detective"] + (["doctor"] if n >= 6 else []) + (["mayor"] if n >= 8 else []) + (["joker"] if n >= 12 else [])
         cfg = M.Config(killers=killers, specials=specials)
         uids = [uid for uid, _ in take]
         roles = M.assign(uids, cfg, rng)
@@ -304,16 +321,42 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
             L = L_(s.uid)
             rows = [[btn(x.name[:22], f"mo:v:{room.rid}:{x.uid}")] for x in alive_now if x.uid != s.uid]
             rows.append([btn(t(L, "mf_skip"), f"mo:v:{room.rid}:0")])
+            if s.role == "mayor" and not room.mayor_revealed:
+                rows.insert(0, [btn(t(L, "mo_reveal_btn"), f"mo:rv:{room.rid}")])
             await say(bot, s.uid, t(L, "mo_vote_pick"), kb(*rows))
         deadline = time.monotonic() + VOTE_SECS
         while time.monotonic() < deadline and len(room.votes) < len(alive_now):
             await asyncio.sleep(0.5)
         ids = {s.uid for s in alive_now}
         ballots = {v: tgt for v, tgt in room.votes.items() if tgt}
-        out = M.vote(ids, ballots)
+        out = M.vote(ids, ballots, vote_weights(room))
         for uid in ids:
             room.votes.setdefault(uid, uid)                 # من لم يصوّت: صوته على نفسه
         return out
+
+    def vote_weights(room: Room) -> dict[int, int]:
+        """صوت العمدة يُحسب مرتين بعد أن يكشف نفسه (ما دام حيًّا)."""
+        m = next((s for s in alive(room) if s.role == "mayor"), None)
+        return {m.uid: 2} if (m and room.mayor_revealed) else {}
+
+    @r.callback_query(F.data.regexp(r"^mo:rv:\d+$"))
+    async def cb_reveal(c: CallbackQuery):
+        rid = int(c.data.split(":")[2])
+        room = rooms.get(rid)
+        uid, L = c.from_user.id, L_(c.from_user.id)
+        if not room or room.state not in ("talk", "vote"):
+            await c.answer(t(L, "mo_late"), show_alert=True)
+            return
+        me = room.seats.get(uid)
+        if not me or not me.alive or me.role != "mayor":
+            await c.answer(t(L, "mo_not_yours"), show_alert=True)
+            return
+        if room.mayor_revealed:
+            await c.answer(t(L, "mo_already_revealed"), show_alert=True)
+            return
+        room.mayor_revealed = True
+        await c.answer()
+        await broadcast(c.bot, room, "mo_mayor_revealed", name=esc(me.name))
 
     @r.callback_query(F.data.regexp(r"^mo:v:\d+:\d+$"))
     async def cb_vote(c: CallbackQuery):
@@ -357,6 +400,8 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
                 if out is not None:
                     room.seats[out].alive = False
                     await broadcast(bot, room, "mf_executed", name=esc(room.seats[out].name))
+                    if room.seats[out].role == "joker":        # المجنون يكشف دوره ويسحب معه أحدًا
+                        await joker_pick(bot, room, out)
                 else:
                     await broadcast(bot, room, "mf_no_exec")
                 if _finished(room):
@@ -368,6 +413,43 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
                 user_room.pop(uid, None)
             room.state = "done"
             rooms.pop(room.rid, None)
+
+    async def joker_pick(bot: Bot, room: Room, joker_uid: int) -> None:
+        """المجنون طُرد: يختار أول من يضغط من الأحياء لسحبه معه خلال 60 ثانية، وإلا يختار البوت."""
+        others = [s for s in alive(room) if s.uid != joker_uid]
+        if not others:
+            return
+        room.joker_pick = None
+        room.state = "joker"
+        await broadcast(bot, room, "mo_joker_out", name=esc(room.seats[joker_uid].name), s=60)
+        for s in others:
+            L = L_(s.uid)
+            rows = [[btn(x.name[:24], f"mo:jk:{room.rid}:{x.uid}")] for x in others if x.uid != s.uid]
+            if rows:
+                await say(bot, s.uid, t(L, "mo_joker_pick"), kb(*rows))
+        deadline = time.monotonic() + 60
+        while time.monotonic() < deadline and room.joker_pick is None:
+            await asyncio.sleep(0.5)
+        victim = room.joker_pick if room.joker_pick is not None else rng.choice(sorted(s.uid for s in others))
+        room.seats[victim].alive = False
+        room.joker_pick = victim
+        await broadcast(bot, room, "mo_joker_took", name=esc(room.seats[victim].name))
+
+    @r.callback_query(F.data.regexp(r"^mo:jk:\d+:\d+$"))
+    async def cb_joker_pick(c: CallbackQuery):
+        _, _, rid, tid = c.data.split(":")
+        room = rooms.get(int(rid))
+        uid, L = c.from_user.id, L_(c.from_user.id)
+        if not room or room.state != "joker" or room.joker_pick is not None:
+            await c.answer(t(L, "mo_late"), show_alert=True)
+            return
+        me = room.seats.get(uid)
+        target = room.seats.get(int(tid))
+        if not me or not me.alive or not target or not target.alive or target.uid == uid:
+            await c.answer(t(L, "mo_bad_target"), show_alert=True)
+            return
+        room.joker_pick = target.uid
+        await c.answer(t(L, "mo_picked"))
 
     def _finished(room: Room) -> bool:
         return M.winner(role_of(room), {s.uid for s in alive(room)}) is not None
