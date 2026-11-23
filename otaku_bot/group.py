@@ -510,10 +510,12 @@ def build_group_router(ctx: Ctx) -> Router:
         await open_game(m, CMD_KIND[command.command])
 
     def menu_markup(L: str):
-        rows = [[btn(t(L, "gpk_mafia"), "mf:new")], [btn(t(L, "gpk_spy"), "sp:new")]]   # الألعاب الجماعية الجديدة أولًا
-        rows += [[btn(t(L, f"gpk_{k}"), f"gp:n:{k}")] for k in KINDS]
-        rows.append([btn(t(L, "ar_title_xo"), "ar:g:xo"), btn(t(L, "ar_title_rps"), "ar:g:rps"), btn(t(L, "ar_title_c4"), "ar:g:c4")])
-        return kb(*rows, [btn(t(L, "gp_top_btn"), "gp:t")])
+        # كل سطر لعبتان: الجماعية أولًا، ثم الثنائية، والترتيب في آخر سطر
+        pairs = [("gpk_mafia", "mf:new"), ("gpk_spy", "sp:new")] + [(f"gpk_{k}", f"gp:n:{k}") for k in KINDS]
+        rows = [[btn(t(L, a), c) for a, c in pairs[i:i + 2]] for i in range(0, len(pairs), 2)]
+        rows.append([btn(t(L, "gpm_xo"), "ar:g:xo"), btn(t(L, "gpm_rps"), "ar:g:rps")])
+        rows.append([btn(t(L, "gpm_c4"), "ar:g:c4"), btn(t(L, "gpm_top"), "gp:t")])
+        return kb(*rows)
 
     @r.message(Command("play"))
     async def cmd_play(m: Message):

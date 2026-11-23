@@ -437,9 +437,9 @@ T["en"].update({
 })
 
 T["ar"].update({
-    "gpk_quiz": "🎯 أسئلة عامة (10)", "gpk_sudden": "☠️ الموت المفاجئ (الأخير يفوز)", "gpk_tf": "✅❌ صح أم غلط",
-    "gpk_song": "🎵 خمّن الأنمي من الأغنية", "gpk_char": "🕵️ من هي الشخصية؟", "gpk_quote": "💬 من قال الاقتباس؟",
-    "gpk_ord": "📅 أيّها أقدم؟", "gpk_images": "🖼 أسئلة صور",
+    "gpk_quiz": "🎯 أسئلة عامة", "gpk_sudden": "☠️ الموت المفاجئ", "gpk_tf": "✅❌ صح أو غلط",
+    "gpk_song": "🎵 خمّن الأغنية", "gpk_char": "🕵️ من الشخصية؟", "gpk_quote": "💬 من قال؟",
+    "gpk_ord": "📅 أيّها أقدم؟", "gpk_images": "🖼 أسئلة صور", "gpm_xo": "❌⭕ إكس أو", "gpm_rps": "✊ حجرة ورقة مقص", "gpm_c4": "🔴🟡 أربعة في صف", "gpm_top": "🏆 الترتيب",
     "gp_menu": "🎮 <b>لعبة جماعية</b>\nاختر نوع اللعبة (لصاحب الأمر أو أدمن المجموعة):",
     "gp_lobby": "🎮 <b>{kind}</b>\n👤 المضيف: {host}\n\n⏳ تبدأ بعد <b>{left}</b> ثانية — اضغط «انضم»!\n👥 المنضمون ({n}): {names}\n<i>يلزم {min} لاعبين على الأقل.</i>",
     "gp_join": "✋ انضم", "gp_start_now": "▶️ ابدأ الآن", "gp_cancel": "❌ إلغاء",
@@ -1071,7 +1071,7 @@ T["en"]['mf_starting'] = '▶️ The game starts now.'
 T["ar"]["prof_recent"] = "🕘 آخر نتائجك: {recent}"
 T["en"]["prof_recent"] = "🕘 Recent scores: {recent}"
 
-T["ar"]["gpk_mafia"] = "🔪 المافيا (لعبة أنمي)"
+T["ar"]["gpk_mafia"] = "🔪 المافيا"
 T["en"]["gpk_mafia"] = "🔪 Mafia (anime game)"
 T["ar"]["gpk_spy"] = "🎭 برا السالفة"
 T["en"]["gpk_spy"] = "🎭 Outside the Story"
@@ -1636,3 +1636,8 @@ T["ar"]["pf_games_none"] = "🎮 <b>ألعابك:</b> لم تلعب بعد"
 T["en"]["pf_games_none"] = "🎮 <b>Your games:</b> not played yet"
 T["ar"]["pf_persona_none"] = "🧬 <b>نمطك:</b> لم تكتشفه بعد، جرّب «اكتشف نمطك»"
 T["en"]["pf_persona_none"] = "🧬 <b>Your type:</b> not discovered yet, try «Discover your type»"
+
+T["en"]["gpm_xo"] = "❌⭕ Tic-tac-toe"
+T["en"]["gpm_rps"] = "✊ Rock Paper Scissors"
+T["en"]["gpm_c4"] = "🔴🟡 Connect Four"
+T["en"]["gpm_top"] = "🏆 Ranking"

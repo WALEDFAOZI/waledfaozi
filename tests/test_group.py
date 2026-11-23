@@ -192,7 +192,7 @@ def test_private_features_do_not_leak_into_groups_and_menu_flow():
         assert menu.reply_parameters.message_id == 51 and "gp:n:quiz" in buttons(menu)
         await gtap(h, b, "gp:n:tf", reply_to=cmd)
         lobby = [c for c in sent(h) if "تبدأ بعد" in (c.text or "")][-1]
-        assert "صح أم غلط" in lobby.text and lobby.reply_parameters.message_id == 51 and "Bob" in lobby.text
+        assert "صح أو غلط" in lobby.text and lobby.reply_parameters.message_id == 51 and "Bob" in lobby.text
     run(go())
 
 
@@ -616,7 +616,7 @@ def test_group_play_menu_lists_mafia_and_spy_first_and_buttons_start_them():
         await h.dp.feed_update(h.bot, Update(update_id=h.uid, message=m))
         menu = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id == GROUP.id][-1]
         rows = menu.reply_markup.inline_keyboard
-        assert [b.callback_data for b in rows[0]] == ["mf:new"] and [b.callback_data for b in rows[1]] == ["sp:new"]
+        assert [b.callback_data for b in rows[0]] == ["mf:new", "sp:new"]          # لعبتان في كل سطر
         await gtap(h, host, "mf:new")
         assert GROUP.id in MG.games
         MG.games[GROUP.id].task.cancel()
