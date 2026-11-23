@@ -1631,3 +1631,8 @@ T["ar"]["pf_persona"] = "🧬 <b>نمطك:</b> {code}"
 T["en"]["pf_persona"] = "🧬 <b>Your type:</b> {code}"
 T["ar"]["pf_persona_same"] = "👥 شخصيات من نفس نمطك:"
 T["en"]["pf_persona_same"] = "👥 Characters with your type:"
+
+T["ar"]["pf_games_none"] = "🎮 <b>ألعابك:</b> لم تلعب بعد"
+T["en"]["pf_games_none"] = "🎮 <b>Your games:</b> not played yet"
+T["ar"]["pf_persona_none"] = "🧬 <b>نمطك:</b> لم تكتشفه بعد، جرّب «اكتشف نمطك»"
+T["en"]["pf_persona_none"] = "🧬 <b>Your type:</b> not discovered yet, try «Discover your type»"
