@@ -167,59 +167,103 @@ def build_admin_router(ctx: Ctx) -> Router:
             f"#{x['id']} ({x['pct']}% من {x['asked']}) {x['q']}" for x in rows[:20]))
 
     # ── الإحصائيات ──────────────────────────────────────────
+    STATS_SECTIONS = [("now", "⚡ الآن"), ("period", "📅 الفترات"), ("users", "👥 المستخدمون"),
+                      ("tests", "✅ الاختبارات"), ("games", "🎮 الألعاب"), ("health", "🎯 الصحة والأسئلة"),
+                      ("bank", "📚 البنك والمراجعات"), ("growth", "📈 النمو")]
+
+    def stats_menu_kb():
+        rows = [[btn(label, f"ad:sx:{key}") for key, label in STATS_SECTIONS[i:i + 2]] for i in range(0, len(STATS_SECTIONS), 2)]
+        return kb(*rows, BACK)
+
+    def stats_section(ctx_, key: str, s: dict, a: dict) -> str:
+        """نص قسم واحد من الإحصائيات. كل قسم رسالة قصيرة تُفتح عند الطلب."""
+        from . import mafia_game, online, spy_game
+        feedback_counts = db.feedback_counts
+        now_h = time.strftime('%H:%M', time.gmtime(time.time() + 3 * 3600))
+        pct = lambda x, y: f"{100 * x / y:.0f}%" if y else "—"  # noqa: E731
+        head = f"📊 <b>إحصائيات البوت</b> · <i>توقيت مكة {now_h}</i>\n━━━━━━━━━━━━\n"
+        if key == "now":
+            live_mafia = sum(1 for g in mafia_game.games.values() if g.state != "done")
+            live_spy = sum(1 for g in spy_game.games.values() if g.state != "done")
+            queues = " · ".join(f"{k}: {len(v)}" for k, v in online.queue.items()) or "—"
+            return head + (
+                "⚡ <b>التفاعل الآن</b>\n"
+                f"• متفاعلون آخر ساعة: <b>{a['act_hour']}</b>\n"
+                f"  ↳ أجابوا أسئلة: {a['hour_quiz']} · ألعاب: {a['hour_games']} · مجموعات: {a['hour_groups']}\n"
+                f"• إجابات آخر ساعة: {a['hour_answers']} · اختبارات مكتملة: {a['hour_tests_done']}\n"
+                f"• يختبرون الآن: <b>{a['in_test_now']}</b>\n\n"
+                "🎲 <b>الجلسات الجارية</b>\n"
+                f"• المافيا: {live_mafia} · برا السالفة: {live_spy}\n"
+                f"• طوابير أونلاين: {queues}\n"
+                f"• مباريات أونلاين جارية: {len(online.matches)}")
+        if key == "period":
+            return head + (
+                "📅 <b>التفاعل حسب الفترة</b>\n"
+                f"• آخر 24 ساعة: <b>{a['act_day']}</b>\n"
+                f"• آخر 7 أيام: <b>{a['act_week']}</b>\n"
+                f"• الاحتفاظ اليومي (يوم بعد التسجيل): {a['d1_retention']} من {a['d1_base']} "
+                f"({pct(a['d1_retention'], a['d1_base'])})")
+        if key == "users":
+            c = db.chat_counts()
+            return head + (
+                "👥 <b>المستخدمون</b>\n"
+                f"• الإجمالي: <b>{s['users']}</b>\n"
+                f"• جدد: آخر ساعة {a['new_hour']} · اليوم {s['new_today']} · آخر 7 أيام {s['new_7d']}\n"
+                f"• عادوا لاختبارين فأكثر: {s['returning']}\n"
+                f"• حظروا البوت: {a['blocked']}\n\n"
+                "🏘 <b>الأماكن التي فيها البوت</b>\n"
+                f"• القنوات: <b>{c['channels']}</b>\n"
+                f"• المجموعات: <b>{c['groups']}</b>\n"
+                f"• مجموعات لعبت خلال 7 أيام: {a['groups_week']} من {c['groups']}")
+        if key == "tests":
+            done = f"{100 * s['finished_7d'] / s['started_7d']:.0f}%" if s["started_7d"] else "—"
+            avg = f"{s['avg_score']:.1f}" if s["avg_score"] is not None else "—"
+            modes = "\n".join(f"  • {k}: {v}" for k, v in s["modes"].items()) or "  —"
+            return head + (
+                "✅ <b>الاختبارات</b>\n"
+                f"• منتهية: <b>{s['finished_total']}</b>\n"
+                f"• اليوم: {s['finished_today']} · آخر 7 أيام: {a['tests_7d']}\n"
+                f"• نسبة الإكمال (7 أيام): {done}\n"
+                f"• متوسط التقييم (7 أيام): {pct(a['avg_full_7d'] or 0, 10) if a['avg_full_7d'] else '—'} "
+                f"({avg} من 10 لكل الأوقات)\n\n"
+                f"🧭 <b>الأوضاع</b>\n{modes}")
+        if key == "games":
+            kinds = "\n".join(f"  • {k}: {v}" for k, v in a["game_kinds_week"].items()) or "  —"
+            return head + (
+                "🎮 <b>الألعاب آخر 7 أيام</b>\n"
+                f"{kinds}\n\n"
+                f"• مجموعات نشطة: {a['groups_week']}\n"
+                f"• قنوات مربوطة: {a['channels_linked']}")
+        if key == "health":
+            cats = "\n".join(f"  • {CATEGORY_LABELS.get(k, k)}: {100 * x:.0f}% ({n})" for k, x, n in s["cat_acc"]) or "  —"
+            hard = "\n".join(f"  #{i} {esc(q[:40])} — {p:.0f}% ({n})" for i, q, p, n in s["hardest"]) or "  —"
+            easy = "\n".join(f"  #{i} {esc(q[:40])} — {p:.0f}% ({n})" for i, q, p, n in s["easiest"]) or "  —"
+            return head + (f"🎯 <b>نسبة الصحة حسب التصنيف</b>\n{cats}\n\n"
+                           f"🧗 <b>أصعب الأسئلة</b>\n{hard}\n\n🌱 <b>أسهل الأسئلة</b>\n{easy}")
+        if key == "bank":
+            return head + (
+                "📚 <b>البنك</b>\n"
+                f"• {s['bank_active']} مفعّل · {s['bank_disabled']} معطّل\n"
+                f"• 🇬🇧 {s['bank_en']} إنجليزي · 🖼 {s['bank_img']} بصورة\n\n"
+                "🚩 <b>المراجعات</b>\n"
+                f"• بلاغات أسئلة/ألعاب مفتوحة: {s['open_reports']}\n"
+                f"• اقتراحات أسئلة بانتظار: {s['pending_suggestions']}\n"
+                f"• ملاحظات واقتراحات بانتظار: {sum(feedback_counts().values())}")
+        return head + growth_text(ctx_)
+
     @r.callback_query(F.data == "ad:stats")
     async def cb_stats(c: CallbackQuery):
         await c.answer()
         await refresh_count(c.bot, ctx, max_age=3600)          # قياس عدد مشتركي القناة (مرة كل ساعة كحد أقصى)
-        s = db.admin_stats()
-        feedback_counts = db.feedback_counts
-        done = f"{100 * s['finished_7d'] / s['started_7d']:.0f}%" if s["started_7d"] else "—"
-        avg = f"{s['avg_score']:.1f}" if s["avg_score"] is not None else "—"
-        modes = "، ".join(f"{k}: {v}" for k, v in s["modes"].items()) or "—"
-        cats = "\n".join(f"  • {CATEGORY_LABELS.get(k, k)}: {100 * a:.0f}% ({n})" for k, a, n in s["cat_acc"]) or "  —"
-        hard = "\n".join(f"  #{i} {esc(q[:40])} — {p:.0f}% ({n})" for i, q, p, n in s["hardest"]) or "  —"
-        easy = "\n".join(f"  #{i} {esc(q[:40])} — {p:.0f}% ({n})" for i, q, p, n in s["easiest"]) or "  —"
-        from . import mafia_game, online, spy_game
-        a = db.activity_stats()
-        pct = lambda x, y: f"{100 * x / y:.0f}%" if y else "—"  # noqa: E731
-        live_mafia = sum(1 for g in mafia_game.games.values() if g.state != "done")
-        live_spy = sum(1 for g in spy_game.games.values() if g.state != "done")
-        queues = " · ".join(f"{k}: {len(v)}" for k, v in online.queue.items()) or "—"
-        kinds = "، ".join(f"{k}: {v}" for k, v in a["game_kinds_week"].items()) or "—"
-        text = (
-            "📊 <b>إحصائيات البوت</b>\n"
-            f"<i>توقيت مكة: {time.strftime('%H:%M', time.gmtime(time.time() + 3 * 3600))}</i>\n\n"
-            "⚡ <b>التفاعل الآن</b>\n"
-            f"• متفاعلون آخر ساعة: <b>{a['act_hour']}</b> (أجابوا أسئلة: {a['hour_quiz']} · ألعاب: {a['hour_games']} · مجموعات: {a['hour_groups']} مجموعة)\n"
-            f"• إجابات آخر ساعة: {a['hour_answers']} · اختبارات مكتملة: {a['hour_tests_done']}\n"
-            f"• يختبرون الآن: <b>{a['in_test_now']}</b>\n"
-            f"• ألعاب جارية: المافيا {live_mafia} · برا السالفة {live_spy}\n"
-            f"• طوابير أونلاين: {queues} · مباريات جارية: {len(online.matches)}\n\n"
-            "📅 <b>التفاعل حسب الفترة</b>\n"
-            f"• آخر 24 ساعة: <b>{a['act_day']}</b> · آخر 7 أيام: <b>{a['act_week']}</b>\n"
-            f"• الاحتفاظ اليومي (يوم بعد التسجيل): {a['d1_retention']} من {a['d1_base']} ({pct(a['d1_retention'], a['d1_base'])})\n\n"
-            "👥 <b>المستخدمون</b>\n"
-            f"• الإجمالي: <b>{s['users']}</b> · جدد آخر ساعة: {a['new_hour']} · اليوم: {s['new_today']} · 7 أيام: {s['new_7d']}\n"
-            f"• عادوا لاختبارين فأكثر: {s['returning']} · حظروا البوت: {a['blocked']}\n\n"
-            "✅ <b>الاختبارات</b>\n"
-            f"• منتهية: {s['finished_total']} (اليوم {s['finished_today']} · 7 أيام {a['tests_7d']})\n"
-            f"• نسبة الإكمال (7 أيام): {done}\n"
-            f"• متوسط التقييم (7 أيام): {pct(a['avg_full_7d'] or 0, 10) if a['avg_full_7d'] else '—'} "
-            f"({avg} من 10 لكل الأوقات)\n"
-            f"• الأوضاع: {modes}\n\n"
-            "🎮 <b>الألعاب آخر 7 أيام</b>\n"
-            f"• {kinds}\n"
-            f"• مجموعات نشطة (7 أيام): {a['groups_week']} من {a['groups_total']} جرّبت · قنوات مربوطة: {a['channels_linked']}\n\n"
-            f"🎯 <b>نسبة الصحة حسب التصنيف</b>\n{cats}\n\n"
-            f"🧗 <b>أصعب الأسئلة</b>\n{hard}\n\n🌱 <b>أسهل الأسئلة</b>\n{easy}\n\n"
-            "📚 <b>البنك</b>\n"
-            f"• {s['bank_active']} مفعّل · {s['bank_disabled']} معطّل · 🇬🇧 {s['bank_en']} إنجليزي · 🖼 {s['bank_img']} بصورة\n\n"
-            "🚩 <b>المراجعات</b>\n"
-            f"• بلاغات أسئلة/ألعاب مفتوحة: {s['open_reports']} · اقتراحات أسئلة بانتظار: {s['pending_suggestions']}\n"
-            f"• ملاحظات واقتراحات بانتظار: {sum(feedback_counts().values())}\n\n"
-            f"{growth_text(ctx)}\n"
-            f"🕒 {time.strftime('%H:%M:%S', time.gmtime(time.time() + 3 * 3600))} (توقيت مكة)")
-        await nav(c, text, kb(BACK))
+        await nav(c, "📊 <b>إحصائيات البوت</b>\nاختر القسم:", stats_menu_kb())
+
+    @r.callback_query(F.data.regexp(r"^ad:sx:(now|period|users|tests|games|health|bank|growth)$"))
+    async def cb_stats_section(c: CallbackQuery):
+        await c.answer()
+        key = c.data.split(":")[2]
+        s, a = db.admin_stats(), db.activity_stats()
+        markup = kb([btn("🔙 الإحصائيات", "ad:stats")], BACK)
+        await nav(c, stats_section(ctx, key, s, a), markup)
 
     # ── البلاغات ────────────────────────────────────────────
     @r.callback_query(F.data == "ad:rep")

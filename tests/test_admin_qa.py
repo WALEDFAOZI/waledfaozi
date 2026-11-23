@@ -128,7 +128,9 @@ def test_settings_all_buttons_and_stats_with_data():
         u = h.user(1, "P")
         await h.tap(u, "qk"); await h.play(u)
         await h.tap(o, "ad:stats")
-        assert "إحصائيات البوت" in h.session.texts()[-1] and "الإجمالي: 1" in h.session.texts()[-1].replace("<b>", "").replace("</b>", "")
+        assert "إحصائيات البوت" in h.session.texts()[-1]
+        await h.tap(o, "ad:sx:users")
+        assert "الإجمالي: 1" in h.session.texts()[-1].replace("<b>", "").replace("</b>", "")
         await h.tap(o, "ad:img")
         await h.tap(o, "ad:adm")
         await h.tap(o, "ad:home")

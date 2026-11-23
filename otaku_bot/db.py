@@ -407,6 +407,13 @@ class DB:
                 "ON CONFLICT(chat_id) DO UPDATE SET user_id=excluded.user_id, title=excluded.title",
                 (chat_id, user_id, title, time.time()))
 
+    def chat_counts(self) -> dict:
+        """عدد القنوات والمجموعات التي يعمل فيها البوت. القنوات تُسجَّل في الجدولين، فنستبعدها من المجموعات."""
+        channels = self.conn.execute("SELECT COUNT(*) n FROM channel_links").fetchone()["n"]
+        groups = self.conn.execute(
+            "SELECT COUNT(*) n FROM group_chats WHERE chat_id NOT IN (SELECT chat_id FROM channel_links)").fetchone()["n"]
+        return {"channels": channels, "groups": groups}
+
     def channel_owner(self, chat_id: int) -> int | None:
         r = self.conn.execute("SELECT user_id FROM channel_links WHERE chat_id=?", (chat_id,)).fetchone()
         return r["user_id"] if r else None
@@ -1336,7 +1343,8 @@ class DB:
         out["in_test_now"] = c.execute("SELECT COUNT(*) n FROM sessions WHERE state='active'").fetchone()["n"]
         out["new_hour"] = c.execute("SELECT COUNT(*) n FROM users WHERE created_at>=?", (h,)).fetchone()["n"]
         out["groups_week"] = c.execute("SELECT COUNT(DISTINCT chat_id) n FROM group_results WHERE at>=?", (windows["week"],)).fetchone()["n"]
-        out["groups_total"] = c.execute("SELECT COUNT(*) n FROM group_chats").fetchone()["n"]
+        out["groups_total"] = c.execute(
+            "SELECT COUNT(*) n FROM group_chats WHERE chat_id NOT IN (SELECT chat_id FROM channel_links)").fetchone()["n"]
         out["channels_linked"] = c.execute("SELECT COUNT(*) n FROM channel_links").fetchone()["n"]
         out["game_kinds_week"] = {r["kind"]: r["n"] for r in c.execute(
             "SELECT kind, COUNT(*) n FROM game_sessions WHERE started_at>=? GROUP BY kind ORDER BY n DESC",
