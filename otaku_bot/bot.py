@@ -172,7 +172,20 @@ def build_router(ctx: Ctx) -> Router:
         if best:
             results.append(article("r", t(L, "inl_result_title", score=f"{best:.1f}"),
                                    t(L, "inl_result", name=name, score=f"{best:.1f}", title=esc(title_for(best, L)))))
-        await q.answer(results, cache_time=20, is_personal=True)
+        # الألعاب الثنائية: كل لعبة تُرسل تحدّيًا برابط يفتحه الصديق فيدخل المباراة مباشرة
+        from . import arcade
+        for kind in arcade.KINDS:
+            if not db.game_on("arcade"):
+                break
+            inv = arcade.make_invite(uid, kind)
+            game_link = f"https://t.me/{await bot_username(q.bot)}?start=ar_{inv}"
+            results.append(InlineQueryResultArticle(
+                id=f"g_{kind}", title=t(L, "ar_title_" + kind),
+                input_message_content=InputTextMessageContent(
+                    message_text=t(L, "ar_inline_text", name=name, game=t(L, "ar_title_" + kind)),
+                    parse_mode="HTML", disable_web_page_preview=True),
+                reply_markup=kb([btn(t(L, "ar_inline_go"), url=game_link)])))
+        await q.answer(results[:50], cache_time=20, is_personal=True)
 
     @r.chat_member()
     async def on_channel_member(ev: ChatMemberUpdated, bot: Bot):

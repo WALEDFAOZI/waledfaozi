@@ -472,5 +472,10 @@ def build_arcade_router(ctx: Ctx) -> Router:
     return r
 
 
-def start_text_key(kind: str) -> str:
-    return "ar_title_" + kind
+def make_invite(uid: int, kind: str) -> int:
+    """رقم دعوة لتحدٍّ ثنائي (يُستخدم في رابط ?start=ar_<رقم>). يُحفظ آخر 500 دعوة فقط."""
+    counter[0] += 1
+    invites[counter[0]] = (uid, kind)
+    while len(invites) > 500:
+        invites.pop(next(iter(invites)))
+    return counter[0]

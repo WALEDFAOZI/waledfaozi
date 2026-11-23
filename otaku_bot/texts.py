@@ -1560,3 +1560,8 @@ T["ar"]["ar_chat_draw"] = "🤝 تعادل!"
 T["en"]["ar_chat_draw"] = "🤝 Draw!"
 T["ar"]["ar_rps_wait_chat"] = "🤔 بانتظار اختيار اللاعبين (سري حتى تكتمل الجولة)"
 T["en"]["ar_rps_wait_chat"] = "🤔 Waiting for both picks (secret until the round ends)"
+
+T["ar"]["ar_inline_text"] = "🎲 {name} يتحداك في <b>{game}</b>!\nاضغط الزر وادخل المباراة معه."
+T["en"]["ar_inline_text"] = "🎲 {name} challenges you to <b>{game}</b>!\nTap the button to join the match."
+T["ar"]["ar_inline_go"] = "🎮 اقبل التحدي"
+T["en"]["ar_inline_go"] = "🎮 Accept the challenge"

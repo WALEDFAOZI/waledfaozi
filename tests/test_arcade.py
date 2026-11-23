@@ -103,3 +103,12 @@ def test_group_xo_two_players_join_and_play_on_one_message():
         edits = [c for c in h.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == GROUP.id]
         assert any("فاز" in (c.text or "") for c in edits)
     run(go())
+
+
+def test_inline_invite_ids_are_created_and_capped():
+    A.invites.clear()
+    ids = [A.make_invite(7, "xo") for _ in range(3)]
+    assert all(i in A.invites and A.invites[i] == (7, "xo") for i in ids)
+    for _ in range(600):
+        A.make_invite(8, "rps")
+    assert len(A.invites) <= 500
