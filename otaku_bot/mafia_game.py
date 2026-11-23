@@ -289,7 +289,6 @@ def build_mafia_router(ctx: Ctx) -> Router:
         return "\n".join([
             t(L, "mf_title"),
             "━━━━━━━━━━━━━━━━",
-            "",
             f"👥 <b>{t(L, 'mf_players_label')}</b> ({len(g.players)}):",
             players,
             "━━━━━━━━━━━━━━━━",
