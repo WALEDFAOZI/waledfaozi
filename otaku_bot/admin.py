@@ -60,6 +60,58 @@ async def nav(c: CallbackQuery, text: str, markup, parse_mode: str | None = "HTM
         await c.message.answer(text, parse_mode=parse_mode, reply_markup=markup)
 
 
+GAME_PREFIXES = {  # الأزرار التي تبدأ لعبة أو تكمّلها، والمفتاح الذي يوقفها
+    "online_quiz": ("on:j:", "on:a:", "on:q:"),
+    "mafia_online": ("mo:",),
+    "arcade": ("ar:",),
+    "mafia": ("mf:cs", "mf:cp", "mf:cc", "mf:l:", "mf:s:", "mf:n:", "mf:v:"),
+    "spy": ("sp:",),
+}
+GAME_COMMANDS = {"/mafia": "mafia", "/spy": "spy", "/xo": "arcade", "/rps": "arcade", "/c4": "arcade"}
+
+
+class GameGate(BaseMiddleware):
+    """يمنع الألعاب المعطّلة من الأدمن، ويمنع من حظره الأدمن من الألعاب. المشرفون يتجاوزون المنع."""
+
+    def __init__(self, ctx):
+        self.ctx = ctx
+
+    async def __call__(self, handler, event, data):
+        u = getattr(event, "from_user", None)
+        if u is None or self.ctx.is_admin(u.id):
+            return await handler(event, data)
+        key = None
+        if isinstance(event, CallbackQuery):
+            d = event.data or ""
+            for k, prefixes in GAME_PREFIXES.items():
+                if d.startswith(prefixes):
+                    key = k
+                    break
+        elif isinstance(event, Message) and event.text:
+            word = event.text.split()[0].split("@")[0].lower()
+            key = GAME_COMMANDS.get(word)
+        if key is None:
+            return await handler(event, data)
+        db = self.ctx.db
+        if db.game_banned(u.id):
+            text = "⛔ أنت ممنوع من الألعاب حاليًا."
+        elif not db.game_on(key):
+            text = "🔧 هذه اللعبة متوقفة مؤقتًا."
+        else:
+            return await handler(event, data)
+        if isinstance(event, CallbackQuery):
+            try:
+                await event.answer(text, show_alert=True)
+            except Exception:  # noqa: BLE001
+                pass
+        elif isinstance(event, Message):
+            try:
+                await event.answer(text)
+            except Exception:  # noqa: BLE001
+                pass
+        return None
+
+
 class ClearPending(BaseMiddleware):
     """أي زر في اللوحة (عدا خطوات المعالج نفسه) يُلغي الإدخال المعلّق، حتى لا يُفسَّر كلامك العادي بالغلط."""
     KEEP = ("ad:aa:", "ad:ad:", "ad:ac:", "ad:ae:", "ad:bs:", "ad:bg", "ad:bt:")
@@ -80,6 +132,7 @@ def home_kb(pending: int = 0):
         [btn("⚙️ الإعدادات", "ad:set"), btn("👥 المشرفون", "ad:adm")],
         [btn("📚 المحتوى (صح/غلط، أنمي)", "ad:ct"), btn("🛡 العشائر", "ad:tm")],
         [btn("🖼 جلب أسئلة صور", "ad:img"), btn("💾 نسخة احتياطية", "ad:bak")],
+        [btn("👤 بحث عن مستخدم", "ad:us"), btn("🎮 الألعاب المتاحة", "ad:gm")],
     )
 
 
@@ -365,6 +418,72 @@ def build_admin_router(ctx: Ctx) -> Router:
         db.unhide_game_item(c.data.split(":")[2])
         await c.answer("↩️ أُعيد", show_alert=True)
 
+    # ── بحث عن مستخدم وإدارته ──────────────────────────────
+    @r.callback_query(F.data == "ad:us")
+    async def cb_user_search(c: CallbackQuery, state: FSMContext):
+        await c.answer()
+        await state.set_state(Flow.wait)
+        await state.update_data(act="user")
+        await c.message.answer("أرسل رقم المستخدم (ID) أو جزءًا من اسمه:")
+
+    @r.callback_query(F.data.regexp(r"^ad:uv:\d+$"))
+    async def cb_user_view(c: CallbackQuery):
+        await c.answer()
+        uid = int(c.data.split(":")[2])
+        u = db.get_user(uid)
+        if not u:
+            await nav(c, "هذا المستخدم غير موجود.", kb(BACK))
+            return
+        games_n = db.conn.execute("SELECT COUNT(*) n FROM game_sessions WHERE tg_id=?", (uid,)).fetchone()["n"]
+        banned = db.game_banned(uid)
+        text = (f"👤 <b>{esc(u['name'] or '?')}</b>\n"
+                f"🆔 <code>{uid}</code> · 🌐 {db.get_lang(uid)}\n"
+                f"📝 اختبارات: {u['tests_taken']} · أفضل تقييم: {u['best_score'] or 0:.1f}\n"
+                f"🎮 جلسات ألعاب: {games_n}\n"
+                f"📅 انضم: {time.strftime('%Y-%m-%d', time.gmtime(u['created_at'] + 3 * 3600))}\n"
+                f"🎲 الألعاب: {'⛔ ممنوع منها' if banned else '✅ مسموح'}")
+        rows = [[btn("✅ رفع المنع من الألعاب" if banned else "🚫 منعه من الألعاب",
+                     f"ad:ub:{uid}:{0 if banned else 1}")],
+                [btn("✉️ إرسال رسالة خاصة", f"ad:um:{uid}")]]
+        await nav(c, text, kb(*rows, [btn("🔎 بحث آخر", "ad:us")], BACK))
+
+    @r.callback_query(F.data.regexp(r"^ad:ub:\d+:[01]$"))
+    async def cb_user_ban(c: CallbackQuery):
+        _, _, uid, flag = c.data.split(":")
+        db.set_game_banned(int(uid), flag == "1")
+        await c.answer("تم")
+        await cb_user_view(c)
+
+    @r.callback_query(F.data.regexp(r"^ad:um:\d+$"))
+    async def cb_user_dm(c: CallbackQuery, state: FSMContext):
+        await c.answer()
+        await state.set_state(Flow.wait)
+        await state.update_data(act="udm", target=int(c.data.split(":")[2]))
+        await c.message.answer("أرسل نص الرسالة وسيصل للمستخدم في الخاص:")
+
+    # ── تشغيل وإيقاف الألعاب ────────────────────────────────
+    GAME_SWITCHES = [("online_quiz", "🌐 أونلاين (أسئلة)"), ("mafia_online", "🔪 مافيا أونلاين"),
+                     ("arcade", "🎲 ألعاب ثنائية"), ("mafia", "🔪 مافيا (مجموعات/قنوات)"), ("spy", "🕵️ برا السالفة")]
+
+    def games_view():
+        rows = [[btn(f"{'✅' if db.game_on(k) else '⛔'} {label}", f"ad:gt:{k}")] for k, label in GAME_SWITCHES]
+        return ("🎮 <b>الألعاب المتاحة</b>\nاضغط اللعبة لتشغيلها أو إيقافها. المعطّلة تُغلق في كل الأماكن فورًا.",
+                kb(*rows, BACK))
+
+    @r.callback_query(F.data == "ad:gm")
+    async def cb_games(c: CallbackQuery):
+        await c.answer()
+        text, markup = games_view()
+        await nav(c, text, markup)
+
+    @r.callback_query(F.data.regexp(r"^ad:gt:(online_quiz|mafia_online|arcade|mafia|spy)$"))
+    async def cb_game_toggle(c: CallbackQuery):
+        key = c.data.split(":")[2]
+        db.set_game_on(key, not db.game_on(key))
+        await c.answer("تم")
+        text, markup = games_view()
+        await nav(c, text, markup)
+
     @r.callback_query(F.data == "ad:find")
     async def cb_find(c: CallbackQuery, state: FSMContext):
         await c.answer()
@@ -534,6 +653,26 @@ def build_admin_router(ctx: Ctx) -> Router:
             db.add_extra("tf" if act == "ctf" else "anime", row)
             await m.answer("✅ أُضيف ويظهر في البوت فورًا.", reply_markup=kb([btn("➕ إضافة أخرى", f"ad:{act}")],
                                                                               [btn("⬅️ المحتوى", "ad:ct")]))
+            return
+
+        if act == "user":
+            await state.clear()
+            rows = db.search_users(text)
+            if not rows:
+                await m.answer("ما لقيت مستخدمًا بهذا الاسم أو الرقم.", reply_markup=kb([btn("🔎 بحث آخر", "ad:us")], BACK))
+                return
+            await m.answer("النتائج:", reply_markup=kb(
+                *[[btn(f"👤 {(x['name'] or '?')[:30]} · {x['tg_id']}", f"ad:uv:{x['tg_id']}")] for x in rows], BACK))
+            return
+
+        if act == "udm":
+            await state.clear()
+            target = data["target"]
+            try:
+                await m.bot.send_message(target, f"📩 رسالة من إدارة البوت:\n\n{esc(text)}", parse_mode="HTML")
+                await m.answer("✅ وصلت الرسالة.", reply_markup=kb([btn("👤 المستخدم", f"ad:uv:{target}")], BACK))
+            except TelegramAPIError:
+                await m.answer("❌ تعذّر الإرسال (ربما حظر البوت).", reply_markup=kb([btn("👤 المستخدم", f"ad:uv:{target}")], BACK))
             return
 
         if act == "find":

@@ -716,6 +716,26 @@ class DB:
         with self.conn:
             self.conn.execute("UPDATE duels SET state='done' WHERE id=?", (did,))
 
+    def search_users(self, q: str, limit: int = 10) -> list:
+        q = q.strip()
+        if q.isdigit():
+            return self.conn.execute("SELECT * FROM users WHERE tg_id=?", (int(q),)).fetchall()
+        return self.conn.execute("SELECT * FROM users WHERE name LIKE ? ORDER BY tests_taken DESC LIMIT ?",
+                                 (f"%{q}%", limit)).fetchall()
+
+    def game_on(self, key: str) -> bool:
+        """مفتاح لعبة معطّلة من لوحة الأدمن: التشغيل افتراضيًا."""
+        return self.get_setting(f"game_off:{key}") != "1"
+
+    def set_game_on(self, key: str, on: bool) -> None:
+        self.set_setting(f"game_off:{key}", "0" if on else "1")
+
+    def game_banned(self, tg_id: int) -> bool:
+        return self.get_setting(f"gban:{tg_id}") == "1"
+
+    def set_game_banned(self, tg_id: int, banned: bool) -> None:
+        self.set_setting(f"gban:{tg_id}", "1" if banned else "0")
+
     def get_user(self, tg_id: int) -> sqlite3.Row | None:
         return self.conn.execute("SELECT * FROM users WHERE tg_id=?", (tg_id,)).fetchone()
 

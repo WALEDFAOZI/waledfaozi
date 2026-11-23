@@ -104,6 +104,9 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp.callback_query.outer_middleware(Guard())
     dp.callback_query.outer_middleware(SubGate(ctx))
     dp.include_router(build_admin_router(ctx))   # أولًا: محميّ بفلتر المشرفين
+    from .admin import GameGate
+    dp.callback_query.outer_middleware(GameGate(ctx))   # الألعاب المعطّلة والمحظورة من الأدمن
+    dp.message.outer_middleware(GameGate(ctx))
     dp.include_router(build_mafia_router(ctx))    # قبل المجموعات: أزرار المافيا
     dp.include_router(build_spy_router(ctx))      # برا السالفة
     dp.include_router(build_swap_router(ctx))     # تبادل الشخصيات (قبل start العادي)
