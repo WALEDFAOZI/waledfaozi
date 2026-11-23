@@ -80,7 +80,7 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
 
     async def say(bot: Bot, uid: int, text: str, markup=None) -> bool:
         try:
-            await bot.send_message(uid, text, parse_mode="HTML", reply_markup=markup)
+            await bot.send_message(uid, text, parse_mode="HTML", protect_content=True, reply_markup=markup)
             return True
         except TelegramAPIError:
             return False

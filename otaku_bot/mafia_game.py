@@ -207,7 +207,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         text = "\n\n".join(sections)
         for uid in list(g.players):
             try:
-                await bot.send_message(uid, text, parse_mode="HTML")
+                await bot.send_message(uid, text, parse_mode="HTML", protect_content=True)
             except TelegramAPIError:
                 pass                                       # لم يبدأ البوت بالخاص
 
@@ -259,7 +259,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
 
     async def dm(bot: Bot, uid: int, text: str, markup=None) -> bool:
         try:
-            await bot.send_message(uid, text, parse_mode="HTML", reply_markup=markup)
+            await bot.send_message(uid, text, parse_mode="HTML", protect_content=True, reply_markup=markup)
             return True
         except TelegramAPIError:
             return False
@@ -502,7 +502,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         for p in pending:
             Lp = db.get_lang(p.uid)
             try:
-                await bot.send_message(p.uid, t(Lp, "mf_night_remind"), parse_mode="HTML")
+                await bot.send_message(p.uid, t(Lp, "mf_night_remind"), parse_mode="HTML", protect_content=True)
             except TelegramAPIError:
                 pass
 
@@ -513,7 +513,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             Lp = db.get_lang(p.uid)
             rows = await msg_rows(bot, g.chat_id, g.day_mid, "btn_go_vote", Lp)
             try:
-                await bot.send_message(p.uid, t(Lp, "mf_vote_remind"), parse_mode="HTML", reply_markup=kb(*rows))
+                await bot.send_message(p.uid, t(Lp, "mf_vote_remind"), parse_mode="HTML", protect_content=True, reply_markup=kb(*rows))
             except TelegramAPIError:
                 pass
 
@@ -532,7 +532,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             return
         Lm = db.get_lang(m.uid)
         try:
-            await bot.send_message(m.uid, t(Lm, "mf_mayor_dm"), parse_mode="HTML", reply_markup=kb(
+            await bot.send_message(m.uid, t(Lm, "mf_mayor_dm"), parse_mode="HTML", protect_content=True, reply_markup=kb(
                 [btn(t(Lm, "mf_reveal_btn"), f"mf:rv:{g.gid}")]))
         except TelegramAPIError:
             pass
@@ -570,7 +570,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             if not rows:
                 return
             try:
-                await bot.send_message(p.uid, t(Lp, "mf_discuss_dm", s=g.discuss_secs), parse_mode="HTML",
+                await bot.send_message(p.uid, t(Lp, "mf_discuss_dm", s=g.discuss_secs), parse_mode="HTML", protect_content=True,
                                        reply_markup=kb(*rows))
             except TelegramAPIError:
                 pass
@@ -583,7 +583,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             if not rows:
                 return
             try:
-                await bot.send_message(p.uid, t(Lp, "mf_vote_dm"), parse_mode="HTML", reply_markup=kb(*rows))
+                await bot.send_message(p.uid, t(Lp, "mf_vote_dm"), parse_mode="HTML", protect_content=True, reply_markup=kb(*rows))
             except TelegramAPIError:
                 pass                                        # لم يبدأ البوت بالخاص
 
