@@ -227,7 +227,7 @@ def build_spy_router(ctx: Ctx) -> Router:
             await asyncio.sleep(0.5)
         if g.next_go or g.question is None:                 # «التالي» أو انتهى الوقت بلا سؤال: الجولة التالية
             return
-        await show(bot, g, t(L, "sp_answer_live", b=esc(tn)), next_kb)
+        await show(bot, g, t(L, "sp_answer_live", a=esc(an), b=esc(tn)), next_kb)
         while g.answer is None and not g.next_go:
             await asyncio.sleep(0.5)
         # لا رسالة عند انتهاء وقت الإجابة: العداد يكفي، والمضيف يضغط «التالي»
