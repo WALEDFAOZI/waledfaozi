@@ -232,8 +232,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         end = time.monotonic() + ASK_SECS
         while time.monotonic() < end and g.question is None:
             await asyncio.sleep(0.5)
-        if g.question is None:
-            await send(bot, g, t(L, "sp_no_question", a=esc(an)))
+        if g.question is None:                              # لا رسالة: العداد يكفي، والمضيف يضغط «التالي»
             return
         await show(bot, g, t(L, "sp_answer_live", b=esc(tn), s=ANSWER_SECS), None)
         end = time.monotonic() + ANSWER_SECS
