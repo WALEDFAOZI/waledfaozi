@@ -152,6 +152,11 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
         await c.message.answer(t(L, "mo_queued", n=len(queue), s=QUEUE_SECS, min=MIN_PLAYERS), parse_mode="HTML",
                                reply_markup=kb([btn(t(L, "mo_cancel_btn"), "mo:c")]))
 
+    @r.callback_query(F.data == "mo:h")
+    async def cb_help(c: CallbackQuery):
+        await c.answer()
+        await c.message.answer(t(L_(c.from_user.id), "mo_help_long"), parse_mode="HTML")
+
     @r.callback_query(F.data == "mo:c")
     async def cb_cancel(c: CallbackQuery):
         queue[:] = [x for x in queue if x[0] != c.from_user.id]

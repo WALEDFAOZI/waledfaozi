@@ -94,3 +94,15 @@ def test_eight_players_get_a_mayor_and_twelve_get_a_joker():
     assert "mayor" in eight and "joker" not in eight
     twelve = _roles_for(12)
     assert "mayor" in twelve and "joker" in twelve
+
+
+def test_online_mafia_guide_button_sends_the_explanation():
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        u = h.user(1, "P1")
+        h.db.upsert_user(u.id, u.first_name)
+        await h.tap(u, "mo:h")
+        texts = [getattr(c, "text", "") or "" for c in dms(h, u.id)]
+        assert any("مافيا أونلاين" in x and "الشرح" in x for x in texts)
+    run(go())
