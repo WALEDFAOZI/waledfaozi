@@ -1614,5 +1614,5 @@ T["en"]["inl_group_go"] = "➕ Add me to your group"
 T["ar"]["kt_title_plain"] = "🎌 كت · سؤال عن الأنمي"
 T["en"]["kt_title_plain"] = "🎌 Kt · An anime question"
 
-T["ar"]["kt_title"] = "🎌 <b>كت</b>"
-T["en"]["kt_title"] = "🎌 <b>Kt</b>"
+T["ar"]["kt_title"] = "🎌 كت انمي"
+T["en"]["kt_title"] = "🎌 Kt anime"

@@ -30,7 +30,8 @@ def test_kt_word_sends_a_question_and_button_gives_a_different_one():
         h.db.upsert_user(u.id, u.first_name)
         await h.say(u, "كت")
         first = h.session.texts()[-1]
-        assert "كت" in first and "\n" not in first.strip()          # رسالة قصيرة في سطر واحد
+        assert first.startswith("🎌 كت انمي\n")                    # العنوان سطر، والسؤال تحته مباشرة
+        assert "\n\n" not in first                                 # بلا سطر فارغ
         sent = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id == u.id][-1]
         assert sent.reply_parameters is not None                    # ترد على رسالة الشخص
         assert sent.reply_markup is None                            # بلا زر تحتها

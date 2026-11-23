@@ -52,7 +52,7 @@ def build_kt_router(ctx) -> Router:
 
     def render(q: dict, lang: str) -> str:
         body = q["en"] if lang == "en" else q["ar"]
-        return f"{t(lang, 'kt_title')} <b>{esc(body)}</b>"
+        return f"{t(lang, 'kt_title')}\n{esc(body)}"
 
     @r.message(F.text.regexp(TRIGGER))
     async def on_trigger(m: Message):
