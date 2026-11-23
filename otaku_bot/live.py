@@ -27,6 +27,8 @@ TITLES = {
     "char": ("من هي الشخصية؟", "WHO IS IT?"), "quote": ("من قال الاقتباس؟", "QUOTE GUESS"),
     "ord": ("أيّها أقدم؟", "WHICH IS OLDER?"), "images": ("أسئلة صور", "PICTURE QUIZ"),
     "mafia": ("المافيا", "MAFIA"), "spy": ("برا السالفة", "ODD ONE OUT"),
+    "xo": ("إكس أو", "TIC TAC TOE"), "rps": ("حجرة ورقة مقص", "ROCK PAPER SCISSORS"),
+    "c4": ("أربعة في صف", "CONNECT FOUR"),
 }
 # شكل كل لعبة في اللافتة: تعبير الشخصية، وسطر الوصف (عربي، إنجليزي)
 KIND_STYLE = {
@@ -38,6 +40,9 @@ KIND_STYLE = {
     "quote": ("happy", "من قال هذا الاقتباس؟", "Who said this quote?"),
     "ord": ("smile", "رتّب الأنمي حسب السنة", "Order the anime by year"),
     "images": ("star", "خمّن من الصورة", "Guess from the picture"),
+    "xo": ("happy", "أول من يكمل ثلاثة يفوز!", "First to three in a row wins!"),
+    "rps": ("smile", "أفضل من 3 جولات", "Best of three rounds"),
+    "c4": ("star", "أربعة متتالية قبل خصمك!", "Four in a row before your rival!"),
 }
 _BANNER: dict[tuple[str, str], bytes] = {}
 _BANNER_ID: dict[tuple[str, str], str] = {}      # معرّف الملف في تليجرام بعد أول إرسال

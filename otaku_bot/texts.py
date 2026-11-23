@@ -776,8 +776,8 @@ T["ar"]['mf_dm_fail'] = '❌ ما قدرت أرسل الأدوار لبعض ال
 T["ar"]['mf_n_killer'] = '🔪 اختر ضحية الليلة (زملاؤك يختارون معك، والأكثر أصواتًا يُقتل):'
 T["ar"]['mf_n_doctor'] = '🩺 اختر من تحميه الليلة:'
 T["ar"]['mf_n_detective'] = '🔍 اختر من تكشف فريقه:'
-T["ar"]["mf_night_live"] = '🌙 <b>「 الليلة {r} · ظلام القرية 」</b>\n━━━━━━━━━━━━\n⏳ {s} ثانية\n👥 الأحياء ({n}):\n{names}\n━━━━━━━━━━━━\n<i>القتلة يتهامسون في الظلام… والطبيب يترقب، والمحقق يبحث عن الحقيقة. الباقون ينتظرون الفجر.</i>'
-T["ar"]["mf_day_live"] = '☀️ <b>「 النهار {r} · حكم الجماعة 」</b>\n━━━━━━━━━━━━\n⏳ {s} ثانية\n👥 الأحياء:\n{names}\n━━━━━━━━━━━━\n⚖️ <i>من تشك فيه؟ اضغط اسمه… أو «تخطّي» إن كنت ما تزال تتردد. يُطرد الأكثر أصواتًا، والتعادل على الأعلى = لا طرد.</i>'
+T["ar"]["mf_night_live"] = '🌙 <b>「 الليلة {r} · ظلام القرية 」</b>\n━━━━━━━━━━━━━━━━\n⏳ {s} ثانية\n👥 الأحياء ({n}):\n{names}\n━━━━━━━━━━━━━━━━\n<i>القتلة يتهامسون في الظلام… والطبيب يترقب، والمحقق يبحث عن الحقيقة. الباقون ينتظرون الفجر.</i>'
+T["ar"]["mf_day_live"] = '☀️ <b>「 النهار {r} · حكم الجماعة 」</b>\n━━━━━━━━━━━━━━━━\n⏳ {s} ثانية\n👥 الأحياء:\n{names}\n━━━━━━━━━━━━━━━━\n⚖️ <i>من تشك فيه؟ اضغط اسمه… أو «تخطّي» إن كنت ما تزال تتردد. يُطرد الأكثر أصواتًا، والتعادل على الأعلى = لا طرد.</i>'
 T["ar"]["mf_morning_dead"] = '💀 <b>「 سقط {name} في الظلام… 」</b>\nضربة القاتل لم تُرحم، والقرية تستيقظ على الفاجعة.'
 T["ar"]["mf_morning_saved"] = '🛡 <b>「 ضربة القاتل ارتدت… 」</b>\nالطبيب سبق السكين في اللحظة الأخيرة، ونجا الضحية من الموت.'
 T["ar"]["mf_morning_quiet"] = '🌅 <b>「 فجر هادئ… أو هذا ما يبدو 」</b>\nلم يسقط أحد الليلة، لكن الخوف يتسلل بين الجميع.'
@@ -1137,7 +1137,7 @@ T["en"]["btn_go_vote"] = "🗳 Vote now"
 T["ar"]["mf_vote_note"] = "ℹ️ من لا يصوّت يُحسب صوته على نفسه."
 T["en"]["mf_vote_note"] = "ℹ️ If you don't vote, your vote counts for yourself."
 
-T["ar"]["mf_vote_results"] = '📊 <b>「 حصيلة الأصوات 」</b>\n━━━━━━━━━━━━\n{lines}'
+T["ar"]["mf_vote_results"] = '📊 <b>「 حصيلة الأصوات 」</b>\n━━━━━━━━━━━━━━━━\n{lines}'
 T["en"]["mf_vote_results"] = "📊 <b>Vote results</b> (voters are not named):\n{lines}"
 T["ar"]["mf_vote_skip"] = "• ⏭ تخطّي: {n}"
 T["en"]["mf_vote_skip"] = "• ⏭ Skip: {n}"
@@ -1280,8 +1280,8 @@ T["en"]["mf_help_long"] = (
 "<i>Roles stay secret until the end. Don't reveal yours!</i>")
 
 # ── النقاش قبل التصويت + أوقات جديدة ──
-T["ar"]["mf_discuss_live"] = '💬 <b>「 النهار {r} · وقت النقاش 」</b>\n━━━━━━━━━━━━\n⏳ {s} ثانية للنقاش\n👥 الأحياء:\n{names}\n━━━━━━━━━━━━\n<i>ناقشوا الآن في المجموعة أو التعليقات. بعد انتهاء الوقت تُفتح أزرار التصويت.</i>'
-T["en"]["mf_discuss_live"] = '💬 <b>Day {r} · Discussion</b>\n━━━━━━━━━━━━\n⏳ {s}s to discuss\n👥 Alive:\n{names}\n━━━━━━━━━━━━\n<i>Talk it out now. Voting buttons open when the time is up.</i>'
+T["ar"]["mf_discuss_live"] = '💬 <b>「 النهار {r} · وقت النقاش 」</b>\n━━━━━━━━━━━━━━━━\n⏳ {s} ثانية للنقاش\n👥 الأحياء:\n{names}\n━━━━━━━━━━━━━━━━\n<i>ناقشوا الآن في المجموعة أو التعليقات. بعد انتهاء الوقت تُفتح أزرار التصويت.</i>'
+T["en"]["mf_discuss_live"] = '💬 <b>Day {r} · Discussion</b>\n━━━━━━━━━━━━━━━━\n⏳ {s}s to discuss\n👥 Alive:\n{names}\n━━━━━━━━━━━━━━━━\n<i>Talk it out now. Voting buttons open when the time is up.</i>'
 T["ar"]["mf_discuss_dm"] = '💬 بدأ النهار، ووقت النقاش {s} ثانية.\nاضغط الزر وشارك في النقاش، وبعده يبدأ التصويت.'
 T["en"]["mf_discuss_dm"] = '💬 Day has begun. You have {s}s to discuss.\nTap the button to join the discussion; voting starts afterwards.'
 T["ar"]["btn_go_discuss"] = "💬 مكان النقاش"

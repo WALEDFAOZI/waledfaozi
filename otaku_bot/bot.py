@@ -66,9 +66,24 @@ def kb(*rows: list[InlineKeyboardButton]) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[r for r in rows if r])
 
 
+GREEN_START = ("✅", "▶", "🚀", "🙋", "🎮", "🔪", "🏁", "🎯")
+RED_STOP = ("❌", "🚫", "⛔", "🗑", "🛑", "🔴")
+
+
+def _auto_style(text: str) -> str | None:
+    """لون الزر من أوله: أخضر للبدء والموافقة، أحمر للإلغاء والمنع، والباقي بلونه الافتراضي."""
+    head = text.lstrip()
+    if head.startswith(RED_STOP):
+        return "danger"
+    if head.startswith(GREEN_START):
+        return "success"
+    return None
+
+
 def btn(text: str, data: str | None = None, url: str | None = None, style: str | None = None) -> InlineKeyboardButton:
-    """style: "success" أخضر، "danger" أحمر، "primary" أزرق (اختياري)."""
-    return InlineKeyboardButton(text=text, callback_data=data, url=url, style=style)
+    """style: "success" أخضر، "danger" أحمر، "primary" أزرق. إن لم يُحدد يُختار من أول الاسم."""
+    return InlineKeyboardButton(text=text, callback_data=data, url=url,
+                                style=style or _auto_style(text))
 
 
 INVITE_BADGES = [(1, "🌱", "سفير الأوتاكو", "Otaku Ambassador"), (3, "🤝", "جامع الشلّة", "Squad Gatherer"),

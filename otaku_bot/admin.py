@@ -28,6 +28,7 @@ from .growth import growth_text, refresh_count
 from .bot import btn, esc, kb
 from .config import CATEGORY_LABELS
 from .ctx import Ctx
+from . import ui
 from .content import ANIME_HELP, TF_HELP, parse_anime, parse_tf
 from .games import item_key, load_games
 from .recommend import hkey, load_anime
@@ -234,7 +235,7 @@ def build_admin_router(ctx: Ctx) -> Router:
         feedback_counts = db.feedback_counts
         now_h = time.strftime('%H:%M', time.gmtime(time.time() + 3 * 3600))
         pct = lambda x, y: f"{100 * x / y:.0f}%" if y else "—"  # noqa: E731
-        head = f"📊 <b>إحصائيات البوت</b> · <i>توقيت مكة {now_h}</i>\n━━━━━━━━━━━━\n"
+        head = f"📊 <b>إحصائيات البوت</b> · <i>توقيت مكة {now_h}</i>\n━━━━━━━━━━━━━━━━\n"
         if key == "now":
             live_mafia = sum(1 for g in mafia_game.games.values() if g.state != "done")
             live_spy = sum(1 for g in spy_game.games.values() if g.state != "done")
@@ -260,13 +261,13 @@ def build_admin_router(ctx: Ctx) -> Router:
             c = db.chat_counts()
             return head + (
                 "👥 <b>المستخدمون</b>\n"
-                f"• الإجمالي: <b>{s['users']}</b>\n"
+                f"• الإجمالي: <b>{ui.fmt(s['users'])}</b>\n"
                 f"• جدد: آخر ساعة {a['new_hour']} · اليوم {s['new_today']} · آخر 7 أيام {s['new_7d']}\n"
                 f"• عادوا لاختبارين فأكثر: {s['returning']}\n"
                 f"• حظروا البوت: {a['blocked']}\n\n"
                 "🏘 <b>الأماكن التي فيها البوت</b>\n"
-                f"• القنوات: <b>{c['channels']}</b>\n"
-                f"• المجموعات: <b>{c['groups']}</b>\n"
+                f"• القنوات: <b>{ui.fmt(c['channels'])}</b>\n"
+                f"• المجموعات: <b>{ui.fmt(c['groups'])}</b>\n"
                 f"• مجموعات لعبت خلال 7 أيام: {a['groups_week']} من {c['groups']}")
         if key == "tests":
             done = f"{100 * s['finished_7d'] / s['started_7d']:.0f}%" if s["started_7d"] else "—"

@@ -14,6 +14,7 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command, CommandStart
 from aiogram.types import CallbackQuery, Message
 
+from . import live, ui
 from .bot import btn, esc, kb
 from .ctx import Ctx
 from .texts import t
@@ -26,7 +27,7 @@ RPS_BEATS = {"r": "s", "p": "r", "s": "p"}
 C4_ROWS, C4_COLS = 6, 7
 SYM_XO = {0: "X", 1: "O"}
 SYM_C4 = {0: "R", 1: "Y"}
-EMOJI = {"X": "❌", "O": "⭕", "R": "🔴", "Y": "🟡", None: "⬜"}
+EMOJI = {"X": "❌", "O": "⭕", "R": "🔴", "Y": "🟡", None: "⬜"}   # الرموز الموحّدة في ui.py للأدوار والحالات
 
 
 # ── المنطق ──────────────────────────────────────────────
@@ -420,6 +421,11 @@ def build_arcade_router(ctx: Ctx) -> Router:
         m = Match(gid=counter[0], kind=kind, players=[], names={}, scope="c", chat_id=chat_id, state="join")
         m.board = [None] * 9 if kind == "xo" else [[None] * C4_COLS for _ in range(C4_ROWS)]
         matches[m.gid] = m
+        try:                                                   # لافتة اللعبة قبل الرسالة الحيّة
+            lang = db.group_lang(chat_id)
+            await bot.send_photo(chat_id, await live.banner_media(lang, kind))
+        except (TelegramAPIError, Exception):  # noqa: BLE001
+            log.warning("arcade: banner not sent for %s", kind)
         if starter is not None:
             m.players.append(starter)
             m.names[starter] = starter_name

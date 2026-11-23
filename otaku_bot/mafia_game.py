@@ -20,6 +20,7 @@ from aiogram.types import CallbackQuery, Message, ReplyParameters
 
 from . import mafia as M
 from . import progress
+from . import ui
 from .bot import btn, chan_row, esc, kb
 from .ctx import Ctx
 from . import live
@@ -290,7 +291,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             f"👥 <b>{t(L, 'mf_players_label')}</b> ({len(g.players)}):",
             players,
             "━━━━━━━━━━━━━━━━",
-            t(L, "mf_left", s=max(0, left), min=M.MIN_PLAYERS),
+            t(L, "mf_left", s=max(0, left), min=M.MIN_PLAYERS) + "\n" + ui.bar(left / max(1, g.lobby_secs)),
             f"<i>{t(L, 'mf_join_hint')}</i>",
         ] + ([g.discuss_line] if g.discuss_line else []))
 
