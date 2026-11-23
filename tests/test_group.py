@@ -257,7 +257,7 @@ def test_main_menu_group_button_and_start_play_in_group_and_group_ranking_button
         await gtap(h, b, "gp:t", reply_to=cmd)
         board = sent(h)[-1]
         assert len(sent(h)) == n + 1 and board.reply_parameters.message_id == 95
-        assert "Ali" in board.text and "🏆2" in board.text and "🎮2" in board.text and "⭐1600" in board.text
+        assert "Ali" in board.text and "🏆2" in board.text and "⭐1600" in board.text and "هذا الأسبوع" not in board.text
         await gtap(h, b, "gp:t", reply_to=cmd)                    # ضغط سريع ثانٍ: نافذة منبثقة بلا رسالة جديدة
         assert len(sent(h)) == n + 1
     run(go())

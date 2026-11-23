@@ -1587,3 +1587,8 @@ T["ar"]["kt_next"] = "🎲 سؤال آخر"
 T["en"]["kt_next"] = "🎲 Another one"
 T["ar"]["kt_empty"] = "ما في أسئلة حاليًا."
 T["en"]["kt_empty"] = "No questions available right now."
+
+T["ar"]["gp_top_title"] = "🏆 <b>متصدرو المجموعة</b>"
+T["en"]["gp_top_title"] = "🏆 <b>Group leaderboard</b>"
+T["ar"]["gp_top_title_plain"] = "🏆 متصدرو المجموعة"
+T["en"]["gp_top_title_plain"] = "🏆 Group leaderboard"

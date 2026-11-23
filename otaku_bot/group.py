@@ -643,11 +643,10 @@ def build_group_router(ctx: Ctx) -> Router:
             g.task.cancel()
 
     def top_text(chat_id: int, L: str, plain: bool = False, n: int = 10) -> str:
-        def pairs(rows):
-            return [(x["name"], f"🏆{x['wins']} · 🎮{x['games']} · ⭐{x['pts']}") for x in rows[:n]]
-        week = board.render(t(L, "gp_top_week"), pairs(db.group_top(chat_id, week_start(), n)), t(L, "lb_empty"))
-        allt = board.render(t(L, "gp_top_all"), pairs(db.group_top(chat_id, 0.0, n)), t(L, "lb_empty"))
-        return week + "\n\n" + allt
+        """ترتيب المجموعة العام فقط: أول 10 بالنقاط، والقائمة مختصرة (بدون أسبوعي)."""
+        rows = db.group_top(chat_id, 0.0, n)
+        pairs = [(x["name"], f"⭐{x['pts']} · 🏆{x['wins']}") for x in rows[:n]]
+        return board.render(t(L, "gp_top_title_plain" if plain else "gp_top_title"), pairs, t(L, "lb_empty"))
 
     @r.message(Command("gtop"))
     async def cmd_top(m: Message):
