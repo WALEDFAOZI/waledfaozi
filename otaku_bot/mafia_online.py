@@ -406,6 +406,7 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
                 if res.victim is not None:
                     room.seats[res.victim].alive = False
                     await broadcast(bot, room, "mf_morning_dead", name=esc(room.seats[res.victim].name))
+                    await say(bot, res.victim, t(L_(res.victim), "mf_you_died"))
                 elif res.saved:
                     await broadcast(bot, room, "mf_morning_saved")
                 else:
@@ -416,6 +417,7 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
                 out = await vote(bot, room)
                 if out is not None:
                     room.seats[out].alive = False
+                    await say(bot, out, t(L_(out), "mf_you_voted"))
                     await broadcast(bot, room, "mf_executed", name=esc(room.seats[out].name))
                     if room.seats[out].role == "joker":        # المجنون يكشف دوره ويسحب معه أحدًا
                         await joker_pick(bot, room, out)

@@ -718,6 +718,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 last = None
                 if out is not None:
                     g.players[out].alive = False
+                    await dm(bot, out, t(db.get_lang(out), "mf_you_voted"))
                     g.last_out = out
                     last = g.players[out].role
                     text = t(L, "mf_executed", name=esc(g.players[out].name))
