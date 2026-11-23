@@ -12,9 +12,10 @@ from dataclasses import dataclass, field
 from aiogram import Bot, F, Router
 from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command, CommandStart
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import BufferedInputFile, CallbackQuery, Message
 
 from . import live, ui
+from .resultcard import make_match_card
 from .bot import btn, esc, kb
 from .ctx import Ctx
 from .texts import t
@@ -226,26 +227,44 @@ def build_arcade_router(ctx: Ctx) -> Router:
             except TelegramAPIError:
                 pass
 
+    async def send_card(bot: Bot, m: Match, lang: str, summary: str) -> None:
+        """بطاقة النتيجة كصورة (لا تُرسل إن فشل الرسم، واللعبة لا تتأثر)."""
+        board = m.board if m.kind != "rps" else None
+        scores = f"{m.score[0]} : {m.score[1]}" if m.kind == "rps" else None
+        names = [m.names.get(u, "?") for u in m.players]
+        title = t(lang, "ar_title_" + m.kind)
+        png = await asyncio.to_thread(make_match_card, m.kind, board, names, title, summary, scores)
+        if not png:
+            return
+        targets = [m.chat_id] if m.scope == "c" else list(m.players)
+        for chat in targets:
+            try:
+                await bot.send_photo(chat, BufferedInputFile(png, "result.jpg"), caption=summary)
+            except TelegramAPIError:
+                pass
+
     async def finish(bot: Bot, m: Match, result_for: dict[int, str], summary: str = "") -> None:
+        lang = db.group_lang(m.chat_id) if m.scope == "c" else L_(m.players[0])
         if m.scope == "c":
-            text, _ = render_chat(m, "ar")
+            text, _ = render_chat(m, lang)
             body = "\n".join([text.split("\n")[0], summary]) if summary else text
             try:
                 await bot.edit_message_text(body, chat_id=m.chat_id, message_id=m.mid, parse_mode="HTML",
-                                            reply_markup=kb([btn(t("ar", "ar_again"), "ar:m")]))
+                                            reply_markup=kb([btn(t(lang, "ar_again"), "ar:m")]))
             except TelegramAPIError:
                 pass
-            end(m)
-            return
-        for uid in m.players:
-            L = L_(uid)
-            text, _ = render(m, uid)
-            body = text.split("\n")[0] + "\n" + result_for.get(uid, "")
-            try:
-                await bot.edit_message_text(body, chat_id=uid, message_id=m.msgs[uid], parse_mode="HTML",
-                                            reply_markup=kb([btn(t(L, "ar_again"), "ar:m")]))
-            except (TelegramAPIError, KeyError):
-                pass
+        else:
+            for uid in m.players:
+                L = L_(uid)
+                text, _ = render(m, uid)
+                body = text.split("\n")[0] + "\n" + result_for.get(uid, "")
+                try:
+                    await bot.edit_message_text(body, chat_id=uid, message_id=m.msgs[uid], parse_mode="HTML",
+                                                reply_markup=kb([btn(t(L, "ar_again"), "ar:m")]))
+                except (TelegramAPIError, KeyError):
+                    pass
+        if summary:
+            await send_card(bot, m, lang, summary)
         end(m)
 
     def record(m: Match, winner: int | None) -> None:
@@ -258,12 +277,13 @@ def build_arcade_router(ctx: Ctx) -> Router:
         if win is None:
             return False
         record(m, None if win == "draw" else (0 if win == sym_of(m, m.players[0]) else 1))
+        lang = db.group_lang(m.chat_id) if m.scope == "c" else L_(m.players[0])
+        if win == "draw":
+            summary = t(lang, "ar_chat_draw")
+        else:
+            winner = m.players[0] if win == sym_of(m, m.players[0]) else m.players[1]
+            summary = t(lang, "ar_chat_win", name=chat_name(m, winner))
         if m.scope == "c":
-            if win == "draw":
-                summary = t("ar", "ar_chat_draw")
-            else:
-                winner = m.players[0] if win == sym_of(m, m.players[0]) else m.players[1]
-                summary = t("ar", "ar_chat_win", name=chat_name(m, winner))
             await finish(bot, m, {}, summary)
             return True
         result = {}
@@ -273,7 +293,7 @@ def build_arcade_router(ctx: Ctx) -> Router:
                 result[uid] = t(L, "ar_draw")
             else:
                 result[uid] = t(L, "ar_win") if sym_of(m, uid) == win else t(L, "ar_lose")
-        await finish(bot, m, result)
+        await finish(bot, m, result, summary)
         return True
 
     async def start(bot: Bot, a: int, b: int, kind: str, names: dict) -> None:
@@ -413,12 +433,14 @@ def build_arcade_router(ctx: Ctx) -> Router:
         if max(m.score) >= 2:
             winner = 0 if m.score[0] > m.score[1] else 1
             record(m, winner)
+            lang = db.group_lang(m.chat_id) if m.scope == "c" else L_(m.players[0])
+            summary = t(lang, "ar_chat_win", name=chat_name(m, m.players[winner]))
             if m.scope == "c":
-                await finish(c.bot, m, {}, t("ar", "ar_chat_win", name=chat_name(m, m.players[winner])))
+                await finish(c.bot, m, {}, summary)
                 return
             result = {uid: (t(L_(uid), "ar_win") if i == winner else t(L_(uid), "ar_lose"))
                       for i, uid in enumerate(m.players)}
-            await finish(c.bot, m, result)
+            await finish(c.bot, m, result, summary)
             return
         await show_all(c.bot, m)
 

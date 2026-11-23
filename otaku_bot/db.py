@@ -1128,8 +1128,10 @@ class DB:
 
     def broadcast_chats(self, kind: str) -> list[int]:
         """قنوات (channel_links) أو مجموعات (group_chats) تُرسل إليها الرسالة الجماعية."""
-        table = {"channels": "channel_links", "groups": "group_chats"}[kind]
-        return [r["chat_id"] for r in self.conn.execute(f"SELECT chat_id FROM {table}")]
+        if kind == "channels":                  # قنوات المشرفين (قنواتهم الخاصة) لا تدخل الرسالة الجماعية
+            return [r["chat_id"] for r in self.conn.execute(
+                "SELECT chat_id FROM channel_links WHERE user_id NOT IN (SELECT tg_id FROM admins)")]
+        return [r["chat_id"] for r in self.conn.execute("SELECT chat_id FROM group_chats")]
 
     def can_message(self, tg_id: int) -> bool:
         """المستخدم معروف للبوت ولم يحظره، فيمكن مراسلته في الخاص."""

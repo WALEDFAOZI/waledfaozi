@@ -22,3 +22,11 @@ def test_stats_menu_sections_and_chat_counts():
         await h.tap(o, "ad:sx:now")
         assert "التفاعل الآن" in h.session.texts()[-1]
     run(go())
+
+
+def test_admin_owned_channels_are_excluded_from_broadcast():
+    h = Harness()
+    h.db.add_admin(5, owner=True)
+    h.db.link_channel(-1001053884830, 5, "قناتي")          # قناة المشرف: لا تدخل الرسالة الجماعية
+    h.db.link_channel(-1009999, 77, "قناة أخرى")           # قناة مستخدم عادي: تدخل
+    assert h.db.broadcast_chats("channels") == [-1009999]
