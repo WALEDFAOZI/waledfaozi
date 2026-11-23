@@ -101,6 +101,8 @@ class Game:
     gone: bool = False                # الرسالة الحيّة حُذفت: تتوقف اللعبة
     joker_pick: int | None = None     # من سحب المجنون معه بعد طرده
     last_out: int | None = None       # آخر لاعب طُرد بالتصويت (يُذكر في نهاية اللعبة)
+    discuss_chat: int | None = None   # مجموعة التعليقات المرتبطة بالقناة (لتحديثات النقاش)
+    discuss_anchor: int | None = None # التعليق الذي وُضع رابطه: نرد عليه داخل التعليقات
     day_markup: object = None
 
 
@@ -588,6 +590,16 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 pass                                        # لم يبدأ البوت بالخاص
 
     # ── إعلانات ───────────────────────────────────────────
+    async def post_discuss(bot: Bot, g: Game, text: str) -> None:
+        """تحديث في تعليقات المنشور (بدون أدوار). إن لم يكن البوت عضوًا في مجموعة التعليقات فلا يُرسل شيء."""
+        if not (g.discuss_chat and g.discuss_anchor):
+            return
+        try:
+            await bot.send_message(g.discuss_chat, text, parse_mode="HTML",
+                                   reply_parameters=ReplyParameters(message_id=g.discuss_anchor, allow_sending_without_reply=True))
+        except TelegramAPIError:
+            pass
+
     async def announce_morning(bot: Bot, g: Game, res: M.Result) -> None:
         L = g.lang
         if res.victim is not None:
@@ -601,6 +613,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         else:
             text = t(L, "mf_morning_quiet")
         await show(bot, g, text, None)
+        await post_discuss(bot, g, text)
 
     async def finish(bot: Bot, g: Game, w: str | None) -> None:
         L = g.lang
@@ -722,13 +735,16 @@ def build_mafia_router(ctx: Ctx) -> Router:
                     g.last_out = out
                     last = g.players[out].role
                     text = t(L, "mf_executed", name=esc(g.players[out].name))
+                    public = text                                 # بدون دور: التعليقات لا تكشف الأدوار
                     if g.reveal_death and last != "joker":        # المجنون يُكشف دوره أصلًا
                         text += "\n" + role_line(g, out)
                     await show(bot, g, text, None)
+                    await post_discuss(bot, g, public)
                     if last == "joker":                           # يكشف دوره ويسحب معه أحدًا (لا يفوز وحده)
                         await joker_pick(bot, g, out)
                 else:
                     await show(bot, g, t(L, "mf_no_exec"), None)
+                    await post_discuss(bot, g, t(L, "mf_no_exec"))
                 died_this_round = len(alive_players(g)) < alive_at_start     # قتل أو طرد أو انسحاب
                 if res.victim is not None or out is not None or died_this_round:
                     g.quiet = 0
@@ -1181,6 +1197,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g = new_game(chat_id, "channel", m.from_user.id, ch.title or "القناة", None, None, db.group_lang(chat_id))
         g.discuss_line = t(db.group_lang(chat_id), "mf_discuss_line")
         g.discuss_url = url
+        g.discuss_chat = getattr(ch, "linked_chat_id", None)          # مجموعة التعليقات إن كانت مربوطة
+        g.discuss_anchor = comment_id
         if not await open_lobby(m.bot, g):
             await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
             return
