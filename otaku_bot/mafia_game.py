@@ -308,7 +308,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         help_url = f"https://t.me/{g.me}?start=mfh"
         # انضم: سطر كامل أخضر. انسحب وشرح اللعبة جنب بعض. الرسالة فيها أصلًا زر يفتح البوت، فلا زر بوت إضافي.
         return with_discuss(g, kb([btn(t(L, "mf_join"), url=join_url, style="success")],
-                                  [btn(t(L, "mf_leave"), f"mf:l:{g.gid}"), btn(t(L, "mf_help_btn"), url=help_url)],
+                                  [btn(t(L, "mf_leave"), f"mf:l:{g.gid}", style="danger"), btn(t(L, "mf_help_btn"), url=help_url)],
                                   *chan_row(L, bot_link=False)))
 
     def config_text(g: Game) -> str:
@@ -338,7 +338,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         sp = [btn(("✅ " if r in g.specials else "") + t(L, "mf_r_" + r), f"mf:r:{g.gid}:{r}") for r in SPECIAL_ORDER]
         rows += [sp[:2], sp[2:]]
         rows += times_rows(g)
-        rows.append([btn(t(L, "mf_start"), f"mf:s:{g.gid}"), btn(t(L, "mf_cancel"), f"mf:x:{g.gid}")])
+        rows.append([btn(t(L, "mf_start"), f"mf:s:{g.gid}"), btn(t(L, "mf_cancel"), f"mf:x:{g.gid}", style="danger")])
         return kb(*rows)
 
     async def push_config(bot: Bot, g: Game) -> None:

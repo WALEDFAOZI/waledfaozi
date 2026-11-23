@@ -256,7 +256,7 @@ def build_online_router(ctx: Ctx) -> Router:
         started = to_queue_or_match(c.bot, uid, kind)
         if not started:
             await c.message.answer(t(L, "on_waiting", kind=t(L, f"on_kind_{kind}"), s=QUEUE_SECS), parse_mode="HTML",
-                                   reply_markup=kb([btn(t(L, "on_cancel"), f"on:c:{kind}")]))
+                                   reply_markup=kb([btn(t(L, "on_cancel"), f"on:c:{kind}", style="danger")]))
             asyncio.get_event_loop().call_later(QUEUE_SECS, lambda: asyncio.ensure_future(_expire(c.bot, uid, kind)))
 
     async def _expire(bot: Bot, uid: int, kind: str) -> None:

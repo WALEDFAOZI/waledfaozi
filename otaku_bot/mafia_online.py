@@ -154,7 +154,7 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
             fill_pending[0] = True
             asyncio.get_event_loop().create_task(_fill(c.bot))
         await c.message.answer(t(L, "mo_queued", n=len(queue), s=QUEUE_SECS, min=MIN_PLAYERS), parse_mode="HTML",
-                               reply_markup=kb([btn(t(L, "mo_cancel_btn"), "mo:c")]))
+                               reply_markup=kb([btn(t(L, "mo_cancel_btn"), "mo:c", style="danger")]))
 
     @r.callback_query(F.data == "mo:h")
     async def cb_help(c: CallbackQuery):

@@ -168,7 +168,7 @@ def build_arcade_router(ctx: Ctx) -> Router:
         if m.state == "join":
             names = " ، ".join(chat_name(m, u) for u in m.players) or "—"
             text = "\n".join([title, t(lang, "ar_waiting", names=names)])
-            return text, kb([btn(t(lang, "ar_join_btn"), f"ar:j:{m.gid}")])
+            return text, kb([btn(t(lang, "ar_join_btn"), f"ar:j:{m.gid}", style="success")])
         p1, p2 = m.players
         vs = f"{chat_name(m, p1)} ❌⭕ {chat_name(m, p2)}" if m.kind == "xo" else \
             f"{chat_name(m, p1)} 🔴🟡 {chat_name(m, p2)}" if m.kind == "c4" else \
@@ -321,7 +321,7 @@ def build_arcade_router(ctx: Ctx) -> Router:
             return
         queue[kind].append(uid)
         await c.message.answer(t(L, "ar_queued"), parse_mode="HTML",
-                               reply_markup=kb([btn(t(L, "ar_cancel"), f"ar:qc:{kind}")]))
+                               reply_markup=kb([btn(t(L, "ar_cancel"), f"ar:qc:{kind}", style="danger")]))
 
     @r.callback_query(F.data.regexp(r"^ar:qc:(xo|rps|c4)$"))
     async def cb_queue_cancel(c: CallbackQuery):

@@ -46,7 +46,7 @@ async def announce(bot: Bot, db, opener: int, label_key: str, join_data: str,
         L = db.get_lang(uid)
         try:
             await bot.send_message(uid, t(L, "on_notify_open", game=t(L, label_key)), parse_mode="HTML",
-                                   reply_markup=kb([btn(t(L, "on_notify_join"), join_data)]))
+                                   reply_markup=kb([btn(t(L, "on_notify_join"), join_data, style="success")]))
         except TelegramAPIError:
             pass
         await asyncio.sleep(GAP)
