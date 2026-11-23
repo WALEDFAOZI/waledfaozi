@@ -226,20 +226,21 @@ def build_spy_router(ctx: Ctx) -> Router:
         g.asked.add(asker)
         g.cur = (asker, target)
         g.question = g.answer = None
+        g.next_go = False
         an = (g.players[asker].name or "").strip() or "👤"           # اسم فارغ (رموز فقط): لا يترك السطر فارغًا
         tn = (g.players[target].name or "").strip() or "👤"
-        await show(bot, g, t(L, "sp_ask_live", r=g.round, a=esc(an), b=esc(tn), s=ASK_SECS), None)
+        next_kb = kb([btn(t(L, "sp_next_btn"), f"sp:n:{g.gid}")])    # زر «التالي» موجود دائمًا في الجولة
+        await show(bot, g, t(L, "sp_ask_live", r=g.round, a=esc(an), b=esc(tn), s=ASK_SECS), next_kb)
         end = time.monotonic() + ASK_SECS
-        while time.monotonic() < end and g.question is None:
+        while time.monotonic() < end and g.question is None and not g.next_go:
             await asyncio.sleep(0.5)
-        if g.question is None:                              # لا رسالة: العداد يكفي، والمضيف يضغط «التالي»
+        if g.next_go or g.question is None:                 # «التالي» أو انتهى الوقت بلا سؤال: الجولة التالية
             return
-        await show(bot, g, t(L, "sp_answer_live", b=esc(tn), s=ANSWER_SECS), None)
+        await show(bot, g, t(L, "sp_answer_live", b=esc(tn), s=ANSWER_SECS), next_kb)
         end = time.monotonic() + ANSWER_SECS
-        while time.monotonic() < end and g.answer is None:
+        while time.monotonic() < end and g.answer is None and not g.next_go:
             await asyncio.sleep(0.5)
-        if g.answer is None:
-            await send(bot, g, t(L, "sp_no_answer", b=esc(tn)))
+        # لا رسالة عند انتهاء وقت الإجابة: العداد يكفي، والمضيف يضغط «التالي»
 
     async def vote_prompt(bot: Bot, g: Game) -> bool:
         """بعد الجولة العاشرة (والإضافية): هل يصوّتون أم يكملون؟ يرجع True للتصويت."""
@@ -314,8 +315,6 @@ def build_spy_router(ctx: Ctx) -> Router:
                         break
                     g.extra += 1
                 g.round += 1
-                label = t(L, "sp_round_label") if g.round <= ROUNDS else t(L, "sp_extra_label", e=g.extra)
-                await wait_next(bot, g, label)
                 await ask_round(bot, g)
                 g.state = "play"
             await voting(bot, g)
