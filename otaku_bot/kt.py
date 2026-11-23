@@ -10,6 +10,7 @@ import re
 from functools import lru_cache
 
 from aiogram import F, Router
+from aiogram.filters import CommandStart
 from aiogram.types import CallbackQuery, Message
 
 from .bot import btn, esc, kb
@@ -58,6 +59,17 @@ def build_kt_router(ctx) -> Router:
 
     @r.message(F.text.regexp(TRIGGER))
     async def on_trigger(m: Message):
+        uid = m.from_user.id
+        lang = db.get_lang(uid)
+        q = pick(uid)
+        if q is None:
+            await m.answer(t(lang, "kt_empty"))
+            return
+        await m.answer(render(q, lang), parse_mode="HTML", reply_markup=markup(lang))
+
+    @r.message(CommandStart(deep_link=True, magic=F.args == "kt"))
+    async def on_inline_kt(m: Message):
+        """من نتيجة الوضع الداخلي: يرسل سؤالًا مباشرة."""
         uid = m.from_user.id
         lang = db.get_lang(uid)
         q = pick(uid)

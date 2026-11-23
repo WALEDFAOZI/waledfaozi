@@ -153,3 +153,4 @@ def test_group_menu_starts_two_player_game_in_the_group_and_private_menu_lists_i
         assert len(ms) == 1 and ms[0].kind == "c4" and ms[0].scope == "c" and ms[0].players == [81]
         assert ms[0].chat_id == GROUP.id
     run(go())
+

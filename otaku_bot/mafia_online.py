@@ -12,6 +12,7 @@ import time
 from dataclasses import dataclass, field
 
 from aiogram import Bot, F, Router
+from aiogram.filters import CommandStart
 from aiogram.dispatcher.event.bases import SkipHandler
 from aiogram.exceptions import TelegramAPIError
 from aiogram.types import CallbackQuery, Message
@@ -155,6 +156,13 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
             asyncio.get_event_loop().create_task(_fill(c.bot))
         await c.message.answer(t(L, "mo_queued", n=len(queue), s=QUEUE_SECS, min=MIN_PLAYERS), parse_mode="HTML",
                                reply_markup=kb([btn(t(L, "mo_cancel_btn"), "mo:c", style="danger")]))
+
+    @r.message(CommandStart(deep_link=True, magic=F.args == "go"))
+    async def on_inline_go(m: Message):
+        """من نتيجة الوضع الداخلي: يفتح الطابور بزر انضمام."""
+        L = L_(m.from_user.id)
+        db.upsert_user(m.from_user.id, m.from_user.full_name)
+        await m.answer(t(L, "mo_inline_go"), parse_mode="HTML", reply_markup=kb([btn(t(L, "btn_mafia_online"), "mo:j")]))
 
     @r.callback_query(F.data == "mo:h")
     async def cb_help(c: CallbackQuery):

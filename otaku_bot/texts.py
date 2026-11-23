@@ -1598,3 +1598,18 @@ T["en"]["btn_two_player"] = "🎲 Two-player games: Tic-tac-toe, RPS, Connect Fo
 
 T["ar"]["btn_discover"] = "🧬 اكتشف نمطك"
 T["en"]["btn_discover"] = "🧬 Discover your type"
+
+T["ar"]["mo_inline_go"] = "🔪 <b>مافيا أونلاين</b>\nاضغط الزر وادخل الطابور، وتبدأ اللعبة عند اكتمال اللاعبين."
+T["en"]["mo_inline_go"] = "🔪 <b>Mafia online</b>\nTap the button to join the queue; the game starts once enough players arrive."
+T["ar"]["inl_on_go"] = "🎮 <b>{game}</b>\nاضغط الزر وادخل الطابور."
+T["en"]["inl_on_go"] = "🎮 <b>{game}</b>\nTap the button to join the queue."
+T["ar"]["inl_game_text"] = "🎮 <b>{game}</b>\nاضغط الزر وابدأ الآن!"
+T["en"]["inl_game_text"] = "🎮 <b>{game}</b>\nTap the button and start now!"
+T["ar"]["inl_game_go"] = "🎮 ابدأ الآن"
+T["en"]["inl_game_go"] = "🎮 Start now"
+T["ar"]["inl_group_text"] = "👥 <b>{game}</b>\nأضف البوت لمجموعتك وابدأ اللعب مع أصدقائك."
+T["en"]["inl_group_text"] = "👥 <b>{game}</b>\nAdd the bot to your group and play with your friends."
+T["ar"]["inl_group_go"] = "➕ أضفني لمجموعتك"
+T["en"]["inl_group_go"] = "➕ Add me to your group"
+T["ar"]["kt_title_plain"] = "🎌 كت · سؤال عن الأنمي"
+T["en"]["kt_title_plain"] = "🎌 Kt · An anime question"

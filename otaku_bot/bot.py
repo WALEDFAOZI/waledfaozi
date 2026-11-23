@@ -179,19 +179,38 @@ def build_router(ctx: Ctx) -> Router:
         if best:
             results.append(article("r", t(L, "inl_result_title", score=f"{best:.1f}"),
                                    t(L, "inl_result", name=name, score=f"{best:.1f}", title=esc(title_for(best, L)))))
-        # الألعاب الثنائية: كل لعبة تُرسل تحدّيًا برابط يفتحه الصديق فيدخل المباراة مباشرة
+        # كل الألعاب بترتيب: الأقوى أولًا (مافيا، ثم الجماعية، ثم الثنائية، ثم الأخف)
         from . import arcade
-        for kind in arcade.KINDS:
-            if not db.game_on("arcade"):
-                break
-            inv = arcade.make_invite(uid, kind)
-            game_link = f"https://t.me/{await bot_username(q.bot)}?start=ar_{inv}"
-            results.append(InlineQueryResultArticle(
-                id=f"g_{kind}", title=t(L, "ar_title_" + kind),
+        bot_me = await bot_username(q.bot)
+
+        def game_article(rid: str, title_key: str, text_key: str, go_key: str, url: str):
+            return InlineQueryResultArticle(
+                id=rid, title=t(L, title_key),
                 input_message_content=InputTextMessageContent(
-                    message_text=t(L, "ar_inline_text", name=name, game=t(L, "ar_title_" + kind)),
-                    parse_mode="HTML", disable_web_page_preview=True),
-                reply_markup=kb([btn(t(L, "ar_inline_go"), url=game_link)])))
+                    message_text=t(L, text_key, game=t(L, title_key)), parse_mode="HTML",
+                    disable_web_page_preview=True),
+                reply_markup=kb([btn(t(L, go_key), url=url)]))
+
+        games = [
+            game_article("g_mo", "btn_mafia_online", "inl_game_text", "inl_game_go",
+                         f"https://t.me/{bot_me}?start=mo_go"),
+            game_article("g_mafia", "gpk_mafia", "inl_group_text", "inl_group_go",
+                         f"https://t.me/{bot_me}?startgroup=play"),
+            game_article("g_spy", "gpk_spy", "inl_group_text", "inl_group_go",
+                         f"https://t.me/{bot_me}?startgroup=play"),
+        ]
+        if db.game_on("arcade"):
+            for kind in ("xo", "c4", "rps"):
+                inv = arcade.make_invite(uid, kind)
+                games.append(game_article(f"g_{kind}", "ar_title_" + kind, "inl_game_text", "inl_game_go",
+                                          f"https://t.me/{bot_me}?start=ar_{inv}"))
+        for rid, title_key, kind in (("g_sudden", "btn_sudden", "sudden"), ("g_quiz", "btn_full", "quiz"),
+                                     ("g_images", "btn_images", "images"), ("g_tf", "g_tf", "tf")):
+            games.append(game_article(rid, title_key, "inl_game_text", "inl_game_go",
+                                      f"https://t.me/{bot_me}?start=on_{kind}"))
+        games.append(game_article("g_kt", "kt_title_plain", "inl_game_text", "inl_game_go",
+                                  f"https://t.me/{bot_me}?start=kt"))
+        results = games + results
         await q.answer(results[:50], cache_time=20, is_personal=True)
 
     @r.chat_member()

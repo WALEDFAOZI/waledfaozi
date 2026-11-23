@@ -11,7 +11,8 @@ from dataclasses import dataclass, field
 
 from aiogram import Bot, F, Router
 from aiogram.exceptions import TelegramAPIError
-from aiogram.types import CallbackQuery
+from aiogram.filters import CommandStart
+from aiogram.types import CallbackQuery, Message
 
 from . import progress
 from .bot import btn, chan_row, esc, kb
@@ -237,6 +238,17 @@ def build_online_router(ctx: Ctx) -> Router:
         on = online_notify.is_on(db, uid)
         rows.append([btn(t(L, "btn_online_notify") + (" ✅" if on else " 🔕"), "on:nt")])
         return kb(*rows, [btn(t(L, "btn_menu"), "menu")])
+
+    @r.message(CommandStart(deep_link=True, magic=F.args.startswith("on_")))
+    async def on_inline_kind(m: Message):
+        """من نتيجة الوضع الداخلي: يفتح طابور اللعبة المختارة بزر انضمام."""
+        L = L_(m.from_user.id)
+        db.upsert_user(m.from_user.id, m.from_user.full_name)
+        kind = m.text.split("on_", 1)[1].split()[0] if "on_" in m.text else ""
+        if kind not in KINDS:
+            return
+        await m.answer(t(L, "inl_on_go", game=t(L, f"on_kind_{kind}")), parse_mode="HTML",
+                       reply_markup=kb([btn(t(L, f"on_kind_{kind}"), f"on:j:{kind}")]))
 
     @r.callback_query(F.data == "on:nt")
     async def cb_notify(c: CallbackQuery):
