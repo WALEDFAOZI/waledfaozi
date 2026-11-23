@@ -100,6 +100,7 @@ class Game:
     mayor_revealed: bool = False      # العمدة كشف نفسه: صوته يُحسب مرتين من تلك اللحظة
     gone: bool = False                # الرسالة الحيّة حُذفت: تتوقف اللعبة
     joker_pick: int | None = None     # من سحب المجنون معه بعد طرده
+    last_out: int | None = None       # آخر لاعب طُرد بالتصويت (يُذكر في نهاية اللعبة)
     day_markup: object = None
 
 
@@ -613,6 +614,12 @@ def build_mafia_router(ctx: Ctx) -> Router:
         for p in g.players.values():                        # إحصائيات المافيا الشخصية
             db.record_outcome(p.uid, "mafia", "draw" if not w else ("win" if p.uid in won else "lose"))
         head = t(L, f"mf_end_{w}") if w else t(L, "mf_end_draw")
+        if g.last_out is not None and g.last_out in g.players:     # يوضح آخر طرد بالتصويت ودوره
+            voted = g.players[g.last_out]
+            if voted.role == "killer":
+                head += "\n" + t(L, "mf_vote_killer", name=esc(voted.name))
+            else:
+                head += "\n" + t(L, "mf_vote_other", name=esc(voted.name), role=t(L, "mf_r_" + voted.role))
         reveal = "\n".join(
             f"{ICON[p.role]} {esc(p.name)} — {t(L, 'mf_r_' + p.role)}{' ✅' if p.uid in won else ''}"
             for p in g.players.values())
@@ -709,6 +716,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 last = None
                 if out is not None:
                     g.players[out].alive = False
+                    g.last_out = out
                     last = g.players[out].role
                     text = t(L, "mf_executed", name=esc(g.players[out].name))
                     if g.reveal_death and last != "joker":        # المجنون يُكشف دوره أصلًا

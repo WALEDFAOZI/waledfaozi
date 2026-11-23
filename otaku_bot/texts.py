@@ -1128,8 +1128,8 @@ T["en"]["mf_vote_status"] = "🗳 <b>{name}</b> voted.\n📊 Voted: {done} of {t
 T["ar"]["mf_quiet_death"] = "⚰️ مرت 3 جولات بدون قتل ولا طرد، فاختار القدر <b>{name}</b> ليخرج من اللعبة 💀"
 T["en"]["mf_quiet_death"] = "⚰️ Three rounds passed with no death or vote, so fate chose <b>{name}</b> to leave the game 💀"
 
-T["ar"]["mf_self_votes"] = '⏳ <b>「 من بقي صامتًا 」</b>\n{names}\n<i>صوت كل واحد منهم اعتُبر على نفسه، فلا يُطرد أحد بسببه.</i>'
-T["en"]["mf_self_votes"] = "⏳ Did not vote: {names}\n↩️ Each of their votes counts for themselves, so it eliminates nobody."
+T["ar"]["mf_self_votes"] = '⏳ <b>「 من بقي صامتًا 」</b>\n{names}\n<i>صوت كل واحد منهم اعتُبر على نفسه.</i>'
+T["en"]["mf_self_votes"] = "⏳ Did not vote: {names}\n↩️ Each of their votes counts for themselves."
 T["ar"]["mf_vote_dm"] = "🗳 بدأ التصويت الصباحي في اللعبة.\nاضغط الزر وصوّت قبل انتهاء الوقت. من لا يصوّت يُحسب صوته على نفسه ↩️"
 T["en"]["mf_vote_dm"] = "🗳 Morning voting has started.\nTap the button and vote before time runs out. If you don't vote, your vote counts for yourself ↩️"
 T["ar"]["btn_go_vote"] = "🗳 صوّت الآن"
@@ -1650,3 +1650,8 @@ T["en"]["sp_countdown"] = "⏳ Starts in {s}s, needs {min}–{max} players"
 
 T["ar"]["mf_crashed"] = "⚠️ توقفت اللعبة بسبب خطأ فني. ابدأ لعبة جديدة بـ /mafia"
 T["en"]["mf_crashed"] = "⚠️ The game stopped because of a technical error. Start a new one with /mafia"
+
+T["ar"]["mf_vote_killer"] = "🗳 <b>صوّتت الجماعة على {name}، وكان من المافيا! 🔪</b>"
+T["en"]["mf_vote_killer"] = "🗳 <b>The town voted out {name}, who was Mafia! 🔪</b>"
+T["ar"]["mf_vote_other"] = "🗳 <b>صوّتت الجماعة على {name}، وكان {role}.</b>"
+T["en"]["mf_vote_other"] = "🗳 <b>The town voted out {name}, who was {role}.</b>"
