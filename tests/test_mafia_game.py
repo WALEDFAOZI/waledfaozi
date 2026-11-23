@@ -201,3 +201,19 @@ def test_lobby_countdown_ticks_down_without_joins():
         run(go())
     finally:
         MG.LOBBY_SECS, MG.LOBBY_TICK = old_secs, old_tick
+
+
+def test_lobby_timeout_starts_the_game_without_host_pressing_start():
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 6)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, users[0], "/mafia", 61)
+        g = MG.games[GROUP.id]
+        for u in users:                                                  # المضيف يُحسب لاعبًا إن انضم
+            await h.say(u, f"/start mf_{g.gid}")
+        assert await wait_until(lambda: g.state == "night", 15)         # انتهى الوقت: تبدأ مباشرة بدون ضغط «ابدأ»
+        assert not g.start_now
+    run(go())
