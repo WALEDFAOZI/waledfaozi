@@ -44,8 +44,8 @@ CH_LOBBY_SECONDS = 180      # مسابقات القنوات: 3 دقائق للم
 CH_Q_SECONDS = 30           # ثم 30 ثانية لكل سؤال
 CH_MAX_PLAYERS = 200000
 CH_KEEP = 50                # في القنوات الكبيرة نحفظ أفضل 50 فقط في القاعدة
-KINDS = ("quiz", "sudden", "tf", "song", "char", "quote", "ord", "images")
-CMD_KIND = {"quiz": "quiz", "sudden": "sudden", "tf": "tf", "song": "song", "char": "char", "quote": "quote",
+KINDS = ("quiz", "sudden", "tf", "char", "quote", "ord", "images")
+CMD_KIND = {"quiz": "quiz", "sudden": "sudden", "tf": "tf", "char": "char", "quote": "quote",
             "order": "ord", "images": "images"}
 GROUP_TYPES = {"group", "supergroup"}
 ANY_TYPES = GROUP_TYPES | {"channel"}
@@ -256,9 +256,6 @@ def build_group_router(ctx: Ctx) -> Router:
                 stmt = s[1] if L == "en" else loc(s[0], L)
                 out.append(Rnd(stmt, [t(L, "g_true"), t(L, "g_false")], 0 if s[2] else 1,
                                note=("" if s[2] else (s[4] if L == "en" else loc(s[3], L))), tf=True))
-        elif kind == "song":
-            for rd in song_rounds(data, rng, 10, hidden):
-                out.append(Rnd(t(L, "gp_song_q", s=esc(rd["song"])), [loc_opt(o, L) for o in rd["options"]], rd["answer"], html=True))
         elif kind in ("char", "quote"):
             fn = char_rounds if kind == "char" else quote_rounds
             for rd in fn(data, rng, 10, hidden):
@@ -525,7 +522,7 @@ def build_group_router(ctx: Ctx) -> Router:
             return
         await reply(m, t(L, "gp_menu"), menu_markup(L))
 
-    @cb.callback_query(F.data.regexp(r"^gp:n:(quiz|sudden|tf|song|char|quote|ord|images)$"))
+    @cb.callback_query(F.data.regexp(r"^gp:n:(quiz|sudden|tf|char|quote|ord|images)$"))
     async def cb_pick(c: CallbackQuery):
         cmd = c.message.reply_to_message
         await c.answer()
@@ -790,7 +787,7 @@ def build_group_router(ctx: Ctx) -> Router:
         await c.message.answer(t(L, "ch_linked", title=esc(title or str(chat_id))), parse_mode="HTML",
                                reply_markup=kinds_markup(L, chat_id))
 
-    @pm.callback_query(F.data.regexp(r"^ch:n:-?\d+:(quiz|sudden|tf|song|char|quote|ord|images)$"))
+    @pm.callback_query(F.data.regexp(r"^ch:n:-?\d+:(quiz|sudden|tf|char|quote|ord|images)$"))
     async def cb_channel_start(c: CallbackQuery):
         _, _, cid, kind = c.data.split(":")
         chat_id = int(cid)

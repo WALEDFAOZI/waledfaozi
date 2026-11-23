@@ -131,7 +131,7 @@ def games_kb(L: str, images: bool = False) -> InlineKeyboardMarkup:
     rows = [[btn(t(L, "btn_sudden"), "sd")]]
     if images:
         rows.append([btn(t(L, "btn_images"), "ct:images")])
-    rows += [[btn(t(L, "g_tf"), "g:tf")], [btn(t(L, "g_song"), "g:song")], [btn(t(L, "g_ord"), "g:ord")],
+    rows += [[btn(t(L, "g_tf"), "g:tf")], [btn(t(L, "g_ord"), "g:ord")],
              [btn(t(L, "g_char"), "g:char")], [btn(t(L, "g_quote"), "g:quote")], [btn(t(L, "btn_persona"), "ps:s")],
              [btn(t(L, "ar_title_xo"), "ar:k:xo"), btn(t(L, "ar_title_rps"), "ar:k:rps")],
              [btn(t(L, "ar_title_c4"), "ar:k:c4")],
@@ -1213,7 +1213,7 @@ def build_router(ctx: Ctx) -> Router:
         return text, kb(switch, [btn(t(L, "btn_teams"), "tm:m"), btn(t(L, "lb_back_period"), "lb:menu")],
                         [btn(t(L, "btn_menu"), "menu")])
 
-    BOARD_TYPES = ("q", "s", "tf", "song", "ord", "char", "quote")
+    BOARD_TYPES = ("q", "s", "tf", "ord", "char", "quote")
     LEGACY = {"all": "a:q", "week": "w:q", "sd": "a:s", "dy": "d:dc", "gm": "a:tf"}
 
     def period_since(p: str):
@@ -1304,7 +1304,7 @@ def build_router(ctx: Ctx) -> Router:
                     [btn(t(L, "btn_menu"), "menu")], *chan_row(L))
         return text, markup
 
-    @r.callback_query(F.data.regexp(r"^lb:(menu|hide|T:[wa]|P:[awd]|B:[awd]:(q|s|tf|song|ord|char|quote|dc)|all|week|sd|dy|gm|g:(tf|song|ord|char|quote))$"))
+    @r.callback_query(F.data.regexp(r"^lb:(menu|hide|T:[wa]|P:[awd]|B:[awd]:(q|s|tf|ord|char|quote|dc)|all|week|sd|dy|gm|g:(tf|ord|char|quote))$"))
     async def cb_lb(c: CallbackQuery):
         await c.answer()
         view = c.data[3:]

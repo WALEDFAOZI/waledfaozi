@@ -100,7 +100,7 @@ def test_game_stop_button_ends_without_score():
     async def go():
         h = Harness()
         u = h.user(1)
-        for kind in ("tf", "song", "ord", "char", "quote"):
+        for kind in ("tf", "ord", "char", "quote"):
             await h.tap(u, f"g:{kind}")
             gid = h.db.conn.execute("SELECT MAX(id) FROM game_sessions").fetchone()[0]
             assert f"gx:{gid}" in cb_data(h)

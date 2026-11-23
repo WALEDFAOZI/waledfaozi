@@ -18,8 +18,8 @@ from . import progress
 from .names import loc, loc_opt
 from .texts import t
 
-ROUNDS = {"tf": 10, "song": 10, "ord": 8, "char": 10, "quote": 10}
-MC_KINDS = ("song", "char", "quote")   # أسئلة اختيار من متعدد
+ROUNDS = {"tf": 10, "ord": 8, "char": 10, "quote": 10}
+MC_KINDS = ("char", "quote")   # أسئلة اختيار من متعدد
 
 
 def item_key(content: str) -> str:
@@ -119,7 +119,7 @@ def order_correct(round_: dict) -> list[int]:
 
 
 def new_state(kind: str, data: dict, rng: random.Random, hidden=frozenset()) -> dict:
-    rounds = {"tf": tf_rounds, "song": song_rounds, "ord": order_rounds,
+    rounds = {"tf": tf_rounds, "ord": order_rounds,
               "char": char_rounds, "quote": quote_rounds}[kind](data, rng, ROUNDS[kind], hidden)
     return {"rounds": rounds, "pos": 0, "score": 0, "picked": []}
 
@@ -130,13 +130,13 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
     r.callback_query.filter(F.message.chat.type == "private")
     db, rng = ctx.db, ctx.rng
     games = data or load_games()
-    titles = {"tf": "g_tf", "song": "g_song", "ord": "g_ord", "char": "g_char", "quote": "g_quote"}
+    titles = {"tf": "g_tf", "ord": "g_ord", "char": "g_char", "quote": "g_quote"}
 
     def lang(uid: int) -> str:
         return db.get_lang(uid)
 
     def menu(L: str):
-        return t(L, "g_menu"), kb([btn(t(L, "g_tf"), "g:tf")], [btn(t(L, "g_song"), "g:song")],
+        return t(L, "g_menu"), kb([btn(t(L, "g_tf"), "g:tf")],
                                   [btn(t(L, "g_ord"), "g:ord")], [btn(t(L, "g_char"), "g:char")],
                                   [btn(t(L, "g_quote"), "g:quote")], [btn(t(L, "btn_menu"), "menu")])
 
@@ -209,7 +209,7 @@ def build_games_router(ctx: Ctx, data: dict | None = None) -> Router:
             games["tf"].append(row)
             extra_seen[0] = eid
 
-    @r.callback_query(F.data.regexp(r"^g:(tf|song|ord|char|quote)$"))
+    @r.callback_query(F.data.regexp(r"^g:(tf|ord|char|quote)$"))
     async def cb_start(c: CallbackQuery):
         await c.answer()
         db.upsert_user(c.from_user.id, c.from_user.full_name)

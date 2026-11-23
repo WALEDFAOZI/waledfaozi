@@ -251,14 +251,6 @@ def test_games_flows():
             await h.tap(u, f"gt:{gid}:{int(s[2])}")
         g = h.db.get_game(gid)
         assert g["state"]["score"] == 10 and g["finished_at"]
-        # أغنية
-        await h.tap(u, "g:song")
-        gid = h.db.conn.execute("SELECT MAX(id) FROM game_sessions").fetchone()[0]
-        for _ in range(10):
-            g = h.db.get_game(gid)
-            rd = g["state"]["rounds"][g["state"]["pos"]]
-            await h.tap(u, f"gs:{gid}:{rd['answer']}")
-        assert h.db.get_game(gid)["state"]["score"] == 10
         # ترتيب
         from otaku_bot.games import order_correct
         await h.tap(u, "g:ord")
@@ -388,9 +380,9 @@ def test_start_menu_shows_all_player_buttons_and_each_works():
             assert must in data, must
         await h.tap(u, "m:games")
         gd = {b.callback_data for row in last_menu_call(h).reply_markup.inline_keyboard for b in row}
-        assert {"sd", "g:tf", "g:song", "g:ord", "g:char", "g:quote"} <= gd
+        assert {"sd", "g:tf", "g:ord", "g:char", "g:quote"} <= gd
         # كل زر يشتغل فعلًا
-        for cb in ("noop", "st", "lb:all", "lb:week", "lb:sd", "cats", "g:tf", "g:song", "g:ord", "menu"):
+        for cb in ("noop", "st", "lb:all", "lb:week", "lb:sd", "cats", "g:tf", "g:ord", "menu"):
             before = len(h.session.calls)
             await h.tap(u, cb)
             assert len(h.session.calls) > before, cb

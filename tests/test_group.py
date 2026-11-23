@@ -220,7 +220,7 @@ def test_subscription_required_to_join_and_toggle_off():
 
 def test_every_game_kind_builds_and_sudden_eliminates():
     async def go():
-        for kind in ("quiz", "sudden", "tf", "song", "char", "quote", "order"):
+        for kind in ("quiz", "sudden", "tf", "char", "quote", "order"):
             h = Harness()
             a, b = h.user(1, "Ali"), h.user(2, "Bob")
             await start_lobby(h, a, kind, mid=70)

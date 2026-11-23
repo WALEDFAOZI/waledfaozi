@@ -460,7 +460,7 @@ T["ar"].update({
     "gp_ord_q": "📅 أيّ هذه الأعمال عُرض أولًا؟",
     "gp_top": "🏆 <b>متصدرو المجموعة</b>\n\n📅 <b>هذا الأسبوع</b>\n{week}\n\n🌍 <b>كل الأوقات</b>\n{all}",
     "gp_lang_set": "🌐 لغة ألعاب المجموعة: العربية.",
-    "gp_help": "🎌 <b>اختبار الأوتاكو</b>\nللعب مع الأصدقاء هنا اكتب /play أو أحد الأوامر: /quiz /sudden /tf /song /char /quote /order /images\n/gtop متصدرو المجموعة · /gstop إيقاف اللعبة · /glang تغيير اللغة (للأدمن)\nولاختبارك الشخصي افتح البوت بالخاص.",
+    "gp_help": "🎌 <b>اختبار الأوتاكو</b>\nللعب مع الأصدقاء هنا اكتب /play أو أحد الأوامر: /quiz /sudden /tf /char /quote /order /images\n/gtop متصدرو المجموعة · /gstop إيقاف اللعبة · /glang تغيير اللغة (للأدمن)\nولاختبارك الشخصي افتح البوت بالخاص.",
     "gp_open_private": "💬 افتح البوت بالخاص",
 })
 T["en"].update({
@@ -487,7 +487,7 @@ T["en"].update({
     "gp_ord_q": "📅 Which of these aired first?",
     "gp_top": "🏆 <b>Group leaderboard</b>\n\n📅 <b>This week</b>\n{week}\n\n🌍 <b>All time</b>\n{all}",
     "gp_lang_set": "🌐 Group games language: English.",
-    "gp_help": "🎌 <b>Otaku Quiz</b>\nTo play with friends here use /play or: /quiz /sudden /tf /song /char /quote /order /images\n/gtop group leaderboard · /gstop stop the game · /glang switch language (admins)\nFor your personal test open the bot in private.",
+    "gp_help": "🎌 <b>Otaku Quiz</b>\nTo play with friends here use /play or: /quiz /sudden /tf /char /quote /order /images\n/gtop group leaderboard · /gstop stop the game · /glang switch language (admins)\nFor your personal test open the bot in private.",
     "gp_open_private": "💬 Open the bot in private",
 })
 
