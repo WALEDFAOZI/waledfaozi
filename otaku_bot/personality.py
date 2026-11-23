@@ -169,6 +169,28 @@ def anime_by_type() -> dict:
         return {}
 
 
+PERSONA_KEY = "persona:{uid}"
+
+
+def saved_type(db, uid: int) -> str | None:
+    return db.get_setting(PERSONA_KEY.format(uid=uid)) or None
+
+
+def profile_lines(db, uid: int, L: str, top: int = 5) -> list[str]:
+    """أسطر النمط في الملف الشخصي: النمط المحفوظ، وشخصيات من نفس النمط."""
+    code = saved_type(db, uid)
+    if not code:
+        return []
+    out = [t(L, "pf_persona", code=code)]
+    names = anime_by_type().get(code, [])[:top]
+    if names:
+        out.append(t(L, "pf_persona_same"))
+        for item in names:
+            shown = loc(item[0], L) if L == "ar" else item[0]
+            out.append(f"• {shown} <i>({item[1]})</i>")
+    return out
+
+
 def bar(pct: int, n: int = 10) -> str:
     k = round(pct / 100 * n)
     return "▰" * k + "▱" * (n - k)
@@ -234,7 +256,9 @@ def build_persona_router(ctx) -> Router:
         seed, ans = int(c.data[3]), c.data[4:]
         await c.answer()
         if len(ans) >= N:
-            await c.message.answer(result_text(seed, ans, L), parse_mode="HTML", reply_markup=kb(
+            code = compute(ans, seed)["code"]
+            db.set_setting(PERSONA_KEY.format(uid=c.from_user.id), code)     # يُحفظ في الملف الشخصي
+            await c.message.answer(result_text(seed, ans, L) + "\n\n" + t(L, "ps_saved"), parse_mode="HTML", reply_markup=kb(
                 [btn(t(L, "ps_again"), "ps:s")], [btn(t(L, "btn_games_menu"), "m:games"), btn(t(L, "btn_menu"), "menu")]))
             return
         pos = len(ans)

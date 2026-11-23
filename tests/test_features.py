@@ -370,7 +370,7 @@ def test_broadcast_to_channels_checkbox():
     async def go():
         h, o = mk()
         h.db.upsert_user(11, "u11")
-        h.db.link_channel(-100999, o.id if hasattr(o, "id") else 5, "قناة")
+        h.db.link_channel(-100999, 77, "قناة مستخدم")          # قناة لمستخدم عادي (قنوات المشرفين مستثناة)
         await h.tap(o, "ad:bc")
         await h.say(o, "إعلان للقنوات")
         await h.tap(o, "ad:bt:channels")
@@ -418,7 +418,7 @@ def test_broadcast_never_sends_to_our_own_channel():
             return SimpleNamespace(id=-100777 if chat_id == "@Mine" else -100999)
         h.bot.get_chat = fake_get_chat                       # قناتنا = -100777 في هذا الاختبار
         h.db.link_channel(-100777, 5, "قناتي")               # قناتنا مرتبطة في السجل، ولا تُرسل إليها أبدًا
-        h.db.link_channel(-100999, 5, "قناة أخرى")
+        h.db.link_channel(-100999, 77, "قناة أخرى")             # قناة لمستخدم عادي
         await h.tap(o, "ad:bc")
         await h.say(o, "إعلان للقنوات فقط")
         await h.tap(o, "ad:bt:channels")

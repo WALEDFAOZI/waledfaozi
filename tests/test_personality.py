@@ -61,3 +61,25 @@ def test_anime_lists_cover_all_16_types_with_ten_each():
     assert len(data) == 16 and all(len(v) == 10 for v in data.values())
     assert {"INTJ", "INFP", "ENFJ", "ISTP"} <= set(data)
     assert data["INTJ"][0] == ["Sasuke Uchiha", "Naruto Shippuden"]
+
+
+def test_finished_test_is_saved_to_profile_and_shown_with_same_type_characters():
+    from otaku_bot import personality as P
+
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        u = h.user(95, "Nour")
+        h.db.upsert_user(u.id, u.first_name)
+        await h.tap(u, "ps:s")
+        go_btn = h.session.calls[-1].reply_markup.inline_keyboard[0][0].callback_data   # pa:<seed>
+        seed = go_btn[3]
+        ans = ""
+        for _ in range(P.N):
+            await h.tap(u, f"pa:{seed}{ans}3")
+            ans += "3"
+        code = P.saved_type(h.db, u.id)
+        assert code and len(code) == 4                                  # النمط محفوظ
+        lines = P.profile_lines(h.db, u.id, "ar")
+        assert lines and code in lines[0]                               # يظهر في الملف الشخصي
+    run(go())
