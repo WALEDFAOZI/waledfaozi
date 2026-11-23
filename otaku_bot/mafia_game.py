@@ -562,7 +562,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
         """بداية النهار: رسالة خاصة لكل حي فيها زر يودي لمكان النقاش."""
         for p in alive:
             Lp = db.get_lang(p.uid)
-            rows = await msg_rows(bot, g.chat_id, g.day_mid, "btn_go_discuss", Lp)
+            if g.discuss_url:                                   # القناة: الزر يودي لتعليقات المنشور مباشرة
+                rows = [[btn(t(Lp, "btn_go_discuss"), url=g.discuss_url)]]
+            else:
+                rows = await msg_rows(bot, g.chat_id, g.day_mid, "btn_go_discuss", Lp)
             if not rows:
                 return
             try:
