@@ -476,6 +476,22 @@ def build_arcade_router(ctx: Ctx) -> Router:
         kind = {"xo": "xo", "rps": "rps", "c4": "c4"}.get(kind, "xo")
         await chat_create(msg.bot, msg.chat.id, kind, None, "")
 
+    @r.callback_query(F.data.regexp(r"^ar:g:(xo|rps|c4)$"))
+    async def cb_chat_start(c: CallbackQuery):
+        """من قائمة المجموعة أو القناة: يبدأ تحدٍّ ثنائي في نفس المحادثة (المنشئ هو اللاعب الأول في المجموعة)."""
+        kind = c.data.split(":")[2]
+        chat = c.message.chat
+        uid, L = c.from_user.id, L_(c.from_user.id)
+        if chat.type == "private":
+            await c.answer(t(L, "ar_not_now"), show_alert=True)
+            return
+        if chat.type != "channel" and uid in user_match:
+            await c.answer(t(L, "ar_busy"), show_alert=True)
+            return
+        await c.answer()
+        starter = None if chat.type == "channel" else uid
+        await chat_create(c.bot, chat.id, kind, starter, c.from_user.full_name)
+
     @r.callback_query(F.data.regexp(r"^ar:j:\d+$"))
     async def cb_chat_join(c: CallbackQuery):
         gid = int(c.data.split(":")[2])

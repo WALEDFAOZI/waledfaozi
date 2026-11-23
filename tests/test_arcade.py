@@ -137,3 +137,19 @@ def test_personal_game_stats_are_recorded_and_shown_in_profile():
         assert st_a["rps"]["win"] == 1 and st_b["rps"]["lose"] == 1
         assert h.db.personal_game_stats(first)["rps"]["win"] == 1
     run(go())
+
+
+def test_group_menu_starts_two_player_game_in_the_group_and_private_menu_lists_it():
+    from test_mafia_game import GROUP, gtap
+
+    async def go():
+        A.matches.clear(); A.user_match.clear()
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        a = h.user(81, "Ali")
+        h.db.upsert_user(a.id, a.first_name)
+        await gtap(h, a, "ar:g:c4")
+        ms = list(A.matches.values())
+        assert len(ms) == 1 and ms[0].kind == "c4" and ms[0].scope == "c" and ms[0].players == [81]
+        assert ms[0].chat_id == GROUP.id
+    run(go())

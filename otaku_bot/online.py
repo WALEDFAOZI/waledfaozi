@@ -230,6 +230,12 @@ def build_online_router(ctx: Ctx) -> Router:
         db.upsert_user(c.from_user.id, c.from_user.full_name)
         on = online_notify.toggle(db, c.from_user.id)
         await c.answer(t(L, "on_notify_on" if on else "on_notify_off"), show_alert=True)
+        from .bot import menu_kb            # القائمة الرئيسية نفسها، مع تحديث حالة الزر مكانها
+        try:
+            await c.message.edit_reply_markup(reply_markup=menu_kb(
+                L, None, images=db.category_counts(L).get("images", 0) >= 10, notify_on=on))
+        except TelegramAPIError:
+            pass
 
     @r.callback_query(F.data == "on:m")
     async def cb_menu(c: CallbackQuery):

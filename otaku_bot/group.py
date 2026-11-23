@@ -512,6 +512,7 @@ def build_group_router(ctx: Ctx) -> Router:
     def menu_markup(L: str):
         rows = [[btn(t(L, "gpk_mafia"), "mf:new")], [btn(t(L, "gpk_spy"), "sp:new")]]   # الألعاب الجماعية الجديدة أولًا
         rows += [[btn(t(L, f"gpk_{k}"), f"gp:n:{k}")] for k in KINDS]
+        rows.append([btn(t(L, "ar_title_xo"), "ar:g:xo"), btn(t(L, "ar_title_rps"), "ar:g:rps"), btn(t(L, "ar_title_c4"), "ar:g:c4")])
         return kb(*rows, [btn(t(L, "gp_top_btn"), "gp:t")])
 
     @r.message(Command("play"))

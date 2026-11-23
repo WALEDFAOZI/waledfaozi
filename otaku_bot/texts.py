@@ -1592,3 +1592,6 @@ T["ar"]["gp_top_title"] = "🏆 <b>متصدرو المجموعة</b>"
 T["en"]["gp_top_title"] = "🏆 <b>Group leaderboard</b>"
 T["ar"]["gp_top_title_plain"] = "🏆 متصدرو المجموعة"
 T["en"]["gp_top_title_plain"] = "🏆 Group leaderboard"
+
+T["ar"]["btn_two_player"] = "🎲 ألعاب ثنائية: إكس أو، حجرة ورقة مقص، أربعة في صف"
+T["en"]["btn_two_player"] = "🎲 Two-player games: Tic-tac-toe, RPS, Connect Four"

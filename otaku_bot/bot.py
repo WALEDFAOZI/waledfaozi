@@ -114,13 +114,13 @@ def chan_row(L: str, bot_link: bool = False) -> list[list[InlineKeyboardButton]]
 
 
 def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
-            images: bool = False) -> InlineKeyboardMarkup:
+            images: bool = False, notify_on: bool | None = None) -> InlineKeyboardMarkup:
     """القائمة الرئيسية قصيرة: الاختبار أولًا، والألعاب والمزيد في قوائم فرعية."""
     return kb(*(top or []),
               [btn(t(L, "btn_full"), "go")],
               [btn(t(L, "btn_quick"), "qk")],                                   # اختبار سريع تحت الاختبار الكامل
               [btn(t(L, "btn_online"), "on:m"), btn(t(L, "btn_daily"), "dy:m")],
-              [btn(t(L, "btn_online_notify"), "on:nt")],       # أونلاين وتحدي اليوم جنب بعض
+              [btn(t(L, "btn_online_notify") + ("" if notify_on is None else (" ✅" if notify_on else " 🔕")), "on:nt")],
               [btn(t(L, "btn_group"), "gpm"), btn(t(L, "btn_channel_game"), "gpc")],   # زرين جنب بعض
               [btn(t(L, "du_btn"), "du:new"), btn(t(L, "btn_invite"), "iv")],          # تحد صديقا وادع أصدقاءك جنب بعض
               [btn(t(L, "btn_games_menu"), "m:games"), btn(t(L, "btn_anime"), "an:m")],
@@ -135,6 +135,7 @@ def games_kb(L: str, images: bool = False) -> InlineKeyboardMarkup:
         rows.append([btn(t(L, "btn_images"), "ct:images")])
     rows += [[btn(t(L, "g_tf"), "g:tf")], [btn(t(L, "g_song"), "g:song")], [btn(t(L, "g_ord"), "g:ord")],
              [btn(t(L, "g_char"), "g:char")], [btn(t(L, "g_quote"), "g:quote")], [btn(t(L, "btn_persona"), "ps:s")],
+             [btn(t(L, "btn_two_player"), "ar:m")],
              [btn(t(L, "btn_menu"), "menu")]]
     return kb(*rows)
 
@@ -218,8 +219,10 @@ def build_router(ctx: Ctx) -> Router:
         first = (getattr(user, "first_name", None) or getattr(user, "full_name", None) or "").strip()
         return t(L, "welcome", name=esc(first[:30]) or ("صديقي" if L == "ar" else "friend"))
 
-    def menu(L: str, top=None) -> InlineKeyboardMarkup:
-        return menu_kb(L, top, images=db.category_counts(L).get("images", 0) >= 10)
+    def menu(L: str, top=None, uid: int | None = None) -> InlineKeyboardMarkup:
+        from .online_notify import is_on
+        notify = is_on(db, uid) if uid else None
+        return menu_kb(L, top, images=db.category_counts(L).get("images", 0) >= 10, notify_on=notify)
 
     # ── الاشتراك الإجباري ───────────────────────────────────
     async def subscribed(bot: Bot, tg_id: int) -> bool | None:
@@ -907,7 +910,7 @@ def build_router(ctx: Ctx) -> Router:
                 extra = t(L, "pf_visit", name=esc(fr["name"] or "?"), score=f"{fr['best_score']:.1f}",
                           title=esc(title_for(fr["best_score"], L)))
                 top = [[btn(t(L, "btn_try_too"), "go")]]
-        await send_welcome(m, L, welcome_for(L, m.from_user) + extra, menu(L, top))
+        await send_welcome(m, L, welcome_for(L, m.from_user) + extra, menu(L, top, m.from_user.id))
 
     @r.message(Command("help"))
     async def cmd_help(m: Message):
@@ -1339,7 +1342,7 @@ def build_router(ctx: Ctx) -> Router:
     async def cb_menu(c: CallbackQuery):
         await c.answer()
         L = lang(c.from_user.id)
-        await c.message.answer(welcome_for(L, c.from_user), reply_markup=menu(L), parse_mode="HTML")
+        await c.message.answer(welcome_for(L, c.from_user), reply_markup=menu(L, uid=c.from_user.id), parse_mode="HTML")
 
     def name_of(c: CallbackQuery) -> str:
         return c.from_user.full_name
@@ -1412,7 +1415,7 @@ def build_router(ctx: Ctx) -> Router:
             return
         note_join(c.from_user.id)
         await c.answer(t(L, "sub_ok"))
-        await c.message.answer(welcome_for(L, c.from_user), reply_markup=menu(L), parse_mode="HTML")
+        await c.message.answer(welcome_for(L, c.from_user), reply_markup=menu(L, uid=c.from_user.id), parse_mode="HTML")
 
     @r.callback_query(F.data.startswith("nw:"))
     async def cb_new(c: CallbackQuery):
