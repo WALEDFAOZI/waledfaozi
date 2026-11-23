@@ -76,3 +76,43 @@ def test_mayor_double_vote_changes_the_outcome_only_with_weight():
     assert M.vote(alive, ballots) is None
     assert M.vote(alive, ballots, {1: 2}) == 2   # صوت العمدة مرتان يرجّح الكفة
     assert "mayor" in M.ROLES and "mayor" in M.SPECIAL
+
+
+def _night(kills, protect=None):
+    return M.resolve_night({}, {1, 2, 3, 4, 5, 6, 7, 8}, M.Night(kills=kills, protect=protect or {}))
+
+
+def test_double_strike_scenarios():
+    # 1) نفس الهدف مرتين = ضربة واحدة
+    assert _night([3, 3]).victims == [3]
+    # 2) هدفان مختلفان بلا حماية = يموتان
+    assert sorted(_night([3, 4]).victims) == [3, 4]
+    # 3) هدفان والطبيب يحمي أحدهما = يموت الآخر فقط
+    r = _night([3, 4], {"doctor": 3})
+    assert r.victims == [4] and r.saved
+    # 4) نفس الهدف والطبيب يحميه = لا أحد يموت
+    r = _night([3, 3], {"doctor": 3})
+    assert r.victims == [] and r.saved
+    # 5) ضربة واحدة فقط (الثاني لم يختر) = يموت الهدف
+    assert _night([3]).victims == [3]
+    # 6) الهدف الميت لا يُضرب مرة أخرى
+    assert _night([3, 9]).victims == [3]          # 9 غير موجود في الأحياء
+
+
+def test_strike_targets_picks_per_killer_and_caps_small_games():
+    import random
+    rng = random.Random(1)
+    big = {1, 2, 3, 4, 5, 6}
+    # 6 أحياء أو أكثر: كل هدف مختار يُضرب
+    assert M.strike_targets({10: 3, 11: 4}, big | {10, 11}, rng, True) == [3, 4]
+    # أقل من 6: ضربة واحدة (الأكثر اختيارًا)
+    small = {3, 4, 10, 11}                                # 4 أحياء فقط
+    assert M.strike_targets({10: 3, 11: 3}, small, rng, True) == [3]
+    assert M.strike_targets({10: 3, 11: 4}, small, rng, True) in ([3], [4])
+    # قاتل ميت لا يضرب (اختياره مهمل)
+    assert M.strike_targets({10: 3}, {1, 2, 3, 4, 5, 6, 10}, rng, True) == [3]
+    assert M.strike_targets({10: 3}, {1, 2, 3, 4, 5, 6}, rng, True) == []     # القاتل 10 ميت: ضربته لا تُحسب
+    # لا اختيار صالح والقاتل حيّ: البوت يختار هدفًا من الـpool
+    assert len(M.strike_targets({}, {1, 2, 3}, rng, True, pool=[1, 2])) == 1
+    # لا قاتل حيّ: لا ضربات
+    assert M.strike_targets({}, {1, 2, 3}, rng, False, pool=[1, 2]) == []

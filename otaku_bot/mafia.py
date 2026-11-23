@@ -93,32 +93,65 @@ def assign(player_ids: list[int], cfg: Config, rng: random.Random) -> dict[int, 
 @dataclass
 class Night:
     """أفعال الليل: كل قيمة هي uid الهدف، أو None إن لم يتصرف صاحب الدور."""
-    kill: int | None = None           # ما اتفق عليه القتلة (الأغلبية أو الأول)
+    kill: int | None = None           # ضربة واحدة (للتوافق مع الكود القديم)
+    kills: list = field(default_factory=list)   # ضربات الليلة: كل قاتل يضرب هدفه (يُحسب كل هدف مرة)
     protect: dict[str, int] = field(default_factory=dict)   # {"doctor": uid}
     check: int | None = None          # المحقق يكشف فريق هذا الهدف
 
 
 @dataclass
 class Result:
-    victim: int | None                 # من مات في الليل (None = لا أحد)
+    victim: int | None                 # أول ضحية (None = لا أحد)
+    victims: list = field(default_factory=list)  # كل من مات في الليل
     saved: bool = False                # هل أنقذه الطبيب
     detective: tuple[int, str] | None = None   # (الهدف، الفريق) لو كشف المحقق
 
 
 def resolve_night(roles: dict[int, str], alive: set[int], night: Night) -> Result:
-    kill = night.kill if night.kill in alive else None
+    """كل ضربة تقع على هدف حيّ. الحماية (الطبيب) تلغي ضربة واحدة: الضربة على الهدف المحمي فقط.
+    ضربتان على هدف واحد = ضربة واحدة. الضربة على الهدف غير المحمي تقتله."""
+    kills = list(night.kills) if night.kills else ([night.kill] if night.kill is not None else [])
+    seen: list[int] = []
+    for k in kills:
+        if k not in seen:
+            seen.append(k)
     protected = {night.protect.get(r) for r in ("doctor",)} - {None}
-    victim = None
+    victims: list[int] = []
     saved = False
-    if kill is not None:
-        if kill in protected:
+    for k in seen:
+        if k not in alive:
+            continue
+        if k in protected:
             saved = True
         else:
-            victim = kill
+            victims.append(k)
     det = None
     if night.check in alive and roles.get(night.check) is not None:
         det = (night.check, ROLES[roles[night.check]][1])
-    return Result(victim=victim, saved=saved, detective=det)
+    return Result(victim=victims[0] if victims else None, victims=victims, saved=saved, detective=det)
+
+
+DOUBLE_STRIKE_MIN_ALIVE = 6   # الضربة المزدوجة تبدأ عند 6 أحياء أو أكثر
+
+
+def strike_targets(picks: dict[int, int], alive: set[int], rng: random.Random, killers_alive: bool,
+                   pool: list[int] | None = None) -> list[int]:
+    """أهداف ضربات الليلة من اختيارات القتلة (من كان حيًّا فقط).
+    - لا اختيار صالح وفيه قاتل حيّ: يختار البوت هدفًا واحدًا من الـpool.
+    - أقل من 6 أحياء: ضربة واحدة فقط (الأكثر اختيارًا، والتعادل عشوائي).
+    - 6 أحياء أو أكثر: كل هدف مختار يُضرب (الأهداف المكررة ضربة واحدة)."""
+    valid = {k: t for k, t in picks.items() if k in alive and t in alive}
+    if not valid:
+        if killers_alive and pool:
+            return [rng.choice(sorted(pool))]
+        return []
+    if len(alive) < DOUBLE_STRIKE_MIN_ALIVE:
+        counts: dict[int, int] = {}
+        for t in valid.values():
+            counts[t] = counts.get(t, 0) + 1
+        top = max(counts.values())
+        return [rng.choice(sorted(u for u, c in counts.items() if c == top))]
+    return sorted(set(valid.values()))
 
 
 def vote(alive: set[int], ballots: dict[int, int], weights: dict[int, int] | None = None) -> int | None:

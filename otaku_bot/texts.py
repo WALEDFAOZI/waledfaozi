@@ -1661,3 +1661,6 @@ T["en"]["mf_you_died"] = "🩸 <b>You were killed…</b>\nThe killer's blow reac
 
 T["ar"]["mf_you_voted"] = "🗳 <b>تم إقصاؤك بالتصويت…</b>\nصوّت عليك أهل القرية، ودورك يبقى سرًّا. تابع اللعبة بصمت."
 T["en"]["mf_you_voted"] = "🗳 <b>You were voted out…</b>\nThe village voted you out, and your role stays secret. Watch the game in silence."
+
+T["ar"]["mf_morning_dead_many"] = "💀 <b>「 سقط {names} في الظلام… 」</b>\nضربات القتلة لم تُرحم، والقرية تستيقظ على الفاجعة."
+T["en"]["mf_morning_dead_many"] = "💀 <b>{names} fell in the dark…</b>\nThe killers struck, and the village wakes to tragedy."

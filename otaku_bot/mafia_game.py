@@ -416,24 +416,15 @@ def build_mafia_router(ctx: Ctx) -> Router:
     def resolve_night(g: Game):
         roles = {p.uid: p.role for p in g.players.values()}
         alive = {p.uid for p in alive_players(g)}
-        counts: dict[int, int] = {}
-        for killer_uid, tgt in g.night_picks.items():
-            if g.players.get(killer_uid) and g.players[killer_uid].alive and tgt in alive:   # من غادر لا يقتل
-                counts[tgt] = counts.get(tgt, 0) + 1
+        picks = {k: tgt for k, tgt in g.night_picks.items() if g.players.get(k) and g.players[k].alive}   # من غادر لا يقتل
         killers_alive = any(p.role == "killer" and p.alive for p in g.players.values())
-        if not counts and killers_alive:                     # لم يختر القتلة الأحياء أحدًا: يختار البوت بالنيابة عنهم
-            pool = [p.uid for p in alive_players(g) if p.role != "killer"]
-            if pool:
-                counts[rng.choice(sorted(pool))] = 1
-        kill = None
-        if counts:
-            top = max(counts.values())
-            kill = rng.choice(sorted(u for u, c in counts.items() if c == top))
+        pool = [p.uid for p in alive_players(g) if p.role != "killer"]
+        kills = M.strike_targets(picks, alive, rng, killers_alive, pool)     # ضربة لكل قاتل حيّ اختار (أو ضربة واحدة أقل من 6)
         protect = {}
         for r in ("doctor",):                       # الحماية تسري فقط إن كان صاحب الدور ما زال حيًّا
             if r in g.night_actions and g.night_actions[r] in alive and any(p.role == r and p.alive for p in g.players.values()):
                 protect[r] = g.night_actions[r]
-        return M.resolve_night(roles, alive, M.Night(kill=kill, protect=protect))
+        return M.resolve_night(roles, alive, M.Night(kills=kills, protect=protect))
 
     # ── النهار ────────────────────────────────────────────
     async def day_phase(bot: Bot, g: Game) -> int | None:
@@ -602,12 +593,16 @@ def build_mafia_router(ctx: Ctx) -> Router:
 
     async def announce_morning(bot: Bot, g: Game, res: M.Result) -> None:
         L = g.lang
-        if res.victim is not None:
-            text = t(L, "mf_morning_dead", name=esc(g.players[res.victim].name))
+        if res.victims:
+            if len(res.victims) == 1:
+                text = t(L, "mf_morning_dead", name=esc(g.players[res.victims[0]].name))
+            else:
+                names = "، ".join(esc(g.players[v].name) for v in res.victims)
+                text = t(L, "mf_morning_dead_many", names=names)
             if g.reveal_death:
-                text += "\n" + role_line(g, res.victim)
-            victim = g.players[res.victim]                  # القتيل يتلقى رسالته الدرامية في الخاص
-            await dm(bot, victim.uid, t(db.get_lang(victim.uid), "mf_you_died"))
+                text += "".join("\n" + role_line(g, v) for v in res.victims)
+            for v in res.victims:                           # كل قتيل يتلقى رسالته الدرامية في الخاص
+                await dm(bot, g.players[v].uid, t(db.get_lang(g.players[v].uid), "mf_you_died"))
         elif res.saved:
             text = t(L, "mf_morning_saved")
         else:
@@ -718,8 +713,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 await night_phase(bot, g)
                 res = resolve_night(g)
                 g.last_protect = g.night_actions.get("doctor")   # الحماية تنتهي إن لم يحمِ الطبيب هذه الليلة
-                if res.victim is not None:
-                    g.players[res.victim].alive = False
+                for v in res.victims:
+                    g.players[v].alive = False
                 await announce_morning(bot, g, res)
                 if res.detective is None:
                     pass
@@ -746,7 +741,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                     await show(bot, g, t(L, "mf_no_exec"), None)
                     await post_discuss(bot, g, t(L, "mf_no_exec"))
                 died_this_round = len(alive_players(g)) < alive_at_start     # قتل أو طرد أو انسحاب
-                if res.victim is not None or out is not None or died_this_round:
+                if res.victims or out is not None or died_this_round:
                     g.quiet = 0
                 else:
                     g.quiet += 1

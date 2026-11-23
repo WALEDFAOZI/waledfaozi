@@ -238,25 +238,16 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
     def resolve_night(room: Room) -> tuple[M.Result, dict]:
         alive_ids = {s.uid for s in alive(room)}
         roles = role_of(room)
-        counts: dict[int, int] = {}
-        for k, tgt in room.night_picks.items():
-            if k in alive_ids and tgt in alive_ids:
-                counts[tgt] = counts.get(tgt, 0) + 1
+        picks = {k: tgt for k, tgt in room.night_picks.items() if k in alive_ids}
         killers_alive = any(s.role == "killer" for s in alive(room))
-        if not counts and killers_alive:                  # لم يختر القتلة أحدًا: يختار البوت
-            pool = [s.uid for s in alive(room) if s.role != "killer"]
-            if pool:
-                counts[rng.choice(sorted(pool))] = 1
-        kill = None
-        if counts:
-            top = max(counts.values())
-            kill = rng.choice(sorted(u for u, c in counts.items() if c == top))
+        pool = [s.uid for s in alive(room) if s.role != "killer"]
+        kills = M.strike_targets(picks, alive_ids, rng, killers_alive, pool)
         protect = {}
         doc = room.night_actions.get("doctor")
         if doc in alive_ids and any(s.role == "doctor" and s.alive for s in room.seats.values()):
             protect["doctor"] = doc
         check = room.night_actions.get("detective")
-        res = M.resolve_night(roles, alive_ids, M.Night(kill=kill, protect=protect, check=check))
+        res = M.resolve_night(roles, alive_ids, M.Night(kills=kills, protect=protect, check=check))
         room.last_protect = doc
         return res, roles
 
@@ -403,10 +394,16 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
                 room.round += 1
                 await night(bot, room)
                 res, _roles = resolve_night(room)
-                if res.victim is not None:
-                    room.seats[res.victim].alive = False
-                    await broadcast(bot, room, "mf_morning_dead", name=esc(room.seats[res.victim].name))
-                    await say(bot, res.victim, t(L_(res.victim), "mf_you_died"))
+                if res.victims:
+                    for v in res.victims:
+                        room.seats[v].alive = False
+                    if len(res.victims) == 1:
+                        await broadcast(bot, room, "mf_morning_dead", name=esc(room.seats[res.victims[0]].name))
+                    else:
+                        names = "، ".join(esc(room.seats[v].name) for v in res.victims)
+                        await broadcast(bot, room, "mf_morning_dead_many", names=names)
+                    for v in res.victims:
+                        await say(bot, v, t(L_(v), "mf_you_died"))
                 elif res.saved:
                     await broadcast(bot, room, "mf_morning_saved")
                 else:
