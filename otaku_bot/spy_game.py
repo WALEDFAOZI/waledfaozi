@@ -226,7 +226,8 @@ def build_spy_router(ctx: Ctx) -> Router:
         g.asked.add(asker)
         g.cur = (asker, target)
         g.question = g.answer = None
-        an, tn = g.players[asker].name, g.players[target].name
+        an = (g.players[asker].name or "").strip() or "👤"           # اسم فارغ (رموز فقط): لا يترك السطر فارغًا
+        tn = (g.players[target].name or "").strip() or "👤"
         await show(bot, g, t(L, "sp_ask_live", r=g.round, a=esc(an), b=esc(tn), s=ASK_SECS), None)
         end = time.monotonic() + ASK_SECS
         while time.monotonic() < end and g.question is None:
