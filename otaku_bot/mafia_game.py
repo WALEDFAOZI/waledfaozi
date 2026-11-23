@@ -35,7 +35,7 @@ log = logging.getLogger(__name__)
 
 LOBBY_SECS = 300
 NIGHT_SECS = 60        # قتل المافيا
-DISCUSS_SECS = 180    # نقاش النهار قبل فتح التصويت
+DISCUSS_SECS = 120    # نقاش الصباح قبل فتح التصويت
 DAY_SECS = 60         # التصويت
 MAX_ROUNDS = 15
 QUIET_ROUNDS = 3        # جولات متتالية بلا قتل ولا طرد، ثم يختار النظام لاعبًا عشوائيًا للخروج
