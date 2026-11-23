@@ -331,7 +331,8 @@ def test_admin_stats_button_always_changes_text_and_backup_is_zipped():
     async def go():
         h, o = mk()
         await h.tap(o, "ad:stats")
-        assert "🕒" in h.session.texts()[-1]
+        await h.tap(o, "ad:sx:now")
+        assert "توقيت مكة" in h.session.texts()[-1]
         await h.tap(o, "ad:bak")
         docs = [c for c in h.session.calls if type(c).__name__ == "SendDocument"]
         assert docs and docs[-1].document.filename.endswith(".zip")

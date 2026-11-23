@@ -1190,9 +1190,10 @@ def build_router(ctx: Ctx) -> Router:
         L = lang(uid)
         hidden = db.is_lb_hidden(uid)
         text = t(L, "lbm_text") + (("\n\n" + t(L, "lb_hidden_note")) if hidden else "")
+        # المدد الثلاث في صف واحد، ثم العشائر، ثم إخفاء الاسم. الإنجازات في الملف الشخصي وليست هنا.
         return text, kb(
-            [btn(t(L, "lbp_a"), "lb:P:a")], [btn(t(L, "lbp_w"), "lb:P:w")], [btn(t(L, "lbp_d"), "lb:P:d")],
-            [btn(t(L, "lbm_teams"), "lb:T:w"), btn(t(L, "btn_achs"), "pg:me")],
+            [btn(t(L, "lbp_a"), "lb:P:a"), btn(t(L, "lbp_w"), "lb:P:w"), btn(t(L, "lbp_d"), "lb:P:d")],
+            [btn(t(L, "lbm_teams"), "lb:T:w")],
             [btn(t(L, "lb_show_btn" if hidden else "lb_hide_btn"), "lb:hide")],
             *chan_row(L), [btn(t(L, "btn_menu"), "menu")])
 

@@ -243,11 +243,13 @@ def test_channel_growth_snapshots_deltas_and_admin_stats_text():
         # مسار + أرقام في لوحة الأدمن
         db.upsert_user(11, "x")
         await h.tap(h.user(5), "ad:stats")
+        await h.tap(h.user(5), "ad:sx:growth")
         txt = h.session.texts()[-1]
         assert "نمو القناة" in txt and "200" in txt and "+50" in txt and "مسار اللاعبين" in txt
         # بلا قناة: لا قسم للنمو لكن يبقى المسار
         h2 = Harness(channel="", admin_ids=(5,))
         await h2.tap(h2.user(5), "ad:stats")
+        await h2.tap(h2.user(5), "ad:sx:growth")
         t2 = h2.session.texts()[-1]
         assert "مسار اللاعبين" in t2 and "نمو القناة" not in t2
     run(go())
