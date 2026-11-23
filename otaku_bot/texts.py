@@ -744,7 +744,7 @@ T["en"].update({
     "ps_anime_soon": "🎭 The character list for this type is coming soon.",
 })
 
-T["ar"]["mf_title"] = '🎌 <b>「 المافيا 」</b>\n<i>لعبة الظلال والخيانة</i>'
+T["ar"]["mf_title"] = '🎌 <b>「 المافيا 」</b> · <i>لعبة الظلال والخيانة</i>'
 T["ar"]['mf_host'] = '🎩 المضيف: {h}'
 T["ar"]['mf_killers'] = 'القتلة'
 T["ar"]['mf_killers_btn'] = '🔪 القتلة: {k}'
