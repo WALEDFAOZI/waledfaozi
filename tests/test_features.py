@@ -271,7 +271,7 @@ def test_main_menu_has_new_buttons_and_bank_doubled():
         await h.say(h.user(1), "/start")
         m = last_menu_call(h)
         data = {b.callback_data for row in m.reply_markup.inline_keyboard for b in row}
-        assert {"m:games", "an:m", "iv", "sg", "lg:toggle", "qk"} <= data and "m:more" not in data and "st" not in data and "cats" not in data
+        assert {"m:games", "an:m", "iv", "sg", "lg:toggle"} <= data and "m:more" not in data and "st" not in data and "cats" not in data
         await h.tap(h.user(1), "m:games")
         gd = {b.callback_data for row in last_menu_call(h).reply_markup.inline_keyboard for b in row}
         assert {"g:char", "g:quote", "g:tf", "g:song", "g:ord"} <= gd

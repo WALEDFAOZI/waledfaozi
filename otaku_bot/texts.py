@@ -73,7 +73,7 @@ T: dict[str, dict[str, str]] = {
  "lang_set": "تم ✅ اللغة: العربية", "help": "/start — القائمة\n/retry — اختبار جديد\n/stats — إحصائياتك\n/top — المتصدرون\n/weekly — تقييم الأسبوع\n/profile — ملفي\n/games — الألعاب\n/suggest — اقترح سؤالًا\n/stop — إلغاء أي اختبار/لعبة\n/lang — اللغة",
  "en_note": "ℹ️ بعض الأسئلة غير متوفرة بالإنجليزية بعد.",
  # الألعاب
- "g_menu": "🎮 <b>ألعاب أخرى</b>\nاختر لعبة:", "g_tf": "✅❌ صح أم غلط", "g_song": "🎵 خمّن الأنمي من الأغنية", "g_ord": "📅 رتّب حسب سنة العرض",
+ "g_menu": "🎮 <b>ألعاب أخرى</b>\nاختر لعبة:\n\n🎌 <b>كت</b>: اكتب «كت» في أي محادثة، وتصلك سؤال عن الأنمي. كل كلمة «كت» سؤال جديد من بنك 1000 سؤال.", "g_tf": "✅❌ صح أم غلط", "g_song": "🎵 خمّن الأنمي من الأغنية", "g_ord": "📅 رتّب حسب سنة العرض",
  "g_tf_q": "✅❌ <b>صح أم غلط؟</b>  ({n}/{t})\n\n{s}", "g_true": "✅ صح", "g_false": "❌ غلط",
  "g_song_q": "🎵 <b>({n}/{t})</b> من أي أنمي هذه الأغنية/المقدمة؟\n\n🎶 <b>{s}</b>",
  "g_ord_q": "📅 <b>({n}/{t})</b> رتّب هذه الأعمال من الأقدم إلى الأحدث بالضغط عليها بالترتيب:\n\n{picked}",
@@ -149,7 +149,7 @@ T: dict[str, dict[str, str]] = {
  "rp_limit": "You reached the daily report limit ({n}). Try tomorrow.", "rp_closed": "This session is no longer available.",
  "lang_set": "Done ✅ Language: English", "help": "/start — menu\n/retry — new test\n/stats — your stats\n/top — leaderboard\n/weekly — weekly rating\n/profile — my profile\n/games — games\n/suggest — suggest a question\n/stop — cancel any test/game\n/lang — language",
  "en_note": "ℹ️ Some questions aren't available in English yet.",
- "g_menu": "🎮 <b>Other games</b>\nPick a game:", "g_tf": "✅❌ True or false", "g_song": "🎵 Guess the anime from the song", "g_ord": "📅 Order by release year",
+ "g_menu": "🎮 <b>Other games</b>\nPick a game:\n\n🎌 <b>Kt</b>: type «كت» in any chat and get an anime question. Each «كت» gives a new question from a bank of 1000.", "g_tf": "✅❌ True or false", "g_song": "🎵 Guess the anime from the song", "g_ord": "📅 Order by release year",
  "g_tf_q": "✅❌ <b>True or false?</b>  ({n}/{t})\n\n{s}", "g_true": "✅ True", "g_false": "❌ False",
  "g_song_q": "🎵 <b>({n}/{t})</b> Which anime is this song from?\n\n🎶 <b>{s}</b>",
  "g_ord_q": "📅 <b>({n}/{t})</b> Order these from oldest to newest by tapping them in order:\n\n{picked}",
@@ -493,7 +493,7 @@ T["en"].update({
 
 T["ar"].update({
     "lbm_text": "🏆 <b>الترتيب</b>\nاختر المدة:\n\n🌍 <b>العام</b> — أفضل نتيجة لكل لاعب على الإطلاق\n📅 <b>الأسبوعي</b> — يتصفّر كل أحد 00:00 (توقيت مكة)\n☀️ <b>اليوم</b> — يتصفّر كل منتصف ليل",
-    "lbp_a": "🌍 العام (كل الأوقات)", "lbp_w": "📅 الأسبوعي", "lbp_d": "☀️ اليوم",
+    "lbp_a": "🌍 العام", "lbp_w": "📅 الأسبوعي", "lbp_d": "☀️ اليوم",
     "lbp_s_a": "🌍 العام", "lbp_s_w": "📅 الأسبوعي", "lbp_s_d": "☀️ اليوم",
     "lbt_head_a": "🌍 <b>الترتيب العام</b>\nاختر النوع:", "lbt_head_w": "📅 <b>الترتيب الأسبوعي</b>\nاختر النوع:", "lbt_head_d": "☀️ <b>ترتيب اليوم</b>\nاختر النوع:",
     "lbt_dc": "⚡ تحدي اليوم", "lbt_q": "🎯 الاختبار", "lbt_s": "☠️ الموت المفاجئ", "lbt_tf": "✅❌ صح أم غلط", "lbt_song": "🎵 الأغنية",
