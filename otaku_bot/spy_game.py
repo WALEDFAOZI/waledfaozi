@@ -204,16 +204,6 @@ def build_spy_router(ctx: Ctx) -> Router:
             await asyncio.sleep(0.5)
 
     # ── الجولات ─────────────────────────────────────────────
-    async def wait_next(bot: Bot, g: Game, label: str) -> None:
-        """المضيف يضغط «التالي»، أو تنتقل الجولة تلقائيًا بعد مهلة."""
-        g.next_go = False
-        L = g.lang
-        await show(bot, g, t(L, "sp_next_live", r=g.round, total=ROUNDS, label=label), kb(
-            [btn(t(L, "sp_next_btn"), f"sp:n:{g.gid}")]))
-        end = time.monotonic() + NEXT_SECS
-        while time.monotonic() < end and not g.next_go:
-            await asyncio.sleep(0.5)
-
     async def ask_round(bot: Bot, g: Game) -> None:
         """يختار البوت السائل والمجيب عشوائيًا، ثم يسأل السائل ويجيب المجيب في المجموعة."""
         L = g.lang
@@ -229,16 +219,14 @@ def build_spy_router(ctx: Ctx) -> Router:
         g.next_go = False
         an = (g.players[asker].name or "").strip() or "👤"           # اسم فارغ (رموز فقط): لا يترك السطر فارغًا
         tn = (g.players[target].name or "").strip() or "👤"
-        next_kb = kb([btn(t(L, "sp_next_btn"), f"sp:n:{g.gid}")])    # زر «التالي» موجود دائمًا في الجولة
-        await show(bot, g, t(L, "sp_ask_live", r=g.round, a=esc(an), b=esc(tn), s=ASK_SECS), next_kb)
-        end = time.monotonic() + ASK_SECS
-        while time.monotonic() < end and g.question is None and not g.next_go:
+        next_kb = kb([btn(t(L, "sp_next_btn"), f"sp:n:{g.gid}")], [btn(t(L, "sp_end_btn"), f"sp:x:{g.gid}")])  # «التالي» و«إلغاء اللعبة» دائمًا في الجولة
+        await show(bot, g, t(L, "sp_ask_live", r=g.round, a=esc(an), b=esc(tn)), next_kb)
+        while g.question is None and not g.next_go:              # لا عداد: الجولة تنتقل بضغط «التالي»
             await asyncio.sleep(0.5)
         if g.next_go or g.question is None:                 # «التالي» أو انتهى الوقت بلا سؤال: الجولة التالية
             return
-        await show(bot, g, t(L, "sp_answer_live", b=esc(tn), s=ANSWER_SECS), next_kb)
-        end = time.monotonic() + ANSWER_SECS
-        while time.monotonic() < end and g.answer is None and not g.next_go:
+        await show(bot, g, t(L, "sp_answer_live", b=esc(tn)), next_kb)
+        while g.answer is None and not g.next_go:
             await asyncio.sleep(0.5)
         # لا رسالة عند انتهاء وقت الإجابة: العداد يكفي، والمضيف يضغط «التالي»
 
