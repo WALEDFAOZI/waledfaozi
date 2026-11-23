@@ -144,3 +144,15 @@ def test_channel_game_keeps_announcements_visible():
         assert owner.id not in g.players
         assert not g.players[victim.uid].alive                 # الضحية مات فعلًا
     run(go())
+
+
+def test_channel_updates_reply_to_the_post_copy_not_to_a_comment():
+    from aiogram.types import Update
+    async def go():
+        MG.games.clear(); MG.POST_ROOT.clear()
+        h = Harness()
+        msg = Message(message_id=900, date=dt.datetime.now(), chat=DISC, is_automatic_forward=True,
+                      forward_from_chat=CH, forward_from_message_id=123, text=".")
+        await h.dp.feed_update(h.bot, Update(update_id=77, message=msg))
+        assert MG.POST_ROOT[(CH.id, 123)] == (DISC.id, 900)                  # حُفظ مكان نسخة المنشور
+    run(go())

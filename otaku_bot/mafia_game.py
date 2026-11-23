@@ -14,6 +14,7 @@ import time
 from dataclasses import dataclass, field
 
 from aiogram import Bot, F, Router
+from aiogram.dispatcher.event.bases import SkipHandler
 from aiogram.exceptions import TelegramAPIError, TelegramRetryAfter
 from aiogram.filters import Command, CommandStart
 from aiogram.types import CallbackQuery, Message, ReplyParameters
@@ -101,8 +102,7 @@ class Game:
     gone: bool = False                # الرسالة الحيّة حُذفت: تتوقف اللعبة
     joker_pick: int | None = None     # من سحب المجنون معه بعد طرده
     last_out: int | None = None       # آخر لاعب طُرد بالتصويت (يُذكر في نهاية اللعبة)
-    discuss_chat: int | None = None   # مجموعة التعليقات المرتبطة بالقناة (لتحديثات النقاش)
-    discuss_anchor: int | None = None # التعليق الذي وُضع رابطه: نرد عليه داخل التعليقات
+    discuss_post: int | None = None   # رقم المنشور في القناة: نجد نسخته في التعليقات ونرد عليها
     day_markup: object = None
 
 
@@ -168,11 +168,21 @@ def night_complete(g: Game) -> bool:
     return True
 
 
+POST_ROOT: dict[tuple[int, int], tuple[int, int]] = {}   # (القناة، رقم المنشور) -> (مجموعة التعليقات، نسخة المنشور فيها)
+
+
 def build_mafia_router(ctx: Ctx) -> Router:
     db, rng = ctx.db, ctx.rng
     root = Router(name="mafia")
     msgs = Router(name="mafia_msgs")
     msgs.message.filter(F.chat.type.in_(GROUP_TYPES))
+
+    @msgs.message(F.is_automatic_forward)
+    async def on_post_copy(m: Message):
+        """نسخة المنشور في مجموعة التعليقات: نحفظ مكانها لنرد عليها."""
+        if m.forward_from_chat and m.forward_from_message_id:
+            POST_ROOT[(m.forward_from_chat.id, m.forward_from_message_id)] = (m.chat.id, m.message_id)
+        raise SkipHandler()
     cbs = Router(name="mafia_cbs")
     cbs.callback_query.filter(F.message.chat.type.in_(GROUP_TYPES | {"channel"}))
     pm = Router(name="mafia_pm")
@@ -584,12 +594,17 @@ def build_mafia_router(ctx: Ctx) -> Router:
 
     # ── إعلانات ───────────────────────────────────────────
     async def post_discuss(bot: Bot, g: Game, text: str) -> None:
-        """تحديث في تعليقات المنشور (بدون أدوار). إن لم يكن البوت عضوًا في مجموعة التعليقات فلا يُرسل شيء."""
-        if not (g.discuss_chat and g.discuss_anchor):
+        """تحديث في تعليقات المنشور نفسه (رد على نسخة المنشور في مجموعة التعليقات، بدون أدوار).
+        إن لم يكن البوت رأى نسخة المنشور (مثلًا لم يكن عضوًا وقت نشره) فلا يُرسل شيء."""
+        if not g.discuss_post:
             return
+        root = POST_ROOT.get((g.chat_id, g.discuss_post))
+        if not root:
+            return
+        chat_id, root_mid = root
         try:
-            await bot.send_message(g.discuss_chat, text, parse_mode="HTML",
-                                   reply_parameters=ReplyParameters(message_id=g.discuss_anchor, allow_sending_without_reply=True))
+            await bot.send_message(chat_id, text, parse_mode="HTML",
+                                   reply_parameters=ReplyParameters(message_id=root_mid, allow_sending_without_reply=False))
         except TelegramAPIError:
             pass
 
@@ -1194,8 +1209,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g = new_game(chat_id, "channel", m.from_user.id, ch.title or "القناة", None, None, db.group_lang(chat_id))
         g.discuss_line = t(db.group_lang(chat_id), "mf_discuss_line")
         g.discuss_url = url
-        g.discuss_chat = getattr(ch, "linked_chat_id", None)          # مجموعة التعليقات إن كانت مربوطة
-        g.discuss_anchor = comment_id
+        g.discuss_post = post_id                                       # نسخة المنشور في التعليقات تصل تلقائيًا للبوت
         if not await open_lobby(m.bot, g):
             await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
             return
