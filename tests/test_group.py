@@ -98,7 +98,7 @@ def test_full_game_replies_to_command_and_saves_results():
         await start_lobby(h, a, "quiz", mid=77)
         lobby = sent(h)[0]
         gid = buttons(lobby)[0].split(":")[2]
-        assert "Ali" in lobby.text and lobby.reply_parameters.message_id == 77
+        assert lobby.reply_parameters.message_id == 77                       # اللوبي بلا اسم المضيف
         await gtap(h, a, f"gp:j:{gid}")
         await gtap(h, b, f"gp:j:{gid}")
         await gtap(h, b, f"gp:j:{gid}")                         # انضمام مكرر لا يضاعفه
@@ -149,13 +149,13 @@ def test_channel_and_anonymous_admin_are_registered_by_name():
         chan = Chat(id=-100777, type="channel", title="قناة الأنمي")
         ch_user = User(id=136817688, is_bot=True, first_name="Channel")
         await start_lobby(h, ch_user, mid=21, sender_chat=chan)
-        assert "قناة الأنمي" in sent(h)[0].text and sent(h)[0].reply_parameters.message_id == 21
+        assert sent(h)[0].reply_parameters.message_id == 21
         await gsay(h, ch_user, "/gstop", mid=22, sender_chat=GROUP)       # مجموعة (أدمن مخفي) يقدر يوقف
         await asyncio.sleep(0.1)
         h2 = Harness()
         anon = User(id=1087968824, is_bot=True, first_name="Group")
         await start_lobby(h2, anon, mid=31, sender_chat=GROUP)
-        assert "شلة الأوتاكو" in sent(h2)[0].text
+        assert sent(h2)[0].reply_parameters is not None                       # اللوبي بلا اسم المضيف
     run(go())
 
 
@@ -192,7 +192,7 @@ def test_private_features_do_not_leak_into_groups_and_menu_flow():
         assert menu.reply_parameters.message_id == 51 and "gp:n:quiz" in buttons(menu)
         await gtap(h, b, "gp:n:tf", reply_to=cmd)
         lobby = [c for c in sent(h) if "تبدأ بعد" in (c.text or "")][-1]
-        assert "صح أو غلط" in lobby.text and lobby.reply_parameters.message_id == 51 and "Bob" in lobby.text
+        assert "صح أو غلط" in lobby.text and lobby.reply_parameters.message_id == 51
     run(go())
 
 
@@ -655,7 +655,7 @@ def test_comment_play_menu_lets_the_sender_pick_a_game():
         assert "gp:n:quiz" in buttons(menu) and menu.reply_parameters.message_id == 40   # القائمة ترد على نسخة المنشور
         await gtap(h, a, "gp:n:quiz", msg_id=78, reply_to=post_copy)
         lobby = sent(h)[-1]
-        assert "Ali" in lobby.text and "gp:j:" in buttons(lobby)[0] and lobby.reply_parameters.message_id == 40
+        assert "gp:j:" in buttons(lobby)[0] and lobby.reply_parameters.message_id == 40
     run(go())
 
 
