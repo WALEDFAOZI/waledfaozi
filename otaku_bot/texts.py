@@ -1571,3 +1571,12 @@ T["en"]["ar_inline_go"] = "🎮 Accept the challenge"
 T["ar"]["anon_name"] = "مجهول 🎭"
 T["en"]["anon_name"] = "Anonymous 🎭"
 T["en"]["pf_visit"] = T["en"]["pf_visit"].replace("Think you can beat it\n", "Think you can beat it?\n")
+
+T["ar"]["gs_title"] = "🎮 <b>ألعابك</b>"
+T["en"]["gs_title"] = "🎮 <b>Your games</b>"
+T["ar"]["gs_row"] = "• {game}: {w} فوز · {l} خسارة · {d} تعادل"
+T["en"]["gs_row"] = "• {game}: {w} won · {l} lost · {d} drawn"
+T["ar"]["gs_mafia"] = "• {game}: {n} لعبة · {w} فوز"
+T["en"]["gs_mafia"] = "• {game}: {n} games · {w} won"
+T["ar"]["gs_mafia_group"] = "🔪 المافيا (مجموعات)"
+T["en"]["gs_mafia_group"] = "🔪 Mafia (groups)"

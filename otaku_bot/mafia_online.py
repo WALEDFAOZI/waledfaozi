@@ -465,6 +465,9 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
 
     async def finish(bot: Bot, room: Room) -> None:
         w = M.winner(role_of(room), {s.uid for s in alive(room)})
+        for s in room.seats.values():
+            team = M.ROLES[s.role][1]
+            db.record_outcome(s.uid, "mafia_online", "draw" if not w else ("win" if team == w else "lose"))
         reveal = "\n".join(f"• {esc(s.name)}: {ICON[s.role]} {t(L_(s.uid), 'mf_r_' + s.role)}"
                            for s in room.seats.values())
         for s in room.seats.values():

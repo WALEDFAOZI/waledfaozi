@@ -609,6 +609,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
             won = {p.uid for p in g.players.values() if p.role == "joker"}
         else:
             won = set()
+        for p in g.players.values():                        # إحصائيات المافيا الشخصية
+            db.record_outcome(p.uid, "mafia", "draw" if not w else ("win" if p.uid in won else "lose"))
         head = t(L, f"mf_end_{w}") if w else t(L, "mf_end_draw")
         reveal = "\n".join(
             f"{ICON[p.role]} {esc(p.name)} — {t(L, 'mf_r_' + p.role)}{' ✅' if p.uid in won else ''}"

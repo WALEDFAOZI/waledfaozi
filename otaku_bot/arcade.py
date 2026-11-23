@@ -248,10 +248,16 @@ def build_arcade_router(ctx: Ctx) -> Router:
                 pass
         end(m)
 
+    def record(m: Match, winner: int | None) -> None:
+        for i, uid in enumerate(m.players):
+            outcome = "draw" if winner is None else ("win" if i == winner else "lose")
+            db.record_outcome(uid, m.kind, outcome)
+
     async def xo_or_c4_outcome(bot: Bot, m: Match, win: str | None) -> bool:
         """يُعلن النتيجة إن انتهت اللعبة. True إن انتهت."""
         if win is None:
             return False
+        record(m, None if win == "draw" else (0 if win == sym_of(m, m.players[0]) else 1))
         if m.scope == "c":
             if win == "draw":
                 summary = t("ar", "ar_chat_draw")
@@ -406,6 +412,7 @@ def build_arcade_router(ctx: Ctx) -> Router:
         m.picks = {}
         if max(m.score) >= 2:
             winner = 0 if m.score[0] > m.score[1] else 1
+            record(m, winner)
             if m.scope == "c":
                 await finish(c.bot, m, {}, t("ar", "ar_chat_win", name=chat_name(m, m.players[winner])))
                 return

@@ -112,3 +112,28 @@ def test_inline_invite_ids_are_created_and_capped():
     for _ in range(600):
         A.make_invite(8, "rps")
     assert len(A.invites) <= 500
+
+
+def test_personal_game_stats_are_recorded_and_shown_in_profile():
+    async def go():
+        A.matches.clear(); A.user_match.clear(); A.queue["rps"].clear()
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        a, b = h.user(61, "Ali"), h.user(62, "Bob")
+        for u in (a, b):
+            h.db.upsert_user(u.id, u.first_name)
+        await h.tap(a, "ar:q:rps")
+        await h.tap(b, "ar:q:rps")
+        m = next(iter(A.matches.values()))
+        for _ in range(2):                                        # الأول يفوز الجولتين
+            first = m.players[0]
+            second = m.players[1]
+            await h.tap(h.user(first, "x"), f"ar:r:{m.gid}:s")
+            await h.tap(h.user(second, "y"), f"ar:r:{m.gid}:p")
+            if A.matches.get(m.gid) is None:
+                break
+        st_a = h.db.personal_game_stats(first)
+        st_b = h.db.personal_game_stats(second)
+        assert st_a["rps"]["win"] == 1 and st_b["rps"]["lose"] == 1
+        assert h.db.personal_game_stats(first)["rps"]["win"] == 1
+    run(go())

@@ -1017,6 +1017,7 @@ def build_router(ctx: Ctx) -> Router:
             lines.append(t(L, "iv_badge", b=badge_label(ib, L)))
         lines.append(progress.level_line(db.get_user(uid)["xp"], L))
         lines.append(t(L, "pg_ach_count", n=len(db.achievements_of(uid)), total=len(progress.ACH)))
+        lines += game_stat_lines(uid, L)
         if p["cats"]:
             lines.append(t(L, "prof_cat"))
             lines += [f"• {cat_label(L, cat)}: {acc * 100:.0f}%" for cat, acc, _ in p["cats"]]
@@ -1199,6 +1200,24 @@ def build_router(ctx: Ctx) -> Router:
 
     def period_since(p: str):
         return None if p == "a" else week_start() if p == "w" else day_start()
+
+    def game_stat_lines(uid: int, L: str) -> list[str]:
+        """قسم «ألعابك» في الملف: نتائج الألعاب الثنائية والمافيا (إن لعب شيئًا)."""
+        st = db.personal_game_stats(uid)
+        if not st:
+            return []
+        out = [t(L, "gs_title")]
+        for kind in ("xo", "rps", "c4"):
+            if kind in st:
+                r = st[kind]
+                out.append(t(L, "gs_row", game=t(L, "ar_title_" + kind), w=r["win"], l=r["lose"], d=r["draw"]))
+        for key in ("mafia", "mafia_online"):
+            if key in st:
+                r = st[key]
+                n = r["win"] + r["lose"] + r["draw"]
+                out.append(t(L, "gs_mafia", game=t(L, "btn_mafia_online" if key == "mafia_online" else "gs_mafia_group"),
+                             n=n, w=r["win"]))
+        return out
 
     def lb_menu_view(uid: int):
         """الخطوة 1: اختيار المدة (عام / أسبوعي / اليوم) + العشائر + إخفاء الاسم."""

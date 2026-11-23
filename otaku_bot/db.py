@@ -132,6 +132,11 @@ CREATE TABLE IF NOT EXISTS game_scores(
   tg_id INTEGER NOT NULL, kind TEXT NOT NULL, best INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY(tg_id, kind)
 );
+CREATE TABLE IF NOT EXISTS game_outcomes(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, tg_id INTEGER NOT NULL, game TEXT NOT NULL,
+  outcome TEXT NOT NULL, ts REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_outcomes_user ON game_outcomes(tg_id, game);
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(tg_id, state);
 """
 
@@ -715,6 +720,20 @@ class DB:
     def duel_done(self, did: int) -> None:
         with self.conn:
             self.conn.execute("UPDATE duels SET state='done' WHERE id=?", (did,))
+
+    def record_outcome(self, tg_id: int, game: str, outcome: str) -> None:
+        """نتيجة لاعب في لعبة ثنائية أو مافيا: win / lose / draw."""
+        with self.conn:
+            self.conn.execute("INSERT INTO game_outcomes(tg_id,game,outcome,ts) VALUES(?,?,?,?)",
+                              (tg_id, game, outcome, time.time()))
+
+    def personal_game_stats(self, tg_id: int) -> dict:
+        """{اللعبة: {win, lose, draw}} لهذا اللاعب."""
+        out: dict = {}
+        for r in self.conn.execute("SELECT game, outcome, COUNT(*) n FROM game_outcomes WHERE tg_id=? "
+                                   "GROUP BY game, outcome", (tg_id,)):
+            out.setdefault(r["game"], {"win": 0, "lose": 0, "draw": 0})[r["outcome"]] = r["n"]
+        return out
 
     def search_users(self, q: str, limit: int = 10) -> list:
         q = q.strip()
