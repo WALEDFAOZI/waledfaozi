@@ -113,7 +113,8 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
     return kb(*(top or []),
               [btn(t(L, "btn_full"), "go")],
               [btn(t(L, "btn_quick"), "qk")],                                   # اختبار سريع تحت الاختبار الكامل
-              [btn(t(L, "btn_online"), "on:m"), btn(t(L, "btn_daily"), "dy:m")],       # أونلاين وتحدي اليوم جنب بعض
+              [btn(t(L, "btn_online"), "on:m"), btn(t(L, "btn_daily"), "dy:m")],
+              [btn(t(L, "btn_online_notify"), "on:nt")],       # أونلاين وتحدي اليوم جنب بعض
               [btn(t(L, "btn_group"), "gpm"), btn(t(L, "btn_channel_game"), "gpc")],   # زرين جنب بعض
               [btn(t(L, "du_btn"), "du:new"), btn(t(L, "btn_invite"), "iv")],          # تحد صديقا وادع أصدقاءك جنب بعض
               [btn(t(L, "btn_games_menu"), "m:games"), btn(t(L, "btn_anime"), "an:m")],

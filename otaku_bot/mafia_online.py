@@ -17,6 +17,7 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram.types import CallbackQuery, Message
 
 from . import mafia as M
+from . import online_notify
 from .bot import btn, esc, kb
 from .ctx import Ctx
 from .texts import t
@@ -140,6 +141,9 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
         queue.append((uid, esc(c.from_user.full_name)))
         if was_empty:
             start_watch(c.bot)
+            asyncio.get_event_loop().create_task(online_notify.announce(
+                c.bot, db, uid, "btn_mafia_online", "mo:j",
+                lambda x: x in user_room or any(x == y for y, _ in queue)))
         if len(queue) >= MAX_PLAYERS:
             take = queue[:MAX_PLAYERS]
             del queue[:MAX_PLAYERS]

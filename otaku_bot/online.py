@@ -18,6 +18,7 @@ from .bot import btn, chan_row, esc, kb
 from .config import ROOT
 from .ctx import Ctx
 from .texts import t
+from . import online_notify
 
 log = logging.getLogger(__name__)
 KINDS = ("quiz", "tf", "sudden", "images")
@@ -204,6 +205,7 @@ def build_online_router(ctx: Ctx) -> Router:
 
     def to_queue_or_match(bot: Bot, uid: int, kind: str) -> bool:
         """يضيف اللاعب للطابور، أو يبدأ مباراة مع أول منافس. True إن بدأت مباراة."""
+        was_empty = not queue[kind]
         for other, _ in queue[kind]:
             if other != uid and other not in user_match:
                 queue[kind] = [x for x in queue[kind] if x[0] != other]
@@ -216,7 +218,18 @@ def build_online_router(ctx: Ctx) -> Router:
                 m.task = asyncio.create_task(play(bot, m))
                 return True
         queue[kind] = [x for x in queue[kind] if x[0] != uid] + [(uid, time.time())]
+        if was_empty:                                       # طابور جديد فُتح: ينبّه المشتركين
+            asyncio.get_event_loop().create_task(online_notify.announce(
+                bot, db, uid, f"on_kind_{kind}", f"on:j:{kind}",
+                lambda x: x in user_match or any(x == y for y, _ in queue[kind])))
         return False
+
+    @r.callback_query(F.data == "on:nt")
+    async def cb_notify(c: CallbackQuery):
+        L = L_(c.from_user.id)
+        db.upsert_user(c.from_user.id, c.from_user.full_name)
+        on = online_notify.toggle(db, c.from_user.id)
+        await c.answer(t(L, "on_notify_on" if on else "on_notify_off"), show_alert=True)
 
     @r.callback_query(F.data == "on:m")
     async def cb_menu(c: CallbackQuery):

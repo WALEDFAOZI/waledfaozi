@@ -1480,3 +1480,14 @@ T["en"]["mo_help_long"] = (
 "⏳ <b>Times:</b> night 1 minute, discussion 3 minutes, voting 1 minute.\n"
 "━━━━━━━━━━━━━━━━\n"
 "<i>Roles stay secret until the end. Don't reveal yours!</i>")
+
+T["ar"]["btn_online_notify"] = "🔔 إشعار الأونلاين"
+T["en"]["btn_online_notify"] = "🔔 Online alerts"
+T["ar"]["on_notify_on"] = "🔔 تم تفعيل إشعارات الأونلاين. بيوصلك تنبيه عند فتح أي طابور."
+T["en"]["on_notify_on"] = "🔔 Online alerts are on. You'll get a message when a queue opens."
+T["ar"]["on_notify_off"] = "🔕 تم إيقاف إشعارات الأونلاين."
+T["en"]["on_notify_off"] = "🔕 Online alerts are off."
+T["ar"]["on_notify_open"] = "🎮 بدأ طابور <b>{game}</b> الآن، تحب تنضم؟"
+T["en"]["on_notify_open"] = "🎮 A <b>{game}</b> queue just opened. Want to join?"
+T["ar"]["on_notify_join"] = "✅ انضم الآن"
+T["en"]["on_notify_join"] = "✅ Join now"
