@@ -81,7 +81,7 @@ class Guard(BaseMiddleware):
             log.exception("handler failed")
             if isinstance(event, CallbackQuery):
                 try:
-                    await event.answer("⚠️ حدث خطأ مؤقت، جرّب مرة ثانية")
+                    await event.answer("⚠️ حدث خطأ مؤقت، جرّب مرة ثانية · Temporary error, please try again")
                 except Exception:  # noqa: BLE001
                     pass
         finally:

@@ -398,8 +398,11 @@ def build_arcade_router(ctx: Ctx) -> Router:
         res = rps_result(m.picks[a], m.picks[b])
         if res:
             m.score[0 if res == 1 else 1] += 1
-        m.last = t(L_(a), "ar_round", a=RPS[m.picks[a]], b=RPS[m.picks[b]],
-                   w=("" if res == 0 else (m.names[a] if res == 1 else m.names[b])))
+        if res == 0:
+            m.last = t(L_(a), "ar_round_draw", a=RPS[m.picks[a]], b=RPS[m.picks[b]])
+        else:
+            m.last = t(L_(a), "ar_round", a=RPS[m.picks[a]], b=RPS[m.picks[b]],
+                       w=m.names[a] if res == 1 else m.names[b])
         m.picks = {}
         if max(m.score) >= 2:
             winner = 0 if m.score[0] > m.score[1] else 1

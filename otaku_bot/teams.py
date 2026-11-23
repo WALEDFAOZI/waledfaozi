@@ -49,7 +49,7 @@ def build_teams_router(ctx: Ctx) -> Router:
         since = week_start()
         members = db.team_members(tid, since, 8)
         leader = db.get_user(team["leader"])
-        rows = "\n".join(f"{i}. {esc('مجهول 🎭' if db.is_admin(m['tg_id']) else (m['name'] or '?'))} — ⭐{m['wxp']}"
+        rows = "\n".join(f"{i}. {esc(t(db.get_lang(m['tg_id']), 'anon_name') if db.is_admin(m['tg_id']) else (m['name'] or '?'))} — ⭐{m['wxp']}"
                          for i, m in enumerate(members, 1))
         week_xp = sum(m["wxp"] for m in db.team_members(tid, since, 100))
         text = t(L, "tm_view", name=esc(team["name"]), n=db.team_size(tid), mx=db.TEAM_MAX,

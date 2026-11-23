@@ -49,7 +49,7 @@ CMD_KIND = {"quiz": "quiz", "sudden": "sudden", "tf": "tf", "song": "song", "cha
             "order": "ord", "images": "images"}
 GROUP_TYPES = {"group", "supergroup"}
 ANY_TYPES = GROUP_TYPES | {"channel"}
-ANON = "مجهول 🎭"
+ANON = "مجهول 🎭 · Anonymous"
 LETTERS = ["A", "B", "C", "D"]
 
 

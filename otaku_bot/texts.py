@@ -357,7 +357,7 @@ T["ar"]["more_menu"] = "⚙️ المزيد: إحصائياتي، الاقترا
 T["en"]["more_menu"] = "⚙️ More: my stats, suggestions, language."
 
 T["ar"]["pf_visit"] = "\n\n👤 شارك معك <b>{name}</b> ملفه: أفضل تقييم <b>{score}</b>/10 — {title}\nتقدر تتفوّق عليه؟ 😏"
-T["en"]["pf_visit"] = "\n\n👤 <b>{name}</b> shared their profile: best score <b>{score}</b>/10 — {title}\nThink you can beat it? 😏"
+T["en"]["pf_visit"] = "\n\n👤 <b>{name}</b> shared their profile: best score <b>{score}</b>/10 — {title}\nThink you can beat it?? 😏"
 T["ar"]["btn_try_too"] = "🎯 جرّب أنت"
 T["en"]["btn_try_too"] = "🎯 Try it too"
 
@@ -1187,7 +1187,7 @@ T["en"]["mf_discuss_btn"] = "💬 Discuss in comments"
 
 
 T["ar"]["mf_news"] = "📰 <b>أخبار الليلة {ord}</b>\n\n{body}"
-T["en"]["mf_news"] = "📰 <b>Night {r} news</b>\n\n{body}"
+T["en"]["mf_news"] = "📰 <b>Night {ord} news</b>\n\n{body}"
 
 T["ar"]["mf_r_mayor"] = "العمدة"
 T["en"]["mf_r_mayor"] = "Mayor"
@@ -1514,8 +1514,10 @@ T["ar"]["ar_rps_wait"] = "🤔 اختر حركتك (الأفضل من 3 جولا
 T["en"]["ar_rps_wait"] = "🤔 Pick your move (best of 3)"
 T["ar"]["ar_rps_done"] = "✅ اخترت، بانتظار الخصم"
 T["en"]["ar_rps_done"] = "✅ Picked, waiting for the opponent"
-T["ar"]["ar_round"] = "الجولة: {a} ضد {b}" + " — فاز {w}"
-T["en"]["ar_round"] = "Round: {a} vs {b}" + " — {w} wins"
+T["ar"]["ar_round"] = "الجولة: {a} ضد {b} — فاز {w}"
+T["en"]["ar_round"] = "Round: {a} vs {b} — {w} wins"
+T["ar"]["ar_round_draw"] = "الجولة: {a} ضد {b} — تعادل"
+T["en"]["ar_round_draw"] = "Round: {a} vs {b} — draw"
 T["ar"]["ar_win"] = "🏆 فزت!"
 T["en"]["ar_win"] = "🏆 You won!"
 T["ar"]["ar_lose"] = "😅 خسرت هذه المرة."
@@ -1565,3 +1567,7 @@ T["ar"]["ar_inline_text"] = "🎲 {name} يتحداك في <b>{game}</b>!\nاض�
 T["en"]["ar_inline_text"] = "🎲 {name} challenges you to <b>{game}</b>!\nTap the button to join the match."
 T["ar"]["ar_inline_go"] = "🎮 اقبل التحدي"
 T["en"]["ar_inline_go"] = "🎮 Accept the challenge"
+
+T["ar"]["anon_name"] = "مجهول 🎭"
+T["en"]["anon_name"] = "Anonymous 🎭"
+T["en"]["pf_visit"] = T["en"]["pf_visit"].replace("Think you can beat it\n", "Think you can beat it?\n")

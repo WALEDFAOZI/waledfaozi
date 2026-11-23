@@ -171,7 +171,7 @@ def build_router(ctx: Ctx) -> Router:
         if u is None:
             name = "؟"
         elif u["lb_hidden"]:
-            name = "مجهول 🎭"
+            name = t(L, "anon_name")
         else:
             name = esc(pub(u))
 
@@ -212,7 +212,7 @@ def build_router(ctx: Ctx) -> Router:
 
     def pub(u) -> str:
         """الاسم الذي يراه الآخرون: الأدمن/المالك لا يظهر اسمه أبدًا."""
-        return "مجهول 🎭" if db.is_admin(u["tg_id"]) else (u["name"] or "?")
+        return t(lang(u["tg_id"]), "anon_name") if db.is_admin(u["tg_id"]) else (u["name"] or "?")
 
     async def bot_username(bot: Bot) -> str:
         if "u" not in me_cache:
