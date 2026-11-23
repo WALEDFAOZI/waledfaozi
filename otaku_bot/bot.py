@@ -121,7 +121,7 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
               [btn(t(L, "btn_online"), "on:m")],
               [btn(t(L, "btn_daily"), "dy:m"), btn(t(L, "btn_discover"), "ps:s")],
               [btn(t(L, "btn_group"), "gpm"), btn(t(L, "btn_channel_game"), "gpc")],   # زرين جنب بعض
-              [btn(t(L, "du_btn"), "du:new"), btn(t(L, "btn_invite"), "iv")],          # تحد صديقا وادع أصدقاءك جنب بعض
+              [btn(t(L, "du_btn"), "du:new")],                                         # ادع الأصدقاء صار داخل الملف الشخصي
               [btn(t(L, "btn_games_menu"), "m:games"), btn(t(L, "btn_anime"), "an:m")],
               [btn(t(L, "btn_rank"), "lb:menu"), btn(t(L, "btn_profile"), "pf")],
               [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")],
@@ -1037,6 +1037,7 @@ def build_router(ctx: Ctx) -> Router:
         share = t(L, "prof_share", score=f"{p['best']:.1f}", title=title)
         markup = kb([btn(t(L, "btn_share_profile"), url=f"https://t.me/share/url?url={quote(link)}&text={quote(share)}")],
                     [btn(t(L, "btn_achs"), "pg:me"), btn(t(L, "btn_teams"), "tm:m")],
+                    [btn(t(L, "btn_invite"), "iv")],
                     *chan_row(L), [btn(t(L, "btn_menu"), "menu")])
         caption = "\n".join(lines)
         try:

@@ -381,7 +381,7 @@ def test_start_menu_shows_all_player_buttons_and_each_works():
         await h.say(u, "/start")
         start_call = last_menu_call(h)
         data = {b.callback_data for row in start_call.reply_markup.inline_keyboard for b in row}
-        for must in ("go", "m:games", "an:m", "lb:menu", "pf", "iv", "sg", "lg:toggle"):
+        for must in ("go", "m:games", "an:m", "lb:menu", "pf", "sg", "lg:toggle"):
             assert must in data, must
         assert "m:more" not in data          # زر «المزيد» أُلغي وأزراره في الرئيسية
         for must in ():
