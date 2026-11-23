@@ -300,13 +300,15 @@ def build_spy_router(ctx: Ctx) -> Router:
             await show(bot, g, t(L, "sp_roles_done", n=len(g.players)), None)
             while True:
                 if g.round >= ROUNDS + g.extra:
-                    more = not await vote_prompt(bot, g)
-                    if not more or g.extra >= EXTRA_MAX:
+                    if g.extra >= EXTRA_MAX:                # الحد الأقصى: تصويت إجباري بدون سؤال
+                        break
+                    more = not await vote_prompt(bot, g)    # الأغلبية تختار: تصويت الآن، أو جولة واحدة إضافية
+                    if not more:
                         break
                     g.extra += 1
                 g.round += 1
+                g.state = "play"                            # الجولة جارية: لا أزرار تصويت الآن
                 await ask_round(bot, g)
-                g.state = "play"
             await voting(bot, g)
         except asyncio.CancelledError:
             await show(bot, g, t(L, "sp_stopped"), None)

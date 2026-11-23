@@ -137,3 +137,53 @@ def test_names_are_removed_from_group_and_outsider_only_guesses_when_caught():
         assert not S.games or g.guessed is None                            # لا تخمين قبل الكشف
         g.task.cancel()
     run(go())
+
+
+def test_vote_prompt_after_each_round_and_forced_vote_at_the_cap():
+    """القاعدة: بعد الجولة الأخيرة سؤال «تصويت أم جولة إضافية»، والاستمرار يضيف جولة واحدة فقط، وعند الحد الأقصى تصويت إجباري."""
+    async def go():
+        old = (S.ROUNDS, S.EXTRA_MAX)
+        S.ROUNDS, S.EXTRA_MAX = 2, 2
+        try:
+            h = Harness()
+            h.db.fast_answer_ratio = lambda sid: 0.0
+            users = [h.user(i, f"P{i}") for i in range(1, 5)]
+            by_id = {u.id: u for u in users}
+            for u in users:
+                h.db.upsert_user(u.id, u.first_name)
+            host = users[0]
+            await gcmd(h, host, "/spy", 11)
+            g = S.games[GROUP.id]
+            for u in users[1:]:
+                await gtap(h, u, f"sp:j:{g.gid}")
+            await gtap(h, host, f"sp:s:{g.gid}")
+            assert await wait_until(lambda: g.state == "play")
+
+            async def play_round(r):
+                assert await wait_until(lambda: g.round == r)
+                await asyncio.sleep(0.3)
+                await gtap(h, host, f"sp:n:{g.gid}")
+                assert await wait_until(lambda: g.cur is not None and g.question is None and g.round == r)
+                asker, target = g.cur
+                await gsay(h, by_id[asker], "سؤال؟")
+                assert await wait_until(lambda: g.question is not None)
+                await gsay(h, by_id[target], "جواب")
+                assert await wait_until(lambda: g.answer is not None)
+
+            await play_round(1)
+            await play_round(2)
+            assert await wait_until(lambda: g.state == "choose")         # بعد الجولة 2: السؤال
+            for u in users:
+                await gtap(h, u, f"sp:c:{g.gid}:more")                   # الأغلبية: استمرار
+            assert await wait_until(lambda: g.extra == 1 and g.state == "play")
+            await play_round(3)                                          # جولة واحدة فقط
+            assert await wait_until(lambda: g.state == "choose")         # ثم السؤال من جديد
+            for u in users:
+                await gtap(h, u, f"sp:c:{g.gid}:more")
+            assert await wait_until(lambda: g.extra == 2)
+            await play_round(4)                                          # الحد الأقصى: بعدها تصويت إجباري
+            assert await wait_until(lambda: g.state == "vote")
+            assert g.round == 4
+        finally:
+            S.ROUNDS, S.EXTRA_MAX = old
+    run(go())
