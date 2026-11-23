@@ -11,10 +11,10 @@ from dataclasses import dataclass, field
 
 from aiogram import Bot, F, Router
 from aiogram.exceptions import TelegramAPIError
-from aiogram.filters import CommandStart
+from aiogram.filters import Command, CommandStart
 from aiogram.types import CallbackQuery, Message
 
-from .bot import btn, kb
+from .bot import btn, esc, kb
 from .ctx import Ctx
 from .texts import t
 
@@ -81,8 +81,11 @@ class Match:
     picks: dict = field(default_factory=dict)     # rps: uid -> اختيار هذه الجولة
     score: list = field(default_factory=lambda: [0, 0])
     last: str = ""                     # نتيجة الجولة الأخيرة (rps)
-    msgs: dict = field(default_factory=dict)      # uid -> message_id
-    state: str = "play"                # play | done
+    msgs: dict = field(default_factory=dict)      # uid -> message_id (المباريات الخاصة)
+    state: str = "play"                # join | play | done (join: بانتظار اللاعب الثاني في المجموعة/القناة)
+    scope: str = "p"                   # p: خاص مع كل لاعب | c: رسالة واحدة في مجموعة أو قناة
+    chat_id: int | None = None
+    mid: int | None = None             # رسالة المجموعة/القناة الحيّة
 
 
 matches: dict[int, Match] = {}
@@ -95,7 +98,6 @@ counter = [0]
 def build_arcade_router(ctx: Ctx) -> Router:
     db, rng = ctx.db, ctx.rng
     r = Router(name="arcade")
-    r.callback_query.filter(F.message.chat.type == "private")
 
     def L_(uid: int) -> str:
         return db.get_lang(uid)
@@ -155,7 +157,62 @@ def build_arcade_router(ctx: Ctx) -> Router:
                 for c in range(C4_COLS)]
         return text, kb(cols)
 
+    def chat_name(m: Match, uid: int) -> str:
+        return esc(m.names.get(uid, "?"))
+
+    def render_chat(m: Match, lang: str) -> tuple[str, object]:
+        """رسالة واحدة في المجموعة/القناة: الجميع يرى نفس اللوحة، والحركة تُقبل من صاحب الدور فقط."""
+        title = t(lang, "ar_title_" + m.kind)
+        if m.state == "join":
+            names = " ، ".join(chat_name(m, u) for u in m.players) or "—"
+            text = "\n".join([title, t(lang, "ar_waiting", names=names)])
+            return text, kb([btn(t(lang, "ar_join_btn"), f"ar:j:{m.gid}")])
+        p1, p2 = m.players
+        vs = f"{chat_name(m, p1)} ❌⭕ {chat_name(m, p2)}" if m.kind == "xo" else \
+            f"{chat_name(m, p1)} 🔴🟡 {chat_name(m, p2)}" if m.kind == "c4" else \
+            f"{chat_name(m, p1)} ⚔️ {chat_name(m, p2)}"
+        if m.kind == "rps":
+            score = f"{m.score[0]} : {m.score[1]}"
+            done = " ، ".join(f"✅ {chat_name(m, u)}" for u in m.picks) or t(lang, "ar_rps_wait_chat")
+            text = "\n".join([title, vs, t(lang, "ar_score", s=score), done] + ([m.last] if m.last else []))
+            return text, kb([btn(RPS[k], f"ar:r:{m.gid}:{k}") for k in ("r", "p", "s")])
+        turn = chat_name(m, m.players[m.turn])
+        if m.kind == "xo":
+            grid = ["".join(EMOJI[m.board[r * 3 + c]] for c in range(3)) for r in range(3)]
+            text = "\n".join([title, vs, t(lang, "ar_chat_turn", name=turn), ""] + grid)
+            rows = []
+            for r in range(3):
+                row = []
+                for c in range(3):
+                    i = r * 3 + c
+                    if m.board[i]:
+                        row.append(btn(EMOJI[m.board[i]], f"ar:n:{m.gid}"))
+                    else:
+                        row.append(btn(str(i + 1), f"ar:x:{m.gid}:{i}"))
+                rows.append(row)
+            return text, kb(*rows)
+        lines = ["".join(EMOJI[m.board[r][c]] for c in range(C4_COLS)) for r in range(C4_ROWS - 1, -1, -1)]
+        text = "\n".join([title, vs, t(lang, "ar_chat_turn", name=turn), ""] + lines + ["1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣"])
+        cols = [btn(str(c + 1), f"ar:c:{m.gid}:{c}" if m.board[C4_ROWS - 1][c] is None else f"ar:n:{m.gid}")
+                for c in range(C4_COLS)]
+        return text, kb(cols)
+
+    async def show_chat(bot: Bot, m: Match, lang: str = "ar", markup_override=None) -> None:
+        text, markup = render_chat(m, lang)
+        try:
+            if m.mid:
+                await bot.edit_message_text(text, chat_id=m.chat_id, message_id=m.mid, parse_mode="HTML",
+                                            reply_markup=markup_override if markup_override is not None else markup)
+            else:
+                sent = await bot.send_message(m.chat_id, text, parse_mode="HTML", reply_markup=markup)
+                m.mid = sent.message_id
+        except TelegramAPIError:
+            log.warning("arcade: cannot update chat message for match %s", m.gid)
+
     async def show_all(bot: Bot, m: Match) -> None:
+        if m.scope == "c":
+            await show_chat(bot, m)
+            return
         for uid in m.players:
             text, markup = render(m, uid)
             mid = m.msgs.get(uid)
@@ -168,7 +225,17 @@ def build_arcade_router(ctx: Ctx) -> Router:
             except TelegramAPIError:
                 pass
 
-    async def finish(bot: Bot, m: Match, result_for: dict[int, str]) -> None:
+    async def finish(bot: Bot, m: Match, result_for: dict[int, str], summary: str = "") -> None:
+        if m.scope == "c":
+            text, _ = render_chat(m, "ar")
+            body = "\n".join([text.split("\n")[0], summary]) if summary else text
+            try:
+                await bot.edit_message_text(body, chat_id=m.chat_id, message_id=m.mid, parse_mode="HTML",
+                                            reply_markup=kb([btn(t("ar", "ar_again"), "ar:m")]))
+            except TelegramAPIError:
+                pass
+            end(m)
+            return
         for uid in m.players:
             L = L_(uid)
             text, _ = render(m, uid)
@@ -184,6 +251,14 @@ def build_arcade_router(ctx: Ctx) -> Router:
         """يُعلن النتيجة إن انتهت اللعبة. True إن انتهت."""
         if win is None:
             return False
+        if m.scope == "c":
+            if win == "draw":
+                summary = t("ar", "ar_chat_draw")
+            else:
+                winner = m.players[0] if win == sym_of(m, m.players[0]) else m.players[1]
+                summary = t("ar", "ar_chat_win", name=chat_name(m, winner))
+            await finish(bot, m, {}, summary)
+            return True
         result = {}
         for uid in m.players:
             L = L_(uid)
@@ -327,6 +402,9 @@ def build_arcade_router(ctx: Ctx) -> Router:
         m.picks = {}
         if max(m.score) >= 2:
             winner = 0 if m.score[0] > m.score[1] else 1
+            if m.scope == "c":
+                await finish(c.bot, m, {}, t("ar", "ar_chat_win", name=chat_name(m, m.players[winner])))
+                return
             result = {uid: (t(L_(uid), "ar_win") if i == winner else t(L_(uid), "ar_lose"))
                       for i, uid in enumerate(m.players)}
             await finish(c.bot, m, result)
@@ -336,6 +414,51 @@ def build_arcade_router(ctx: Ctx) -> Router:
     @r.callback_query(F.data.regexp(r"^ar:n(:\d+)?$"))
     async def cb_noop(c: CallbackQuery):
         await c.answer(t(L_(c.from_user.id), "ar_not_now"))
+
+    async def chat_create(bot: Bot, chat_id: int, kind: str, starter: int | None, starter_name: str) -> None:
+        counter[0] += 1
+        m = Match(gid=counter[0], kind=kind, players=[], names={}, scope="c", chat_id=chat_id, state="join")
+        m.board = [None] * 9 if kind == "xo" else [[None] * C4_COLS for _ in range(C4_ROWS)]
+        matches[m.gid] = m
+        if starter is not None:
+            m.players.append(starter)
+            m.names[starter] = starter_name
+            user_match[starter] = m.gid
+        await show_chat(bot, m)
+
+    @r.message(Command("xo", "rps", "c4"), F.chat.type.in_({"group", "supergroup"}))
+    async def cmd_chat(msg: Message):
+        kind = msg.text.split()[0].lstrip("/").split("@")[0]
+        kind = {"xo": "xo", "rps": "rps", "c4": "c4"}.get(kind, "xo")
+        await chat_create(msg.bot, msg.chat.id, kind, msg.from_user.id, msg.from_user.full_name)
+
+    @r.channel_post(Command("xo", "rps", "c4"))
+    async def cmd_channel(msg: Message):
+        kind = msg.text.split()[0].lstrip("/").split("@")[0]
+        kind = {"xo": "xo", "rps": "rps", "c4": "c4"}.get(kind, "xo")
+        await chat_create(msg.bot, msg.chat.id, kind, None, "")
+
+    @r.callback_query(F.data.regexp(r"^ar:j:\d+$"))
+    async def cb_chat_join(c: CallbackQuery):
+        gid = int(c.data.split(":")[2])
+        m = matches.get(gid)
+        uid, L = c.from_user.id, L_(c.from_user.id)
+        if not m or m.scope != "c" or m.state != "join":
+            await c.answer(t(L, "ar_chat_full"), show_alert=True)
+            return
+        if uid in m.players:
+            await c.answer(t(L, "ar_chat_already"), show_alert=True)
+            return
+        if uid in user_match:
+            await c.answer(t(L, "ar_busy"), show_alert=True)
+            return
+        await c.answer()
+        m.players.append(uid)
+        m.names[uid] = c.from_user.full_name
+        user_match[uid] = m.gid
+        if len(m.players) == 2:
+            m.state = "play"
+        await show_all(c.bot, m)
 
     @r.callback_query(F.data == "ar:m")
     async def cb_menu(c: CallbackQuery):

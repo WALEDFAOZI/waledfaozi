@@ -72,3 +72,34 @@ def test_friend_invite_link_starts_a_match_with_the_friend():
         assert set(m.players) == {21, 22} and m.kind == "rps"
         assert code not in A.invites                             # الرابط يُستهلك
     run(go())
+
+
+def test_group_xo_two_players_join_and_play_on_one_message():
+    from test_mafia_game import GROUP, gcmd
+
+    async def go():
+        A.matches.clear(); A.user_match.clear()
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        a, b = h.user(31, "Ali"), h.user(32, "Bob")
+        for u in (a, b):
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, a, "/xo", 500)
+        assert len(A.matches) == 1
+        m = next(iter(A.matches.values()))
+        assert m.scope == "c" and m.state == "join" and m.players == [31]
+        await h.tap(b, f"ar:j:{m.gid}")
+        assert m.state == "play" and m.players == [31, 32]
+        await h.tap(b, f"ar:x:{m.gid}:0")                        # ليس دور بوب
+        assert m.board[0] is None
+        await h.tap(a, f"ar:x:{m.gid}:0")                        # دور علي
+        assert m.board[0] == "X" and m.turn == 1
+        await h.tap(b, f"ar:x:{m.gid}:3")
+        await h.tap(a, f"ar:x:{m.gid}:1")
+        await h.tap(b, f"ar:x:{m.gid}:4")
+        await h.tap(a, f"ar:x:{m.gid}:2")                        # علي يكمل الصف الأول
+        assert m.state == "done" or not A.matches
+        assert not A.user_match
+        edits = [c for c in h.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == GROUP.id]
+        assert any("فاز" in (c.text or "") for c in edits)
+    run(go())
