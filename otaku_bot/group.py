@@ -109,6 +109,23 @@ class Game:
 
 
 _BG_TASKS: set = set()   # مهام خلفية قصيرة (حذف رسائل مؤقتة) نحتفظ بمراجعها
+NOTICE_SECS = 15         # ردود البوت على الأوامر والتنبيهات تُحذف بعد هذه المدة (لا تبقى في المجموعة)
+
+
+def expire_later(bot: Bot, chat_id: int, mid: int | None, secs: float = NOTICE_SECS) -> None:
+    """يحذف الرسالة بعد مدة. يفشل بصمت إن لم تعد موجودة أو ليس للبوت صلاحية."""
+    if not mid:
+        return
+
+    async def later():
+        await asyncio.sleep(secs)
+        try:
+            await bot.delete_message(chat_id, mid)
+        except TelegramAPIError:
+            pass
+    task = asyncio.create_task(later())
+    _BG_TASKS.add(task)                          # نحتفظ بمرجع حتى ينتهي
+    task.add_done_callback(_BG_TASKS.discard)
 
 
 def build_group_router(ctx: Ctx) -> Router:
@@ -212,14 +229,17 @@ def build_group_router(ctx: Ctx) -> Router:
             g.live_media = want
         return True
 
-    async def reply(m: Message, text: str, markup=None) -> None:
+    async def reply(m: Message, text: str, markup=None, expire: float | None = None) -> None:
         kw = {"message_thread_id": m.message_thread_id} if getattr(m, "is_topic_message", False) and m.message_thread_id else {}
         try:
-            await m.bot.send_message(m.chat.id, text, parse_mode="HTML", reply_markup=markup,
-                                     reply_parameters=ReplyParameters(message_id=anchor_id(m), allow_sending_without_reply=True),   # داخل تعليقات المنشور: نرد على نسخة المنشور
-                                     **kw)
+            sent = await m.bot.send_message(m.chat.id, text, parse_mode="HTML", reply_markup=markup,
+                                            reply_parameters=ReplyParameters(message_id=anchor_id(m), allow_sending_without_reply=True),   # داخل تعليقات المنشور: نرد على نسخة المنشور
+                                            **kw)
         except TelegramAPIError as e:
             log.warning("group reply failed: %s", e)
+            return
+        if expire:                                # تنبيه مؤقت: يُحذف وحده
+            expire_later(m.bot, m.chat.id, sent.message_id, expire)
 
     # ── بناء الجولات ───────────────────────────────────────
     def games_data() -> dict:
@@ -440,6 +460,7 @@ def build_group_router(ctx: Ctx) -> Router:
             await lobby_phase(bot, g)
             if len(g.players) < g.min_players:
                 await edit(bot, g, g.live, t(g.lang, "gp_too_few" if g.min_players > 1 else "gp_nobody_joined", min=g.min_players), None)
+                expire_later(bot, g.chat_id, g.live, NOTICE_SECS)     # اللعبة انتهت: الرسالة تختفي وحدها
                 return
             g.state = "running"
             g.rounds = build_rounds(g.kind, g.lang, g.chat_id)
@@ -470,7 +491,7 @@ def build_group_router(ctx: Ctx) -> Router:
         bot = m.bot
         L = db.group_lang(m.chat.id)
         if not enabled():
-            await reply(m, t(L, "gp_disabled"))
+            await reply(m, t(L, "gp_disabled"), expire=NOTICE_SECS)
             return
         hid, hname = host or identity(m)
         starter = presser or m.from_user
@@ -479,15 +500,15 @@ def build_group_router(ctx: Ctx) -> Router:
         db.touch_group(m.chat.id, m.chat.title)
         cur = games.get(m.chat.id)
         if cur and cur.state != "done":
-            await reply(m, t(L, "gp_busy"))
+            await reply(m, t(L, "gp_busy"), expire=NOTICE_SECS)
             return
         wait = CHAT_COOLDOWN - (time.monotonic() - cooldown.get(m.chat.id, -1e9))
         if wait > 0:
-            await reply(m, t(L, "gp_cooldown", s=int(wait) + 1))
+            await reply(m, t(L, "gp_cooldown", s=int(wait) + 1), expire=NOTICE_SECS)
             return
         w2 = START_COOLDOWN - (time.monotonic() - start_at.get(hid, -1e9))
         if w2 > 0 and not (starter and ctx.is_admin(starter.id)):
-            await reply(m, t(L, "gp_cooldown", s=int(w2) + 1))
+            await reply(m, t(L, "gp_cooldown", s=int(w2) + 1), expire=NOTICE_SECS)
             return
         start_at[hid] = time.monotonic()
         counter[0] += 1
@@ -631,13 +652,13 @@ def build_group_router(ctx: Ctx) -> Router:
         L = db.group_lang(m.chat.id)
         g = games.get(m.chat.id)
         if not g or g.state == "done":
-            await reply(m, t(L, "gp_gone"))
+            await reply(m, t(L, "gp_gone"), expire=NOTICE_SECS)
             return
         uid, _ = identity(m)
         ok = uid == g.host_id or (m.from_user and (m.from_user.id == ANON_ADMIN_ID or await can_control(m.bot, g, m.from_user.id))) \
             or (m.sender_chat is not None and m.sender_chat.id == m.chat.id)
         if not ok:
-            await reply(m, t(L, "gp_host_only"))
+            await reply(m, t(L, "gp_host_only"), expire=NOTICE_SECS)
             return
         if g.task:
             g.task.cancel()
