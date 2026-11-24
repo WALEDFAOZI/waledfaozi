@@ -101,6 +101,7 @@ class Game:
     mayor_revealed: bool = False      # العمدة كشف نفسه: صوته يُحسب مرتين من تلك اللحظة
     gone: bool = False                # الرسالة الحيّة حُذفت: تتوقف اللعبة
     joker_pick: int | None = None     # من سحب المجنون معه بعد طرده
+    joker_uid: int | None = None      # المجنون الذي طُرد (هو الوحيد الذي يختار من يسحبه)
     last_out: int | None = None       # آخر لاعب طُرد بالتصويت (يُذكر في نهاية اللعبة)
     discuss_post: int | None = None   # رقم المنشور في القناة: نجد نسخته في التعليقات ونرد عليها
     vote_deadline: float = 0.0        # نهاية التصويت (يمدّدها المضيف بزر في رسالة اللعبة)
@@ -258,7 +259,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         others = [p for p in alive_players(g) if p.uid != joker_uid]
         if not others or g.gone:
             return
-        g.state, g.joker_pick = "joker", None
+        g.state, g.joker_pick, g.joker_uid = "joker", None, joker_uid
         rows = [[btn(p.name[:24], f"mf:jk:{g.gid}:{p.uid}")] for p in others]
         await show(bot, g, t(L, "mf_joker_out", name=esc(g.players[joker_uid].name), s=60), kb(*rows), status=True)
         deadline = time.monotonic() + 60
@@ -1079,7 +1080,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if not presser:
             await c.answer(t(L, "mf_not_player"), show_alert=True)
             return
-        if not presser.alive or target == presser.uid or target not in g.players or not g.players[target].alive:
+        if presser.uid != g.joker_uid:                  # المجنون (حتى بعد طرده) هو الذي يختار من يسحبه
+            await c.answer(t(L, "mf_not_yours"), show_alert=True)
+            return
+        if target == presser.uid or target not in g.players or not g.players[target].alive:
             await c.answer(t(L, "mf_bad_target"), show_alert=True)
             return
         g.joker_pick = target
