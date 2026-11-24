@@ -251,7 +251,7 @@ def test_answerers_rotate_instead_of_repeating_the_same_person():
     run(go())
 
 
-def test_vote_request_button_appears_from_seventh_question_and_majority_starts_vote():
+def test_vote_request_button_depends_on_player_count_and_majority_starts_vote():
     async def go():
         h = Harness()
         h.db.fast_answer_ratio = lambda sid: 0.0
@@ -266,14 +266,16 @@ def test_vote_request_button_appears_from_seventh_question_and_majority_starts_v
             await gtap(h, u, f"sp:j:{g.gid}")
         await gtap(h, host, f"sp:s:{g.gid}")
         assert await wait_until(lambda: g.state == "play")
-        for r in range(1, 8):
+        # 4 لاعبين: الزر يبدأ من الجولة 8 (جولة لكل لاعب زيادة بعد الثلاثة)
+        assert S.vote_req_from(g) == 8
+        for r in range(1, 9):
             await gtap(h, host, f"sp:n:{g.gid}")
             assert await wait_until(lambda: g.cur is not None and g.question is None and g.round == r)
             await gsay(h, by_id[g.cur[0]], "سؤال؟")
             assert await wait_until(lambda: g.question is not None)
             await gsay(h, by_id[g.cur[1]], "جواب")
             assert await wait_until(lambda: g.answer is not None)
-        # بعد السؤال السابع: الزر ظاهر في رسالة الجولة
+        # في الجولة 8: الزر ظاهر في رسالة الجولة
         markups = [c.reply_markup for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id == GROUP.id]
         assert any("sp:wv:" in str(b.callback_data) for mk in markups[-3:] for row in mk.inline_keyboard for b in row)
         await gtap(h, users[1], f"sp:wv:{g.gid}")            # صوت واحد: لا يكفي من أربعة

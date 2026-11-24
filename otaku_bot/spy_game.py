@@ -35,7 +35,13 @@ log = logging.getLogger(__name__)
 
 MIN_PLAYERS, MAX_PLAYERS = 3, 12
 ROUNDS = 10
-VOTE_REQ_FROM = 7          # من السؤال السابع يظهر زر «نبي التصويت»
+VOTE_REQ_BASE = 7         # زر «نبي التصويت» (التخطي) يظهر من هذه الجولة لـ 3 لاعبين
+VOTE_REQ_MIN_PLAYERS = 3
+
+
+def vote_req_from(g) -> int:
+    """كل لاعب زيادة يؤخّر الزر جولة واحدة (3 لاعبين = الجولة 7، 4 = الجولة 8...)، والحد الأقصى عدد الجولات."""
+    return min(ROUNDS, VOTE_REQ_BASE + max(0, len(g.players) - VOTE_REQ_MIN_PLAYERS))
 EXTRA_MAX = 10
 LOBBY_SECS = 180
 SPY_IDLE_SECS = 900      # بدون أي نشاط لهذه المدة تُغلق اللعبة المتروكة
@@ -266,7 +272,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         an = (g.players[asker].name or "").strip() or "👤"           # اسم فارغ (رموز فقط): لا يترك السطر فارغًا
         tn = (g.players[target].name or "").strip() or "👤"
         rows = [[btn(t(L, "sp_next_btn"), f"sp:n:{g.gid}")]]
-        if g.round >= VOTE_REQ_FROM:                               # من السؤال السابع: زر «نبي التصويت»
+        if g.round >= vote_req_from(g):                            # حسب عدد اللاعبين: زر «نبي التصويت»
             rows.append([btn(t(L, "sp_vote_req_btn"), f"sp:wv:{g.gid}")])
         rows.append([btn(t(L, "sp_end_btn"), f"sp:x:{g.gid}")])    # «إلغاء اللعبة» دائمًا في الجولة
         next_kb = kb(*rows)
@@ -593,7 +599,7 @@ def build_spy_router(ctx: Ctx) -> Router:
     async def cb_want_vote(c: CallbackQuery):
         L = db.group_lang(c.message.chat.id)
         g = get_game(c, int(c.data.split(":")[2]))
-        if not g or g.state != "play" or g.round < VOTE_REQ_FROM or c.from_user.id not in g.players or g.vote_now:
+        if not g or g.state != "play" or g.round < vote_req_from(g) or c.from_user.id not in g.players or g.vote_now:
             await c.answer(t(L, "sp_gone"), show_alert=True)
             return
         g.vote_req.add(c.from_user.id)
