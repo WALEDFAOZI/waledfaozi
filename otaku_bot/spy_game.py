@@ -37,6 +37,7 @@ MIN_PLAYERS, MAX_PLAYERS = 3, 12
 ROUNDS = 10
 EXTRA_MAX = 10
 LOBBY_SECS = 180
+SPY_IDLE_SECS = 900      # بدون أي نشاط لهذه المدة تُغلق اللعبة المتروكة
 NEXT_SECS = 60
 ASK_SECS = 60
 ANSWER_SECS = 60
@@ -77,6 +78,8 @@ class Game:
     question: str | None = None
     answer: str | None = None
     next_go: bool = False
+    last_activity: float = 0.0          # آخر نشاط (سؤال، إجابة، «التالي»، تصويت): لإغلاق اللعبة المتروكة
+    idle: bool = False
     choices: dict = field(default_factory=dict)     # uid -> "vote" | "more"
     votes: dict = field(default_factory=dict)       # uid -> uid مُصوَّت عليه
     tie_pool: list = field(default_factory=list)
@@ -128,6 +131,14 @@ def pick_decoys(char: dict, chars: list[dict], rng: random.Random, n: int) -> li
 
 def normalize(text: str) -> str:
     return re.sub(r"[\s\-_.]+", " ", text.lower()).strip()
+
+
+def touch(g: Game) -> None:
+    g.last_activity = time.monotonic()
+
+
+def is_idle(g: Game) -> bool:
+    return time.monotonic() - g.last_activity > SPY_IDLE_SECS
 
 
 def mentions(text: str, char: dict) -> bool:
@@ -219,16 +230,23 @@ def build_spy_router(ctx: Ctx) -> Router:
         g.cur = (asker, target)
         g.question = g.answer = None
         g.next_go = False
+        touch(g)
         an = (g.players[asker].name or "").strip() or "👤"           # اسم فارغ (رموز فقط): لا يترك السطر فارغًا
         tn = (g.players[target].name or "").strip() or "👤"
         next_kb = kb([btn(t(L, "sp_next_btn"), f"sp:n:{g.gid}")], [btn(t(L, "sp_end_btn"), f"sp:x:{g.gid}")])  # «التالي» و«إلغاء اللعبة» دائمًا في الجولة
         await show(bot, g, t(L, "sp_ask_live", r=g.round, a=esc(an), b=esc(tn)), next_kb)
         while g.question is None and not g.next_go:              # لا عداد: الجولة تنتقل بضغط «التالي»
+            if is_idle(g):
+                g.idle = True
+                return
             await asyncio.sleep(0.5)
         if g.next_go or g.question is None:                 # «التالي» أو انتهى الوقت بلا سؤال: الجولة التالية
             return
         await show(bot, g, t(L, "sp_answer_live", a=esc(an), b=esc(tn)), next_kb)
         while g.answer is None and not g.next_go:
+            if is_idle(g):
+                g.idle = True
+                return
             await asyncio.sleep(0.5)
         # لا رسالة عند انتهاء وقت الإجابة: العداد يكفي، والمضيف يضغط «التالي»
 
@@ -309,6 +327,11 @@ def build_spy_router(ctx: Ctx) -> Router:
                 g.round += 1
                 g.state = "play"                            # الجولة جارية: لا أزرار تصويت الآن
                 await ask_round(bot, g)
+                if g.idle:
+                    break
+            if g.idle:
+                await show(bot, g, t(L, "sp_idle"), None)
+                return
             await voting(bot, g)
         except asyncio.CancelledError:
             await show(bot, g, t(L, "sp_stopped"), None)
@@ -462,8 +485,10 @@ def build_spy_router(ctx: Ctx) -> Router:
             return
         if uid == asker and g.question is None:
             g.question = m.text.strip()[:200]
+            touch(g)
         elif uid == target and g.question is not None and g.answer is None:
             g.answer = m.text.strip()[:200]
+            touch(g)
 
     @cbs.callback_query(F.data.regexp(r"^sp:j:\d+$"))
     async def cb_join(c: CallbackQuery):
@@ -527,6 +552,7 @@ def build_spy_router(ctx: Ctx) -> Router:
             await c.answer(t(L, "sp_host_only"), show_alert=True)
             return
         g.next_go = True
+        touch(g)
         await c.answer()
 
     @cbs.callback_query(F.data.regexp(r"^sp:c:\d+:(vote|more)$"))
@@ -538,6 +564,7 @@ def build_spy_router(ctx: Ctx) -> Router:
             await c.answer(t(L, "sp_gone"), show_alert=True)
             return
         g.choices[c.from_user.id] = choice
+        touch(g)
         await c.answer(t(L, "sp_chosen"))
 
     @cbs.callback_query(F.data.regexp(r"^sp:g:\d+:\d$"))

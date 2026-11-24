@@ -1672,3 +1672,13 @@ T["ar"]["mf_night_comment"] = "🌙 <b>بدأت الليلة {r}…</b>\nالم�
 T["en"]["mf_night_comment"] = "🌙 <b>Night {r} has begun…</b>\nThe mafia are whispering in the dark, and everyone else waits for dawn."
 T["ar"]["mf_no_exec"] = '⚖️ <b>「 لم يُحسم الحكم 」</b>\nالتعادل على الأعلى أصواتًا = لا طرد، فلم يُطرد أحد اليوم.'
 T["en"]["mf_no_exec"] = '⚖️ <b>No verdict</b>\nA tie for the most votes means no elimination, so nobody was voted out today.'
+
+T["ar"]["sp_idle"] = "⏹ أُغلقت اللعبة لأنه ما فيه نشاط من فترة."
+T["en"]["sp_idle"] = "⏹ The game was closed due to inactivity."
+
+T["ar"]["mf_extend_btn"] = "⏱ تمديد التصويت دقيقة"
+T["en"]["mf_extend_btn"] = "⏱ Extend voting 1 min"
+T["ar"]["mf_extended"] = "⏱ تم تمديد التصويت دقيقة."
+T["en"]["mf_extended"] = "⏱ Voting extended by 1 minute."
+T["ar"]["mf_no_discuss_warn"] = "⚠️ البوت ليس عضوًا في مجموعة تعليقات «{ch}»، لذلك لن تظهر تحديثات اللعبة في التعليقات. أضفه إلى مجموعة التعليقات ثم أعد بدء اللعبة."
+T["en"]["mf_no_discuss_warn"] = "⚠️ The bot isn't a member of the comments group of «{ch}», so game updates won't appear in the comments. Add it to the comments group, then start again."

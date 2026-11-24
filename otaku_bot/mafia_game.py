@@ -103,6 +103,7 @@ class Game:
     joker_pick: int | None = None     # من سحب المجنون معه بعد طرده
     last_out: int | None = None       # آخر لاعب طُرد بالتصويت (يُذكر في نهاية اللعبة)
     discuss_post: int | None = None   # رقم المنشور في القناة: نجد نسخته في التعليقات ونرد عليها
+    vote_deadline: float = 0.0        # نهاية التصويت (يمدّدها المضيف بزر في رسالة اللعبة)
     day_markup: object = None
 
 
@@ -458,6 +459,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         # ٢) التصويت: تظهر الأزرار وتبدأ النافذة
         btns = [[btn(f"🗳 {p.name[:22]}", f"mf:v:{g.gid}:{p.uid}")] for p in alive]
         btns.append([btn(t(L, "mf_skip"), f"mf:v:{g.gid}:0")])
+        btns.append([btn(t(L, "mf_extend_btn"), f"mf:xt:{g.gid}")])          # المضيف يمدّد التصويت دقيقة
         g.day_text = t(L, "mf_day_live", r=g.round, s=g.day_secs, names=names(g, True))
         g.day_markup = kb(*btns)
         g.voting = True
@@ -467,12 +469,12 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await ledit(bot, g, g.day_mid, g.day_text, g.day_markup)
         await notify_vote_start(bot, g, alive)
         await notify_mayor(bot, g)
-        deadline = time.monotonic() + g.day_secs
+        g.vote_deadline = time.monotonic() + g.day_secs
         reminded = False
-        while time.monotonic() < deadline and g.state == "day":
+        while time.monotonic() < g.vote_deadline and g.state == "day":
             if all(p.uid in g.votes for p in alive_players(g)):
                 break
-            if not reminded and time.monotonic() > deadline - g.day_secs / 2:
+            if not reminded and time.monotonic() > g.vote_deadline - g.day_secs / 2:
                 reminded = True
                 await remind_vote(bot, g)
             await asyncio.sleep(0.5)
@@ -651,6 +653,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             f"{ICON[p.role]} {esc(p.name)} — {t(L, 'mf_r_' + p.role)}{' ✅' if p.uid in won else ''}"
             for p in g.players.values())
         await show(bot, g, t(L, "mf_end", head=head, reveal=reveal, rounds=g.round), kb(*chan_row(L, bot_link=True)) or None, status=True)
+        await post_discuss(bot, g, head)                    # ملخص النهاية في التعليقات (بدون قائمة الأدوار)
         for p in g.players.values():
             if db.is_admin(p.uid):
                 continue
@@ -1054,6 +1057,20 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.joker_pick = target
         await c.answer()
 
+    @cbs.callback_query(F.data.regexp(r"^mf:xt:\d+$"))
+    async def cb_extend_vote(c: CallbackQuery):
+        """المضيف يمدّد التصويت دقيقة من داخل رسالة اللعبة نفسها."""
+        L = db.group_lang(c.message.chat.id)
+        g = get_game(c, int(c.data.split(":")[2]))
+        if not g or g.state != "day" or not g.voting:
+            await c.answer(t(L, "mf_late"), show_alert=True)
+            return
+        if c.from_user.id != g.host_id and not await can_control(c.bot, g, c.from_user.id):
+            await c.answer(t(L, "mf_host_only"), show_alert=True)
+            return
+        g.vote_deadline += 60
+        await c.answer(t(L, "mf_extended"))
+
     @cbs.callback_query(F.data.regexp(r"^mf:v:\d+:\d+$"))
     async def cb_vote(c: CallbackQuery):
         L = db.group_lang(c.message.chat.id)
@@ -1210,6 +1227,20 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.discuss_line = t(db.group_lang(chat_id), "mf_discuss_line")
         g.discuss_url = url
         g.discuss_post = post_id                                       # نسخة المنشور في التعليقات تصل تلقائيًا للبوت
+        linked = getattr(ch, "linked_chat_id", None)
+        in_discuss = False
+        if linked:
+            try:
+                me = await m.bot.get_me()
+                member = await m.bot.get_chat_member(linked, me.id)
+                in_discuss = member.status in ("member", "administrator", "creator")
+            except TelegramAPIError:
+                in_discuss = False
+        if not in_discuss:                                             # تحذير المضيف في الخاص: التحديثات لن تصل للتعليقات
+            try:
+                await m.bot.send_message(m.from_user.id, t(L, "mf_no_discuss_warn", ch=esc(ch.title or "")), parse_mode="HTML")
+            except TelegramAPIError:
+                pass
         if not await open_lobby(m.bot, g):
             await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
             return

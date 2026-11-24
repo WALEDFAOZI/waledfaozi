@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from aiogram import Bot, F, Router
 from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command, CommandStart
-from aiogram.types import BufferedInputFile, CallbackQuery, Message
+from aiogram.types import BufferedInputFile, CallbackQuery, Message, ReplyParameters
 
 from . import live, ui
 from .resultcard import make_match_card
@@ -89,6 +89,7 @@ class Match:
     chat_id: int | None = None
     mid: int | None = None             # رسالة المجموعة/القناة الحيّة
     inline_id: str | None = None       # رسالة الوضع الداخلي (inline): تُعدَّل بمعرّفها، ولا توجد دردشة
+    photo: bool = False                # رسالة المجموعة/القناة صورة اللافتة مع النص تعليقًا (رسالة واحدة)
 
 
 matches: dict[int, Match] = {}
@@ -203,16 +204,22 @@ def build_arcade_router(ctx: Ctx) -> Router:
     def chat_lang(m: Match) -> str:
         return db.group_lang(m.chat_id) if m.chat_id else L_(m.players[0])
 
+    async def edit_match_message(bot: Bot, m: Match, text: str, markup) -> None:
+        """يعدّل رسالة المباراة: نص، أو تعليق الصورة إن كانت اللافتة معها."""
+        if m.inline_id:
+            target = {"inline_message_id": m.inline_id}
+        else:
+            target = {"chat_id": m.chat_id, "message_id": m.mid}
+        if m.photo and not m.inline_id:
+            await bot.edit_message_caption(caption=text, parse_mode="HTML", reply_markup=markup, **target)
+        else:
+            await bot.edit_message_text(text, parse_mode="HTML", reply_markup=markup, **target)
+
     async def show_chat(bot: Bot, m: Match, lang: str = "ar", markup_override=None) -> None:
         text, markup = render_chat(m, lang)
         try:
-            if m.inline_id:
-                await bot.edit_message_text(text, inline_message_id=m.inline_id, parse_mode="HTML",
-                                            reply_markup=markup_override if markup_override is not None else markup)
-                return
-            if m.mid:
-                await bot.edit_message_text(text, chat_id=m.chat_id, message_id=m.mid, parse_mode="HTML",
-                                            reply_markup=markup_override if markup_override is not None else markup)
+            if m.inline_id or m.mid:
+                await edit_match_message(bot, m, text, markup_override if markup_override is not None else markup)
             else:
                 sent = await bot.send_message(m.chat_id, text, parse_mode="HTML", reply_markup=markup)
                 m.mid = sent.message_id
@@ -257,12 +264,7 @@ def build_arcade_router(ctx: Ctx) -> Router:
             text, _ = render_chat(m, lang)
             body = "\n".join([text.split("\n")[0], summary]) if summary else text
             try:
-                if m.inline_id:
-                    await bot.edit_message_text(body, inline_message_id=m.inline_id, parse_mode="HTML",
-                                                reply_markup=kb([btn(t(lang, "ar_again"), "ar:m")]))
-                else:
-                    await bot.edit_message_text(body, chat_id=m.chat_id, message_id=m.mid, parse_mode="HTML",
-                                                reply_markup=kb([btn(t(lang, "ar_again"), "ar:m")]))
+                await edit_match_message(bot, m, body, kb([btn(t(lang, "ar_again"), "ar:m")]))
             except TelegramAPIError:
                 pass
         else:
@@ -460,16 +462,22 @@ def build_arcade_router(ctx: Ctx) -> Router:
     async def cb_noop(c: CallbackQuery):
         await c.answer(t(L_(c.from_user.id), "ar_not_now"))
 
-    async def chat_create(bot: Bot, chat_id: int, kind: str, starter: int | None, starter_name: str) -> None:
+    async def chat_create(bot: Bot, chat_id: int, kind: str, starter: int | None, starter_name: str,
+                          reply_to: ReplyParameters | None = None) -> None:
         counter[0] += 1
         m = Match(gid=counter[0], kind=kind, players=[], names={}, scope="c", chat_id=chat_id, state="join")
         m.board = [None] * 9 if kind == "xo" else [[None] * C4_COLS for _ in range(C4_ROWS)]
         matches[m.gid] = m
-        try:                                                   # لافتة اللعبة قبل الرسالة الحيّة
-            lang = db.group_lang(chat_id)
-            await bot.send_photo(chat_id, await live.banner_media(lang, kind))
+        lang = db.group_lang(chat_id)
+        text, markup = render_chat(m, lang)
+        try:                                                   # اللافتة والنص في رسالة واحدة (الصورة تعليقها النص)
+            sent = await bot.send_photo(chat_id, await live.banner_media(lang, kind), caption=text,
+                                        parse_mode="HTML", reply_markup=markup, reply_parameters=reply_to)
+            m.mid, m.photo = sent.message_id, True
         except (TelegramAPIError, Exception):  # noqa: BLE001
             log.warning("arcade: banner not sent for %s", kind)
+            sent = await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup, reply_parameters=reply_to)
+            m.mid = sent.message_id
         if starter is not None:
             m.players.append(starter)
             m.names[starter] = starter_name
@@ -480,7 +488,8 @@ def build_arcade_router(ctx: Ctx) -> Router:
     async def cmd_chat(msg: Message):
         kind = msg.text.split()[0].lstrip("/").split("@")[0]
         kind = {"xo": "xo", "rps": "rps", "c4": "c4"}.get(kind, "xo")
-        await chat_create(msg.bot, msg.chat.id, kind, msg.from_user.id, msg.from_user.full_name)
+        await chat_create(msg.bot, msg.chat.id, kind, msg.from_user.id, msg.from_user.full_name,
+                          reply_to=ReplyParameters(message_id=msg.message_id, allow_sending_without_reply=True))
 
     @r.channel_post(Command("xo", "rps", "c4"))
     async def cmd_channel(msg: Message):

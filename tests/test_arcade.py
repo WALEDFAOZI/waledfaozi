@@ -100,8 +100,8 @@ def test_group_xo_two_players_join_and_play_on_one_message():
         await h.tap(a, f"ar:x:{m.gid}:2")                        # علي يكمل الصف الأول
         assert m.state == "done" or not A.matches
         assert not A.user_match
-        edits = [c for c in h.session.calls if type(c).__name__ == "EditMessageText" and c.chat_id == GROUP.id]
-        assert any("فاز" in (c.text or "") for c in edits)
+        edits = [c for c in h.session.calls if type(c).__name__ in ("EditMessageText", "EditMessageCaption") and c.chat_id == GROUP.id]
+        assert any("فاز" in (getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in edits)
     run(go())
 
 
