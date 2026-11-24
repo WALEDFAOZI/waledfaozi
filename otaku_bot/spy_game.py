@@ -292,11 +292,16 @@ def build_spy_router(ctx: Ctx) -> Router:
         L = g.lang
         await post(bot, g, t(L, "sp_choose_live", n=len(g.players), extra=g.extra, max=EXTRA_MAX),
                    kb([btn(t(L, "sp_vote_btn"), f"sp:c:{g.gid}:vote"), btn(t(L, "sp_more_btn"), f"sp:c:{g.gid}:more")]), transient=True)
+        n = len(g.players)
+
+        def decided() -> bool:                                     # الأغلبية حسمت: لا ننتظر الباقين
+            votes = sum(1 for c in g.choices.values() if c == "vote")
+            return votes * 2 > n or (len(g.choices) - votes) * 2 >= n
         end = time.monotonic() + VOTE_SECS
-        while time.monotonic() < end and len(g.choices) < len(g.players):
+        while time.monotonic() < end and not decided() and len(g.choices) < n:
             await asyncio.sleep(0.5)
         votes = sum(1 for c in g.choices.values() if c == "vote")
-        return votes * 2 > len(g.players)
+        return votes * 2 > n
 
     async def dm_votes(bot: Bot, g: Game, candidates: list[int], secs: int) -> bool:
         """يرسل التصويت في الخاص لكل لاعب (يصوّت على المرشحين عدا نفسه). False إن فشل إرسال لأحدهم."""
