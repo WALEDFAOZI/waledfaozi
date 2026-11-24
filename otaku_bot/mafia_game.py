@@ -337,7 +337,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
 
     def config_text(g: Game) -> str:
         L = g.lang
-        return "\n".join([t(L, "mf_cfg_title"), "", roles_line(g, L), "", t(L, "mf_cfg_hint")])
+        head = [t(L, "mf_post_started", link=g.discuss_url), ""] if (g.scope == "channel" and g.discuss_url) else []
+        return "\n".join(head + [t(L, "mf_cfg_title"), "", roles_line(g, L), "", t(L, "mf_cfg_hint")])
 
     # حدود الأوقات (ثانية) وخطوة التعديل لكل مرحلة
     TIMES = {"lobby": (30, 600, 30), "night": (15, 300, 15), "discuss": (30, 600, 30), "day": (15, 300, 15)}
@@ -1261,7 +1262,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if not await open_lobby(m.bot, g):
             await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
             return
-        await m.answer(t(L, "mf_post_started", link=url), parse_mode="HTML")
+        if not g.cfg_msg:                                              # إعدادات المضيف تحمل رابط النقاش؛ إن تعذّر إرسالها نرسل الرابط وحده
+            await m.answer(t(L, "mf_post_started", link=url), parse_mode="HTML")
 
     @pm.callback_query(F.data.regexp(r"^mf:cc:-?\d+$"))
     async def cb_start_in_channel(c: CallbackQuery):
