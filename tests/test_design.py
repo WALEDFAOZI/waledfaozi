@@ -150,3 +150,15 @@ def test_welcome_uses_first_name_escaped_in_every_entry_point():
         from otaku_bot.texts import t
         assert "{name}" not in t("ar", "welcome", name="X") and "X" in t("en", "welcome", name="X")
     run(go())
+
+
+def test_add_bot_button_sends_group_and_channel_links_with_rights():
+    async def go():
+        h = Harness()
+        u = h.user(7, "Ali")
+        await h.tap(u, "ab:add")
+        msg = [c for c in h.session.calls if type(c).__name__ == "SendMessage"][-1]
+        urls = [b.url for row in msg.reply_markup.inline_keyboard for b in row if b.url]
+        assert any("startgroup=play&admin=delete_messages+pin_messages+invite_users" in x for x in urls)
+        assert any("startchannel=play&admin=post_messages+edit_messages+delete_messages" in x for x in urls)
+    run(go())
