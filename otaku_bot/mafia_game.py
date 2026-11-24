@@ -1247,6 +1247,10 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.discuss_url = url
         g.discuss_post = post_id                                       # نسخة المنشور في التعليقات تصل تلقائيًا للبوت
         linked = getattr(ch, "linked_chat_id", None)
+        if linked and (chat_id, post_id) not in POST_ROOT:
+            # ما وصلت نسخة المنشور التلقائية بعد: نرد على التعليق الذي أرسله المضيف (داخل خيط المنشور نفسه).
+            # نسخة المنشور الحقيقية (إن وصلت لاحقًا) تستبدله تلقائيًا في on_post_copy.
+            POST_ROOT[(chat_id, post_id)] = (linked, comment_id)
         in_discuss = False
         if linked:
             try:
