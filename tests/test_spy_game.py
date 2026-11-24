@@ -187,3 +187,36 @@ def test_vote_prompt_after_each_round_and_forced_vote_at_the_cap():
         finally:
             S.ROUNDS, S.EXTRA_MAX = old
     run(go())
+
+
+def test_each_round_is_a_new_message_and_old_buttons_are_removed():
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 5)]
+        by_id = {u.id: u for u in users}
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        host = users[0]
+        await gcmd(h, host, "/spy", 11)
+        g = S.games[GROUP.id]
+        for u in users[1:]:
+            await gtap(h, u, f"sp:j:{g.gid}")
+        await gtap(h, host, f"sp:s:{g.gid}")
+        assert await wait_until(lambda: g.state == "play")
+        ask_ids = []
+        for r in (1, 2):
+            await gtap(h, host, f"sp:n:{g.gid}")
+            assert await wait_until(lambda: g.cur is not None and g.question is None and g.round == r)
+            ask_ids.append(g.live)
+            if r == 1:
+                first = g.live
+            await gsay(h, by_id[g.cur[0]], "سؤال؟")
+            assert await wait_until(lambda: g.question is not None)
+            await gsay(h, by_id[g.cur[1]], "جواب")
+            assert await wait_until(lambda: g.answer is not None)
+        assert len(set(ask_ids)) == 2 and all(ask_ids)                     # كل جولة رسالة جديدة، لا تعديل للأولى
+        stripped = [c for c in h.session.calls if type(c).__name__ == "EditMessageReplyMarkup"
+                    and c.chat_id == GROUP.id and c.message_id == first and c.reply_markup is None]
+        assert stripped                                                    # أزرار الجولة الأولى أُزيلت
+    run(go())

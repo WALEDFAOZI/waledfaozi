@@ -169,6 +169,24 @@ def build_spy_router(ctx: Ctx) -> Router:
             return
         await live.edit(bot, g.chat_id, g.live, text, markup)
 
+    async def post(bot: Bot, g: Game, text: str, markup=None) -> None:
+        """مرحلة جديدة = رسالة جديدة تحت، فلا تبقى الحالة الأولى فوق. أزرار الرسالة السابقة تُزال كي لا تُضغط بالغلط."""
+        if g.live is not None:
+            try:
+                await bot.edit_message_reply_markup(chat_id=g.chat_id, message_id=g.live, reply_markup=None)
+            except TelegramAPIError:
+                pass
+        kw = {"reply_markup": markup}
+        if g.reply_to:
+            kw["reply_parameters"] = ReplyParameters(message_id=g.reply_to, allow_sending_without_reply=True)
+        if g.thread:
+            kw["message_thread_id"] = g.thread
+        try:
+            sent = await bot.send_message(g.chat_id, text, parse_mode="HTML", **kw)
+            g.live = sent.message_id
+        except TelegramAPIError:
+            g.live = None                                       # يحاول show() إرسال رسالة جديدة في المرة القادمة
+
     async def dm(bot: Bot, uid: int, text: str, markup=None) -> bool:
         try:
             await bot.send_message(uid, text, parse_mode="HTML", protect_content=True, reply_markup=markup)
@@ -234,7 +252,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         an = (g.players[asker].name or "").strip() or "👤"           # اسم فارغ (رموز فقط): لا يترك السطر فارغًا
         tn = (g.players[target].name or "").strip() or "👤"
         next_kb = kb([btn(t(L, "sp_next_btn"), f"sp:n:{g.gid}")], [btn(t(L, "sp_end_btn"), f"sp:x:{g.gid}")])  # «التالي» و«إلغاء اللعبة» دائمًا في الجولة
-        await show(bot, g, t(L, "sp_ask_live", r=g.round, a=esc(an), b=esc(tn)), next_kb)
+        await post(bot, g, t(L, "sp_ask_live", r=g.round, a=esc(an), b=esc(tn)), next_kb)
         while g.question is None and not g.next_go:              # لا عداد: الجولة تنتقل بضغط «التالي»
             if is_idle(g):
                 g.idle = True
@@ -242,7 +260,7 @@ def build_spy_router(ctx: Ctx) -> Router:
             await asyncio.sleep(0.5)
         if g.next_go or g.question is None:                 # «التالي» أو انتهى الوقت بلا سؤال: الجولة التالية
             return
-        await show(bot, g, t(L, "sp_answer_live", a=esc(an), b=esc(tn)), next_kb)
+        await post(bot, g, t(L, "sp_answer_live", a=esc(an), b=esc(tn)), next_kb)
         while g.answer is None and not g.next_go:
             if is_idle(g):
                 g.idle = True
@@ -254,7 +272,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         """بعد الجولة العاشرة (والإضافية): هل يصوّتون أم يكملون؟ يرجع True للتصويت."""
         g.state, g.choices = "choose", {}
         L = g.lang
-        await show(bot, g, t(L, "sp_choose_live", n=len(g.players), extra=g.extra, max=EXTRA_MAX),
+        await post(bot, g, t(L, "sp_choose_live", n=len(g.players), extra=g.extra, max=EXTRA_MAX),
                    kb([btn(t(L, "sp_vote_btn"), f"sp:c:{g.gid}:vote"), btn(t(L, "sp_more_btn"), f"sp:c:{g.gid}:more")]))
         end = time.monotonic() + VOTE_SECS
         while time.monotonic() < end and len(g.choices) < len(g.players):
@@ -348,7 +366,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         L = g.lang
         g.state = "vote"
         uids = list(g.players)
-        await show(bot, g, t(L, "sp_vote_dm_live"), kb(*await open_private_rows(bot, L)))
+        await post(bot, g, t(L, "sp_vote_dm_live"), kb(*await open_private_rows(bot, L)))
         if not await dm_votes(bot, g, uids, VOTE_SECS):
             await finish(bot, g, winner="outsider", guessed=None)      # تعذّر إرسال التصويت لأحدهم
             return
@@ -356,7 +374,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         if len(picks) != 1:                                  # تعادل أو لا أصوات: إعادة تصويت واحدة
             if not picks:
                 picks = uids
-            await show(bot, g, t(L, "sp_revote_live"), kb(*await open_private_rows(bot, L)))
+            await post(bot, g, t(L, "sp_revote_live"), kb(*await open_private_rows(bot, L)))
             await dm_votes(bot, g, picks, REVOTE_SECS)
             picks = tally(g)
             if len(picks) != 1:
@@ -368,12 +386,12 @@ def build_spy_router(ctx: Ctx) -> Router:
             await finish(bot, g, winner="outsider", guessed=None)
             return
         g.caught = caught
-        await show(bot, g, t(L, "sp_caught", name=esc(g.players[caught].name), s=GUESS_SECS), None)
+        await post(bot, g, t(L, "sp_caught", name=esc(g.players[caught].name), s=GUESS_SECS), None)
         opts = [g.char] + g.decoys
         rng.shuffle(opts)
         g.state = "guess"
         g.guess_opts = opts
-        await show(bot, g, t(L, "sp_guess_live", name=esc(g.players[caught].name), s=GUESS_SECS), kb(
+        await post(bot, g, t(L, "sp_guess_live", name=esc(g.players[caught].name), s=GUESS_SECS), kb(
             *[[btn(loc(o["en"], L)[:40], f"sp:g:{g.gid}:{i}")] for i, o in enumerate(opts)]))
         end = time.monotonic() + GUESS_SECS
         while time.monotonic() < end and g.guessed is None:
@@ -399,7 +417,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         ]
         if guessed:
             lines.append(t(L, "sp_guessed", g=esc(loc(guessed, L))))
-        await show(bot, g, "\n".join(lines), kb(*chan_row(L, bot_link=True)) or None)
+        await post(bot, g, "\n".join(lines), kb(*chan_row(L, bot_link=True)) or None)
         for p in g.players.values():
             if db.is_admin(p.uid):
                 continue
