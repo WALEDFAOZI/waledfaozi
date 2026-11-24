@@ -223,3 +223,4 @@ def test_killers_are_told_who_their_fellow_killers_are():
     from otaku_bot import texts
     txt = texts.t("ar", "mo_killer_mates", names="أحمد")
     assert "أحمد" in txt and "القتلة" in txt
+
