@@ -1351,6 +1351,8 @@ class DB:
             "joined": one("SELECT COUNT(DISTINCT tg_id) FROM events WHERE kind='gate_joined'"),
             "prompted_7d": one("SELECT COUNT(DISTINCT tg_id) FROM events WHERE kind='gate_prompt' AND ts>=?", week),
             "joined_7d": one("SELECT COUNT(DISTINCT tg_id) FROM events WHERE kind='gate_joined' AND ts>=?", week),
+            "via_link": one("SELECT COUNT(DISTINCT tg_id) FROM events WHERE kind='gate_link_join'"),
+            "via_link_7d": one("SELECT COUNT(DISTINCT tg_id) FROM events WHERE kind='gate_link_join' AND ts>=?", week),
         }
 
     # ── إحصائيات الأدمن ─────────────────────────────────────

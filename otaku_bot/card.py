@@ -6,8 +6,11 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 import re
+import threading
+from collections import OrderedDict
 
 from .art import BLACK, PAPER, S, Canvas, find_font, has_jp
 from .config import CATEGORY_LABELS, CATEGORY_LABELS_EN
@@ -152,8 +155,30 @@ def make_card(name: str, score: float, title: str, percentile: float | None,
     return c.jpeg()
 
 
+# تخزين مؤقت لبطاقة الملف الشخصي: نفس البيانات = نفس الصورة، فلا نعيد الرسم كل مرة يفتح فيها اللاعب ملفه.
+_PROFILE_CACHE: "OrderedDict[str, bytes]" = OrderedDict()
+_PROFILE_CACHE_MAX = 64
+_PROFILE_LOCK = threading.Lock()
+
+
 def make_profile_card(p: dict, title: str, lang: str = "ar", handle: str = "@Otaku1GalaxyBot") -> bytes:
-    """بطاقة الملف الشخصي."""
+    """بطاقة الملف الشخصي (مخزّنة بعد أول رسم، والأقدم تُحذف عند الامتلاء)."""
+    key = hashlib.sha1(json.dumps([p, title, lang, handle], sort_keys=True, ensure_ascii=False,
+                                  default=str).encode("utf-8")).hexdigest()
+    with _PROFILE_LOCK:
+        if key in _PROFILE_CACHE:
+            _PROFILE_CACHE.move_to_end(key)
+            return _PROFILE_CACHE[key]
+    png = _render_profile_card(p, title, lang, handle)
+    with _PROFILE_LOCK:
+        _PROFILE_CACHE[key] = png
+        while len(_PROFILE_CACHE) > _PROFILE_CACHE_MAX:
+            _PROFILE_CACHE.popitem(last=False)
+    return png
+
+
+def _render_profile_card(p: dict, title: str, lang: str = "ar", handle: str = "@Otaku1GalaxyBot") -> bytes:
+    """رسم بطاقة الملف الشخصي."""
     _need_font()
     en = lang == "en"
     best = float(p.get("best") or 0)

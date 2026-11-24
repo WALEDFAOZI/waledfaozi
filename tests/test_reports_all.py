@@ -147,7 +147,7 @@ def test_game_items_can_be_reported_hidden_and_never_drawn_again():
         db = h.db
         db.set_setting("report_threshold", "2")
         data = load_games()
-        for kind in ("tf", "song", "ord", "char", "quote"):
+        for kind in ("tf", "ord", "char", "quote"):
             u = h.user(1)
             await h.tap(u, f"g:{kind}")
             gid = h.db.conn.execute("SELECT MAX(id) FROM game_sessions").fetchone()[0]

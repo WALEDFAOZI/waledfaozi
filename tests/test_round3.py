@@ -263,3 +263,16 @@ def test_menu_has_profile_button_and_help_mentions_stop():
         await h.say(h.user(1), "/help")
         assert "/stop" in h.session.texts()[-1] and "/profile" in h.session.texts()[-1]
     run(go())
+
+
+def test_profile_card_is_cached_by_content_and_bounded():
+    from otaku_bot import card
+    card._PROFILE_CACHE.clear()
+    p = {"name": "Cache", "best": 5.5, "tests": 1, "sudden": 0, "rank": 2, "weekly_rank": None, "answers": 10,
+         "correct": 5, "cats": [], "games": {}}
+    a = card.make_profile_card(p, "T", "ar")
+    assert card.make_profile_card(dict(p), "T", "ar") is a          # نفس المحتوى: نفس الكائن من الذاكرة
+    assert card.make_profile_card(dict(p, best=6.0), "T", "ar") != a  # تغيّر البيانات: صورة جديدة
+    for i in range(card._PROFILE_CACHE_MAX + 5):
+        card.make_profile_card(dict(p, answers=1000 + i), "T", "ar")
+    assert len(card._PROFILE_CACHE) == card._PROFILE_CACHE_MAX

@@ -20,8 +20,9 @@ def test_inline_mode_offers_a_challenge_for_anyone_and_a_result_when_played():
         answers = [c for c in h.session.calls if type(c).__name__ == "AnswerInlineQuery"]
         assert answers, "لم يُرد البوت على الاستعلام المضمّن"
         res = answers[-1].results
-        assert [r.id for r in res] == ["c"]                     # لم يلعب بعد: التحدي فقط
-        assert res[0].reply_markup.inline_keyboard[0][0].url.endswith("?start=inv_31")
+        ids = [r.id for r in res]                               # مقالات الألعاب أولًا، والتحدي في الآخر
+        assert ids[-1] == "c" and "r" not in ids                # لم يلعب بعد: التحدي فقط
+        assert res[-1].reply_markup.inline_keyboard[0][0].url.endswith("?start=inv_31")
     asyncio.run(go())
 
 
@@ -33,9 +34,10 @@ def test_inline_result_hides_name_for_hidden_players():
         h.db.conn.commit()
         await h.dp.feed_update(h.bot, Update(update_id=902, inline_query=_inline(32, "Secret")))
         res = [c for c in h.session.calls if type(c).__name__ == "AnswerInlineQuery"][-1].results
-        assert [r.id for r in res] == ["c", "r"]
-        assert "Secret" not in res[1].input_message_content.message_text
-        assert "مجهول" in res[1].input_message_content.message_text and "8.0/10" in res[1].input_message_content.message_text
+        assert [r.id for r in res][-2:] == ["c", "r"]           # مقالات الألعاب تسبقهما
+        c_res, r_res = res[-2], res[-1]
+        assert "Secret" not in r_res.input_message_content.message_text
+        assert "مجهول" in r_res.input_message_content.message_text and "8.0/10" in r_res.input_message_content.message_text
     asyncio.run(go())
 
 

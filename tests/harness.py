@@ -96,6 +96,11 @@ class FakeSession(BaseSession):
             return self.channel_count
         if isinstance(method, GetMe):
             return User(id=999, is_bot=True, first_name="bot", username="otaku_test_bot")
+        if type(method).__name__ == "CreateChatInviteLink":
+            from aiogram.types import ChatInviteLink
+            self.invite_n = getattr(self, "invite_n", 0) + 1
+            return ChatInviteLink(invite_link=f"https://t.me/+TESTLINK{self.invite_n}", creator=User(
+                id=999, is_bot=True, first_name="bot"), creates_join_request=False, is_primary=False, is_revoked=False)
         return True
 
     def texts(self):

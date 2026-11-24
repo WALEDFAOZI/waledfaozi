@@ -150,7 +150,7 @@ def test_rankings_choose_period_then_game_type_and_hide_admin():
         await h.tap(u, "lb:menu")                                    # 1) اختيار المدة فقط
         assert {"lb:P:a", "lb:P:w", "lb:P:d"} <= cbs() and "lb:B:a:tf" not in cbs()
         await h.tap(u, "lb:P:a")                                     # 2) أنواع الألعاب داخل المدة
-        assert {"lb:B:a:q", "lb:B:a:s", "lb:B:a:tf", "lb:B:a:song", "lb:B:a:char"} <= cbs() and "lb:B:a:dc" not in cbs()
+        assert {"lb:B:a:q", "lb:B:a:s", "lb:B:a:tf", "lb:B:a:char"} <= cbs() and "lb:B:a:dc" not in cbs() and "lb:B:a:song" not in cbs()   # لعبة «من الأغنية» أُلغيت
         await h.tap(u, "lb:B:a:tf")                                  # 3) اللوحة
         assert "Ali" in last_text() and "Bob" in last_text() and "Owner" not in last_text()
         await h.tap(u, "lb:B:d:tf")                                  # اليوم: من لعب اليوم فقط

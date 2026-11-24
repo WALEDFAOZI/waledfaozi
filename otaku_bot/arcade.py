@@ -90,8 +90,10 @@ class Match:
     mid: int | None = None             # رسالة المجموعة/القناة الحيّة
     inline_id: str | None = None       # رسالة الوضع الداخلي (inline): تُعدَّل بمعرّفها، ولا توجد دردشة
     photo: bool = False                # رسالة المجموعة/القناة صورة اللافتة مع النص تعليقًا (رسالة واحدة)
+    seq: int = 0                       # رقم النوبة الحالية: يتغيّر مع كل حركة، ويلغي تذكيرات النوبة السابقة
 
 
+REMIND_SECS = 90                       # بعد هذه المدة بلا حركة يُذكَّر من عليه الدور
 matches: dict[int, Match] = {}
 user_match: dict[int, int] = {}
 queue: dict[str, list[int]] = {k: [] for k in KINDS}
@@ -105,6 +107,8 @@ def build_arcade_router(ctx: Ctx) -> Router:
 
     def L_(uid: int) -> str:
         return db.get_lang(uid)
+
+    reminders: set[asyncio.Task] = set()     # مراجع المهام كي لا تُجمع قبل انتهائها
 
     def new_match(kind: str, a: int, b: int, names: dict) -> Match:
         counter[0] += 1
@@ -226,7 +230,37 @@ def build_arcade_router(ctx: Ctx) -> Router:
         except TelegramAPIError:
             log.warning("arcade: cannot update chat message for match %s", m.gid)
 
+    def waiting_for(m: Match) -> list[int]:
+        """من عليه الدور الآن (xo/c4: لاعب واحد، rps: من لم يختر بعد)."""
+        if m.kind == "rps":
+            return [uid for uid in m.players if uid not in m.picks]
+        return [m.players[m.turn]]
+
+    async def remind_later(bot: Bot, gid: int, seq: int) -> None:
+        await asyncio.sleep(REMIND_SECS)
+        m = matches.get(gid)
+        if not m or m.seq != seq or m.state != "play":
+            return                                   # تغيّرت النوبة أو انتهت اللعبة
+        for uid in waiting_for(m):
+            text = t(L_(uid), "ar_turn_remind", name=esc(m.names.get(uid, "?")))
+            try:
+                if m.scope == "c" and m.chat_id:
+                    await bot.send_message(m.chat_id, text, parse_mode="HTML")
+                else:
+                    await bot.send_message(uid, text, parse_mode="HTML")
+            except TelegramAPIError:
+                pass
+        # تذكير واحد لكل نوبة؛ لا نكرر حتى تتحرك اللعبة
+
+    def schedule_remind(bot: Bot, m: Match) -> None:
+        m.seq += 1
+        task = asyncio.create_task(remind_later(bot, m.gid, m.seq))
+        reminders.add(task)
+        task.add_done_callback(reminders.discard)
+
     async def show_all(bot: Bot, m: Match) -> None:
+        if m.state == "play":
+            schedule_remind(bot, m)
         if m.scope == "c":
             await show_chat(bot, m)
             return

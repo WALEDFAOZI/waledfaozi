@@ -63,6 +63,7 @@ def growth_text(ctx: Ctx) -> str:
         lines.append("  لا يوجد قياس بعد (البوت لازم يكون أدمن في القناة ليقرأ عدد المشتركين).")
     lines.append(f"  طُلب منهم الاشتراك عبر البوت: {f['prompted']} ← اشتركوا بعدها: <b>{f['joined']}</b> ({_pct(f['joined'], f['prompted'])})"
                  f" · آخر 7 أيام: {f['joined_7d']} من {f['prompted_7d']}")
+    lines.append(f"  دخلوا القناة عبر رابط الدعوة الخاص: <b>{f['via_link']}</b> · آخر 7 أيام: {f['via_link_7d']}")
     return "\n".join(lines)
 
 

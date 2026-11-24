@@ -154,3 +154,30 @@ def test_group_menu_starts_two_player_game_in_the_group_and_private_menu_lists_i
         assert ms[0].chat_id == GROUP.id
     run(go())
 
+
+
+def test_turn_reminder_goes_to_the_player_whose_turn_it_is_and_resets_on_move():
+    async def go():
+        A.queue["xo"].clear(); A.matches.clear(); A.user_match.clear()
+        old = A.REMIND_SECS
+        A.REMIND_SECS = 0.2
+        try:
+            h = Harness()
+            h.db.fast_answer_ratio = lambda sid: 0.0
+            a, b = h.user(31, "Ali"), h.user(32, "Bob")
+            for u in (a, b):
+                h.db.upsert_user(u.id, u.first_name)
+            await h.tap(a, "ar:q:xo")
+            await h.tap(b, "ar:q:xo")
+            m = next(iter(A.matches.values()))
+            waiting = m.players[m.turn]
+            await asyncio.sleep(0.05)
+            await h.tap(h.user(waiting, "w"), "ar:x:%d:0" % m.gid)  # يلعب قبل التذكير: تُلغى تذكيرات النوبة السابقة
+            other = m.players[m.turn]
+            await asyncio.sleep(0.3)                                 # انتهت مهلة النوبة الجديدة
+            reminders = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and "دورك في اللعبة" in c.text]
+            assert [c.chat_id for c in reminders] == [other]
+            assert all(c.chat_id != waiting for c in reminders)
+        finally:
+            A.REMIND_SECS = old
+    asyncio.run(go())

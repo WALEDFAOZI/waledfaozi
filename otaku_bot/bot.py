@@ -16,7 +16,7 @@ from aiogram.types import (BufferedInputFile, CallbackQuery, ChatMemberUpdated, 
                            InlineKeyboardMarkup, InlineQuery, InlineQueryResultArticle, InputMediaPhoto,
                            InputTextMessageContent, Message)
 
-from . import board, card, leave_nudge, progress, ties
+from . import board, card, gate_link, leave_nudge, progress, ties
 from .config import LEVELS, ROOT
 from .ctx import Ctx
 from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
@@ -219,6 +219,7 @@ def build_router(ctx: Ctx) -> Router:
     async def on_channel_member(ev: ChatMemberUpdated, bot: Bot):
         """من خرج من القناة الإلزامية يصله تذكير خاص واحد (إن كان قد بدأ البوت)."""
         await leave_nudge.on_channel_change(ev, bot, db, ctx.channel())
+        gate_link.on_join(ev, db, ctx.channel())               # من دخل عبر رابط الدعوة الخاص بالاشتراك الإجباري
     timers: dict[tuple[int, int], asyncio.Task] = {}
     sub_ok: dict[int, float] = {}      # من ثبت اشتراكه: لا نسأل تليجرام عنه ثانية قبل 30 ثانية (توازن بين السرعة وكشف من غادر القناة)
     me_cache: dict[str, str] = {}
@@ -286,7 +287,7 @@ def build_router(ctx: Ctx) -> Router:
             ch = ctx.channel()
             await bot.send_message(
                 chat_id, t(L, "sub_required", ch=esc(ch)), parse_mode="HTML",
-                reply_markup=kb([btn(t(L, "btn_subscribe"), url=f"https://t.me/{ch.lstrip('@')}")],
+                reply_markup=kb([btn(t(L, "btn_subscribe"), url=await gate_link.invite_url(bot, db, ch))],
                                 [btn(t(L, "btn_checked"), "chk")]))
         return False
 
@@ -1070,7 +1071,8 @@ def build_router(ctx: Ctx) -> Router:
         if not ch:
             await m.answer("الاشتراك الإجباري معطّل (REQUIRED_CHANNEL فارغ).")
             return
-        lines = [f"القناة المطلوبة: {ch}"]
+        lines = [f"القناة المطلوبة: {ch}",
+                 f"رابط الدعوة الخاص (للإحصائيات): {await gate_link.invite_url(m.bot, db, ch)}"]
         me = await m.bot.get_me()
         try:
             b = await m.bot.get_chat_member(ch, me.id)

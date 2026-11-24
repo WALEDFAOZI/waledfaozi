@@ -78,7 +78,7 @@ def test_start_sends_banner_with_menu_caches_file_id_and_falls_back():
         m = last_menu_call(h)
         assert type(m).__name__ == "SendPhoto" and "يا هلا والله Waled!" in m.caption
         data = {b.callback_data for row in m.reply_markup.inline_keyboard for b in row}
-        assert {"go", "qk", "m:games", "pf"} <= data
+        assert {"go", "m:games", "pf"} <= data and "qk" not in data   # زر «اختبار سريع» أُلغي بطلب المستخدم
         # معرّف صورة مخزَّن: لا نرفع الملف ثانية
         from otaku_bot.config import ROOT as _R
         bkey = f"banner_fid_ar_{(_R / 'assets' / 'banner.jpg').stat().st_size}"
