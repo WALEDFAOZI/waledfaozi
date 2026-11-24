@@ -110,7 +110,7 @@ def test_full_game_roles_night_day_and_result():
         assert await wait_until(lambda: g.state == "done"), g.state
         texts = group_texts(h)
         assert any("فاز المواطنون" in x for x in texts)
-        assert any("الأدوار" in x for x in texts)
+        assert any("🔪" in x and "🧑" in x for x in texts)   # النتيجة: العنوان ثم الأدوار مباشرة
         assert len(h.db.conn.execute("SELECT 1 FROM group_results WHERE chat_id=?", (GROUP.id,)).fetchall()) >= 5
         assert GROUP.id not in MG.games
     run(go())

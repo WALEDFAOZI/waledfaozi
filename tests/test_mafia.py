@@ -103,9 +103,9 @@ def test_strike_targets_picks_per_killer_and_caps_small_games():
     import random
     rng = random.Random(1)
     big = {1, 2, 3, 4, 5, 6}
-    # 6 أحياء أو أكثر: كل هدف مختار يُضرب
-    assert M.strike_targets({10: 3, 11: 4}, big | {10, 11}, rng, True) == [3, 4]
-    # أقل من 6: ضربة واحدة (الأكثر اختيارًا)
+    # ممنوع قتل اثنين في الليلة: ضربة واحدة مهما كان عدد الأحياء أو القتلة
+    assert M.strike_targets({10: 3, 11: 4}, big | {10, 11}, rng, True) in ([3], [4])
+    assert M.strike_targets({10: 3, 11: 3}, big | {10, 11}, rng, True) == [3]
     small = {3, 4, 10, 11}                                # 4 أحياء فقط
     assert M.strike_targets({10: 3, 11: 3}, small, rng, True) == [3]
     assert M.strike_targets({10: 3, 11: 4}, small, rng, True) in ([3], [4])

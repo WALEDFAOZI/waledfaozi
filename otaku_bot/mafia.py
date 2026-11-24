@@ -131,27 +131,22 @@ def resolve_night(roles: dict[int, str], alive: set[int], night: Night) -> Resul
     return Result(victim=victims[0] if victims else None, victims=victims, saved=saved, detective=det)
 
 
-DOUBLE_STRIKE_MIN_ALIVE = 6   # الضربة المزدوجة تبدأ عند 6 أحياء أو أكثر
-
-
 def strike_targets(picks: dict[int, int], alive: set[int], rng: random.Random, killers_alive: bool,
                    pool: list[int] | None = None) -> list[int]:
     """أهداف ضربات الليلة من اختيارات القتلة (من كان حيًّا فقط).
+    القاعدة: ضربة واحدة فقط في الليلة مهما كان عدد القتلة (لا يُقتل اثنان).
     - لا اختيار صالح وفيه قاتل حيّ: يختار البوت هدفًا واحدًا من الـpool.
-    - أقل من 6 أحياء: ضربة واحدة فقط (الأكثر اختيارًا، والتعادل عشوائي).
-    - 6 أحياء أو أكثر: كل هدف مختار يُضرب (الأهداف المكررة ضربة واحدة)."""
+    - الهدف الأكثر اختيارًا من القتلة، والتعادل عشوائي."""
     valid = {k: t for k, t in picks.items() if k in alive and t in alive}
     if not valid:
         if killers_alive and pool:
             return [rng.choice(sorted(pool))]
         return []
-    if len(alive) < DOUBLE_STRIKE_MIN_ALIVE:
-        counts: dict[int, int] = {}
-        for t in valid.values():
-            counts[t] = counts.get(t, 0) + 1
-        top = max(counts.values())
-        return [rng.choice(sorted(u for u, c in counts.items() if c == top))]
-    return sorted(set(valid.values()))
+    counts: dict[int, int] = {}
+    for t in valid.values():
+        counts[t] = counts.get(t, 0) + 1
+    top = max(counts.values())
+    return [rng.choice(sorted(u for u, c in counts.items() if c == top))]
 
 
 def vote(alive: set[int], ballots: dict[int, int], weights: dict[int, int] | None = None) -> int | None:

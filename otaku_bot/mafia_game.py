@@ -671,7 +671,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         reveal = "\n".join(
             f"{ICON[p.role]} {esc(p.name)} — {t(L, 'mf_r_' + p.role)}{' ✅' if p.uid in won else ''}"
             for p in g.players.values())
-        result = t(L, "mf_end", head=head, reveal=reveal, rounds=g.round)
+        # النتيجة: السطر الأول (العنوان) ثم الأدوار مباشرة
+        result = head.split("\n")[0] + "\n\n" + reveal
         await show(bot, g, result, kb(*chan_row(L, bot_link=True)) or None, status=True)
         await post_discuss(bot, g, result)                  # النتيجة كاملة في تعليقات المنشور (انتهت اللعبة، الأدوار تنكشف)
         for p in g.players.values():                        # وكل لاعب يستلمها في الخاص
@@ -1167,7 +1168,12 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 await c.answer(t(L, "mf_bad_target"), show_alert=True)
                 return
         if role == "killer":
+            first = not g.night_picks and sum(1 for q in g.players.values() if q.role == "killer" and q.alive) > 1
             g.night_picks[p.uid] = target
+            if first:                                       # أكثر من قاتل: الفريق يعرف مين اختار أول
+                for q in alive_players(g):
+                    if q.role == "killer" and q.uid != p.uid:
+                        await dm(c.bot, q.uid, t(db.get_lang(q.uid), "mf_first_pick", name=esc(p.name)))
         else:
             g.night_actions[role] = target
             g.acted.add(p.uid)
