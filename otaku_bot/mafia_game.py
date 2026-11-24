@@ -671,8 +671,11 @@ def build_mafia_router(ctx: Ctx) -> Router:
         reveal = "\n".join(
             f"{ICON[p.role]} {esc(p.name)} — {t(L, 'mf_r_' + p.role)}{' ✅' if p.uid in won else ''}"
             for p in g.players.values())
-        await show(bot, g, t(L, "mf_end", head=head, reveal=reveal, rounds=g.round), kb(*chan_row(L, bot_link=True)) or None, status=True)
-        await post_discuss(bot, g, head)                    # ملخص النهاية في التعليقات (بدون قائمة الأدوار)
+        result = t(L, "mf_end", head=head, reveal=reveal, rounds=g.round)
+        await show(bot, g, result, kb(*chan_row(L, bot_link=True)) or None, status=True)
+        await post_discuss(bot, g, result)                  # النتيجة كاملة في تعليقات المنشور (انتهت اللعبة، الأدوار تنكشف)
+        for p in g.players.values():                        # وكل لاعب يستلمها في الخاص
+            await dm(bot, p.uid, result)
         for p in g.players.values():
             if db.is_admin(p.uid):
                 continue
