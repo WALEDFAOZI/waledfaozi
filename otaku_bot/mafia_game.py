@@ -464,6 +464,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.day_text = t(L, "mf_discuss_live", r=g.round, s=g.discuss_secs, names=names(g, True))
         g.day_markup = None
         g.day_mid = await show(bot, g, g.day_text, g.day_markup, status=True)
+        await post_discuss(bot, g, g.day_text)                # النقاش يبدأ: نفس التحديث في تعليقات المنشور
         await notify_discuss_start(bot, g, alive)
         deadline = time.monotonic() + g.discuss_secs
         while time.monotonic() < deadline and g.state == "day" and not g.gone:
@@ -481,6 +482,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await show(bot, g, g.day_text, g.day_markup, status=True)
         else:
             await ledit(bot, g, g.day_mid, g.day_text, g.day_markup)
+        await post_discuss(bot, g, g.day_text)                # بدأ التصويت: يظهر في التعليقات أيضاً
         await notify_vote_start(bot, g, alive)
         await notify_mayor(bot, g)
         g.vote_deadline = time.monotonic() + g.day_secs
@@ -497,6 +499,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if missed:                                          # من لم يصوّت: صوته يُحسب على نفسه (لا يطرد أحدًا)
             names_missed = "، ".join(esc(p.name) for p in missed)
             await show(bot, g, t(L, "mf_self_votes", names=names_missed), None)
+            await post_discuss(bot, g, t(L, "mf_self_votes", names=names_missed))
         tally: dict[int, int] = {}
         skips = 0
         weights = vote_weights(g)
@@ -512,6 +515,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             if skips:
                 lines.append(t(L, "mf_vote_skip", n=skips))
             await show(bot, g, t(L, "mf_vote_results", lines="\n".join(lines)), None)
+            await post_discuss(bot, g, t(L, "mf_vote_results", lines="\n".join(lines)))
         ballots = {v: tgt for v, tgt in g.votes.items() if tgt}
         return M.vote({p.uid for p in alive_players(g)}, ballots, weights)
 
