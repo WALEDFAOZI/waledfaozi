@@ -1570,7 +1570,7 @@ def build_router(ctx: Ctx) -> Router:
         else:
             await bot.send_message(chat_id, t(L, "cancel_nothing"))
 
-    @r.message(Command("stop"))
+    @r.message(Command("stop"), F.chat.type == "private")       # في المجموعات: /stop للألعاب الجارية (group.py)
     async def cmd_stop(m: Message, state: FSMContext):
         await stop_everything(m.bot, m.chat.id, m.from_user.id, state)
 

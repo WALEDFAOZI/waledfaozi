@@ -590,6 +590,22 @@ def build_arcade_router(ctx: Ctx) -> Router:
             pass
         end(m)
 
+    async def stop_hook(bot: Bot, chat_id: int, uid: int):
+        """/stop: إنهاء المباراة الجارية في هذه المجموعة (من بدأها أو اللاعبان أو أدمن البوت)."""
+        ms = [m for m in matches.values() if m.scope == "c" and m.chat_id == chat_id and m.state != "done"]
+        if not ms:
+            return None
+        m = ms[0]
+        if not (uid == m.host or uid in m.players or ctx.is_admin(uid)):
+            return "forbidden"
+        try:
+            await edit_match_message(bot, m, t(chat_lang(m), "ar_cancelled"), None)
+        except TelegramAPIError:
+            pass
+        end(m)
+        return "stopped"
+    ctx.stop_hooks.append(stop_hook)
+
     @r.callback_query(F.data.regexp(r"^ar:g:(xo|rps|c4)$"))
     async def cb_chat_start(c: CallbackQuery):
         """من قائمة المجموعة أو القناة: يبدأ تحدٍّ ثنائي في نفس المحادثة (المنشئ هو اللاعب الأول في المجموعة)."""

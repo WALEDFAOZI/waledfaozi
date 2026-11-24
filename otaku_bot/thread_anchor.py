@@ -4,7 +4,7 @@
 للمنشور في المجموعة (is_automatic_forward). نرد على تلك النسخة نفسها، فتبقى رسائل
 البوت في تعليقات نفس المنشور بدل أن تظهر في أسفل المجموعة.
 """
-from aiogram.types import Message
+from aiogram.types import Message, ReplyParameters
 
 ANON_ADMIN_ID = 1087968824  # GroupAnonymousBot
 
@@ -25,3 +25,14 @@ def anchor_id(msg: Message) -> int:
     if rt is not None and getattr(rt, "is_automatic_forward", False):
         return rt.message_id
     return msg.message_id
+
+
+async def reply_anchored(m: Message, text: str, markup=None, **kw) -> None:
+    """رد على الأمر نفسه، وفي تعليقات المنشور يُرد على نسخة المنشور (لا على تعليق صاحب الأمر)."""
+    from aiogram.exceptions import TelegramAPIError
+    try:
+        await m.bot.send_message(m.chat.id, text, parse_mode="HTML", reply_markup=markup,
+                                 reply_parameters=ReplyParameters(message_id=anchor_id(m), allow_sending_without_reply=True),
+                                 **kw)
+    except TelegramAPIError:
+        pass

@@ -287,3 +287,25 @@ def test_vote_request_button_depends_on_player_count_and_majority_starts_vote():
         assert await wait_until(lambda: g.state in ("choose", "vote", "done", "guess") or g.vote_now)
         assert await wait_until(lambda: g.state != "play", timeout=10)
     run(go())
+
+
+def test_stop_command_ends_a_running_spy_game_for_its_host():
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 4)]
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        host = users[0]
+        await gcmd(h, host, "/spy", 11)
+        g = S.games[GROUP.id]
+        for u in users[1:]:
+            await gtap(h, u, f"sp:j:{g.gid}")
+        await gtap(h, host, f"sp:s:{g.gid}")
+        assert await wait_until(lambda: g.state == "play")
+        await gcmd(h, users[1], "/stop", 801)                  # ليس المضيف: مرفوض
+        await asyncio.sleep(0.2)
+        assert GROUP.id in S.games and g.state == "play"
+        await gcmd(h, host, "/stop", 802)                      # المضيف: يوقف اللعبة
+        assert await wait_until(lambda: GROUP.id not in S.games, 5)
+    run(go())

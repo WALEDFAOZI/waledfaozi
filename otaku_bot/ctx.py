@@ -17,6 +17,7 @@ class Ctx:
     tasks: list = field(default_factory=list)   # مهام الخلفية (رسائل جماعية، نسخ احتياطي)
     subscribed: object = None   # دوال يضبطها bot.py: التحقق من الاشتراك وعرض شاشة الاشتراك
     gate: object = None
+    stop_hooks: list = field(default_factory=list)   # دوال /stop: async (bot, chat_id, uid) -> "stopped" | "forbidden" | None
 
     def timer(self) -> int:
         return int(self.db.get_setting("timer_seconds", str(self.settings.timer_seconds)))

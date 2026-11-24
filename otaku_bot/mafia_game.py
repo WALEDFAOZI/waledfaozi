@@ -30,7 +30,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 import re
 from .texts import t
-from .thread_anchor import anchor_id
+from .thread_anchor import anchor_id, reply_anchored
 
 log = logging.getLogger(__name__)
 
@@ -188,6 +188,17 @@ def build_mafia_router(ctx: Ctx) -> Router:
     cbs.callback_query.filter(F.message.chat.type.in_(GROUP_TYPES | {"channel"}))
     pm = Router(name="mafia_pm")
     pm.callback_query.filter(F.message.chat.type == "private")
+
+    async def stop_hook(bot, chat_id: int, uid: int):
+        """/stop: إيقاف اللعبة الجارية في هذه المجموعة (المضيف أو أدمن البوت)."""
+        g = games.get(chat_id)
+        if not g or g.task is None or g.task.done():
+            return None
+        if uid != g.host_id and not ctx.is_admin(uid):
+            return "forbidden"
+        g.task.cancel()
+        return "stopped"
+    ctx.stop_hooks.append(stop_hook)
 
     # ── الإرسال ───────────────────────────────────────────
     async def send(bot: Bot, g: Game, text: str, markup=None) -> int | None:
@@ -848,7 +859,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         db.touch_group(m.chat.id, m.chat.title)
         why = busy_or_cool(m.chat.id)
         if why:
-            await m.reply(t(L, "mf_busy" if why == "busy" else "mf_cool"))
+            await reply_anchored(m, t(L, "mf_busy" if why == "busy" else "mf_cool"))
             return
         db.upsert_user(m.from_user.id, m.from_user.full_name)
         thread = m.message_thread_id if getattr(m, "is_topic_message", False) else None

@@ -651,11 +651,19 @@ def build_group_router(ctx: Ctx) -> Router:
         if len(g.answers) >= sum(x.alive for x in g.players.values()):
             g.event.set()
 
-    @r.message(Command("gstop"))
+    @r.message(Command("gstop", "stop"))
     async def cmd_stop(m: Message):
+        """/stop (أو /gstop): يوقف أي لعبة جارية في المجموعة: الأسئلة، المافيا، برا السالفة، الثنائية."""
         L = db.group_lang(m.chat.id)
         g = games.get(m.chat.id)
         if not g or g.state == "done":
+            for hook in ctx.stop_hooks:                          # الألعاب الأخرى (مافيا، برا السالفة، الثنائية)
+                res = await hook(m.bot, m.chat.id, identity(m)[0])
+                if res == "stopped":
+                    return
+                if res == "forbidden":
+                    await reply(m, t(L, "gp_host_only"), expire=NOTICE_SECS)
+                    return
             await reply(m, t(L, "gp_gone"), expire=NOTICE_SECS)
             return
         uid, _ = identity(m)
