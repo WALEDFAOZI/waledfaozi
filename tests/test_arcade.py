@@ -100,8 +100,12 @@ def test_group_xo_two_players_join_and_play_on_one_message():
         await h.tap(a, f"ar:x:{m.gid}:2")                        # علي يكمل الصف الأول
         assert m.state == "done" or not A.matches
         assert not A.user_match
-        edits = [c for c in h.session.calls if type(c).__name__ in ("EditMessageText", "EditMessageCaption") and c.chat_id == GROUP.id]
-        assert any("فاز" in (getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in edits)
+        edits = [c for c in h.session.calls if type(c).__name__ in ("EditMessageText", "EditMessageCaption", "EditMessageMedia") and c.chat_id == GROUP.id]
+
+        def shown(c):
+            return getattr(c, "text", None) or getattr(c, "caption", None) or getattr(getattr(c, "media", None), "caption", None) or ""
+        assert any("فاز" in shown(c) for c in edits)                 # النتيجة في الرسالة الحيّة نفسها
+        assert len([c for c in h.session.calls if type(c).__name__ == "SendPhoto" and c.chat_id == GROUP.id]) == 1   # اللافتة فقط، بلا بطاقة نتيجة منفصلة
     run(go())
 
 
@@ -178,6 +182,27 @@ def test_turn_reminder_goes_to_the_player_whose_turn_it_is_and_resets_on_move():
             reminders = [c for c in h.session.calls if type(c).__name__ == "SendMessage" and "دورك في اللعبة" in c.text]
             assert [c.chat_id for c in reminders] == [other]
             assert all(c.chat_id != waiting for c in reminders)
+        finally:
+            A.REMIND_SECS = old
+    asyncio.run(go())
+
+
+def test_reminder_can_be_turned_off_from_settings():
+    async def go():
+        A.queue["xo"].clear(); A.matches.clear(); A.user_match.clear()
+        old = A.REMIND_SECS
+        A.REMIND_SECS = 0.05
+        try:
+            h = Harness()
+            h.db.fast_answer_ratio = lambda sid: 0.0
+            h.db.set_setting("arcade_remind_secs", "0")           # الأدمن: بدون تذكير
+            a, b = h.user(41, "Ali"), h.user(42, "Bob")
+            for u in (a, b):
+                h.db.upsert_user(u.id, u.first_name)
+            await h.tap(a, "ar:q:xo")
+            await h.tap(b, "ar:q:xo")
+            await asyncio.sleep(0.2)
+            assert not [c for c in h.session.calls if type(c).__name__ == "SendMessage" and "دورك في اللعبة" in c.text]
         finally:
             A.REMIND_SECS = old
     asyncio.run(go())

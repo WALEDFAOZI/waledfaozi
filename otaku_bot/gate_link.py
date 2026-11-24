@@ -27,6 +27,11 @@ def _saved(db) -> dict:
         return {}
 
 
+def saved_url(db) -> str | None:
+    """رابط الدعوة الخاص المحفوظ (None إن لم يُنشأ بعد)."""
+    return _saved(db).get("url")
+
+
 def public_url(channel: str) -> str:
     return f"https://t.me/{channel.lstrip('@')}"
 

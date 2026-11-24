@@ -25,6 +25,13 @@ from aiogram.types import CallbackQuery, FSInputFile, Message
 from . import anilist
 from .backup import chat_status_text, enabled as backup_enabled, last_backup_text, make_zip, send_chat_backup
 from .growth import growth_text, refresh_count
+from . import gate_link
+
+
+def arcade_remind_text(db) -> str:
+    v = db.get_setting("arcade_remind_secs")
+    v = "90" if v is None else v
+    return "بدون" if v == "0" else f"{v} ثانية"
 from .bot import btn, esc, kb
 from .config import CATEGORY_LABELS
 from .ctx import Ctx
@@ -789,6 +796,8 @@ def build_admin_router(ctx: Ctx) -> Router:
                 f"📢 قناة الاشتراك الإجباري: <b>{esc(ch)}</b>\n"
                 f"🚩 عتبة إشعار البلاغات: <b>{ctx.report_threshold()}</b> بلاغات مستقلة · "
                 f"حد المستخدم اليومي: <b>{ctx.reports_per_day()}</b>\n"
+                f"🔗 رابط دعوة القناة الخاص: {esc(gate_link.saved_url(db) or 'يُنشأ عند أول طلب اشتراك (أو من /diag)')}\n"
+                f"🔔 تذكير الدور في الألعاب الثنائية: <b>{arcade_remind_text(db)}</b>\n"
                 f"💾 النسخة الأسبوعية التلقائية: <b>{'✅ مفعّلة' if backup_enabled(ctx) else '❌ متوقفة'}</b> "
                 f"(آخر نسخة: {last_backup_text(ctx)})\n{chat_status_text(ctx)}")
         markup = kb(
@@ -796,6 +805,7 @@ def build_admin_router(ctx: Ctx) -> Router:
             [btn(f"⏳ {v}", f"ad:cd:{v}") for v in (0, 10, 30, 60, 120)],
             [btn(f"🚩 عتبة {v}", f"ad:rt:{v}") for v in (1, 2, 3, 5)],
             [btn(f"🚩 يوميًا {v}", f"ad:rd:{v}") for v in (1, 3, 5, 10)],
+            [btn(f"🔔 {v}ث" if v else "🔔 بدون", f"ad:ar:{v}") for v in (0, 60, 90, 180)],
             [btn("💾 تفعيل النسخ الأسبوعي", "ad:ab:1"), btn("💾 إيقافه", "ad:ab:0")],
             [btn("🛟 أرسل نسخة لقناة النسخ الآن", "ad:cb")],
             [btn("👥 ألعاب المجموعات: " + ("✅ تعمل (اضغط للإيقاف)" if db.get_setting("grp_enabled", "1") == "1" else "❌ متوقفة (اضغط للتشغيل)"), "ad:grp")],
@@ -825,10 +835,11 @@ def build_admin_router(ctx: Ctx) -> Router:
         text, markup = settings_view()
         await nav(c, text, markup)
 
-    @r.callback_query(F.data.regexp(r"^ad:(st|cd|rt|rd):\d+$"))
+    @r.callback_query(F.data.regexp(r"^ad:(st|cd|rt|rd|ar):\d+$"))
     async def cb_set_value(c: CallbackQuery):
         _, kind, v = c.data.split(":")
-        key = {"st": "timer_seconds", "cd": "cooldown_minutes", "rt": "report_threshold", "rd": "reports_per_day"}[kind]
+        key = {"st": "timer_seconds", "cd": "cooldown_minutes", "rt": "report_threshold", "rd": "reports_per_day",
+               "ar": "arcade_remind_secs"}[kind]
         db.set_setting(key, v)
         await c.answer("✅ تم الحفظ")
         text, markup = settings_view()

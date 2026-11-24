@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from aiogram import Bot, F, Router
 from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command, CommandStart
-from aiogram.types import BufferedInputFile, CallbackQuery, Message, ReplyParameters
+from aiogram.types import BufferedInputFile, CallbackQuery, InputMediaPhoto, Message, ReplyParameters
 
 from . import live, ui
 from .resultcard import make_match_card
@@ -236,8 +236,12 @@ def build_arcade_router(ctx: Ctx) -> Router:
             return [uid for uid in m.players if uid not in m.picks]
         return [m.players[m.turn]]
 
+    def remind_secs() -> float:
+        v = db.get_setting("arcade_remind_secs")          # يُضبط من لوحة الأدمن؛ 0 = بدون تذكير
+        return REMIND_SECS if v is None else int(v)
+
     async def remind_later(bot: Bot, gid: int, seq: int) -> None:
-        await asyncio.sleep(REMIND_SECS)
+        await asyncio.sleep(remind_secs())
         m = matches.get(gid)
         if not m or m.seq != seq or m.state != "play":
             return                                   # تغيّرت النوبة أو انتهت اللعبة
@@ -254,6 +258,8 @@ def build_arcade_router(ctx: Ctx) -> Router:
 
     def schedule_remind(bot: Bot, m: Match) -> None:
         m.seq += 1
+        if remind_secs() <= 0:
+            return
         task = asyncio.create_task(remind_later(bot, m.gid, m.seq))
         reminders.add(task)
         task.add_done_callback(reminders.discard)
@@ -276,13 +282,27 @@ def build_arcade_router(ctx: Ctx) -> Router:
             except TelegramAPIError:
                 pass
 
-    async def send_card(bot: Bot, m: Match, lang: str, summary: str) -> None:
-        """بطاقة النتيجة كصورة (لا تُرسل إن فشل الرسم، واللعبة لا تتأثر)."""
+    def result_png(m: Match, lang: str, summary: str) -> bytes | None:
+        """بطاقة النتيجة كصورة (None إن فشل الرسم؛ اللعبة لا تتأثر)."""
         board = m.board if m.kind != "rps" else None
         scores = f"{m.score[0]} : {m.score[1]}" if m.kind == "rps" else None
         names = [m.names.get(u, "?") for u in m.players]
         title = t(lang, "ar_title_" + m.kind)
-        png = await asyncio.to_thread(make_match_card, m.kind, board, names, title, summary, scores)
+        try:
+            return make_match_card(m.kind, board, names, title, summary, scores)
+        except Exception:  # noqa: BLE001
+            log.warning("arcade: result card failed for match %s", m.gid)
+            return None
+
+    async def edit_match_photo(bot: Bot, m: Match, png: bytes, caption: str, markup) -> None:
+        """يستبدل صورة اللافتة في رسالة اللعبة بصورة النتيجة مع النص تعليقًا: تبقى رسالة واحدة."""
+        target = {"inline_message_id": m.inline_id} if m.inline_id else {"chat_id": m.chat_id, "message_id": m.mid}
+        media = InputMediaPhoto(media=BufferedInputFile(png, "result.jpg"), caption=caption, parse_mode="HTML")
+        await bot.edit_message_media(media=media, reply_markup=markup, **target)
+
+    async def send_card(bot: Bot, m: Match, lang: str, summary: str) -> None:
+        """بطاقة النتيجة كصورة منفصلة (للمحادثات الخاصة فقط)."""
+        png = await asyncio.to_thread(result_png, m, lang, summary)
         if not png:
             return
         targets = [m.chat_id] if m.chat_id else list(m.players)
@@ -294,13 +314,24 @@ def build_arcade_router(ctx: Ctx) -> Router:
 
     async def finish(bot: Bot, m: Match, result_for: dict[int, str], summary: str = "") -> None:
         lang = chat_lang(m)
+        merged = False
         if m.scope == "c":
             text, _ = render_chat(m, lang)
             body = "\n".join([text.split("\n")[0], summary]) if summary else text
-            try:
-                await edit_match_message(bot, m, body, kb([btn(t(lang, "ar_again"), "ar:m")]))
-            except TelegramAPIError:
-                pass
+            markup = kb([btn(t(lang, "ar_again"), "ar:m")])
+            if summary and m.photo:
+                png = await asyncio.to_thread(result_png, m, lang, summary)
+                if png:
+                    try:
+                        await edit_match_photo(bot, m, png, body, markup)
+                        merged = True
+                    except TelegramAPIError:
+                        log.warning("arcade: cannot merge result card into match %s", m.gid)
+            if not merged:
+                try:
+                    await edit_match_message(bot, m, body, markup)
+                except TelegramAPIError:
+                    pass
         else:
             for uid in m.players:
                 L = L_(uid)
@@ -311,7 +342,7 @@ def build_arcade_router(ctx: Ctx) -> Router:
                                                 reply_markup=kb([btn(t(L, "ar_again"), "ar:m")]))
                 except (TelegramAPIError, KeyError):
                     pass
-        if summary:
+        if summary and not merged:
             await send_card(bot, m, lang, summary)
         end(m)
 
