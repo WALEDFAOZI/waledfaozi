@@ -152,13 +152,17 @@ def test_welcome_uses_first_name_escaped_in_every_entry_point():
     run(go())
 
 
-def test_add_bot_button_sends_group_and_channel_links_with_rights():
-    async def go():
-        h = Harness()
-        u = h.user(7, "Ali")
-        await h.tap(u, "ab:add")
-        msg = [c for c in h.session.calls if type(c).__name__ == "SendMessage"][-1]
-        urls = [b.url for row in msg.reply_markup.inline_keyboard for b in row if b.url]
-        assert any("startgroup=play&admin=delete_messages+pin_messages+invite_users" in x for x in urls)
-        assert any("startchannel=play&admin=post_messages+edit_messages+delete_messages" in x for x in urls)
-    run(go())
+def test_add_bot_buttons_sit_side_by_side_in_the_menu_with_rights():
+    from otaku_bot import bot as B
+    B.set_bot_username("otaku_test_bot")
+    try:
+        rows = B.add_bot_row("ar")
+        assert len(rows) == 1 and len(rows[0]) == 2                       # زرّان في صف واحد
+        assert all(b.style == "success" for b in rows[0])                  # أخضران
+        urls = [b.url for b in rows[0]]
+        assert "startgroup=play&admin=delete_messages+pin_messages+invite_users" in urls[0]
+        assert "startchannel=play&admin=post_messages+edit_messages+delete_messages" in urls[1]
+        B.set_bot_username("")
+        assert B.add_bot_row("ar") == []                                    # بلا اسم بوت: لا أزرار
+    finally:
+        B.set_bot_username("otaku_test_bot")

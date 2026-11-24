@@ -113,6 +113,16 @@ def chan_row(L: str, bot_link: bool = False) -> list[list[InlineKeyboardButton]]
     return [row]
 
 
+def add_bot_row(L: str) -> list[list[InlineKeyboardButton]]:
+    """زرّان أخضران جنب بعض: أضف البوت لمجموعة، وأضفه لقناة، كل واحد بصلاحياته الجاهزة."""
+    u = _BOTU["u"]
+    if not u:
+        return []
+    group_url = f"https://t.me/{u}?startgroup=play&admin=delete_messages+pin_messages+invite_users"
+    channel_url = f"https://t.me/{u}?startchannel=play&admin=post_messages+edit_messages+delete_messages"
+    return [[btn(t(L, "ab_group"), url=group_url, style="success"), btn(t(L, "ab_channel"), url=channel_url, style="success")]]
+
+
 def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
             images: bool = False, notify_on: bool | None = None) -> InlineKeyboardMarkup:
     """القائمة الرئيسية قصيرة: الاختبار أولًا، والألعاب والمزيد في قوائم فرعية."""
@@ -124,7 +134,7 @@ def menu_kb(L: str, top: list[list[InlineKeyboardButton]] | None = None,
               [btn(t(L, "btn_games_menu"), "m:games"), btn(t(L, "btn_anime"), "an:m")],
               [btn(t(L, "btn_rank"), "lb:menu"), btn(t(L, "btn_profile"), "pf")],
               [btn(t(L, "btn_suggest"), "sg"), btn(t(L, "btn_lang"), "lg:toggle")],
-              [btn(t(L, "btn_add_bot"), "ab:add", style="success")],
+              *add_bot_row(L),
               *chan_row(L))
 
 
@@ -1073,18 +1083,6 @@ def build_router(ctx: Ctx) -> Router:
     async def cmd_profile(m: Message):
         db.upsert_user(m.from_user.id, m.from_user.full_name)
         await send_profile(m.bot, m.chat.id, m.from_user.id, m.from_user.full_name)
-
-    @r.callback_query(F.data == "ab:add")
-    async def cb_add_bot(c: CallbackQuery):
-        """زر «أضف البوت»: رابط جاهز لمجموعة وآخر لقناة، كل واحد بصلاحياته المطلوبة."""
-        await c.answer()
-        me = await bot_username(c.bot)
-        group_url = f"https://t.me/{me}?startgroup=play&admin=delete_messages+pin_messages+invite_users"
-        channel_url = f"https://t.me/{me}?startchannel=play&admin=post_messages+edit_messages+delete_messages"
-        L = lang(c.from_user.id)
-        await c.message.answer(t(L, "ab_text"), parse_mode="HTML", reply_markup=kb(
-            [btn(t(L, "ab_group"), url=group_url)], [btn(t(L, "ab_channel"), url=channel_url)],
-            [btn(t(L, "btn_menu"), "menu")]))
 
     @r.callback_query(F.data == "pf")
     async def cb_profile(c: CallbackQuery):
