@@ -73,45 +73,6 @@ def test_manual_change_turns_auto_off_and_auto_button_turns_it_back_on():
     run(go())
 
 
-def test_three_quiet_rounds_kill_a_random_player():
-    from test_mafia_game import gtap, wait_until, group_texts
-    from otaku_bot import mafia_game as MGm
-
-    async def go():
-        h = Harness()
-        h.db.fast_answer_ratio = lambda sid: 0.0
-        users = [h.user(i, f"P{i}") for i in range(1, 8)]
-        for u in users:
-            h.db.upsert_user(u.id, u.first_name)
-        await gcmd(h, users[0], "/mafia", 95)
-        g = MGm.games[GROUP.id]
-        for u in users:
-            await h.say(u, f"/start mf_{g.gid}")
-        await ptap(h, users[0], f"mf:s:{g.gid}")
-        assert await wait_until(lambda: g.state == "night", 15)
-        by_uid = {u.id: u for u in users}
-        killers = [p.uid for p in g.players.values() if p.role == "killer"]
-        doctor = next(p.uid for p in g.players.values() if p.role == "doctor")
-        target = next(p.uid for p in g.players.values() if p.role == "citizen")
-        cits = [p.uid for p in g.players.values() if p.role == "citizen"][:2]
-        for night in range(3):                               # 3 ليالٍ: القتلة يختارون، والطبيب يحمي الهدف (لا يحمي نفس الشخص ليلتين متتاليتين)
-            tgt = cits[night % 2]                            # الهدف يتبدل بين مواطنين اثنين
-            assert await wait_until(lambda: g.state == "night", 15)
-            for k in killers:
-                await ptap(h, by_uid[k], f"mf:n:{g.gid}:killer:{tgt}")
-            await ptap(h, by_uid[doctor], f"mf:n:{g.gid}:doctor:{tgt}")
-            assert await wait_until(lambda: g.voting, 15)
-            assert g.players[tgt].alive                      # الطبيب أنقذ الهدف في هذه الليلة
-            for u in users:
-                if g.players[u.id].alive and g.voting:
-                    await gtap(h, u, f"mf:v:{g.gid}:0")       # الكل يتخطى
-            assert await wait_until(lambda: g.state == "night" or g.state == "done", 15)
-        assert await wait_until(lambda: any("⚰️" in x for x in group_texts(h)), 15)
-        dead = [p for p in g.players.values() if not p.alive]
-        assert len(dead) == 1                                # الموت العشوائي بعد الجولات الهادئة (أي لاعب)
-    run(go())
-
-
 def test_morning_vote_dms_link_to_the_vote_and_non_voters_are_announced():
     from test_mafia_game import dms_to, group_texts, wait_until as wu
     from otaku_bot import mafia_game as MGm

@@ -39,7 +39,6 @@ NIGHT_SECS = 60        # قتل المافيا
 DISCUSS_SECS = 120    # نقاش الصباح قبل فتح التصويت
 DAY_SECS = 60         # التصويت
 MAX_ROUNDS = 15
-QUIET_ROUNDS = 3        # جولات متتالية بلا قتل ولا طرد، ثم يختار النظام لاعبًا عشوائيًا للخروج
 COOLDOWN_SECS = 60
 EDIT_GAP = 3.0
 DM_RETRY_SECS = 90      # إن تعذّر إرسال الدور لبعض اللاعبين: يُفتح اللوبي من جديد لهذه المدة
@@ -92,7 +91,6 @@ class Game:
     reveal_death: bool = False        # إظهار دور القتيل/المطرود في الإعلان (افتراضيًا مخفي)
     day_mid: int | None = None        # رسالة التصويت الحالية (تُحدَّث مع كل صوت)
     day_text: str = ""
-    quiet: int = 0                    # عدّاد الجولات المتتالية بلا موت
     news: list = field(default_factory=list)  # القناة: أخبار الجولة (رقم الجولة، النص) تُرسل خاصًّا للمشاركين
     status_text: str = ""             # القناة: الحالة الحالية (ليل/نهار/نهاية)
     status_markup: object = None
@@ -771,7 +769,6 @@ def build_mafia_router(ctx: Ctx) -> Router:
                     return
             roles_map = {p.uid: p.role for p in g.players.values()}
             while True:
-                alive_at_start = len(alive_players(g))
                 await night_phase(bot, g)
                 res = resolve_night(g)
                 g.last_protect = g.night_actions.get("doctor")   # الحماية تنتهي إن لم يحمِ الطبيب هذه الليلة
@@ -802,16 +799,6 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 else:
                     await show(bot, g, t(L, "mf_no_exec"), None)
                     await post_discuss(bot, g, t(L, "mf_no_exec"))
-                died_this_round = len(alive_players(g)) < alive_at_start     # قتل أو طرد أو انسحاب
-                if res.victims or out is not None or died_this_round:
-                    g.quiet = 0
-                else:
-                    g.quiet += 1
-                    if g.quiet >= QUIET_ROUNDS and alive_players(g):
-                        pick = rng.choice(sorted(p.uid for p in alive_players(g)))
-                        g.players[pick].alive = False
-                        g.quiet = 0
-                        await show(bot, g, t(L, "mf_quiet_death", name=esc(g.players[pick].name)), None)
                 await flush_news(bot, g)                       # أخبار التصويت تصل فور انتهائه
                 if g.gone:
                     return
