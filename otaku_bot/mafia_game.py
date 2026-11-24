@@ -468,6 +468,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.day_mid = await show(bot, g, g.day_text, g.day_markup, status=True)
         await post_discuss(bot, g, g.day_text)                # النقاش يبدأ: نفس التحديث في تعليقات المنشور
         await notify_discuss_start(bot, g, alive)
+        await notify_mayor(bot, g)                            # العمدة يقدر يكشف نفسه من بداية النقاش
         deadline = time.monotonic() + g.discuss_secs
         while time.monotonic() < deadline and g.state == "day" and not g.gone:
             await asyncio.sleep(0.5)
@@ -486,7 +487,6 @@ def build_mafia_router(ctx: Ctx) -> Router:
             await ledit(bot, g, g.day_mid, g.day_text, g.day_markup)
         await post_discuss(bot, g, g.day_text)                # بدأ التصويت: يظهر في التعليقات أيضاً
         await notify_vote_start(bot, g, alive)
-        await notify_mayor(bot, g)
         g.vote_deadline = time.monotonic() + g.day_secs
         reminded = False
         while time.monotonic() < g.vote_deadline and g.state == "day":
@@ -584,7 +584,15 @@ def build_mafia_router(ctx: Ctx) -> Router:
             return
         g.mayor_revealed = True
         await c.answer()
-        await show(c.bot, g, t(g.lang, "mf_mayor_revealed", name=esc(m.name)), None)
+        text = t(g.lang, "mf_mayor_revealed", name=esc(m.name))
+        # إعلان منفصل: رسالة جديدة في الجروب/القناة، ورسالة في الخاص لكل لاعب (إشعار)، وفي تعليقات المنشور
+        try:
+            await c.bot.send_message(g.chat_id, text, parse_mode="HTML")
+        except TelegramAPIError:
+            pass
+        for p in g.players.values():
+            await dm(c.bot, p.uid, text)
+        await post_discuss(c.bot, g, text)
 
     async def notify_discuss_start(bot: Bot, g: Game, alive: list) -> None:
         """بداية النهار: رسالة خاصة لكل حي فيها زر يودي لمكان النقاش."""
