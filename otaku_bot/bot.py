@@ -107,7 +107,7 @@ def chan_row(L: str, bot_link: bool = False) -> list[list[InlineKeyboardButton]]
     ch = (_CHAN["get"]() or "").lstrip("@")
     if not ch:
         return []
-    row = [btn(t(L, "btn_channel"), url=f"https://t.me/{ch}")]
+    row = [btn(t(L, "btn_channel"), url=f"https://t.me/{ch}", style="primary")]
     if bot_link and _BOTU["u"]:
         row.append(btn(t(L, "btn_bot_game"), url=f"https://t.me/{_BOTU['u']}"))
     return [row]

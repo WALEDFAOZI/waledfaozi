@@ -304,7 +304,7 @@ def build_group_router(ctx: Ctx) -> Router:
     def sub_row(L: str) -> list:
         """زر «اشترك في قناة البوت» تحت الخيارات والنتيجة (إن كانت قناة الاشتراك مضبوطة)."""
         ch = (ctx.channel() or "").lstrip("@")
-        return [[btn(t(L, "btn_channel"), url=f"https://t.me/{ch}")]] if ch else []
+        return [[btn(t(L, "btn_channel"), url=f"https://t.me/{ch}", style="primary")]] if ch else []
 
     sub_sem = asyncio.Semaphore(20)           # لا نغرق تليجرام بفحوص الاشتراك عند الانضمام الجماعي
 
