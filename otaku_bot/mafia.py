@@ -62,7 +62,7 @@ class Config:
 def auto_config(n_players: int) -> tuple[int, list[str]]:
     """إعداد تلقائي حسب عدد اللاعبين: عدد القتلة والأدوار الخاصة، ويمرّ دائمًا من التحقق."""
     n = max(MIN_PLAYERS, min(MAX_PLAYERS, n_players))
-    killers = 1 if n <= 6 else 2 if n <= 8 else 3 if n <= 11 else 4
+    killers = 1 if n <= 6 else 2 if n <= 10 else 3 if n <= 13 else 4      # 9 لاعبين = قاتلان (لا ثلث اللاعبين)
     specials = ["detective"] if n >= 6 else []
     if n >= 7:
         specials.append("doctor")

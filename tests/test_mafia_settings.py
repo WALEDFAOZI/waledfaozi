@@ -335,3 +335,9 @@ def test_too_few_players_deletes_the_lobby_message():
         deleted = [c for c in h.session.calls if type(c).__name__ == "DeleteMessage" and c.message_id == lobby_mid]
         assert deleted, "رسالة اللوبي لازم تُحذف"
     run(go())
+
+
+def test_nine_players_get_two_killers_not_three():
+    assert M.auto_config(9)[0] == 2
+    assert M.auto_config(10)[0] == 2
+    assert M.auto_config(11)[0] == 3
