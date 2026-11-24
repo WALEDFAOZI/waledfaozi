@@ -347,3 +347,15 @@ def test_five_to_eight_players_get_one_killer():
     for n in range(5, 9):
         assert M.auto_config(n)[0] == 1
     assert M.auto_config(9)[0] == 2
+
+
+def test_killers_never_exceed_three_and_fifteen_players_is_the_cap():
+    for n in range(5, 16):
+        assert 1 <= M.auto_config(n)[0] <= 3
+    assert M.auto_config(15)[0] == 3
+    assert M.MAX_PLAYERS == 15
+    try:
+        M.Config(killers=4, specials=[]).validate(15)
+        assert False, "4 قتلة لازم ترفض"
+    except M.ConfigError:
+        pass

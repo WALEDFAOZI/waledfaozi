@@ -967,7 +967,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             return
         g.auto = False
         if op == "+":
-            g.killers = min(g.killers + 1, max(1, len(g.players)))
+            g.killers = min(g.killers + 1, max(1, min(M.MAX_KILLERS, len(g.players) - 1)))
         elif op == "-":
             g.killers = max(1, g.killers - 1)
         g.dirty = True

@@ -31,6 +31,7 @@ SPECIAL = ("detective", "doctor", "mayor", "joker")   # فريدة: لا يتك�
 MIN_CITIZENS = 3
 MIN_PLAYERS = 5
 MAX_PLAYERS = 15
+MAX_KILLERS = 3          # أقصى عدد قتلة مهما كان عدد اللاعبين
 
 
 class ConfigError(ValueError):
@@ -47,6 +48,8 @@ class Config:
             raise ConfigError(f"عدد اللاعبين لازم يكون بين {MIN_PLAYERS} و{MAX_PLAYERS}")
         if self.killers < 1:
             raise ConfigError("لازم قاتل واحد على الأقل")
+        if self.killers > MAX_KILLERS:
+            raise ConfigError(f"أقصى عدد للقتلة {MAX_KILLERS}")
         for r in self.specials:
             if r not in SPECIAL:
                 raise ConfigError(f"دور غير معروف: {r}")
@@ -62,7 +65,7 @@ class Config:
 def auto_config(n_players: int) -> tuple[int, list[str]]:
     """إعداد تلقائي حسب عدد اللاعبين: عدد القتلة والأدوار الخاصة، ويمرّ دائمًا من التحقق."""
     n = max(MIN_PLAYERS, min(MAX_PLAYERS, n_players))
-    killers = 1 if n <= 8 else 2 if n <= 10 else 3 if n <= 13 else 4      # 5-8 لاعبين: قاتل واحد؛ 9-10: قاتلان
+    killers = min(MAX_KILLERS, 1 if n <= 8 else 2 if n <= 10 else 3)     # 5-8: واحد؛ 9-10: اثنان؛ 11+: ثلاثة (بحد أقصى 3)
     specials = ["detective"] if n >= 6 else []
     if n >= 7:
         specials.append("doctor")
