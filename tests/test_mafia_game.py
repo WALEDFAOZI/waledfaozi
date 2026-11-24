@@ -224,3 +224,9 @@ def test_killers_are_told_who_their_fellow_killers_are():
     txt = texts.t("ar", "mo_killer_mates", names="أحمد")
     assert "أحمد" in txt and "القتلة" in txt
 
+
+
+def test_already_voted_message_names_the_previous_choice():
+    from otaku_bot import texts
+    assert "{name}" in texts.T["ar"]["mf_already_voted"] and "{name}" in texts.T["en"]["mf_already_voted"]
+    assert "التخطي" == texts.T["ar"]["mf_skip_name"]

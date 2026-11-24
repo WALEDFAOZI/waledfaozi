@@ -1125,6 +1125,11 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if target and (target not in g.players or not g.players[target].alive or target == voter.uid):
             await c.answer(t(L, "mf_bad_target"), show_alert=True)
             return
+        if voter.uid in g.votes:                              # الصوت نهائي: نخبره بمن صوّت من قبل
+            prev = g.votes[voter.uid]
+            who = t(L, "mf_skip_name") if not prev else esc(g.players[prev].name)
+            await c.answer(t(L, "mf_already_voted", name=who), show_alert=True)
+            return
         g.votes[voter.uid] = target
         await c.answer(t(L, "mf_voted"))
         if g.day_mid and g.day_text:
