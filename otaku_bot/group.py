@@ -528,9 +528,10 @@ def build_group_router(ctx: Ctx) -> Router:
         await open_game(m, CMD_KIND[command.command])
 
     def menu_markup(L: str):
-        # كل سطر لعبتان: الجماعية أولًا، ثم الثنائية، والترتيب في آخر سطر
-        pairs = [("gpk_mafia", "mf:new"), ("gpk_spy", "sp:new")] + [(f"gpk_{k}", f"gp:n:{k}") for k in KINDS]
-        rows = [[btn(t(L, a), c) for a, c in pairs[i:i + 2]] for i in range(0, len(pairs), 2)]
+        # المافيا وحدها في سطر، والباقي كل سطر لعبتان: برا السالفة ثم الجماعية، ثم الثنائية، والترتيب في آخر سطر
+        rows = [[btn(t(L, "gpk_mafia"), "mf:new")]]
+        pairs = [("gpk_spy", "sp:new")] + [(f"gpk_{k}", f"gp:n:{k}") for k in KINDS]
+        rows += [[btn(t(L, a), c) for a, c in pairs[i:i + 2]] for i in range(0, len(pairs), 2)]
         rows.append([btn(t(L, "gpm_xo"), "ar:g:xo"), btn(t(L, "gpm_rps"), "ar:g:rps")])
         rows.append([btn(t(L, "gpm_c4"), "ar:g:c4"), btn(t(L, "gpm_top"), "gp:t")])
         return kb(*rows)

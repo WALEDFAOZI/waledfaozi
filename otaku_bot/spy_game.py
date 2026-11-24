@@ -35,6 +35,7 @@ log = logging.getLogger(__name__)
 
 MIN_PLAYERS, MAX_PLAYERS = 3, 12
 ROUNDS = 10
+VOTE_REQ_FROM = 7          # من السؤال السابع يظهر زر «نبي التصويت»
 EXTRA_MAX = 10
 LOBBY_SECS = 180
 SPY_IDLE_SECS = 900      # بدون أي نشاط لهذه المدة تُغلق اللعبة المتروكة
@@ -78,6 +79,10 @@ class Game:
     question: str | None = None
     answer: str | None = None
     next_go: bool = False
+    vote_req: set = field(default_factory=set)   # من طلب التصويت من بعد السؤال السابع
+    vote_now: bool = False                       # الأغلبية طلبت التصويت: تنتهي الجولة وتبدأ مرحلة التصويت
+    targeted: set = field(default_factory=set)   # من أجاب حتى الآن: يتناوب الجميع على الإجابة قبل أن يعود أحد
+    live_transient: bool = False        # الرسالة الحالية حالة مؤقتة (تصويت/تخمين): تُحذف لما تظهر المرحلة التالية
     last_activity: float = 0.0          # آخر نشاط (سؤال، إجابة، «التالي»، تصويت): لإغلاق اللعبة المتروكة
     idle: bool = False
     choices: dict = field(default_factory=dict)     # uid -> "vote" | "more"
@@ -169,13 +174,17 @@ def build_spy_router(ctx: Ctx) -> Router:
             return
         await live.edit(bot, g.chat_id, g.live, text, markup)
 
-    async def post(bot: Bot, g: Game, text: str, markup=None) -> None:
-        """مرحلة جديدة = رسالة جديدة تحت، فلا تبقى الحالة الأولى فوق. أزرار الرسالة السابقة تُزال كي لا تُضغط بالغلط."""
+    async def post(bot: Bot, g: Game, text: str, markup=None, transient: bool = False) -> None:
+        """مرحلة جديدة = رسالة جديدة تحت. الرسالة السابقة: المؤقتة تُحذف، والباقية تُزال أزرارها (لا تُضغط بالغلط)."""
         if g.live is not None:
             try:
-                await bot.edit_message_reply_markup(chat_id=g.chat_id, message_id=g.live, reply_markup=None)
+                if g.live_transient:
+                    await bot.delete_message(g.chat_id, g.live)
+                else:
+                    await bot.edit_message_reply_markup(chat_id=g.chat_id, message_id=g.live, reply_markup=None)
             except TelegramAPIError:
                 pass
+        g.live_transient = transient
         kw = {"reply_markup": markup}
         if g.reply_to:
             kw["reply_parameters"] = ReplyParameters(message_id=g.reply_to, allow_sending_without_reply=True)
@@ -243,7 +252,12 @@ def build_spy_router(ctx: Ctx) -> Router:
         pool = [u for u in g.players if u not in g.asked]
         asker = rng.choice(pool)
         others = [u for u in g.players if u != asker]
-        target = rng.choice(others)
+        fresh = [u for u in others if u not in g.targeted]          # المجيب: من لم يجب بعد في هذه الدورة
+        if not fresh:
+            g.targeted = set()
+            fresh = others
+        target = rng.choice(fresh)
+        g.targeted.add(target)
         g.asked.add(asker)
         g.cur = (asker, target)
         g.question = g.answer = None
@@ -251,17 +265,21 @@ def build_spy_router(ctx: Ctx) -> Router:
         touch(g)
         an = (g.players[asker].name or "").strip() or "👤"           # اسم فارغ (رموز فقط): لا يترك السطر فارغًا
         tn = (g.players[target].name or "").strip() or "👤"
-        next_kb = kb([btn(t(L, "sp_next_btn"), f"sp:n:{g.gid}")], [btn(t(L, "sp_end_btn"), f"sp:x:{g.gid}")])  # «التالي» و«إلغاء اللعبة» دائمًا في الجولة
+        rows = [[btn(t(L, "sp_next_btn"), f"sp:n:{g.gid}")]]
+        if g.round >= VOTE_REQ_FROM:                               # من السؤال السابع: زر «نبي التصويت»
+            rows.append([btn(t(L, "sp_vote_req_btn"), f"sp:wv:{g.gid}")])
+        rows.append([btn(t(L, "sp_end_btn"), f"sp:x:{g.gid}")])    # «إلغاء اللعبة» دائمًا في الجولة
+        next_kb = kb(*rows)
         await post(bot, g, t(L, "sp_ask_live", r=g.round, a=esc(an), b=esc(tn)), next_kb)
-        while g.question is None and not g.next_go:              # لا عداد: الجولة تنتقل بضغط «التالي»
+        while g.question is None and not g.next_go and not g.vote_now:   # لا عداد: الجولة تنتقل بضغط «التالي» أو طلب التصويت
             if is_idle(g):
                 g.idle = True
                 return
             await asyncio.sleep(0.5)
         if g.next_go or g.question is None:                 # «التالي» أو انتهى الوقت بلا سؤال: الجولة التالية
             return
-        await post(bot, g, t(L, "sp_answer_live", a=esc(an), b=esc(tn)), next_kb)
-        while g.answer is None and not g.next_go:
+        await show(bot, g, t(L, "sp_answer_live", a=esc(an), b=esc(tn)), next_kb)      # الجواب يعدّل رسالة الجولة نفسها
+        while g.answer is None and not g.next_go and not g.vote_now:
             if is_idle(g):
                 g.idle = True
                 return
@@ -273,7 +291,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         g.state, g.choices = "choose", {}
         L = g.lang
         await post(bot, g, t(L, "sp_choose_live", n=len(g.players), extra=g.extra, max=EXTRA_MAX),
-                   kb([btn(t(L, "sp_vote_btn"), f"sp:c:{g.gid}:vote"), btn(t(L, "sp_more_btn"), f"sp:c:{g.gid}:more")]))
+                   kb([btn(t(L, "sp_vote_btn"), f"sp:c:{g.gid}:vote"), btn(t(L, "sp_more_btn"), f"sp:c:{g.gid}:more")]), transient=True)
         end = time.monotonic() + VOTE_SECS
         while time.monotonic() < end and len(g.choices) < len(g.players):
             await asyncio.sleep(0.5)
@@ -345,7 +363,7 @@ def build_spy_router(ctx: Ctx) -> Router:
                 g.round += 1
                 g.state = "play"                            # الجولة جارية: لا أزرار تصويت الآن
                 await ask_round(bot, g)
-                if g.idle:
+                if g.idle or g.vote_now:
                     break
             if g.idle:
                 await show(bot, g, t(L, "sp_idle"), None)
@@ -366,7 +384,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         L = g.lang
         g.state = "vote"
         uids = list(g.players)
-        await post(bot, g, t(L, "sp_vote_dm_live"), kb(*await open_private_rows(bot, L)))
+        await post(bot, g, t(L, "sp_vote_dm_live"), kb(*await open_private_rows(bot, L)), transient=True)
         if not await dm_votes(bot, g, uids, VOTE_SECS):
             await finish(bot, g, winner="outsider", guessed=None)      # تعذّر إرسال التصويت لأحدهم
             return
@@ -374,7 +392,7 @@ def build_spy_router(ctx: Ctx) -> Router:
         if len(picks) != 1:                                  # تعادل أو لا أصوات: إعادة تصويت واحدة
             if not picks:
                 picks = uids
-            await post(bot, g, t(L, "sp_revote_live"), kb(*await open_private_rows(bot, L)))
+            await post(bot, g, t(L, "sp_revote_live"), kb(*await open_private_rows(bot, L)), transient=True)
             await dm_votes(bot, g, picks, REVOTE_SECS)
             picks = tally(g)
             if len(picks) != 1:
@@ -386,13 +404,13 @@ def build_spy_router(ctx: Ctx) -> Router:
             await finish(bot, g, winner="outsider", guessed=None)
             return
         g.caught = caught
-        await post(bot, g, t(L, "sp_caught", name=esc(g.players[caught].name), s=GUESS_SECS), None)
+        await post(bot, g, t(L, "sp_caught", name=esc(g.players[caught].name), s=GUESS_SECS), None, transient=True)
         opts = [g.char] + g.decoys
         rng.shuffle(opts)
         g.state = "guess"
         g.guess_opts = opts
         await post(bot, g, t(L, "sp_guess_live", name=esc(g.players[caught].name), s=GUESS_SECS), kb(
-            *[[btn(loc(o["en"], L)[:40], f"sp:g:{g.gid}:{i}")] for i, o in enumerate(opts)]))
+            *[[btn(loc(o["en"], L)[:40], f"sp:g:{g.gid}:{i}")] for i, o in enumerate(opts)]), transient=True)
         end = time.monotonic() + GUESS_SECS
         while time.monotonic() < end and g.guessed is None:
             await asyncio.sleep(0.5)
@@ -562,7 +580,24 @@ def build_spy_router(ctx: Ctx) -> Router:
         if g.task:
             g.task.cancel()
 
+    @cbs.callback_query(F.data.regexp(r"^sp:wv:\d+$"))
+    async def cb_want_vote_btn(c: CallbackQuery):
+        await cb_want_vote(c)
+
     @cbs.callback_query(F.data.regexp(r"^sp:n:\d+$"))
+    async def cb_want_vote(c: CallbackQuery):
+        L = db.group_lang(c.message.chat.id)
+        g = get_game(c, int(c.data.split(":")[2]))
+        if not g or g.state != "play" or g.round < VOTE_REQ_FROM or c.from_user.id not in g.players or g.vote_now:
+            await c.answer(t(L, "sp_gone"), show_alert=True)
+            return
+        g.vote_req.add(c.from_user.id)
+        touch(g)
+        if len(g.vote_req) * 2 > len(g.players):                  # الأغلبية: تنتهي الجولة وتبدأ مرحلة التصويت
+            g.vote_now = True
+            g.next_go = True
+        await c.answer(t(L, "sp_vote_req_ok"))
+
     async def cb_next(c: CallbackQuery):
         L = db.group_lang(c.message.chat.id)
         g = get_game(c, int(c.data.split(":")[2]))

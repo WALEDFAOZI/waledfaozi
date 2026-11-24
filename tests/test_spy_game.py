@@ -109,6 +109,7 @@ def test_full_game_rounds_vote_and_guess():
         await gtap(h, by_id[out], f"sp:g:{g.gid}:{idx}")
         assert await wait_until(lambda: g.state == "done")
         assert any("فاز <b>برا السالفة</b>" in x for x in group_texts(h))     # التخمين الصحيح = فوز البرا
+        assert any(type(c).__name__ == "DeleteMessage" and c.chat_id == GROUP.id for c in h.session.calls)   # الحالات المؤقتة (التصويت/التخمين) تُحذف
         assert len(h.db.conn.execute("SELECT 1 FROM group_results WHERE chat_id=? AND kind='spy'", (GROUP.id,)).fetchall()) == 4
         assert GROUP.id not in S.games
     run(go())
@@ -219,4 +220,68 @@ def test_each_round_is_a_new_message_and_old_buttons_are_removed():
         stripped = [c for c in h.session.calls if type(c).__name__ == "EditMessageReplyMarkup"
                     and c.chat_id == GROUP.id and c.message_id == first and c.reply_markup is None]
         assert stripped                                                    # أزرار الجولة الأولى أُزيلت
+    run(go())
+
+
+def test_answerers_rotate_instead_of_repeating_the_same_person():
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 5)]
+        by_id = {u.id: u for u in users}
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        host = users[0]
+        await gcmd(h, host, "/spy", 11)
+        g = S.games[GROUP.id]
+        for u in users[1:]:
+            await gtap(h, u, f"sp:j:{g.gid}")
+        await gtap(h, host, f"sp:s:{g.gid}")
+        assert await wait_until(lambda: g.state == "play")
+        targets = []
+        for r in (1, 2, 3):
+            await gtap(h, host, f"sp:n:{g.gid}")
+            assert await wait_until(lambda: g.cur is not None and g.question is None and g.round == r)
+            targets.append(g.cur[1])
+            await gsay(h, by_id[g.cur[0]], "سؤال؟")
+            assert await wait_until(lambda: g.question is not None)
+            await gsay(h, by_id[g.cur[1]], "جواب")
+            assert await wait_until(lambda: g.answer is not None)
+        assert len(set(targets)) == 3                       # ثلاث جولات، ثلاثة مجيبين مختلفين
+    run(go())
+
+
+def test_vote_request_button_appears_from_seventh_question_and_majority_starts_vote():
+    async def go():
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        users = [h.user(i, f"P{i}") for i in range(1, 5)]
+        by_id = {u.id: u for u in users}
+        for u in users:
+            h.db.upsert_user(u.id, u.first_name)
+        host = users[0]
+        await gcmd(h, host, "/spy", 11)
+        g = S.games[GROUP.id]
+        for u in users[1:]:
+            await gtap(h, u, f"sp:j:{g.gid}")
+        await gtap(h, host, f"sp:s:{g.gid}")
+        assert await wait_until(lambda: g.state == "play")
+        for r in range(1, 8):
+            await gtap(h, host, f"sp:n:{g.gid}")
+            assert await wait_until(lambda: g.cur is not None and g.question is None and g.round == r)
+            await gsay(h, by_id[g.cur[0]], "سؤال؟")
+            assert await wait_until(lambda: g.question is not None)
+            await gsay(h, by_id[g.cur[1]], "جواب")
+            assert await wait_until(lambda: g.answer is not None)
+        # بعد السؤال السابع: الزر ظاهر في رسالة الجولة
+        markups = [c.reply_markup for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id == GROUP.id]
+        assert any("sp:wv:" in str(b.callback_data) for mk in markups[-3:] for row in mk.inline_keyboard for b in row)
+        await gtap(h, users[1], f"sp:wv:{g.gid}")            # صوت واحد: لا يكفي من أربعة
+        assert not g.vote_now
+        await gtap(h, users[2], f"sp:wv:{g.gid}")
+        await gtap(h, users[2], f"sp:wv:{g.gid}")            # التكرار من نفس اللاعب لا يُحسب
+        assert not g.vote_now
+        await gtap(h, users[3], f"sp:wv:{g.gid}")            # ثلاثة من أربعة: الأغلبية
+        assert await wait_until(lambda: g.state in ("choose", "vote", "done", "guess") or g.vote_now)
+        assert await wait_until(lambda: g.state != "play", timeout=10)
     run(go())
