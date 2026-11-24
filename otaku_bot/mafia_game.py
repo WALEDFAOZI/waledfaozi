@@ -728,10 +728,14 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 for uid, role in roles.items():
                     g.players[uid].role = role
                 failed = []
+                killer_count = sum(1 for q in g.players.values() if q.role == "killer")
                 for p in g.players.values():
-                    ok = await dm(bot, p.uid, t(L, "mf_role_dm", icon=ICON[p.role], role=t(L, "mf_r_" + p.role),
-                                                desc=t(L, "mf_desc_" + p.role),
-                                                team=t(L, "mf_team_" + M.ROLES[p.role][1])))
+                    text = t(L, "mf_role_dm", icon=ICON[p.role], role=t(L, "mf_r_" + p.role),
+                             desc=t(L, "mf_desc_" + p.role), team=t(L, "mf_team_" + M.ROLES[p.role][1]))
+                    if p.role == "killer" and killer_count > 1:            # القتلة يعرفون بعض
+                        mates = [esc(q.name) for q in g.players.values() if q.role == "killer" and q.uid != p.uid]
+                        text += "\n" + t(L, "mo_killer_mates", names="، ".join(mates))
+                    ok = await dm(bot, p.uid, text)
                     if not ok:
                         failed.append(p.uid)
                 if not failed:

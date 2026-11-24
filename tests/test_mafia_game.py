@@ -217,3 +217,9 @@ def test_lobby_timeout_starts_the_game_without_host_pressing_start():
         assert await wait_until(lambda: g.state == "night", 15)         # انتهى الوقت: تبدأ مباشرة بدون ضغط «ابدأ»
         assert not g.start_now
     run(go())
+
+
+def test_killers_are_told_who_their_fellow_killers_are():
+    from otaku_bot import texts
+    txt = texts.t("ar", "mo_killer_mates", names="أحمد")
+    assert "أحمد" in txt and "القتلة" in txt
