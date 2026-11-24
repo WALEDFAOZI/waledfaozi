@@ -363,6 +363,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         sp = [btn(("✅ " if r in g.specials else "") + t(L, "mf_r_" + r), f"mf:r:{g.gid}:{r}") for r in SPECIAL_ORDER]
         rows += [sp[:2], sp[2:]]
         rows += times_rows(g)
+        if g.state != "lobby":                                  # أثناء اللعب: الإلغاء من هنا فقط
+            return kb([btn(t(L, "mf_cancel"), f"mf:x:{g.gid}", style="danger")])
         rows.append([btn(t(L, "mf_start"), f"mf:s:{g.gid}"), btn(t(L, "mf_cancel"), f"mf:x:{g.gid}", style="danger")])
         return kb(*rows)
 
@@ -429,7 +431,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 text += "\n\n" + mayor_warn
             await dm(bot, p.uid, text, kb(*rows, *back))
         await show(bot, g, t(L, "mf_night_live", r=g.round, s=g.night_secs, n=len(alive), names=names(g, True)),
-                   kb(*await open_private_rows(bot, L), stop_row(g)), status=True)
+                   kb(*await open_private_rows(bot, L)), status=True)
         deadline = time.monotonic() + g.night_secs
         reminded = False
         while time.monotonic() < deadline and g.state == "night" and not night_complete(g):
@@ -451,10 +453,6 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 protect[r] = g.night_actions[r]
         return M.resolve_night(roles, alive, M.Night(kills=kills, protect=protect))
 
-    def stop_row(g: Game) -> list:
-        """زر إلغاء اللعبة للمضيف، يظهر أثناء اللعب (النقاش، التصويت، الليل)."""
-        return [btn(t(g.lang, "mf_cancel"), f"mf:x:{g.gid}", style="danger")]
-
     # ── النهار ────────────────────────────────────────────
     async def day_phase(bot: Bot, g: Game) -> int | None:
         g.state = "day"
@@ -464,7 +462,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         alive = alive_players(g)
         # ١) النقاش: بلا أزرار تصويت، والأحياء يُنبَّهون بمكان النقاش
         g.day_text = t(L, "mf_discuss_live", r=g.round, s=g.discuss_secs, names=names(g, True))
-        g.day_markup = kb(stop_row(g))
+        g.day_markup = None
         g.day_mid = await show(bot, g, g.day_text, g.day_markup, status=True)
         await notify_discuss_start(bot, g, alive)
         deadline = time.monotonic() + g.discuss_secs
@@ -476,7 +474,6 @@ def build_mafia_router(ctx: Ctx) -> Router:
         btns = [[btn(f"🗳 {p.name[:22]}", f"mf:v:{g.gid}:{p.uid}")] for p in alive]
         btns.append([btn(t(L, "mf_skip"), f"mf:v:{g.gid}:0")])
         btns.append([btn(t(L, "mf_extend_btn"), f"mf:xt:{g.gid}")])          # المضيف يمدّد التصويت دقيقة
-        btns.append(stop_row(g))                                              # المضيف يلغي اللعبة
         g.day_text = t(L, "mf_day_live", r=g.round, s=g.day_secs, names=names(g, True))
         g.day_markup = kb(*btns)
         g.voting = True
