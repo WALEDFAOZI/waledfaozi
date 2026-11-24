@@ -341,3 +341,9 @@ def test_nine_players_get_two_killers_not_three():
     assert M.auto_config(9)[0] == 2
     assert M.auto_config(10)[0] == 2
     assert M.auto_config(11)[0] == 3
+
+
+def test_five_to_eight_players_get_one_killer():
+    for n in range(5, 9):
+        assert M.auto_config(n)[0] == 1
+    assert M.auto_config(9)[0] == 2
