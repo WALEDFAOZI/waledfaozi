@@ -13,10 +13,10 @@ from aiogram.filters import Command, CommandObject
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (BufferedInputFile, CallbackQuery, ChatMemberUpdated, FSInputFile, InlineKeyboardButton,
-                           InlineKeyboardMarkup, InlineQuery, InlineQueryResultArticle, InputMediaPhoto,
+                           InlineKeyboardMarkup, InlineQuery, InlineQueryResultArticle, InlineQueryResultCachedPhoto, InputMediaPhoto,
                            InputTextMessageContent, Message)
 
-from . import board, card, gate_link, leave_nudge, progress, ties
+from . import board, card, gate_link, leave_nudge, live, progress, ties
 from .config import LEVELS, ROOT
 from .ctx import Ctx
 from .quiz import (category_breakdown, compute_score, pick_category, pick_questions, progress_bar,
@@ -182,36 +182,50 @@ def build_router(ctx: Ctx) -> Router:
         from . import arcade
         bot_me = await bot_username(q.bot)
 
-        def game_article(rid: str, title_key: str, text_key: str, go_key: str, url: str):
+        # صورة لكل لعبة (لافتتها): معرّف مخزّن يُرفع مرة واحدة، وإن تعذّر تبقى النتيجة نصية
+        upload_to = (ctx.admin_ids() or [None])[0]
+        photos = {k: await live.inline_photo_id(q.bot, db, upload_to, L, k)
+                  for k in ("mafia", "spy", "sudden", "quiz", "images", "tf", "xo", "c4", "rps")}
+
+        def game_article(rid: str, title_key: str, text_key: str, go_key: str, url: str, kind: str | None = None):
+            markup = kb([btn(t(L, go_key), url=url)])
+            text = t(L, text_key, game=t(L, title_key))
+            if kind and photos.get(kind):
+                return InlineQueryResultCachedPhoto(id=rid, photo_file_id=photos[kind], title=t(L, title_key),
+                                                    caption=text, parse_mode="HTML", reply_markup=markup)
             return InlineQueryResultArticle(
                 id=rid, title=t(L, title_key),
-                input_message_content=InputTextMessageContent(
-                    message_text=t(L, text_key, game=t(L, title_key)), parse_mode="HTML",
-                    disable_web_page_preview=True),
-                reply_markup=kb([btn(t(L, go_key), url=url)]))
+                input_message_content=InputTextMessageContent(message_text=text, parse_mode="HTML",
+                                                              disable_web_page_preview=True),
+                reply_markup=markup)
 
         games = [
             game_article("g_mo", "btn_mafia_online", "inl_game_text", "inl_game_go",
-                         f"https://t.me/{bot_me}?start=mo_go"),
+                         f"https://t.me/{bot_me}?start=mo_go", "mafia"),
             game_article("g_mafia", "gpk_mafia", "inl_group_text", "inl_group_go",
-                         f"https://t.me/{bot_me}?startgroup=play"),
+                         f"https://t.me/{bot_me}?startgroup=play", "mafia"),
             game_article("g_spy", "gpk_spy", "inl_group_text", "inl_group_go",
-                         f"https://t.me/{bot_me}?startgroup=play"),
+                         f"https://t.me/{bot_me}?startgroup=play", "spy"),
         ]
         if db.game_on("arcade"):
             for kind in ("xo", "c4", "rps"):             # تُلعب في نفس الرسالة المرسلة
+                text = t(L, "ar_inline_start", game=t(L, "ar_title_" + kind), names="—")
+                if photos.get(kind):                     # بلافتة اللعبة إن توفرت
+                    games.append(InlineQueryResultCachedPhoto(
+                        id=f"g_{kind}", photo_file_id=photos[kind], title=t(L, "ar_title_" + kind),
+                        caption=text, parse_mode="HTML",
+                        reply_markup=kb([btn(t(L, "ar_join_btn"), f"ar:ijp:{kind}", style="success")])))
+                    continue
                 games.append(InlineQueryResultArticle(
                     id=f"g_{kind}", title=t(L, "ar_title_" + kind),
-                    input_message_content=InputTextMessageContent(
-                        message_text=t(L, "ar_inline_start", game=t(L, "ar_title_" + kind), names="—"),
-                        parse_mode="HTML", disable_web_page_preview=True),
+                    input_message_content=InputTextMessageContent(message_text=text, parse_mode="HTML", disable_web_page_preview=True),
                     reply_markup=kb([btn(t(L, "ar_join_btn"), f"ar:ij:{kind}", style="success")])))
         for rid, title_key, kind in (("g_sudden", "btn_sudden", "sudden"), ("g_quiz", "btn_full", "quiz"),
                                      ("g_images", "btn_images", "images"), ("g_tf", "g_tf", "tf")):
             games.append(game_article(rid, title_key, "inl_game_text", "inl_game_go",
-                                      f"https://t.me/{bot_me}?start=on_{kind}"))
+                                      f"https://t.me/{bot_me}?start=on_{kind}", kind))
         games.append(game_article("g_kt", "kt_title_plain", "inl_game_text", "inl_game_go",
-                                  f"https://t.me/{bot_me}?start=kt"))
+                                  f"https://t.me/{bot_me}?start=kt", "quiz"))
         results = games + results
         await q.answer(results[:50], cache_time=20, is_personal=True)
 

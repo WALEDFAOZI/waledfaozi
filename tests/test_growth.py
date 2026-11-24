@@ -73,3 +73,17 @@ def test_invitee_gets_bonus_once_after_first_full_test():
         photos = [c for c in h.session.calls if type(c).__name__ == "SendPhoto" and c.chat_id == 42]
         assert "مكافأة الانضمام" not in (photos[-1].caption or "")
     asyncio.run(go())
+
+
+def test_inline_games_use_banner_photos_when_a_file_id_is_known():
+    from aiogram.types import InlineQueryResultCachedPhoto
+    async def go():
+        h = Harness()
+        h.db.set_setting("inl_photo:mafia:ar", "FILE_MAFIA")
+        await h.dp.feed_update(h.bot, Update(update_id=911, inline_query=_inline(33)))
+        res = [c for c in h.session.calls if type(c).__name__ == "AnswerInlineQuery"][-1].results
+        photos = {r.id: r for r in res if isinstance(r, InlineQueryResultCachedPhoto)}
+        assert "g_mafia" in photos and photos["g_mafia"].photo_file_id == "FILE_MAFIA"
+        assert "g_mo" in photos                                       # المافيا أونلاين بنفس اللافتة
+        assert any(getattr(r, "id", "") == "g_tf" and not isinstance(r, InlineQueryResultCachedPhoto) for r in res)   # بلا معرّف = نتيجة نصية
+    asyncio.run(go())

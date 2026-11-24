@@ -206,3 +206,55 @@ def test_reminder_can_be_turned_off_from_settings():
         finally:
             A.REMIND_SECS = old
     asyncio.run(go())
+
+
+def test_host_can_cancel_a_group_match_from_its_message():
+    from test_mafia_game import GROUP, gcmd
+
+    async def go():
+        A.matches.clear(); A.user_match.clear()
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        a, b = h.user(51, "Ali"), h.user(52, "Bob")
+        for u in (a, b):
+            h.db.upsert_user(u.id, u.first_name)
+        await gcmd(h, a, "/xo", 500)
+        m = next(iter(A.matches.values()))
+        await h.tap(b, f"ar:j:{m.gid}")                          # بدأت المباراة (لاعبان)
+        assert m.state == "play"
+        h.uid += 1
+        from aiogram.types import CallbackQuery, Message, Update
+        import datetime as dt
+        msg = Message(message_id=900, date=dt.datetime.now(), chat=GROUP, text=".")
+        await h.dp.feed_update(h.bot, Update(update_id=h.uid, callback_query=CallbackQuery(
+            id=str(h.uid), from_user=a, chat_instance="c", data=f"ar:stop:{m.gid}", message=msg)))
+        assert m.gid not in A.matches and not A.user_match
+        edits = [c for c in h.session.calls if type(c).__name__ in ("EditMessageCaption", "EditMessageText") and c.chat_id == GROUP.id]
+        assert any("أُلغي" in (getattr(c, "text", None) or getattr(c, "caption", None) or "") or "تم إلغاء" in (getattr(c, "text", None) or getattr(c, "caption", None) or "") for c in edits)
+    run(go())
+
+
+def test_inline_photo_match_joins_and_edits_its_caption():
+    import datetime as dt
+    from aiogram.types import CallbackQuery, Update
+
+    async def go():
+        A.matches.clear(); A.user_match.clear()
+        h = Harness()
+        h.db.fast_answer_ratio = lambda sid: 0.0
+        a, b = h.user(61, "Ali"), h.user(62, "Bob")
+        for u in (a, b):
+            h.db.upsert_user(u.id, u.first_name)
+
+        async def tap_inline(u, data):
+            h.uid += 1
+            cb = CallbackQuery(id=str(h.uid), from_user=u, chat_instance="i", data=data, inline_message_id="IID-1")
+            await h.dp.feed_update(h.bot, Update(update_id=h.uid, callback_query=cb))
+        await tap_inline(a, "ar:ijp:xo")                     # أول ضغطة من نتيجة الصورة
+        m = next(iter(A.matches.values()))
+        assert m.photo and m.inline_id == "IID-1" and m.state == "join"
+        await tap_inline(b, "ar:ijp:xo")                     # الثاني يبدأ المباراة
+        assert m.state == "play" and m.players == [61, 62]
+        edits = [c for c in h.session.calls if type(c).__name__ == "EditMessageCaption" and getattr(c, "inline_message_id", None) == "IID-1"]
+        assert edits                                         # تُعدَّل التعليق لا النص
+    run(go())

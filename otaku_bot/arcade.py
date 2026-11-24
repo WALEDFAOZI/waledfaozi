@@ -90,6 +90,7 @@ class Match:
     mid: int | None = None             # رسالة المجموعة/القناة الحيّة
     inline_id: str | None = None       # رسالة الوضع الداخلي (inline): تُعدَّل بمعرّفها، ولا توجد دردشة
     photo: bool = False                # رسالة المجموعة/القناة صورة اللافتة مع النص تعليقًا (رسالة واحدة)
+    host: int | None = None            # من بدأ المباراة في المجموعة: يقدر يلغيها
     seq: int = 0                       # رقم النوبة الحالية: يتغيّر مع كل حركة، ويلغي تذكيرات النوبة السابقة
 
 
@@ -205,6 +206,13 @@ def build_arcade_router(ctx: Ctx) -> Router:
                 for c in range(C4_COLS)]
         return text, kb(cols)
 
+    def chat_view(m: Match, lang: str):
+        """نص ولوحة رسالة المجموعة/القناة، ومعها زر «إنهاء اللعبة» للمضيف."""
+        text, markup = render_chat(m, lang)
+        if markup is not None and getattr(markup, "inline_keyboard", None) is not None and m.state in ("join", "play"):
+            markup.inline_keyboard.append([btn(t(lang, "g_stop"), f"ar:stop:{m.gid}", style="danger")])
+        return text, markup
+
     def chat_lang(m: Match) -> str:
         return db.group_lang(m.chat_id) if m.chat_id else L_(m.players[0])
 
@@ -214,13 +222,13 @@ def build_arcade_router(ctx: Ctx) -> Router:
             target = {"inline_message_id": m.inline_id}
         else:
             target = {"chat_id": m.chat_id, "message_id": m.mid}
-        if m.photo and not m.inline_id:
+        if m.photo:                                            # صورة (مجموعة أو وضع داخلي): تعليق الصورة يُعدَّل
             await bot.edit_message_caption(caption=text, parse_mode="HTML", reply_markup=markup, **target)
         else:
             await bot.edit_message_text(text, parse_mode="HTML", reply_markup=markup, **target)
 
     async def show_chat(bot: Bot, m: Match, lang: str = "ar", markup_override=None) -> None:
-        text, markup = render_chat(m, lang)
+        text, markup = chat_view(m, lang)
         try:
             if m.inline_id or m.mid:
                 await edit_match_message(bot, m, text, markup_override if markup_override is not None else markup)
@@ -533,8 +541,9 @@ def build_arcade_router(ctx: Ctx) -> Router:
         m = Match(gid=counter[0], kind=kind, players=[], names={}, scope="c", chat_id=chat_id, state="join")
         m.board = [None] * 9 if kind == "xo" else [[None] * C4_COLS for _ in range(C4_ROWS)]
         matches[m.gid] = m
+        m.host = starter
         lang = db.group_lang(chat_id)
-        text, markup = render_chat(m, lang)
+        text, markup = chat_view(m, lang)
         try:                                                   # اللافتة والنص في رسالة واحدة (الصورة تعليقها النص)
             sent = await bot.send_photo(chat_id, await live.banner_media(lang, kind), caption=text,
                                         parse_mode="HTML", reply_markup=markup, reply_parameters=reply_to)
@@ -562,6 +571,25 @@ def build_arcade_router(ctx: Ctx) -> Router:
         kind = {"xo": "xo", "rps": "rps", "c4": "c4"}.get(kind, "xo")
         await chat_create(msg.bot, msg.chat.id, kind, None, "")
 
+    @r.callback_query(F.data.regexp(r"^ar:stop:\d+$"))
+    async def cb_chat_stop(c: CallbackQuery):
+        """المضيف (أو من في المباراة، أو أدمن البوت) ينهي المباراة الجارية في المجموعة/القناة."""
+        m = matches.get(int(c.data.split(":")[2]))
+        L = L_(c.from_user.id)
+        if not m or m.scope != "c" or m.state == "done":
+            await c.answer(t(L, "ar_not_now"), show_alert=True)
+            return
+        if not (c.from_user.id == m.host or c.from_user.id in m.players or db.is_admin(c.from_user.id)):
+            await c.answer(t(L, "gp_host_only"), show_alert=True)
+            return
+        await c.answer()
+        lang = chat_lang(m)
+        try:
+            await edit_match_message(c.bot, m, t(lang, "ar_cancelled"), None)
+        except TelegramAPIError:
+            pass
+        end(m)
+
     @r.callback_query(F.data.regexp(r"^ar:g:(xo|rps|c4)$"))
     async def cb_chat_start(c: CallbackQuery):
         """من قائمة المجموعة أو القناة: يبدأ تحدٍّ ثنائي في نفس المحادثة (المنشئ هو اللاعب الأول في المجموعة)."""
@@ -580,10 +608,10 @@ def build_arcade_router(ctx: Ctx) -> Router:
 
     inline_matches: dict[str, int] = {}
 
-    @r.callback_query(F.data.regexp(r"^ar:ij:(xo|rps|c4)$"))
+    @r.callback_query(F.data.regexp(r"^ar:ij(p?):(xo|rps|c4)$"))
     async def cb_inline_join(c: CallbackQuery):
         """من رسالة الوضع الداخلي: أول ضغطة تفتح المباراة في نفس الرسالة، وأول لاعبين يلعبان."""
-        kind = c.data.split(":")[2]
+        photo, kind = c.data.split(":")[1] == "ijp", c.data.split(":")[2]     # ijp: النتيجة صورة اللافتة
         iid = c.inline_message_id
         uid, L = c.from_user.id, L_(c.from_user.id)
         if not iid:
@@ -594,7 +622,7 @@ def build_arcade_router(ctx: Ctx) -> Router:
         if m is None:
             counter[0] += 1
             m = Match(gid=counter[0], kind=kind, players=[], names={}, scope="c", chat_id=None,
-                      inline_id=iid, state="join")
+                      inline_id=iid, state="join", photo=photo)
             m.board = [None] * 9 if kind == "xo" else [[None] * C4_COLS for _ in range(C4_ROWS)]
             matches[m.gid] = m
             inline_matches[iid] = m.gid

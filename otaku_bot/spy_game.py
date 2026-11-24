@@ -219,7 +219,8 @@ def build_spy_router(ctx: Ctx) -> Router:
             return False
 
     def names(g: Game) -> str:
-        return "، ".join(esc(p.name) for p in g.players.values()) or "—"
+        names = [esc(p.name) for p in g.players.values()]
+        return "\n" + "\n".join(f"• {n}" for n in names) if names else "—"
 
     # ── النصوص ──────────────────────────────────────────────
     def lobby_text(g: Game, left: int) -> str:

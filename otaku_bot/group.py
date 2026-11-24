@@ -293,7 +293,9 @@ def build_group_router(ctx: Ctx) -> Router:
     def pnames(g: Game, limit: int = 12) -> str:
         names = [esc(p.name) for p in g.players.values()]
         extra = f" +{len(names) - limit}" if len(names) > limit else ""
-        return "، ".join(names[:limit]) + extra if names else "—"
+        if not names:
+            return "—"
+        return "\n" + "\n".join(f"• {n}" for n in names[:limit]) + (f"\n{extra.strip()}" if extra else "")
 
     def lobby_text(g: Game, left: int) -> str:
         return t(g.lang, "gp_lobby" if g.scope == "group" else "gp_lobby_ch", kind=t(g.lang, f"gpk_{g.kind}"), host=esc(g.host_name), left=max(0, left),
@@ -338,11 +340,12 @@ def build_group_router(ctx: Ctx) -> Router:
         return f"{head}\n\n{body}"
 
     def answer_markup(g: Game, rnd: Rnd):
+        stop = [btn(t(g.lang, "g_stop"), f"gp:x:{g.gid}", style="danger")]     # المضيف ينهي اللعبة أثناء الأسئلة
         if rnd.tf:
             return kb([btn(t(g.lang, "g_true"), f"gp:a:{g.gid}:{g.idx}:0"), btn(t(g.lang, "g_false"), f"gp:a:{g.gid}:{g.idx}:1")],
-                      *sub_row(g.lang))
+                      *sub_row(g.lang), stop)
         btns = [btn(LETTERS[i], f"gp:a:{g.gid}:{g.idx}:{i}") for i in range(len(rnd.options))]
-        return kb(btns[:2], btns[2:], *sub_row(g.lang))
+        return kb(btns[:2], btns[2:], *sub_row(g.lang), stop)
 
     # ── سير اللعبة ─────────────────────────────────────────
     async def lobby_phase(bot: Bot, g: Game) -> None:

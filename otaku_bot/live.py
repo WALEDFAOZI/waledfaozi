@@ -145,3 +145,27 @@ async def edit(bot: Bot, chat_id: int, mid: int, text: str, markup=None, media=N
         except TelegramAPIError:
             return False
     return False
+
+
+async def inline_photo_id(bot: Bot, db, upload_chat: int | None, lang: str, kind: str) -> str | None:
+    """معرّف صورة اللافتة لنتائج الوضع الداخلي (بدون رابط عام). يُرفع مرة واحدة لمحادثة الأدمن ثم يُحذف الرسالة، ويُحفظ المعرّف."""
+    key = f"inl_photo:{kind}:{lang}"
+    saved = db.get_setting(key)
+    if saved:
+        return saved
+    if not upload_chat:
+        return None
+    try:
+        data = await banner(lang, kind)
+        m = await bot.send_photo(upload_chat, BufferedInputFile(data, "banner.jpg"))
+    except Exception:  # noqa: BLE001  (لا لافتة = نتيجة نصية كالمعتاد)
+        log.warning("inline photo upload failed for %s", kind)
+        return None
+    file_id = m.photo[-1].file_id if m.photo else None
+    try:
+        await bot.delete_message(upload_chat, m.message_id)
+    except TelegramAPIError:
+        pass
+    if file_id:
+        db.set_setting(key, file_id)
+    return file_id
