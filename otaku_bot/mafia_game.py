@@ -1318,6 +1318,16 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 await m.bot.send_message(m.from_user.id, t(L, "mf_no_discuss_warn", ch=esc(ch.title or "")), parse_mode="HTML")
             except TelegramAPIError:
                 pass
+        if linked and (chat_id, post_id) not in POST_ROOT and in_discuss:
+            # البوت ما شاف نسخة المنشور التلقائية (ما يقدر يقرأ الرسائل القديمة): نعيد توجيه المنشور لمجموعة
+            # التعليقات، ونرد على النسخة الجديدة، فتظهر التحديثات تحت المنشور
+            try:
+                fwd = await m.bot.forward_message(linked, chat_id, post_id)
+                copy_id = getattr(fwd, "message_id", None)
+                if copy_id:
+                    POST_ROOT[(chat_id, post_id)] = (linked, copy_id)
+            except TelegramAPIError:
+                pass
         if not await open_lobby(m.bot, g):
             await m.answer(t(L, "mf_post_bad"), parse_mode="HTML")
             return
