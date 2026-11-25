@@ -14,7 +14,7 @@ from .texts import t
 from .thread_anchor import anchor_id
 
 log = logging.getLogger(__name__)
-_BOT_USERNAME = {"u": ""}
+_BOT_USERNAME = {"u": ""}   # اسم البوت (يُضبط عند التشغيل)
 
 
 def set_username(u: str) -> None:

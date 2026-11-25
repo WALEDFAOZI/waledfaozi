@@ -137,7 +137,11 @@ async def start_chess_web(bot: Bot, ctx: Ctx) -> None:
         await announce_result(bot, ctx.db, gid)
 
     try:
-        runner = web.AppRunner(build_app(ctx.settings.token, ctx.db.conn, on_finish=finished))
+        from .app_hub import add_hub_routes
+        from .chess_bot import _BOT_USERNAME
+        app = build_app(ctx.settings.token, ctx.db.conn, on_finish=finished)
+        add_hub_routes(app, ctx.settings.token, ctx.db, lambda: _BOT_USERNAME["u"])   # التطبيق المصغّر على نفس الخادم
+        runner = web.AppRunner(app)
         await runner.setup()
         port = int(os.getenv("WEB_PORT", "8080") or 8080)
         await web.TCPSite(runner, "0.0.0.0", port).start()
