@@ -736,8 +736,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
         result = head.split("\n")[0] + "\n\n" + reveal
         await show(bot, g, result, kb(*chan_row(L, bot_link=True)) or None, status=True)
         await post_discuss(bot, g, result)                  # النتيجة كاملة في تعليقات المنشور (انتهت اللعبة، الأدوار تنكشف)
-        for p in g.players.values():                        # وكل لاعب يستلمها في الخاص
-            await dm(bot, p.uid, result)
+        for p in g.players.values():                        # وكل لاعب يستلمها في الخاص (إلا من أوقف الإشعارات)
+            if (g.gid, p.uid) not in MUTED:
+                await dm(bot, p.uid, result)
         for p in g.players.values():
             if db.is_admin(p.uid):
                 continue
