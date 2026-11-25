@@ -103,6 +103,7 @@ class Game:
     joker_uid: int | None = None      # المجنون الذي طُرد (هو الوحيد الذي يختار من يسحبه)
     last_out: int | None = None       # آخر لاعب طُرد بالتصويت (يُذكر في نهاية اللعبة)
     discuss_post: int | None = None   # رقم المنشور في القناة: نجد نسخته في التعليقات ونرد عليها
+    discuss_group: int | None = None  # مجموعة التعليقات المربوطة بالقناة (احتياط إن لم تصل نسخة المنشور)
     vote_deadline: float = 0.0        # نهاية التصويت (يمدّدها المضيف بزر في رسالة اللعبة)
     day_markup: object = None
 
@@ -652,7 +653,12 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if not g.discuss_post:
             return
         root = POST_ROOT.get((g.chat_id, g.discuss_post))
-        if not root:
+        if not root:                                       # ما وصلت نسخة المنشور: نرسل في مجموعة التعليقات نفسها (بدون رد)
+            if g.discuss_group:
+                try:
+                    await bot.send_message(g.discuss_group, text, parse_mode="HTML")
+                except TelegramAPIError:
+                    pass
             return
         chat_id, root_mid = root
         try:
@@ -1297,13 +1303,14 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.discuss_line = t(db.group_lang(chat_id), "mf_discuss_line")
         g.discuss_url = url
         g.discuss_post = post_id                                       # نسخة المنشور في التعليقات تصل تلقائيًا للبوت
+        g.discuss_group = getattr(ch, "linked_chat_id", None)
         linked = getattr(ch, "linked_chat_id", None)
         in_discuss = False
         if linked:
             try:
                 me = await m.bot.get_me()
                 member = await m.bot.get_chat_member(linked, me.id)
-                in_discuss = member.status in ("member", "administrator", "creator")
+                in_discuss = member.status in ("administrator", "creator")   # الأدمن فقط يستقبل نسخ المنشورات التلقائية
             except TelegramAPIError:
                 in_discuss = False
         if not in_discuss:                                             # تحذير المضيف في الخاص: التحديثات لن تصل للتعليقات
