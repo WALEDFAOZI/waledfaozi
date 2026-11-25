@@ -321,3 +321,8 @@ def test_killers_never_exceed_three_and_fifteen_players_is_the_cap():
         assert False, "4 قتلة لازم ترفض"
     except M.ConfigError:
         pass
+
+
+def test_joker_appears_from_ten_players_in_auto_config():
+    assert "joker" not in M.auto_config(9)[1]
+    assert "joker" in M.auto_config(10)[1]

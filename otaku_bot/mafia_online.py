@@ -183,7 +183,7 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
         rid = counter[0]
         n = len(take)
         killers = M.auto_config(max(MIN_PLAYERS, n))[0]
-        specials = ["detective"] + (["doctor"] if n >= 6 else []) + (["mayor"] if n >= 8 else []) + (["joker"] if n >= 12 else [])
+        specials = ["detective"] + (["doctor"] if n >= 6 else []) + (["mayor"] if n >= 8 else []) + (["joker"] if n >= 10 else [])
         cfg = M.Config(killers=killers, specials=specials)
         uids = [uid for uid, _ in take]
         roles = M.assign(uids, cfg, rng)

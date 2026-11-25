@@ -89,11 +89,11 @@ def _roles_for(n):
     return run(go())
 
 
-def test_eight_players_get_a_mayor_and_twelve_get_a_joker():
+def test_eight_players_get_a_mayor_and_ten_get_a_joker():
     eight = _roles_for(8)
     assert "mayor" in eight and "joker" not in eight
-    twelve = _roles_for(12)
-    assert "mayor" in twelve and "joker" in twelve
+    ten = _roles_for(10)
+    assert "mayor" in ten and "joker" in ten
 
 
 def test_online_mafia_guide_button_sends_the_explanation():

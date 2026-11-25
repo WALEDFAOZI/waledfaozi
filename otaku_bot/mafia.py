@@ -71,7 +71,7 @@ def auto_config(n_players: int) -> tuple[int, list[str]]:
         specials.append("doctor")
     if n >= 8:
         specials.append("mayor")
-    if n >= 12:
+    if n >= 10:                                  # المجنون يظهر من 10 لاعبين
         specials.append("joker")
     Config(killers=killers, specials=specials).validate(n)
     return killers, specials
