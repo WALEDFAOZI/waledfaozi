@@ -172,6 +172,8 @@ def night_complete(g: Game) -> bool:
 
 MUTED: set[tuple[int, int]] = set()   # (رقم اللعبة، المستخدم) الذين أوقفوا إشعارات أحداث اللعبة في الخاص (بعد موتهم)
 
+LAST_IN_POST: dict[tuple[int, int], tuple[int, int]] = {}   # (القناة، المنشور) -> (مجموعة التعليقات، آخر رد شافه البوت على نسخة المنشور)
+
 POST_ROOT: dict[tuple[int, int], tuple[int, int]] = {}   # (القناة، رقم المنشور) -> (مجموعة التعليقات، نسخة المنشور فيها)
 
 
@@ -186,6 +188,14 @@ def build_mafia_router(ctx: Ctx) -> Router:
         """نسخة المنشور في مجموعة التعليقات: نحفظ مكانها لنرد عليها."""
         if m.forward_from_chat and m.forward_from_message_id:
             POST_ROOT[(m.forward_from_chat.id, m.forward_from_message_id)] = (m.chat.id, m.message_id)
+        raise SkipHandler()
+
+    @msgs.message(F.reply_to_message)
+    async def on_thread_reply(m: Message):
+        """نتتبع آخر رد في تعليقات المنشور (يرد على نسخته): احتياط إن ما وصلت النسخة التلقائية."""
+        rt = m.reply_to_message
+        if rt is not None and getattr(rt, "is_automatic_forward", False) and rt.forward_from_chat and rt.forward_from_message_id:
+            LAST_IN_POST[(rt.forward_from_chat.id, rt.forward_from_message_id)] = (m.chat.id, m.message_id)
         raise SkipHandler()
     cbs = Router(name="mafia_cbs")
     cbs.callback_query.filter(F.message.chat.type.in_(GROUP_TYPES | {"channel"}))
@@ -676,8 +686,16 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if not g.discuss_post:
             return
         root = POST_ROOT.get((g.chat_id, g.discuss_post))
-        if not root:                                       # ما وصلت نسخة المنشور: نرسل في مجموعة التعليقات نفسها (بدون رد)
-            if g.discuss_group:
+        if not root:                                       # ما وصلت نسخة المنشور: نرد على آخر رد شافه البوت في تعليقات المنشور
+            last = LAST_IN_POST.get((g.chat_id, g.discuss_post))
+            if last:
+                try:
+                    await bot.send_message(last[0], text, parse_mode="HTML",
+                                           reply_parameters=ReplyParameters(message_id=last[1], allow_sending_without_reply=False))
+                    return
+                except TelegramAPIError:
+                    pass
+            if g.discuss_group:                            # ما شاف شي بعد: نرسل في مجموعة التعليقات نفسها (بدون رد)
                 try:
                     await bot.send_message(g.discuss_group, text, parse_mode="HTML")
                 except TelegramAPIError:
@@ -1340,16 +1358,6 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if not in_discuss:                                             # تحذير المضيف في الخاص: التحديثات لن تصل للتعليقات
             try:
                 await m.bot.send_message(m.from_user.id, t(L, "mf_no_discuss_warn", ch=esc(ch.title or "")), parse_mode="HTML")
-            except TelegramAPIError:
-                pass
-        if linked and (chat_id, post_id) not in POST_ROOT and in_discuss:
-            # البوت ما شاف نسخة المنشور التلقائية (ما يقدر يقرأ الرسائل القديمة): نعيد توجيه المنشور لمجموعة
-            # التعليقات، ونرد على النسخة الجديدة، فتظهر التحديثات تحت المنشور
-            try:
-                fwd = await m.bot.forward_message(linked, chat_id, post_id)
-                copy_id = getattr(fwd, "message_id", None)
-                if copy_id:
-                    POST_ROOT[(chat_id, post_id)] = (linked, copy_id)
             except TelegramAPIError:
                 pass
         if not await open_lobby(m.bot, g):
