@@ -749,6 +749,12 @@ def build_group_router(ctx: Ctx) -> Router:
     @root.my_chat_member()
     async def on_member(ev: ChatMemberUpdated):
         st = ev.new_chat_member.status
+        if ev.chat.type in GROUP_TYPES and st in ("member", "administrator") \
+                and ev.old_chat_member.status in ("left", "kicked"):      # أُضيف البوت لمجموعة: رسالة ترحيب بالأوامر
+            try:
+                await ev.bot.send_message(ev.chat.id, t(db.group_lang(ev.chat.id), "grp_welcome"), parse_mode="HTML")
+            except TelegramAPIError:
+                pass
         if st in ("left", "kicked") and ev.chat.type in ANY_TYPES:
             g = games.get(ev.chat.id)
             if g and g.task:

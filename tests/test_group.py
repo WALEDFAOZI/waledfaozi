@@ -673,3 +673,24 @@ def test_anyone_can_pick_a_game_from_the_menu():
     run(go_one("gp:n:quiz"))
 
 
+
+
+def test_bot_added_to_a_group_sends_a_welcome_with_the_commands():
+    from aiogram.types import ChatMemberAdministrator, ChatMemberLeft, ChatMemberUpdated, Update
+    from harness import Harness as H2
+
+    async def go():
+        h = H2()
+        bot_u = User(id=999, is_bot=True, first_name="bot", username="otaku_test_bot")
+        adder = h.user(5, "Owner")
+        new = ChatMemberAdministrator(user=bot_u, can_be_edited=False, is_anonymous=False, can_manage_chat=True,
+                                      can_delete_messages=True, can_manage_video_chats=False, can_restrict_members=False,
+                                      can_promote_members=False, can_change_info=False, can_invite_users=True,
+                                      can_post_stories=False, can_edit_stories=False, can_delete_stories=False,
+                                      can_send_welcome_messages=False, can_post_messages=True, can_edit_messages=True)
+        ev = ChatMemberUpdated(chat=Chat(id=-4004, type="supergroup", title="شلة"), from_user=adder,
+                               date=dt.datetime.now(), old_chat_member=ChatMemberLeft(user=bot_u), new_chat_member=new)
+        await h.dp.feed_update(h.bot, Update(update_id=7001, my_chat_member=ev))
+        texts = [c.text for c in h.session.calls if type(c).__name__ == "SendMessage" and c.chat_id == -4004]
+        assert texts and "/play" in texts[-1] and "/stop" in texts[-1] and "/gtop" in texts[-1]
+    run(go())
