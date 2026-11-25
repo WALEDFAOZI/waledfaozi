@@ -621,15 +621,13 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.mayor_revealed = True
         await c.answer()
         text = t(g.lang, "mf_mayor_revealed", name=esc(m.name))
-        # إعلان منفصل: رسالة جديدة في الجروب/القناة، ورسالة في الخاص لكل لاعب (إشعار)، وفي تعليقات المنشور
-        try:
+        # إعلان منفصل: في مكان النقاش فقط (القروب نفسه، أو تعليقات القناة)، وفي الخاص لكل لاعب
+        if g.scope == "group":
             await send_in_place(c.bot, g, text)
-        except TelegramAPIError:
-            pass
+        await post_discuss(c.bot, g, text)
         for p in g.players.values():
             if (g.gid, p.uid) not in MUTED:                # الإعلان في الخاص: إلا من أوقف الإشعارات
                 await dm(c.bot, p.uid, text)
-        await post_discuss(c.bot, g, text)
 
     async def notify_discuss_start(bot: Bot, g: Game, alive: list) -> None:
         """بداية النهار: رسالة خاصة لكل حي فيها زر يودي لمكان النقاش."""
