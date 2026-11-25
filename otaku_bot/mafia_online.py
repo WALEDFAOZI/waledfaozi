@@ -54,7 +54,7 @@ class Room:
     night_picks: dict = field(default_factory=dict)     # قاتل -> هدف
     night_actions: dict = field(default_factory=dict)   # دور -> هدف
     last_protect: int | None = None
-    last_check: int | None = None      # من حقّقه المحقق ليلة قبل: لا يُحقَّق معه مرتين متتاليتين
+    checked: set = field(default_factory=set)   # من حقّقهم المحقق في هذه الدورة: لا يُعاد التحقيق معهم حتى يخلص الجميع
     mayor_revealed: bool = False
     joker_pick: int | None = None
     votes: dict = field(default_factory=dict)
@@ -217,7 +217,8 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
             elif s.role == "doctor":
                 opts = [x for x in ids_alive if x.uid != room.last_protect]
             elif s.role == "detective":
-                opts = [x for x in ids_alive if x.uid != s.uid and x.uid != room.last_check]
+                cands = [x for x in ids_alive if x.uid != s.uid]
+                opts = [x for x in cands if x.uid not in room.checked] or cands
             else:
                 await say(bot, s.uid, t(L, "mo_night_wait"))
                 continue
@@ -250,7 +251,6 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
         check = room.night_actions.get("detective")
         res = M.resolve_night(roles, alive_ids, M.Night(kills=kills, protect=protect, check=check))
         room.last_protect = doc
-        room.last_check = room.night_actions.get("detective")
         return res, roles
 
     @r.callback_query(F.data.regexp(r"^mo:n:\d+:(killer|doctor|detective):\d+$"))
@@ -280,10 +280,14 @@ def build_mafia_online_router(ctx: Ctx) -> Router:
                 return
             room.night_actions["doctor"] = target.uid
         else:
-            if target.uid == uid or target.uid == room.last_check:
+            if target.uid == uid or target.uid in room.checked:
                 await c.answer(t(L, "mo_bad_target") if target.uid == uid else t(L, "mf_check_repeat"), show_alert=True)
                 return
             room.night_actions["detective"] = target.uid
+            room.checked.add(target.uid)
+            others = {x.uid for x in alive(room) if x.uid != uid}
+            if others <= room.checked:                 # خلص الجميع: تبدأ الدورة من جديد
+                room.checked.clear()
             team = t(L, "mf_team_" + M.ROLES[target.role][1])
             await c.answer(t(L, "mo_detect_alert", name=target.name, team=team), show_alert=True)
             return

@@ -88,7 +88,7 @@ class Game:
     discuss_secs: int = DISCUSS_SECS  # وقت النقاش في النهار قبل التصويت
     voting: bool = False              # التصويت مفتوح (بعد انتهاء النقاش)
     last_protect: int | None = None   # من حماه الطبيب في الليلة الماضية: لا يُحمى مرتين متتاليتين
-    last_check: int | None = None     # من حقّقه المحقق في الليلة الماضية: لا يُحقَّق معه ليلتين متتاليتين
+    checked: set = field(default_factory=set)   # من حقّقهم المحقق في هذه الدورة: لا يُحقَّق معهم مرة ثانية حتى يخلص الجميع
     reveal_death: bool = False        # إظهار دور القتيل/المطرود في الإعلان (افتراضيًا مخفي)
     day_mid: int | None = None        # رسالة التصويت الحالية (تُحدَّث مع كل صوت)
     day_text: str = ""
@@ -424,8 +424,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
             elif p.role == "doctor":
                 rows = [[btn(q.name[:24], f"mf:n:{g.gid}:doctor:{q.uid}")] for q in alive if q.uid != g.last_protect]
             elif p.role == "detective":
-                rows = [[btn(q.name[:24], f"mf:n:{g.gid}:{p.role}:{q.uid}")] for q in alive
-                        if q.uid != p.uid and q.uid != g.last_check]
+                cands = [q for q in alive if q.uid != p.uid]
+                fresh = [q for q in cands if q.uid not in g.checked] or cands
+                rows = [[btn(q.name[:24], f"mf:n:{g.gid}:{p.role}:{q.uid}")] for q in fresh]
             else:
                 continue
             text = t(L, f"mf_n_{p.role}")
@@ -790,7 +791,6 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 await night_phase(bot, g)
                 res = resolve_night(g)
                 g.last_protect = g.night_actions.get("doctor")   # الحماية تنتهي إن لم يحمِ الطبيب هذه الليلة
-                g.last_check = g.night_actions.get("detective")  # التحقيق مع نفس الشخص لا يتكرر ليلتين متتاليتين
                 for v in res.victims:
                     g.players[v].alive = False
                 await announce_morning(bot, g, res)
@@ -1192,7 +1192,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         if role == "doctor" and target == g.last_protect:
             await c.answer(t(L, "mf_protect_repeat"), show_alert=True)
             return
-        if role == "detective" and target == g.last_check:
+        if role == "detective" and target in g.checked:
             await c.answer(t(L, "mf_check_repeat"), show_alert=True)
             return
         if not tp or not tp.alive or target == p.uid or (role == "killer" and tp.role == "killer"):
@@ -1209,6 +1209,11 @@ def build_mafia_router(ctx: Ctx) -> Router:
         else:
             g.night_actions[role] = target
             g.acted.add(p.uid)
+            if role == "detective":                          # سجل التحقيق: يبدأ من جديد لما يخلص الجميع
+                g.checked.add(target)
+                others = {q.uid for q in alive_players(g) if q.uid != p.uid}
+                if others <= g.checked:
+                    g.checked.clear()
         if role == "detective":
             team = t(L, "mf_team_" + M.ROLES[tp.role][1])
             await c.answer(t(L, "mf_pick_saved", name=esc(tp.name)[:20]), show_alert=True)
