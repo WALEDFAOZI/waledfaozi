@@ -72,10 +72,11 @@ GAME_PREFIXES = {  # الأزرار التي تبدأ لعبة أو تكمّله
     "online_quiz": ("on:j:", "on:a:", "on:q:"),
     "mafia_online": ("mo:",),
     "arcade": ("ar:",),
+    "chess": ("chs:",),
     "mafia": ("mf:cs", "mf:cp", "mf:cc", "mf:l:", "mf:s:", "mf:n:", "mf:v:"),
     "spy": ("sp:",),
 }
-GAME_COMMANDS = {"/mafia": "mafia", "/spy": "spy", "/xo": "arcade", "/rps": "arcade", "/c4": "arcade"}
+GAME_COMMANDS = {"/mafia": "mafia", "/spy": "spy", "/xo": "arcade", "/rps": "arcade", "/c4": "arcade", "/chess": "chess"}
 
 
 class GameGate(BaseMiddleware):

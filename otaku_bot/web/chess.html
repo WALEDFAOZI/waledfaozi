@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>♟ الشطرنج</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+<style>
+  :root { --bg:#f6f7fb; --fg:#1d2330; --muted:#6b7280; --ok:#16a34a; --bad:#dc2626; --card:#ffffff; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#15181f; --fg:#eef1f6; --muted:#9aa3b2; --card:#1f2430; } }
+  :root[data-theme="dark"] { --bg:#15181f; --fg:#eef1f6; --muted:#9aa3b2; --card:#1f2430; }
+  body { margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, "Segoe UI", Tahoma, sans-serif; }
+  .wrap { max-width:520px; margin:0 auto; padding:12px 14px 24px; }
+  .card { background:var(--card); border-radius:14px; padding:10px 12px; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  #status { font-size:16px; font-weight:700; text-align:center; min-height:24px; }
+  #players { display:flex; justify-content:space-between; font-size:14px; color:var(--muted); margin-top:4px; }
+  #board { width:100%; margin:0 auto; }
+  .btns { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  button { border:0; border-radius:12px; padding:11px 14px; font-size:15px; font-weight:600; cursor:pointer; background:#3b82f6; color:#fff; }
+  button.ok { background:var(--ok); } button.bad { background:var(--bad); } button.ghost { background:#94a3b8; }
+  button:disabled { opacity:.45; cursor:default; }
+  #moves { font-size:13px; color:var(--muted); line-height:1.8; direction:ltr; text-align:left; max-height:120px; overflow:auto; }
+  #err { color:var(--bad); font-size:14px; text-align:center; min-height:18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div id="status">جاري التحميل…</div>
+    <div id="players"><span id="pw">—</span><span id="pb">—</span></div>
+  </div>
+  <div class="card"><div id="board"></div></div>
+  <div class="card btns">
+    <button id="join" class="ok" style="display:none">✅ انضم للعب</button>
+    <button id="draw" class="ghost" style="display:none">🤝 عرض تعادل</button>
+    <button id="resign" class="bad" style="display:none">🏳️ استسلام</button>
+  </div>
+  <div class="card"><div id="err"></div><div id="moves"></div></div>
+</div>
+<script>
+(function () {
+  var tg = window.Telegram && Telegram.WebApp; if (tg) { tg.ready(); tg.expand(); }
+  var initData = tg ? tg.initData : "";
+  // رقم اللعبة: من معامل الدخول startapp (chess_123) أو من المسار /chess/123
+  var startParam = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || "";
+  var gid = startParam.indexOf("chess_") === 0 ? startParam.slice(6) : location.pathname.split("/").pop();
+  var api = "/api/chess/" + gid;
+  var state = null;
+  var board = null;
+  var LABEL = { white: "الأبيض", black: "الأسود" };
+
+  function $(id) { return document.getElementById(id); }
+  function say(msg) { $("err").textContent = msg || ""; }
+
+  function call(path, body) {
+    return fetch(api + path, {
+      method: body === undefined ? "GET" : "POST",
+      headers: { "X-Init-Data": initData, "Content-Type": "application/json" },
+      body: body === undefined ? undefined : JSON.stringify(body)
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, data: j }; }); });
+  }
+
+  function myTurn() { return state && state.state === "play" && state.my_color && state.turn === state.my_color; }
+
+  function render() {
+    if (!state) return;
+    if (state.error) { $("status").textContent = "افتح اللعبة من تيليجرام"; return; }
+    var s = state.state, me = state.my_color, st = "";
+    if (s === "wait") st = me ? "بانتظار خصم… شارك الرابط" : "انضم للعب الآن";
+    else if (s === "play") st = myTurn() ? "🟢 دورك الآن" : "⏳ دور الخصم";
+    else {
+      if (state.result === "draw") st = "🤝 انتهت بالتعادل";
+      else if (state.result === me) st = "🏆 فزت!";
+      else if (me) st = "😵 خسرت";
+      else st = "🏁 انتهت اللعبة (" + LABEL[state.result] + " فاز)";
+    }
+    if (state.in_check && s === "play") st += " · ⚠️ كش";
+    $("status").textContent = st;
+    $("pw").textContent = "⬜ " + state.white_name;
+    $("pb").textContent = "⬛ " + state.black_name;
+    $("join").style.display = (s === "wait" && !me) ? "" : "none";
+    var playing = s === "play" && me;
+    $("resign").style.display = playing ? "" : "none";
+    $("draw").style.display = playing ? "" : "none";
+    $("draw").textContent = state.draw_by_me ? "⏳ عرض التعادل مُرسل" : (state.draw_offered ? "🤝 اقبل التعادل" : "🤝 عرض تعادل");
+    $("moves").textContent = state.moves.map(function (m, i) {
+      return (i % 2 === 0 ? (Math.floor(i / 2) + 1) + ". " : "") + m;
+    }).join("  ");
+    if (board) {
+      board.orientation(me === "black" ? "black" : "white");
+      board.position(state.fen, false);
+    }
+  }
+
+  function refresh() {
+    return call("").then(function (r) {
+      if (r.ok) { state = r.data; render(); }
+      else { state = { error: true }; render(); }
+    }).catch(function () { say("تعذّر الاتصال، أعد المحاولة"); });
+  }
+
+  board = Chessboard("board", {
+    draggable: true,
+    position: "start",
+    pieceTheme: "https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/img/chesspieces/wikipedia/{piece}.png",
+    onDragStart: function (source, piece) {
+      if (!myTurn()) return false;
+      if (state.my_color === "white" && piece.search(/^b/) !== -1) return false;
+      if (state.my_color === "black" && piece.search(/^w/) !== -1) return false;
+      return true;
+    },
+    onDrop: function (source, target) {
+      if (source === target) return "snapback";
+      if (!myTurn()) return "snapback";
+      say("");
+      return call("/move", { uci: source + target }).then(function (r) {
+        if (!r.ok || r.data.status !== "ok") { say("هذي الحركة ما تنفع الحين"); refresh(); return; }
+        state = r.data.state; render();
+      });
+    }
+  });
+
+  $("join").onclick = function () {
+    call("/join", {}).then(function (r) { if (r.data.status === "ok") { state = r.data.state; render(); } else { say("ما قدرت أنضم: " + r.data.status); refresh(); } });
+  };
+  $("resign").onclick = function () {
+    if (!confirm("متأكد تستسلم؟")) return;
+    call("/resign", {}).then(function (r) { if (r.data.state) { state = r.data.state; render(); } });
+  };
+  $("draw").onclick = function () {
+    call("/draw", {}).then(function (r) { if (r.data.state) { state = r.data.state; render(); } });
+  };
+
+  refresh();
+  setInterval(refresh, 2000);
+})();
+</script>
+</body>
+</html>

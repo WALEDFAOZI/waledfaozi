@@ -113,6 +113,8 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
     from .kt import build_kt_router
     dp.include_router(build_kt_router(ctx))       # لعبة «كت» (تقبل الكلمة في الخاص والمجموعات)
     dp.include_router(build_arcade_router(ctx))   # ألعاب ثنائية (قبل start العادي: روابط التحدّي)
+    from .chess_bot import build_chess_router
+    dp.include_router(build_chess_router(ctx))    # الشطرنج (Mini App): الخاص والمجموعات والقنوات
     dp.include_router(build_online_router(ctx))   # لعب أونلاين
     dp.include_router(build_mafia_online_router(ctx))  # مافيا أونلاين (طابور + غرف خاصة)
     dp.include_router(build_group_router(ctx))    # المجموعات: قبل الباقي، والباقي مقيّد بالخاص
@@ -122,6 +124,26 @@ def build_dispatcher(ctx: Ctx) -> Dispatcher:
     dp.include_router(build_persona_router(ctx))
     dp.include_router(build_router(ctx))
     return dp
+
+
+async def start_chess_web(bot: Bot, ctx: Ctx) -> None:
+    """يشغّل خادم صفحة الشطرنج بجانب البوت. المنفذ من WEB_PORT (الافتراضي 8080)."""
+    import os
+    from aiohttp import web
+    from .chess_bot import announce_result
+    from .chess_web import build_app
+
+    async def finished(gid: int) -> None:
+        await announce_result(bot, ctx.db, gid)
+
+    try:
+        runner = web.AppRunner(build_app(ctx.settings.token, ctx.db.conn, on_finish=finished))
+        await runner.setup()
+        port = int(os.getenv("WEB_PORT", "8080") or 8080)
+        await web.TCPSite(runner, "0.0.0.0", port).start()
+        log.info("chess web server on port %s", port)
+    except OSError as e:
+        log.warning("chess web server not started: %s", e)
 
 
 async def run(settings: Settings) -> None:
@@ -187,6 +209,12 @@ async def run(settings: Settings) -> None:
             BotCommand(command="gstop", description="Stop the game ⛔")], scope=BotCommandScopeAllGroupChats(), language_code="en")
     except Exception as e:  # noqa: BLE001
         log.warning("group commands failed: %s", e)
+    try:   # اسم البوت لروابط الشطرنج (startapp)
+        from .chess_bot import set_username as chess_username
+        chess_username((await bot.get_me()).username)
+    except (TelegramNetworkError, TelegramServerError, TelegramRetryAfter, asyncio.TimeoutError, OSError):
+        log.warning("chess: bot username not known yet")
+    await start_chess_web(bot, ctx)                                 # خادم صفحة الشطرنج (Mini App)
     ctx.tasks.append(asyncio.create_task(growth_loop(bot, ctx)))   # لقطة يومية لعدد مشتركي القناة
     ctx.tasks.append(asyncio.create_task(reminder_loop(bot, ctx)))   # تذكير يومي اختياري
     ctx.tasks.append(asyncio.create_task(backup_loop(bot, ctx)))   # نسخة احتياطية أسبوعية تلقائية
