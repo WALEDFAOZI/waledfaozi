@@ -857,6 +857,9 @@ def build_mafia_router(ctx: Ctx) -> Router:
                     last = g.players[out].role
                     text = t(L, "mf_executed", name=esc(g.players[out].name))
                     public = text                                 # بدون دور: التعليقات لا تكشف الأدوار
+                    if last == "killer":                          # قاتل سقط: كشف درامي في الرسالة الحيّة
+                        left_k = sum(1 for q in g.players.values() if q.alive and q.role == "killer")
+                        text = t(L, "mf_executed_killer", name=esc(g.players[out].name), left=left_k)
                     if g.reveal_death and last != "joker":        # المجنون يُكشف دوره أصلًا
                         text += "\n" + role_line(g, out)
                     await show(bot, g, text, None)

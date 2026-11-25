@@ -1531,6 +1531,10 @@ T["ar"]["mf_muted"] = "🔕 تم إيقاف الإشعارات الخاصة عن
 T["en"]["mf_muted"] = "🔕 Private game notifications are off."
 T["ar"]["grp_welcome"] = "👋 <b>أهلاً! أنا بوت الأنمي.</b>\n▶️ <b>/play</b> تبدأ لعبة في المجموعة\n⏹ <b>/stop</b> توقف أي لعبة شغالة\n🏆 <b>/gtop</b> ترتيب المجموعة"
 T["en"]["grp_welcome"] = "👋 <b>Hi! I'm the Anime bot.</b>\n▶️ <b>/play</b> start a game in the group\n⏹ <b>/stop</b> stop any running game\n🏆 <b>/gtop</b> group ranking"
+T["ar"]["mf_executed_killer"] = ('🔪 <b>「 انكشف القاتل! 」</b>\n\n<b>{name}</b>\n'
+    'سقط بالتصويت… وكان من المافيا!\n\n<i>المافيا المتبقون: {left}</i>')
+T["en"]["mf_executed_killer"] = ('🔪 <b>The killer is exposed!</b>\n\n<b>{name}</b>\n'
+    'Voted out… and they were Mafia!\n\n<i>Mafia left: {left}</i>')
 T["ar"]["mf_first_pick"] = "🔪 <b>{name}</b> كان أول من اختار هدفه الليلة."
 T["en"]["mf_first_pick"] = "🔪 <b>{name}</b> was the first to pick a target tonight."
 T["ar"]["ar_turn_remind"] = "⏰ <b>{name}</b>، دورك في اللعبة! لا تخلّي الخصم ينتظر."
