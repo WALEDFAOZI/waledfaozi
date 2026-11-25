@@ -541,12 +541,16 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 await bot.send_message(p.uid, t(Lp, "mf_vote_remind"), parse_mode="HTML", protect_content=True, reply_markup=kb(*rows))
             except TelegramAPIError:
                 pass
-        if pending:                                       # وتذكير علني في الجروب/القناة بأسماء من لم يصوّت
+        if pending:                                       # تذكير علني بأسماء من لم يصوّت: في مكان النقاش فقط
             names_left = "، ".join(esc(p.name) for p in pending)
-            try:
-                await bot.send_message(g.chat_id, t(g.lang, "mf_vote_group_remind", names=names_left), parse_mode="HTML")
-            except TelegramAPIError:
-                pass
+            text = t(g.lang, "mf_vote_group_remind", names=names_left)
+            if g.scope == "channel":
+                await post_discuss(bot, g, text)          # القناة: التعليقات (مكان النقاش)، لا القناة نفسها
+            else:
+                try:
+                    await bot.send_message(g.chat_id, text, parse_mode="HTML")   # المجموعة: هي مكان النقاش
+                except TelegramAPIError:
+                    pass
 
     def mayor_of(g: Game):
         return next((p for p in g.players.values() if p.role == "mayor" and p.alive), None)
