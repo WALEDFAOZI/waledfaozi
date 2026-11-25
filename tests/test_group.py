@@ -405,7 +405,7 @@ def test_channel_publish_failure_reason_test_button_and_dm_fallback():
         assert ans and "Forbidden" in (ans[-1].text or "")
         await h.tap(owner, f"ch:t:{CHAN.id}")
         ans = [c for c in h.session.calls if type(c).__name__ == "AnswerCallbackQuery" and getattr(c, "show_alert", False)]
-        assert "Forbidden" in (ans[-1].text or "")
+        assert "محظور" in (ans[-1].text or "") and "Forbidden" not in (ans[-1].text or "")   # شرح بالعربي بدل الخطأ الخام
         h.session.blocked_chats.discard(CHAN.id)
         await h.tap(owner, f"ch:t:{CHAN.id}")                       # الآن ينجح ويحذف رسالة الاختبار
         ans = [c for c in h.session.calls if type(c).__name__ == "AnswerCallbackQuery" and getattr(c, "show_alert", False)]

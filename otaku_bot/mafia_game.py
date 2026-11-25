@@ -1118,7 +1118,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 g.killers, g.specials = M.auto_config(len(g.players))
             M.Config(killers=g.killers, specials=list(g.specials)).validate(len(g.players))
         except M.ConfigError as e:
-            await c.answer(str(e)[:190], show_alert=True)
+            await c.answer(str(e)[:190], show_alert=True)     # أخطاء الإعداد بالعربي أصلاً وتشرح المطلوب
             return
         g.start_now = True
         await c.answer(t(L, "mf_starting"))

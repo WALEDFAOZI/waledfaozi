@@ -27,6 +27,7 @@ from .names import loc, loc_opt
 from .quiz import pick_questions, shuffle_options
 from .texts import t
 from .thread_anchor import ANON_ADMIN_ID, anchor_id, identity
+from .usererr import explain
 from .timeutil import week_start
 
 log = logging.getLogger(__name__)
@@ -194,11 +195,11 @@ def build_group_router(ctx: Ctx) -> Router:
                     photo = None
                     continue
                 log.warning("group send failed in %s: %s", chat_id, e)
-                send_errors[chat_id] = str(e)[:120]
+                send_errors[chat_id] = explain(e, "ar")
                 return None
             except (TelegramForbiddenError, TelegramAPIError) as e:
                 log.warning("group send failed in %s: %s", chat_id, e)
-                send_errors[chat_id] = str(e)[:120]
+                send_errors[chat_id] = explain(e, "ar")
                 return None
         return None
 
@@ -873,7 +874,7 @@ def build_group_router(ctx: Ctx) -> Router:
         try:
             m = await c.bot.send_message(chat_id, "✅")
         except TelegramAPIError as e:
-            await c.answer((t(L, "ch_publish_fail") + "\n\n" + str(e))[:200], show_alert=True)
+            await c.answer((t(L, "ch_publish_fail") + "\n\n" + explain(e, L))[:200], show_alert=True)
             return
         try:
             await c.bot.delete_message(chat_id, m.message_id)
