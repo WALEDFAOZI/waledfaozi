@@ -170,6 +170,8 @@ def night_complete(g: Game) -> bool:
     return True
 
 
+MUTED: set[tuple[int, int]] = set()   # (رقم اللعبة، المستخدم) الذين أوقفوا إشعارات أحداث اللعبة في الخاص (بعد موتهم)
+
 POST_ROOT: dict[tuple[int, int], tuple[int, int]] = {}   # (القناة، رقم المنشور) -> (مجموعة التعليقات، نسخة المنشور فيها)
 
 
@@ -233,6 +235,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.news = []
         text = "\n\n".join(sections)
         for uid in list(g.players):
+            if (g.gid, uid) in MUTED:                      # أوقف إشعارات أحداث اللعبة
+                continue
             try:
                 await bot.send_message(uid, text, parse_mode="HTML", protect_content=True)
             except TelegramAPIError:
@@ -283,6 +287,24 @@ def build_mafia_router(ctx: Ctx) -> Router:
         """اللوبي وحده يُعدَّل في مكانه: يعرض المنضمين والعدّاد."""
         if g.live is not None:
             await ledit(bot, g, g.live, text, markup)
+
+    def mute_kb(g: Game, uid: int):
+        """زر «إيقاف إشعارات اللعبة» لمن مات (لا يظهر إن كان أوقف الإشعارات من قبل)."""
+        if (g.gid, uid) in MUTED:
+            return None
+        return kb([btn(t(db.get_lang(uid), "mf_mute_btn"), f"mf:mu:{g.gid}", style="danger")])
+
+    @pm.callback_query(F.data.regexp(r"^mf:mu:\d+$"))
+    async def cb_mute(c: CallbackQuery):
+        """من مات يوقف إشعارات أحداث اللعبة في الخاص (أخبار الجولات، وإعلان الكشف)."""
+        L = db.get_lang(c.from_user.id)
+        gid = int(c.data.split(":")[2])
+        g = next((x for x in games.values() if x.gid == gid), None)
+        if not g or c.from_user.id not in g.players:
+            await c.answer(t(L, "mf_late"), show_alert=True)
+            return
+        MUTED.add((gid, c.from_user.id))
+        await c.answer(t(L, "mf_muted"), show_alert=True)
 
     async def dm(bot: Bot, uid: int, text: str, markup=None) -> bool:
         try:
@@ -605,7 +627,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         except TelegramAPIError:
             pass
         for p in g.players.values():
-            await dm(c.bot, p.uid, text)
+            if (g.gid, p.uid) not in MUTED:                # الإعلان في الخاص: إلا من أوقف الإشعارات
+                await dm(c.bot, p.uid, text)
         await post_discuss(c.bot, g, text)
 
     async def notify_discuss_start(bot: Bot, g: Game, alive: list) -> None:
@@ -680,7 +703,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
             if g.reveal_death:
                 text += "".join("\n" + role_line(g, v) for v in res.victims)
             for v in res.victims:                           # كل قتيل يتلقى رسالته الدرامية في الخاص
-                await dm(bot, g.players[v].uid, t(db.get_lang(g.players[v].uid), "mf_you_died"))
+                await dm(bot, g.players[v].uid, t(db.get_lang(g.players[v].uid), "mf_you_died"), mute_kb(g, g.players[v].uid))
         elif res.saved:
             text = t(L, "mf_morning_saved")
         else:
@@ -812,7 +835,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 last = None
                 if out is not None:
                     g.players[out].alive = False
-                    await dm(bot, out, t(db.get_lang(out), "mf_you_voted"))
+                    await dm(bot, out, t(db.get_lang(out), "mf_you_voted"), mute_kb(g, out))
                     g.last_out = out
                     last = g.players[out].role
                     text = t(L, "mf_executed", name=esc(g.players[out].name))

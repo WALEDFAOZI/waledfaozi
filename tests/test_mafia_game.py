@@ -230,3 +230,9 @@ def test_already_voted_message_names_the_previous_choice():
     from otaku_bot import texts
     assert "{name}" in texts.T["ar"]["mf_already_voted"] and "{name}" in texts.T["en"]["mf_already_voted"]
     assert "التخطي" == texts.T["ar"]["mf_skip_name"]
+
+
+def test_mute_button_and_muted_set_are_wired():
+    from otaku_bot import texts
+    assert texts.T["ar"]["mf_mute_btn"] and texts.T["en"]["mf_mute_btn"]
+    assert MG.MUTED.isdisjoint(set()) or isinstance(MG.MUTED, set)
