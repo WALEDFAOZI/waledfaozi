@@ -501,6 +501,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.voting = False                                    # أُغلق التصويت: لا أصوات بعد الآن
         missed = [p for p in alive_players(g) if p.uid not in g.votes]
         if missed:                                          # من لم يصوّت: صوته يُحسب على نفسه (لا يطرد أحدًا)
+            for p in missed:
+                g.votes[p.uid] = p.uid                      # يُسجَّل فعلًا قبل الحساب، فيظهر له الصوت في النتيجة
             names_missed = "، ".join(esc(p.name) for p in missed)
             await show(bot, g, t(L, "mf_self_votes", names=names_missed), None)
             await post_discuss(bot, g, t(L, "mf_self_votes", names=names_missed))

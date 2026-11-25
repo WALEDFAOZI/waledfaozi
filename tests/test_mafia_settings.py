@@ -170,7 +170,8 @@ def test_vote_results_show_counts_without_naming_voters():
         await gtap(h, a[3], f"mf:v:{g.gid}:0")
         assert await wu(lambda: any("حصيلة الأصوات" in x for x in group_texts(h)), 15)
         res = [x for x in group_texts(h) if "حصيلة الأصوات" in x][-1]
-        assert f"{a[2].first_name}: 2" in res and "تخطّي: 1" in res          # العدد يظهر
+        # a[2] لم يصوّت فصوته يُحسب على نفسه: صوتان من الآخرين + صوته = 3
+        assert f"{a[2].first_name}: 3" in res and "تخطّي: 1" in res          # العدد يظهر
         for voter in a[:2] + [a[3]]:
             assert voter.first_name not in res                              # لا أسماء المصوتين
     run(go())

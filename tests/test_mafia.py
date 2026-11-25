@@ -116,3 +116,12 @@ def test_strike_targets_picks_per_killer_and_caps_small_games():
     assert len(M.strike_targets({}, {1, 2, 3}, rng, True, pool=[1, 2])) == 1
     # لا قاتل حيّ: لا ضربات
     assert M.strike_targets({}, {1, 2, 3}, rng, False, pool=[1, 2]) == []
+
+
+def test_silent_voters_count_for_themselves_in_the_tally():
+    # من لم يصوّت يُحسب صوته على نفسه: يظهر في الحساب، ولا يطرد أحدًا وحده
+    alive = {1, 2, 3, 4, 5}
+    ballots = {1: 2, 3: 2}                    # 4 و5 لم يصوّتا: صوتاهما على نفسيهما
+    ballots.update({4: 4, 5: 5})
+    assert M.vote(alive, ballots) == 2         # الأكثر أصواتًا (صوتان) يُطرد، والصامتون يُحسبون لأنفسهم
+    assert M.vote(alive, {1: 2, 3: 2, 4: 2, 5: 2}) == 2
