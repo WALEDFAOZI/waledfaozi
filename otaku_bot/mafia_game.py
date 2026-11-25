@@ -548,7 +548,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 await post_discuss(bot, g, text)          # القناة: التعليقات (مكان النقاش)، لا القناة نفسها
             else:
                 try:
-                    await bot.send_message(g.chat_id, text, parse_mode="HTML")   # المجموعة: هي مكان النقاش
+                    await send_in_place(bot, g, text)         # المجموعة: هي مكان النقاش، والرد على المنشور
                 except TelegramAPIError:
                     pass
 
@@ -595,7 +595,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         text = t(g.lang, "mf_mayor_revealed", name=esc(m.name))
         # إعلان منفصل: رسالة جديدة في الجروب/القناة، ورسالة في الخاص لكل لاعب (إشعار)، وفي تعليقات المنشور
         try:
-            await c.bot.send_message(g.chat_id, text, parse_mode="HTML")
+            await send_in_place(c.bot, g, text)
         except TelegramAPIError:
             pass
         for p in g.players.values():
@@ -631,6 +631,18 @@ def build_mafia_router(ctx: Ctx) -> Router:
                 pass                                        # لم يبدأ البوت بالخاص
 
     # ── إعلانات ───────────────────────────────────────────
+    async def send_in_place(bot: Bot, g: Game, text: str) -> None:
+        """رسالة في مكان النقاش: في المجموعة ترد على اللعبة (نسخة المنشور في التعليقات) إن كانت مرتبطة بمنشور."""
+        kw = {}
+        if g.reply_to:
+            kw["reply_parameters"] = ReplyParameters(message_id=g.reply_to, allow_sending_without_reply=True)
+        if g.thread:
+            kw["message_thread_id"] = g.thread
+        try:
+            await bot.send_message(g.chat_id, text, parse_mode="HTML", **kw)
+        except TelegramAPIError:
+            pass
+
     async def post_discuss(bot: Bot, g: Game, text: str) -> None:
         """تحديث في تعليقات المنشور نفسه (رد على نسخة المنشور في مجموعة التعليقات، بدون أدوار).
         إن لم يكن البوت رأى نسخة المنشور (مثلًا لم يكن عضوًا وقت نشره) فلا يُرسل شيء."""
