@@ -1237,7 +1237,7 @@ T["ar"]["mf_players_label"] = "المنضمون"
 T["en"]["mf_players_label"] = "Players"
 T["ar"]["mf_join_hint"] = "اضغط «انضم» للدخول،\nاضغط «❓ شرح اللعبة» لتعرف كل شيء."
 T["en"]["mf_join_hint"] = "Tap «Join» to enter, and «❓ How to play» to learn everything."
-T["ar"]["mf_help_btn"] = "❓ شرح اللعبة"
+T["ar"]["mf_help_btn"] = "❓ كيف ألعب؟"
 T["en"]["mf_help_btn"] = "❓ How to play"
 T["ar"]["mf_help_long"] = (
 "🎌 <b>المافيا · دليل اللعبة الكامل</b>\n━━━━━━━━━━━━━━━━\n"
