@@ -446,7 +446,8 @@ def build_mafia_router(ctx: Ctx) -> Router:
         g.night_picks, g.night_actions, g.acted = {}, {}, set()
         L = g.lang
         back = await back_rows(bot, g.chat_id, g.live, L)               # زر العودة إلى رسالة اللعبة
-        await post_discuss(bot, g, t(L, "mf_night_comment", r=g.round))  # إشعار في تعليقات المنشور
+        await post_discuss(bot, g, t(L, "mf_night_comment", r=g.round),   # إشعار في تعليقات المنشور + زر للتوجه للبوت
+                           kb(*await open_private_rows(bot, L)))
         alive = alive_players(g)
         mayor = mayor_of(g)
         mayor_warn = t(L, "mf_mayor_warn", name=esc(mayor.name)) if (mayor and g.mayor_revealed) else ""
@@ -680,7 +681,7 @@ def build_mafia_router(ctx: Ctx) -> Router:
         except TelegramAPIError:
             pass
 
-    async def post_discuss(bot: Bot, g: Game, text: str) -> None:
+    async def post_discuss(bot: Bot, g: Game, text: str, markup=None) -> None:
         """تحديث في تعليقات المنشور نفسه (رد على نسخة المنشور في مجموعة التعليقات، بدون أدوار).
         إن لم يكن البوت رأى نسخة المنشور (مثلًا لم يكن عضوًا وقت نشره) فلا يُرسل شيء."""
         if not g.discuss_post:
@@ -690,20 +691,20 @@ def build_mafia_router(ctx: Ctx) -> Router:
             last = LAST_IN_POST.get((g.chat_id, g.discuss_post))
             if last:
                 try:
-                    await bot.send_message(last[0], text, parse_mode="HTML",
+                    await bot.send_message(last[0], text, parse_mode="HTML", reply_markup=markup,
                                            reply_parameters=ReplyParameters(message_id=last[1], allow_sending_without_reply=False))
                     return
                 except TelegramAPIError:
                     pass
             if g.discuss_group:                            # ما شاف شي بعد: نرسل في مجموعة التعليقات نفسها (بدون رد)
                 try:
-                    await bot.send_message(g.discuss_group, text, parse_mode="HTML")
+                    await bot.send_message(g.discuss_group, text, parse_mode="HTML", reply_markup=markup)
                 except TelegramAPIError:
                     pass
             return
         chat_id, root_mid = root
         try:
-            await bot.send_message(chat_id, text, parse_mode="HTML",
+            await bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=markup,
                                    reply_parameters=ReplyParameters(message_id=root_mid, allow_sending_without_reply=False))
         except TelegramAPIError:
             pass
